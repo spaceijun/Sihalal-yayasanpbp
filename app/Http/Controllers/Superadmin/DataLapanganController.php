@@ -159,7 +159,7 @@ class DataLapanganController extends Controller
     public function updateStatus(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([
-            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH'
+            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH, DITOLAK',
         ]);
 
         $oldStatus = $dataLapangan->status;

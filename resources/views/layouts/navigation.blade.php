@@ -36,13 +36,13 @@
                 <li class="nav-item">
                     <a href="{{ url('superadmin/arus-kas') }}"
                         class="nav-link {{ $current_url == 'superadmin/arus-kas' ? 'active' : '' }}">
-                        <i data-feather="dollar-sign"></i>Arus Kas
+                        <i data-feather="dollar-sign"></i>Cashflows
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/cashflows') }}"
                         class="nav-link {{ $current_url == 'superadmin/cashflows' ? 'active' : '' }}">
-                        <i data-feather="dollar-sign"></i>Cashflows
+                        <i data-feather="dollar-sign"></i>Report Cashflows
                     </a>
                 </li>
 

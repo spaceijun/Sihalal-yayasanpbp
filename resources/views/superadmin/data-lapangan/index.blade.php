@@ -82,21 +82,27 @@
                                             <td>{{ $dataLapangan->nama_pu }}</td>
                                             <td>{{ $dataLapangan->nik }}</td>
                                             <td>
-                                                @if (isset($dataLapangan->status))
+                                                @if ($dataLapangan->status == 'PENDING')
                                                     <span
-                                                        class="badge bg-{{ $dataLapangan->status == 'aktif' ? 'success' : ($dataLapangan->status == 'pending' ? 'warning' : 'secondary') }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $dataLapangan->status)) }}
-                                                    </span>
-                                                @else
-                                                    <span class="badge bg-secondary">-</span>
+                                                        class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
+                                                @elseif($dataLapangan->status == 'PROGRESS OSS')
+                                                    <span class="badge bg-info">{{ $dataLapangan->status }}</span>
+                                                @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
+                                                    <span class="badge bg-primary">{{ $dataLapangan->status }}</span>
+                                                @elseif($dataLapangan->status == 'TERBIT SH')
+                                                    <span class="badge bg-success">{{ $dataLapangan->status }}</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                @if (isset($dataLapangan->status_pembayaran))
+                                                @if ($dataLapangan->status_pembayaran == 'PENDING')
                                                     <span
-                                                        class="badge bg-{{ $dataLapangan->status_pembayaran == 'aktif' ? 'success' : ($dataLapangan->status_pembayaran == 'pending' ? 'warning' : 'secondary') }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $dataLapangan->status_pembayaran)) }}
-                                                    </span>
+                                                        class="badge bg-warning text-dark">{{ $dataLapangan->status_pembayaran }}</span>
+                                                @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
+                                                    <span
+                                                        class="badge bg-info">{{ $dataLapangan->status_pembayaran }}</span>
+                                                @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
+                                                    <span
+                                                        class="badge bg-success">{{ $dataLapangan->status_pembayaran }}</span>
                                                 @endif
                                             </td>
                                             <td>

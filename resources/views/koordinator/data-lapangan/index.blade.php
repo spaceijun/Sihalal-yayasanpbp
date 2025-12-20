@@ -92,6 +92,8 @@
                                                     <span class="badge bg-primary">{{ $dataLapangan->status }}</span>
                                                 @elseif($dataLapangan->status == 'TERBIT SH')
                                                     <span class="badge bg-success">{{ $dataLapangan->status }}</span>
+                                                @elseif($dataLapangan->status == 'DITOLAK')
+                                                    <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
                                                 @endif
                                             </td>
                                             <td>

@@ -43,7 +43,7 @@ return [
     'layout' => 'layouts.app',
 
     'model' => [
-        'namespace' => 'App\Models\Superadmin',
+        'namespace' => 'App\Models',
 
         /*
          * Do not make these columns $fillable in Model or views

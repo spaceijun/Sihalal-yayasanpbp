@@ -1,10 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Superadmin\CashflowController;
+use App\Http\Controllers\Superadmin\DashboardController;
+use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
+use App\Http\Controllers\Superadmin\EnumeratorController;
+use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\UserController;
 use Illuminate\Support\Facades\Route;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,9 +19,28 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
+Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index']);
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Human Resources
+        Route::resource('koordinators', KoordinatorController::class);
+        Route::resource('enumerators', EnumeratorController::class);
+        Route::resource('data-lapangans', DataLapanganController::class);
+        Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])
+            ->name('datalapangan.download-foto-rumah-pdf');
+        Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])
+            ->name('data-lapangans.update-status');
+        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
+        Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
+        // Finance Management
+        Route::resource('arus-kas', CashflowController::class);
+        Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');
+        Route::get('/cashflows', [CashflowController::class, 'cashflows'])->name('cashflow.index');
         // WA Gateway Fonnte
         Route::resource('devices', DeviceController::class);
         Route::post('send-message', [DeviceController::class, 'sendMessage'])->name('send.message');

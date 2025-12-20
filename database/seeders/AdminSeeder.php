@@ -13,7 +13,8 @@ class AdminSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         Role::create(['name' => 'superadmin']);
-        Role::create(['name' => 'users']);
+        Role::create(['name' => 'koordinator']);
+        Role::create(['name' => 'enumerator']);
 
         // Superadmin
         $superadmin = User::create([
@@ -22,24 +23,24 @@ class AdminSeeder extends Seeder
             'telephone' => '085876550051',
             'email_verified_at' => now(),
             'password' => bcrypt('superadmin'),
-            'role' => 'Superadmin',
+            'role' => 'superadmin',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
         $superadmin->assignRole('superadmin');
 
-        // Buat user admin desa
-        $adminDesa = User::create([
-            'name' => 'Users',
-            'email' => 'users@gmail.com',
-            'telephone' => '085876550051',
-            'email_verified_at' => now(),
-            'password' => bcrypt('password'),
-            'role' => 'User',
-            'created_at' => now(),
-            'updated_at' => now(),
+        //     // Buat user admin desa
+        //     $adminDesa = User::create([
+        //         'name' => 'Users',
+        //         'email' => 'users@gmail.com',
+        //         'telephone' => '085876550051',
+        //         'email_verified_at' => now(),
+        //         'password' => bcrypt('password'),
+        //         'role' => 'User',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
 
-        ]);
-        $adminDesa->assignRole('users');
+        //     ]);
+        //     $adminDesa->assignRole('users');
     }
 }

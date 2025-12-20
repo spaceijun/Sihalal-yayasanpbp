@@ -29,10 +29,10 @@ class AuthenticatedSessionController extends Controller
         Session::regenerate();
 
         $url = "dashboard";
-        if (Auth::user()->role == "Admin") {
-            $url = "superadmin/dashboard";
-        } else if (Auth::user()->role == "User") {
-            $url = "superadmin/dashboard";
+        if (Auth::user()->role == "superadmin") {
+            $url = "superadmin";
+        } else if (Auth::user()->role == "sppg") {
+            $url = "sppg/dashboard";
         }
 
         return redirect()->intended($url);

@@ -25,6 +25,7 @@ class CashflowRequest extends FormRequest
             'tipe' => 'required',
             'jumlah' => 'required',
             'keterangan' => 'required|string',
+            'tanggal' => 'required|date',
         ];
     }
 
@@ -39,6 +40,7 @@ class CashflowRequest extends FormRequest
             'tipe.required' => 'Tipe wajib diisi',
             'jumlah.required' => 'Jumlah wajib diisi',
             'keterangan.required' => 'Keterangan wajib diisi',
+            'tanggal.required' => 'Tanggal wajib diisi',
         ];
     }
 }

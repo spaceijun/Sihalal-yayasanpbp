@@ -13,7 +13,12 @@
             </select>
             {!! $errors->first('tipe', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
-
+        <div class="form-group mb-2 mb20">
+            <label for="tanggal" class="form-label">{{ __('Tanggal') }}</label>
+            <input type="date" name="tanggal" class="form-control @error('tanggal') is-invalid @enderror"
+                value="{{ old('tanggal', $cashflow?->tanggal) }}" id="tanggal" placeholder="tanggal">
+            {!! $errors->first('tanggal', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+        </div>
         <div class="form-group mb-2 mb20">
             <label for="jumlah" class="form-label">{{ __('Jumlah') }}</label>
             <input type="number" name="jumlah" class="form-control @error('jumlah') is-invalid @enderror"

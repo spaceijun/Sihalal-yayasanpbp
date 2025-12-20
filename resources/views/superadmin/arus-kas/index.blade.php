@@ -47,6 +47,7 @@
 
                                         <th>Tipe</th>
                                         <th>Jumlah</th>
+                                        <th>Tanggal</th>
                                         <th>Keterangan</th>
 
                                         <th></th>
@@ -69,6 +70,7 @@
                                                 @endif
                                             </td>
                                             <td>Rp. {{ number_format($cashflow->jumlah, 0, ',', '.') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($cashflow->tanggal)->format('d M Y') }}</td>
                                             <td>{!! $cashflow->keterangan !!}</td>
 
                                             <td>

@@ -25,9 +25,9 @@ return new class extends Migration
             $table->string('foto_pendamping');
             $table->string('foto_proses');
             $table->string('foto_produk');
-            $table->enum('status', ['PENDING', 'PROGRESS OSS', 'PROGRESS SIHALAL', 'TERBIT SH'])->default('PENDING')->after('foto_produk');
-            $table->string('file_oss')->nullable()->after('status');
-            $table->string('file_sihalal')->nullable()->after('file_oss');
+            $table->enum('status', ['PENDING', 'PROGRESS OSS', 'PROGRESS SIHALAL', 'TERBIT SH'])->default('PENDING');
+            $table->string('file_oss')->nullable();
+            $table->string('file_sihalal')->nullable();
 
             $table->timestamps();
         });

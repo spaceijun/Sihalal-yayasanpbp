@@ -17,10 +17,10 @@
                             </span>
 
                             <div class="float-right">
-                                <a href="{{ route('superadmin.data-lapangans.create') }}"
+                                {{-- <a href="{{ route('superadmin.data-lapangans.create') }}"
                                     class="btn btn-primary btn-sm float-right" data-placement="left">
                                     {{ __('Create New') }}
-                                </a>
+                                </a> --}}
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,8 @@
                                 <tbody>
                                     @forelse ($dataLapangans as $dataLapangan)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
+                                            <td>{{ $dataLapangans->firstItem() + $loop->index }}</td>
+                                            </td>
                                             <td>{{ $dataLapangan->enumerator->nama_lengkap }}</td>
                                             <td>{{ $dataLapangan->nama_pu }}</td>
                                             <td>{{ $dataLapangan->nik }}</td>
@@ -100,25 +101,12 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <form
-                                                    action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->id) }}"
-                                                    method="POST">
-                                                    <a class="btn btn-sm btn-primary"
-                                                        href="{{ route('superadmin.data-lapangans.show', $dataLapangan->id) }}"><i
-                                                            class="las la-eye"></i> {{ __('Show') }}</a>
-
-                                                    <a class="btn btn-sm btn-success"
-                                                        href="{{ route('superadmin.data-lapangans.edit', $dataLapangan->id) }}"><i
-                                                            class="las la-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i
-                                                            class="las la-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
+                                                <a class="btn btn-sm btn-primary"
+                                                    href="{{ route('koordinator.data-lapangan.show', $dataLapangan->id) }}"><i
+                                                        class="las la-eye"></i> {{ __('Show') }}</a>
                                             </td>
                                         </tr>
-                                        @include('superadmin.data-lapangan.partials.modal-data-lapangan')
+                                        {{-- @include('superadmin.data-lapangan.partials.modal-data-lapangan') --}}
                                     @empty
                                         <tr>
                                             <td colspan="100%" class="text-center py-4">

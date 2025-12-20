@@ -14,8 +14,8 @@
                                         <div class="position-relative h-100 d-flex flex-column">
                                             <div class="mb-4">
                                                 <a href="/" class="d-block">
-                                                    <img src="{{ asset('assets/images/logo-light.png') }}" alt="Logo"
-                                                        height="18">
+                                                    <img src="{{ asset('assets/images/logo-pbp.png') }}" alt="Logo"
+                                                        height="100">
                                                 </a>
                                             </div>
                                             <div class="mt-auto">
@@ -54,12 +54,34 @@
                                 <!-- Form -->
                                 <div class="col-lg-6">
                                     <div class="p-lg-5 p-4">
+                                        <!-- SUCCESS MESSAGE -->
+                                        @if (session('success'))
+                                            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show"
+                                                role="alert">
+                                                <i class="ri-check-double-line label-icon"></i><strong>Berhasil!</strong>
+                                                {{ session('success') }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        @endif
+
+                                        <!-- ERROR MESSAGE -->
+                                        @if (session('error'))
+                                            <div class="alert alert-danger alert-dismissible alert-label-icon label-arrow fade show"
+                                                role="alert">
+                                                <i class="ri-error-warning-line label-icon"></i><strong>Gagal!</strong>
+                                                {{ session('error') }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        @endif
+
                                         <div>
                                             <h5 class="text-primary">Form Data Lapangan</h5>
                                             <p class="text-muted">Lengkapi data lapangan dengan detail.</p>
                                         </div>
                                         <form method="POST" action="{{ route('formulir.halal.store') }}"
-                                            enctype="multipart/form-data" class="mt-4">
+                                            enctype="multipart/form-data" class="mt-4" id="formDataLapangan">
                                             @csrf
 
                                             <!-- Enumerator -->
@@ -87,25 +109,31 @@
                                                 <label for="nama_pu" class="form-label">Nama PU <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" id="nama_pu" name="nama_pu"
-                                                    class="form-control @error('nama_pu') is-invalid @enderror"
+                                                    class="form-control text-uppercase @error('nama_pu') is-invalid @enderror"
                                                     value="{{ old('nama_pu') }}" required autofocus
-                                                    placeholder="Masukkan nama PU">
+                                                    placeholder="Masukkan nama PU" style="text-transform: uppercase;">
+                                                <small class="text-muted">Nama akan otomatis diubah ke huruf besar</small>
                                                 @error('nama_pu')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- NIK -->
+                                            <!-- NIK with Validation -->
                                             <div class="mb-3">
                                                 <label for="nik" class="form-label">NIK <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" id="nik" name="nik"
                                                     class="form-control @error('nik') is-invalid @enderror"
                                                     value="{{ old('nik') }}" required
-                                                    placeholder="Masukkan NIK (16 digit)" maxlength="16">
+                                                    placeholder="Masukkan NIK (16 digit)" maxlength="16" pattern="[0-9]{16}"
+                                                    inputmode="numeric">
+                                                <small class="text-muted" id="nikCounter">0/16 digit</small>
                                                 @error('nik')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
+                                                <div class="invalid-feedback" id="nikError">
+                                                    NIK harus tepat 16 digit angka
+                                                </div>
                                             </div>
 
                                             <!-- RT & RW -->
@@ -114,7 +142,7 @@
                                                     <div class="mb-3">
                                                         <label for="rt" class="form-label">RT <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" id="rt" name="rt"
+                                                        <input type="number" id="rt" name="rt"
                                                             class="form-control @error('rt') is-invalid @enderror"
                                                             value="{{ old('rt') }}" required placeholder="RT">
                                                         @error('rt')
@@ -126,7 +154,7 @@
                                                     <div class="mb-3">
                                                         <label for="rw" class="form-label">RW <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" id="rw" name="rw"
+                                                        <input type="number" id="rw" name="rw"
                                                             class="form-control @error('rw') is-invalid @enderror"
                                                             value="{{ old('rw') }}" required placeholder="RW">
                                                         @error('rw')
@@ -233,7 +261,7 @@
 
                                             <!-- Submit Button -->
                                             <div class="mt-4">
-                                                <button class="btn btn-success w-100" type="submit">
+                                                <button class="btn btn-success w-100" type="submit" id="submitBtn">
                                                     <i class="ri-save-line me-1"></i> Simpan Data
                                                 </button>
                                             </div>
@@ -256,4 +284,168 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nikInput = document.getElementById('nik');
+            const nikCounter = document.getElementById('nikCounter');
+            const nikError = document.getElementById('nikError');
+            const form = document.getElementById('formDataLapangan');
+            const submitBtn = document.getElementById('submitBtn');
+            const namaPuInput = document.getElementById('nama_pu');
+
+            // ============================================
+            // AUTO HIDE SUCCESS/ERROR ALERTS
+            // ============================================
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                alerts.forEach(alert => {
+                    // Auto hide after 5 seconds
+                    setTimeout(() => {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }, 5000);
+                });
+            }
+
+            // ============================================
+            // NAMA PU - AUTO UPPERCASE
+            // ============================================
+            namaPuInput.addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase();
+            });
+
+            namaPuInput.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    this.value = this.value.toUpperCase();
+                }, 10);
+            });
+
+            // ============================================
+            // NIK VALIDATION
+            // ============================================
+
+            nikInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+
+                const length = this.value.length;
+                nikCounter.textContent = `${length}/16 digit`;
+
+                if (length === 16) {
+                    nikCounter.classList.remove('text-muted', 'text-danger');
+                    nikCounter.classList.add('text-success');
+                    nikInput.classList.remove('is-invalid');
+                    nikInput.classList.add('is-valid');
+                } else if (length > 0) {
+                    nikCounter.classList.remove('text-muted', 'text-success');
+                    nikCounter.classList.add('text-danger');
+                    nikInput.classList.remove('is-valid');
+                } else {
+                    nikCounter.classList.remove('text-success', 'text-danger');
+                    nikCounter.classList.add('text-muted');
+                    nikInput.classList.remove('is-valid', 'is-invalid');
+                }
+            });
+
+            nikInput.addEventListener('keypress', function(e) {
+                if (e.key < '0' || e.key > '9') {
+                    e.preventDefault();
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                const nikValue = nikInput.value;
+
+                if (nikValue.length !== 16) {
+                    e.preventDefault();
+                    nikInput.classList.add('is-invalid');
+                    nikError.style.display = 'block';
+
+                    nikInput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    nikInput.focus();
+
+                    // Show toast notification
+                    showToast('error', 'NIK harus tepat 16 digit!');
+                    return false;
+                }
+
+                // Disable submit button to prevent double submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+            });
+
+            nikInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                const numericData = pastedData.replace(/[^0-9]/g, '').slice(0, 16);
+                this.value = numericData;
+
+                const event = new Event('input', {
+                    bubbles: true
+                });
+                this.dispatchEvent(event);
+            });
+
+            // ============================================
+            // IMAGE FILE VALIDATION
+            // ============================================
+            const imageInputs = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_proses', 'foto_produk'];
+
+            imageInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // Check file size (2MB = 2097152 bytes)
+                            if (file.size > 2097152) {
+                                showToast('error',
+                                    `Ukuran file ${inputId.replace(/_/g, ' ')} maksimal 2MB!`);
+                                this.value = '';
+                                return;
+                            }
+
+                            // Check file type
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                            if (!allowedTypes.includes(file.type)) {
+                                showToast('error',
+                                    `Format file ${inputId.replace(/_/g, ' ')} harus JPG, JPEG, atau PNG!`
+                                );
+                                this.value = '';
+                                return;
+                            }
+                        }
+                    });
+                }
+            });
+
+            // ============================================
+            // TOAST NOTIFICATION FUNCTION
+            // ============================================
+            function showToast(type, message) {
+                // You can use SweetAlert2 or custom toast here
+                // For now, using alert as fallback
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: type,
+                        title: type === 'success' ? 'Berhasil!' : 'Gagal!',
+                        text: message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    alert(message);
+                }
+            }
+        });
+    </script>
 @endsection

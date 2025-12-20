@@ -8,7 +8,20 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                @include('layouts.messages')
+                <!-- Alert Messages -->
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <div class="card">
                     <div class="card-header">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -18,8 +31,8 @@
                             </span>
 
                             <div class="float-right">
-                                <a href="{{ route('superadmin.arus-kas.create') }}" class="btn btn-primary btn-sm float-right"
-                                    data-placement="left">
+                                <a href="{{ route('superadmin.arus-kas.create') }}"
+                                    class="btn btn-primary btn-sm float-right" data-placement="left">
                                     {{ __('Create New') }}
                                 </a>
                             </div>
@@ -44,8 +57,18 @@
                                         <tr>
                                             <td>{{ ++$i }}</td>
 
-                                            <td>{{ $cashflow->tipe }}</td>
-                                            <td>{{ $cashflow->jumlah }}</td>
+                                            <td>
+                                                @if ($cashflow->tipe == 'Pemasukan')
+                                                    <span class="badge bg-success">{{ ucfirst($cashflow->tipe) }}</span>
+                                                @elseif($cashflow->tipe == 'Pengeluaran')
+                                                    <span class="badge bg-danger">{{ ucfirst($cashflow->tipe) }}</span>
+                                                @elseif($cashflow->tipe == 'Kas')
+                                                    <span class="badge bg-warning">{{ ucfirst($cashflow->tipe) }}</span>
+                                                @else
+                                                    <span class="badge bg-info">{{ ucfirst($cashflow->tipe) }}</span>
+                                                @endif
+                                            </td>
+                                            <td>Rp. {{ number_format($cashflow->jumlah, 0, ',', '.') }}</td>
                                             <td>{!! $cashflow->keterangan !!}</td>
 
                                             <td>

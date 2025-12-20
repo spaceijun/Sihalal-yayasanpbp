@@ -31,8 +31,8 @@ class AuthenticatedSessionController extends Controller
         $url = "dashboard";
         if (Auth::user()->role == "superadmin") {
             $url = "superadmin";
-        } else if (Auth::user()->role == "sppg") {
-            $url = "sppg/dashboard";
+        } else if (Auth::user()->role == "koordinator") {
+            $url = "koordinator";
         }
 
         return redirect()->intended($url);

@@ -22,9 +22,23 @@ class CashflowRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'tipe' => 'required',
-			'jumlah' => 'required',
-			'keterangan' => 'required|string',
+            'tipe' => 'required',
+            'jumlah' => 'required',
+            'keterangan' => 'required|string',
+        ];
+    }
+
+    /**
+     * Mengembalikan pesan error untuk validasi form.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'tipe.required' => 'Tipe wajib diisi',
+            'jumlah.required' => 'Jumlah wajib diisi',
+            'keterangan.required' => 'Keterangan wajib diisi',
         ];
     }
 }

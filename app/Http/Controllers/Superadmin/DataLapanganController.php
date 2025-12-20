@@ -136,6 +136,26 @@ class DataLapanganController extends Controller
         return redirect()->back()->with('error', 'File tidak ditemukan');
     }
 
+    /**
+     * Update the status of a data lapangan.
+     *
+     * @param Request $request
+     * @param DataLapangan $dataLapangan
+     * @return RedirectResponse
+     */
+    /**
+     * Validate the request data.
+     *
+     * @param Request $request
+     * @return void
+     */
+    /**
+     * Update the status of a data lapangan.
+     *
+     * @param DataLapangan $dataLapangan
+     * @param string $newStatus
+     * @return void
+     */
     public function updateStatus(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([
@@ -164,7 +184,9 @@ class DataLapanganController extends Controller
         // Handle foto_ktp
         if ($request->hasFile('foto_ktp')) {
             $image = $request->file('foto_ktp');
-            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            // Sanitasi nama file - hapus karakter spesial
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-ktp', $imageName, 'public');
             $validatedData['foto_ktp'] = 'foto-ktp/' . $imageName;
         }
@@ -172,7 +194,8 @@ class DataLapanganController extends Controller
         // Handle foto_rumah
         if ($request->hasFile('foto_rumah')) {
             $image = $request->file('foto_rumah');
-            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-rumah', $imageName, 'public');
             $validatedData['foto_rumah'] = 'foto-rumah/' . $imageName;
         }
@@ -180,7 +203,8 @@ class DataLapanganController extends Controller
         // Handle foto_pendamping
         if ($request->hasFile('foto_pendamping')) {
             $image = $request->file('foto_pendamping');
-            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-pendamping', $imageName, 'public');
             $validatedData['foto_pendamping'] = 'foto-pendamping/' . $imageName;
         }
@@ -188,7 +212,8 @@ class DataLapanganController extends Controller
         // Handle foto_proses
         if ($request->hasFile('foto_proses')) {
             $image = $request->file('foto_proses');
-            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-proses', $imageName, 'public');
             $validatedData['foto_proses'] = 'foto-proses/' . $imageName;
         }
@@ -196,7 +221,8 @@ class DataLapanganController extends Controller
         // Handle foto_produk
         if ($request->hasFile('foto_produk')) {
             $image = $request->file('foto_produk');
-            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-produk', $imageName, 'public');
             $validatedData['foto_produk'] = 'foto-produk/' . $imageName;
         }
@@ -204,8 +230,27 @@ class DataLapanganController extends Controller
         DataLapangan::create($validatedData);
 
         return Redirect::route('formulir.halal')
-            ->with('success', 'DataLapangan created successfully.');
+            ->with('success', 'Data lapangan berhasil disimpan!');;
     }
+
+    public function updateStatusPayment(Request $request, DataLapangan $dataLapangan)
+    {
+        $request->validate([
+            'status_pembayaran' => 'required|in:PENDING,PENGAJUAN,DIBAYAR'
+        ]);
+
+        $oldStatus = $dataLapangan->status_pembayaran;
+        $newStatus = $request->status_pembayaran;
+        // Update status
+        $dataLapangan->status_pembayaran = $newStatus;
+        $dataLapangan->save();
+
+        // Buat pesan success
+        $message = "Status Pembayaran berhasil diubah dari <strong>{$oldStatus}</strong> menjadi <strong>{$newStatus}</strong>";
+
+        return redirect()->back()->with('success', $message);
+    }
+
 
     /**
      * Display the specified resource.
@@ -243,7 +288,7 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findOrFail($id);
 
         // Path foto rumah
-        $fotoPath = storage_path('storage/' . $dataLapangan->foto_rumah);
+        $fotoPath = storage_path('app/public/' . $dataLapangan->foto_rumah);
 
         // Check if file exists
         if (!file_exists($fotoPath)) {
@@ -263,7 +308,7 @@ class DataLapanganController extends Controller
         ];
 
         // Generate PDF
-        $pdf = Pdf::loadView('superadmin.data-lapangan.foto-rumah-pdf', $data);
+        $pdf = Pdf::loadView('superadmin.data-lapangan.partials.foto-rumah-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
         // Download PDF

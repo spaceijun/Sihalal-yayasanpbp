@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cashflows', function (Blueprint $table) {
+        Schema::create('cashflows_koordinators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('data_lapangan_id')->nullable()->constrained('data_lapangans')->onDelete('cascade');
-            $table->enum('tipe', ['Pemasukan', 'Pengeluaran', 'Kas']);
-            $table->decimal('jumlah', 20, 2);
-            $table->text('keterangan');
+            $table->foreignId('data_lapangan_id')->constrained('data_lapangans')->onDelete('cascade');
+            $table->enum('tipe', ['PEMASUKAN', 'PENGELUARAN']);
+            $table->decimal('nominal', 15, 2);
+            $table->text('keterangan')->nullable();
             $table->date('tanggal');
             $table->timestamps();
         });
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cashflows');
+        Schema::dropIfExists('cashflows_koordinators');
     }
 };

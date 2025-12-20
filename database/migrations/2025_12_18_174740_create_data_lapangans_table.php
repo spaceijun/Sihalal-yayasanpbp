@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('foto_proses');
             $table->string('foto_produk');
             $table->enum('status', ['PENDING', 'PROGRESS OSS', 'PROGRESS SIHALAL', 'TERBIT SH'])->default('PENDING');
+            $table->enum('status_pembayaran', ['PENDING', 'PENGAJUAN ', 'DIBAYAR'])->default('PENDING');
             $table->string('file_oss')->nullable();
             $table->string('file_sihalal')->nullable();
 

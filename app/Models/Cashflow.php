@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Cashflow extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -27,7 +27,5 @@ class Cashflow extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['tipe', 'jumlah', 'keterangan'];
-
-
+    protected $fillable = ['data_lapangan_id', 'tipe', 'jumlah', 'keterangan', 'tanggal'];
 }

@@ -61,33 +61,8 @@
                         <i data-feather="users"></i>Manajemen Pengguna
                     </a>
                 </li>
-            @elseif($role == 'User')
-                {{-- Menu Khusus User --}}
-                <li class="nav-item">
-                    <a href="{{ url('superuser/dashboard') }}"
-                        class="nav-link {{ $current_url == 'superuser/dashboard' ? 'active' : '' }}">
-                        <i data-feather="home"></i>Beranda
-                    </a>
-                </li>
-                <li class="menu-title"><span data-key="t-menu">Menu Utama</span></li>
-                <li class="nav-item">
-                    <a href="{{ url('superuser/profile') }}"
-                        class="nav-link {{ $current_url == 'superuser/profile' ? 'active' : '' }}">
-                        <i data-feather="superuser"></i>Profil Saya
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('superuser/activities') }}"
-                        class="nav-link {{ $current_url == 'superuser/activities' ? 'active' : '' }}">
-                        <i data-feather="activity"></i>Aktivitas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('superuser/notifications') }}"
-                        class="nav-link {{ $current_url == 'superuser/notifications' ? 'active' : '' }}">
-                        <i data-feather="bell"></i>Notifikasi
-                    </a>
-                </li>
+            @elseif ($role == 'koordinator')
+                @include('layouts.navigation-koordinator')
             @endif
 
             {{-- Menu yang tersedia untuk semua role --}}

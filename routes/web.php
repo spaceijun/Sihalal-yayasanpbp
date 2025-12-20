@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
+use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
+use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
+use App\Http\Controllers\Koordinator\DataPendampingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
@@ -35,6 +39,9 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             ->name('datalapangan.download-foto-rumah-pdf');
         Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])
             ->name('data-lapangans.update-status');
+        Route::post('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])
+            ->name('data-lapangans.update-status-payment');
+
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         // Finance Management
@@ -64,5 +71,33 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
     //     return view('superadmin.home.index')->name('superadmin.index');
     // });
 });
+/**
+ * Koordinator Routes
+ */
+Route::middleware('auth', 'role:koordinator')->group(function () {
+    Route::prefix('koordinator')->name('koordinator.')->group(function () {
+        Route::get('dashboard', [KoordinatorDashboardController::class, 'index']);
+        Route::get('/', [KoordinatorDashboardController::class, 'index'])->name('dashboard');
+
+        // Data Lapangan
+        Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
+        // Data Pendamping
+        // Data Pendamping
+        Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
+        Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
+        // settings
+        Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
+        // Profile
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+    Route::view('superadmin/dashboard', 'superadmin.home.index');
+    // Route::get('/', function () {
+    //     return view('superadmin.home.index')->name('superadmin.index');
+    // });
+});
+
 
 require __DIR__ . '/auth.php';

@@ -88,12 +88,12 @@
 </head>
 
 <body>
-    <div class="header">
+    {{-- <div class="header">
         <h1>DOKUMENTASI FOTO RUMAH</h1>
         <p>Data Lapangan Usaha Produktif</p>
-    </div>
+    </div> --}}
 
-    <div class="info-section">
+    {{-- <div class="info-section">
         <div class="info-row">
             <div class="info-label">Nama PU:</div>
             <div class="info-value">{{ $dataLapangan->nama_pu }}</div>
@@ -118,17 +118,17 @@
             <div class="info-label">Status:</div>
             <div class="info-value">{{ $dataLapangan->status }}</div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="foto-container">
         <div class="foto-label">FOTO RUMAH</div>
         <img src="{{ $imageSrc }}" alt="Foto Rumah {{ $dataLapangan->nama_pu }}">
     </div>
 
-    <div class="footer">
+    {{-- <div class="footer">
         <p>Dicetak pada: {{ $tanggal_cetak }}</p>
         <p>Dokumen ini digenerate secara otomatis oleh sistem</p>
-    </div>
+    </div> --}}
 </body>
 
 </html>

@@ -61,7 +61,7 @@
                                 <div class="col-lg-6">
                                     <div class="p-lg-5 p-4">
                                         <div>
-                                            <h5 class="text-primary">Selamat Datang Kembali!</h5>
+                                            <h5 class="text-primary">Yayasan Permata Bakti Pertiwi</h5>
                                             <p class="text-muted">Silakan login untuk melanjutkan ke akun Anda.</p>
                                         </div>
 
@@ -130,7 +130,7 @@
                                                     <button class="btn btn-success w-100" type="submit">Masuk</button>
                                                 </div>
 
-                                                <div class="mt-4 text-center">
+                                                {{-- <div class="mt-4 text-center">
                                                     <div class="signin-other-title">
                                                         <h5 class="fs-13 mb-4 title">Masuk dengan</h5>
                                                     </div>
@@ -149,15 +149,15 @@
                                                             class="btn btn-info btn-icon waves-effect waves-light"><i
                                                                 class="ri-twitter-fill fs-16"></i></button>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </form>
                                         </div>
 
-                                        <div class="mt-5 text-center">
+                                        {{-- <div class="mt-5 text-center">
                                             <p class="mb-0">Belum memiliki akun? <a href="{{ route('register') }}"
                                                     class="fw-semibold text-primary text-decoration-underline">Daftar</a>
                                             </p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                                 <!-- end col -->
@@ -183,7 +183,7 @@
                             <p class="mb-0">&copy;
                                 <script>
                                     document.write(new Date().getFullYear())
-                                </script> Your Company. All Rights Reserved.
+                                </script> Yayasan Permata Bakti Pertiwi. All Rights Reserved.
                             </p>
                         </div>
                     </div>

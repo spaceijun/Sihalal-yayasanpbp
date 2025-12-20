@@ -46,6 +46,8 @@
                                         </option>
                                         <option value="Terbit SH" {{ request('status') == 'Terbit SH' ? 'selected' : '' }}>
                                             Terbit SH</option>
+                                        <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>
+                                            Ditolak</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4 d-flex align-items-end">

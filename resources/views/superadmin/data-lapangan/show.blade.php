@@ -65,6 +65,9 @@
                                             {{ $dataLapangan->status == 'TERBIT SH' ? 'selected' : '' }}>
                                             TERBIT SH
                                         </option>
+                                        <option value="DITOLAK" {{ $dataLapangan->status == 'DITOLAK' ? 'selected' : '' }}>
+                                            DITOLAK
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">

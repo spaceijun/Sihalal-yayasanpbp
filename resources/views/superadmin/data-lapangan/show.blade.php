@@ -47,7 +47,6 @@
                             @csrf
                             <div class="row align-items-end">
                                 <div class="col-md-8">
-                                    {{-- <label for="" class="form-label fw-bold">Pilih Status</label> --}}
                                     <select name="status" id="" class="form-select" required>
                                         <option value="">-- Pilih Status --</option>
                                         <option value="PENDING" {{ $dataLapangan->status == 'PENDING' ? 'selected' : '' }}>
@@ -161,53 +160,69 @@
                         <span>Dokumentasi Foto</span>
                     </div>
                     <div class="card-body">
+                        <!-- Foto KTP -->
                         <div class="form-group mb-3">
-                            <strong>Foto KTP</strong>
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_ktp) }}" alt="Foto KTP"
-                                    class="img-fluid rounded border"
-                                    style="max-height: 180px; width: 100%; object-fit: cover; cursor: pointer;"
-                                    onclick="openImageModal(this.src)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto KTP</strong>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoKTP">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                                        class="btn btn-primary btn-sm">Download PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Foto Rumah -->
+                        <div class="form-group mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Rumah</strong>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoRumah">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
                             </div>
                         </div>
 
+                        <hr>
+
+                        <!-- Foto Pendamping -->
                         <div class="form-group mb-3">
-                            <strong>Foto Rumah</strong>
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_rumah) }}" alt="Foto Rumah"
-                                    class="img-fluid rounded border"
-                                    style="max-height: 180px; width: 100%; object-fit: cover; cursor: pointer;"
-                                    onclick="openImageModal(this.src)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Pendamping</strong>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoPendamping">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
                             </div>
                         </div>
 
+                        <hr>
+
+                        <!-- Foto Proses -->
                         <div class="form-group mb-3">
-                            <strong>Foto Pendamping</strong>
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_pendamping) }}" alt="Foto Pendamping"
-                                    class="img-fluid rounded border"
-                                    style="max-height: 180px; width: 100%; object-fit: cover; cursor: pointer;"
-                                    onclick="openImageModal(this.src)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Proses</strong>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoProses">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
                             </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <strong>Foto Proses</strong>
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
-                                    class="img-fluid rounded border"
-                                    style="max-height: 180px; width: 100%; object-fit: cover; cursor: pointer;"
-                                    onclick="openImageModal(this.src)">
-                            </div>
-                        </div>
+                        <hr>
 
+                        <!-- Foto Produk -->
                         <div class="form-group mb-0">
-                            <strong>Foto Produk</strong>
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_produk) }}" alt="Foto Produk"
-                                    class="img-fluid rounded border"
-                                    style="max-height: 180px; width: 100%; object-fit: cover; cursor: pointer;"
-                                    onclick="openImageModal(this.src)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Produk</strong>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoProduk">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -230,7 +245,7 @@
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="deleteFile('{{ $dataLapangan->id }}', 'oss')">
-                                        <i class="fas fa-trash">Delete File</i>
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             @else
@@ -270,7 +285,7 @@
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="deleteFile('{{ $dataLapangan->id }}', 'sihalal')">
-                                        <i class="fas fa-trash">Delete File</i>
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             @else
@@ -302,16 +317,106 @@
         </div>
     </section>
 
-    <!-- Modal untuk melihat gambar lebih besar -->
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal Foto KTP -->
+    <div class="modal fade" id="modalFotoKTP" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Preview Foto</h5>
+                    <h5 class="modal-title">Foto KTP</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img src="" id="modalImage" class="img-fluid rounded">
+                <div class="modal-body text-center p-3">
+                    <img src="{{ asset('storage/' . $dataLapangan->foto_ktp) }}" alt="Foto KTP"
+                        class="img-fluid rounded" style="max-height: 500px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto Rumah -->
+    <div class="modal fade" id="modalFotoRumah" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto Rumah</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img src="{{ asset('storage/' . $dataLapangan->foto_rumah) }}" alt="Foto Rumah"
+                        class="img-fluid rounded" style="max-height: 500px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto Pendamping -->
+    <div class="modal fade" id="modalFotoPendamping" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto Pendamping</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img src="{{ asset('storage/' . $dataLapangan->foto_pendamping) }}" alt="Foto Pendamping"
+                        class="img-fluid rounded" style="max-height: 500px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto Proses -->
+    <div class="modal fade" id="modalFotoProses" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto Proses</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
+                        class="img-fluid rounded" style="max-height: 500px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto Produk -->
+    <div class="modal fade" id="modalFotoProduk" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img src="{{ asset('storage/' . $dataLapangan->foto_produk) }}" alt="Foto Produk"
+                        class="img-fluid rounded" style="max-height: 500px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
                 </div>
             </div>
         </div>
@@ -320,27 +425,18 @@
 
 @section('scripts')
     <script>
-        function openImageModal(imageSrc) {
-            document.getElementById('modalImage').src = imageSrc;
-            var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-            imageModal.show();
-        }
-
         function deleteFile(id, fileType) {
             if (confirm('Apakah Anda yakin ingin menghapus file ini?')) {
-                // Create form and submit
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `{{ url('superadmin/data-lapangans') }}/${id}/delete-file`;
 
-                // Add CSRF token
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
 
-                // Add file type
                 const fileTypeInput = document.createElement('input');
                 fileTypeInput.type = 'hidden';
                 fileTypeInput.name = 'file_type';
@@ -364,14 +460,12 @@
         function validatePdfFile(input) {
             const file = input.files[0];
             if (file) {
-                // Check file type
                 if (file.type !== 'application/pdf') {
                     alert('File harus berformat PDF!');
                     input.value = '';
                     return false;
                 }
 
-                // Check file size (5MB = 5 * 1024 * 1024 bytes)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Ukuran file maksimal 5MB!');
                     input.value = '';

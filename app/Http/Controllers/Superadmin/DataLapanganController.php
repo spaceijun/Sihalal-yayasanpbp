@@ -165,15 +165,15 @@ class DataLapanganController extends Controller
         if ($request->hasFile('foto_ktp')) {
             $image = $request->file('foto_ktp');
             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-            $image->storeAs('ktp', $imageName, 'public');
-            $validatedData['foto_ktp'] = 'fotoktp/' . $imageName;
+            $image->storeAs('foto-ktp', $imageName, 'public');
+            $validatedData['foto_ktp'] = 'foto-ktp/' . $imageName;
         }
 
         // Handle foto_rumah
         if ($request->hasFile('foto_rumah')) {
             $image = $request->file('foto_rumah');
             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-            $image->storeAs('rumah', $imageName, 'public');
+            $image->storeAs('foto-rumah', $imageName, 'public');
             $validatedData['foto_rumah'] = 'foto-rumah/' . $imageName;
         }
 
@@ -181,7 +181,7 @@ class DataLapanganController extends Controller
         if ($request->hasFile('foto_pendamping')) {
             $image = $request->file('foto_pendamping');
             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-            $image->storeAs('pendamping', $imageName, 'public');
+            $image->storeAs('foto-pendamping', $imageName, 'public');
             $validatedData['foto_pendamping'] = 'foto-pendamping/' . $imageName;
         }
 
@@ -189,7 +189,7 @@ class DataLapanganController extends Controller
         if ($request->hasFile('foto_proses')) {
             $image = $request->file('foto_proses');
             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-            $image->storeAs('proses', $imageName, 'public');
+            $image->storeAs('foto-proses', $imageName, 'public');
             $validatedData['foto_proses'] = 'foto-proses/' . $imageName;
         }
 
@@ -197,7 +197,7 @@ class DataLapanganController extends Controller
         if ($request->hasFile('foto_produk')) {
             $image = $request->file('foto_produk');
             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-            $image->storeAs('produk', $imageName, 'public');
+            $image->storeAs('foto-produk', $imageName, 'public');
             $validatedData['foto_produk'] = 'foto-produk/' . $imageName;
         }
 

@@ -20,9 +20,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', function () {
+    return view('auth.login');
+});
 Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
 Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
 

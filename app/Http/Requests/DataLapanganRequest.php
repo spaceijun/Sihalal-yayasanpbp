@@ -29,11 +29,11 @@ class DataLapanganRequest extends FormRequest
             'rw' => 'required|string',
             'alamat' => 'required|string',
             'titik_koordinat' => 'required|string',
-            'foto_ktp' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'foto_rumah' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'foto_pendamping' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'foto_proses' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'foto_ktp' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'foto_rumah' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'foto_pendamping' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'foto_proses' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ];
     }
 

@@ -41,7 +41,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             ->name('data-lapangans.update-status');
         Route::post('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])
             ->name('data-lapangans.update-status-payment');
-
+        Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         // Finance Management

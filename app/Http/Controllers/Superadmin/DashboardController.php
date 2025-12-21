@@ -18,6 +18,12 @@ class DashboardController extends Controller
         $totalDataKoordinator = Koordinator::count();
         $totalDataEnumerator = Enumerator::count();
         $totalDataLapangan = DataLapangan::count();
-        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan'));
+
+        $latestData = DataLapangan::with('enumerator')
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
+
+        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestData'));
     }
 }

@@ -159,7 +159,7 @@ class DataLapanganController extends Controller
     public function updateStatus(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([
-            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH, DITOLAK',
+            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH,DITOLAK',
         ]);
 
         $oldStatus = $dataLapangan->status;
@@ -173,6 +173,26 @@ class DataLapanganController extends Controller
         $message = "Status berhasil diubah dari <strong>{$oldStatus}</strong> menjadi <strong>{$newStatus}</strong>";
 
         return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Update the keterangan of a data lapangan.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function updateKeterangan(Request $request, $id)
+    {
+        $request->validate([
+            'keterangan' => 'nullable|string|max:1000'
+        ]);
+
+        $dataLapangan = DataLapangan::findOrFail($id);
+        $dataLapangan->keterangan = $request->keterangan;
+        $dataLapangan->save();
+
+        return redirect()->back()->with('success', 'Keterangan berhasil disimpan');
     }
     /**
      * Store a newly created resource in storage.

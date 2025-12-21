@@ -108,4 +108,59 @@
             </div>
         </div>
     </div>
+
+    <!-- Tabel 20 Data Masuk Terbaru -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">20 Data Masuk Terbaru</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal Input</th>
+                                    <th>Nama Pendamping</th>
+                                    <th>Nama PU</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($dataLapangan as $index => $data)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $data->enumerator->nama_lengkap }}</td>
+                                        <td>{{ $data->nama_pu }}</td>
+                                        <td>{{ $data->status }}</td>
+                                        <td>
+                                            @if ($data->status == 'PENDING')
+                                                <span class="badge bg-warning">{{ $data->status }}</span>
+                                            @elseif(in_array($data->status, ['PROGRESS OSS', 'PROGRESS SIHALAL']))
+                                                <span class="badge bg-info">{{ $data->status }}</span>
+                                            @elseif($data->status == 'TERBIT SH')
+                                                <span class="badge bg-success">{{ $data->status }}</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ $data->status }}</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $data->created_at->format('d M Y H:i') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <i class="bx bx-info-circle fs-3"></i>
+                                            <p class="mb-0 mt-2">Belum ada data masuk</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

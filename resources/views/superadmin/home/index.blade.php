@@ -5,7 +5,6 @@
         Semoga Hari Kalian Selalu "BEJO".
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-
     <!-- Summary Cards -->
     <div class="row">
         <div class="col-xl-4">
@@ -31,7 +30,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-xl-4">
             <div class="card card-animate">
                 <div class="card-body">
@@ -55,7 +53,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-xl-4">
             <div class="card card-animate">
                 <div class="card-body">
@@ -79,4 +76,58 @@
                 </div>
             </div>
         </div>
-    @endsection
+    </div>
+
+    <!-- 20 Data Terakhir -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">20 Data Terakhir Masuk</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Pendamping</th>
+                                    <th>Nama PU</th>
+                                    <th>Status</th>
+                                    <th>Tanggal Input</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($latestData as $index => $data)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>
+                                        <td>{{ $data->nama_pu }}</td>
+                                        <td>
+                                            @if ($data->status == 'PENDING')
+                                                <span class="badge bg-warning">{{ $data->status }}</span>
+                                            @elseif($data->status == 'DITOLAK')
+                                                <span class="badge bg-danger">{{ $data->status }}</span>
+                                            @elseif($data->status == 'PROGRESS OSS')
+                                                <span class="badge bg-info">{{ $data->status }}</span>
+                                            @elseif($data->status == 'PROGRESS SIHALAL')
+                                                <span class="badge bg-primary">{{ $data->status }}</span>
+                                            @elseif($data->status == 'TERBIT SH')
+                                                <span class="badge bg-success">{{ $data->status }}</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">Belum ada data</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

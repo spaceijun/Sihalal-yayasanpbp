@@ -64,7 +64,7 @@ class EnumeratorController extends Controller
         $enumerator = Enumerator::find($id);
         $koordinators = Koordinator::all();
 
-        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinator'));
+        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators'));
     }
 
     /**

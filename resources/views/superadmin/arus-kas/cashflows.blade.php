@@ -186,7 +186,8 @@
                 }
             });
 
-            const netCashflow = totalPemasukan - totalPengeluaran;
+            // RUMUS BARU: Net Cashflow = Pemasukan - Pengeluaran + Kas
+            const netCashflow = totalPemasukan - totalPengeluaran + totalKas;
 
             // Update card summary dengan total keseluruhan
             document.getElementById('totalPemasukan').textContent = formatCurrency(totalPemasukan);
@@ -200,17 +201,19 @@
 
             if (netCashflow >= 0) {
                 netIcon.innerHTML = `
-                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                            <i class="bx bx-trending-up text-success"></i>
-                        </span>
-                    `;
+                    <span class="avatar-title bg-success-subtle rounded fs-3">
+                        <i class="bx bx-trending-up text-success"></i>
+                    </span>
+                `;
+                netText.classList.remove('text-danger');
                 netText.classList.add('text-success');
             } else {
                 netIcon.innerHTML = `
-                        <span class="avatar-title bg-danger-subtle rounded fs-3">
-                            <i class="bx bx-trending-down text-danger"></i>
-                        </span>
-                    `;
+                    <span class="avatar-title bg-danger-subtle rounded fs-3">
+                        <i class="bx bx-trending-down text-danger"></i>
+                    </span>
+                `;
+                netText.classList.remove('text-success');
                 netText.classList.add('text-danger');
             }
 

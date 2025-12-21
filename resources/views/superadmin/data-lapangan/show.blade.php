@@ -286,6 +286,47 @@
                 </div>
             </div>
 
+            <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan</span>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
+                        method="POST">
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label for="keterangan" class="form-label">
+                                <strong>Keterangan / Catatan</strong>
+                            </label>
+                            <textarea name="keterangan" id="keterangan" class="form-control" rows="5"
+                                placeholder="Masukkan keterangan atau catatan tambahan...">{{ old('keterangan', $dataLapangan->keterangan ?? '') }}</textarea>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Tambahkan catatan penting terkait data lapangan ini
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Simpan Keterangan
+                            </button>
+                        </div>
+                    </form>
+
+                    @if ($dataLapangan->keterangan)
+                        <hr class="my-3">
+                        <div class="alert alert-info mb-0">
+                            <strong><i class="fas fa-sticky-note me-2"></i>Keterangan Tersimpan:</strong>
+                            <p class="mb-0 mt-2">{{ $dataLapangan->keterangan }}</p>
+                            <small class="text-muted">
+                                Terakhir diperbarui:
+                                {{ $dataLapangan->updated_at ? $dataLapangan->updated_at->format('d M Y, H:i') : '-' }}
+                            </small>
+                        </div>
+                    @endif
+                </div>
+            </div>
             <!-- Section File -->
             <div class="card">
                 <div class="card-header bg-primary text-white">

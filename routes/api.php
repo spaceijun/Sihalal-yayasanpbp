@@ -8,6 +8,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/check-nik', [DataLapanganController::class, 'checkNik'])->name('check.nik');
+
 Route::middleware(['auth:web', 'role:superadmin'])->group(function () {
 
     Route::prefix('superadmin')->name('api.superadmin.')->group(function () {

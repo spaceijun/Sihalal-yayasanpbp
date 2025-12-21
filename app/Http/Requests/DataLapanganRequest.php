@@ -24,16 +24,16 @@ class DataLapanganRequest extends FormRequest
         return [
             'enumerator_id' => 'required',
             'nama_pu' => 'required|string',
-            'nik' => 'required|string',
+            'nik' => 'required|digits:16|unique:data_lapangans,nik',
             'rt' => 'required|string',
             'rw' => 'required|string',
             'alamat' => 'required|string',
             'titik_koordinat' => 'required|string',
-            'foto_ktp' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'foto_rumah' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'foto_pendamping' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'foto_proses' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'foto_ktp' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'foto_rumah' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'foto_pendamping' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'foto_proses' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ];
     }
 

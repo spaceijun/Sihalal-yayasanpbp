@@ -28,4 +28,22 @@ class DataLapanganController extends Controller
 
         return view('koordinator.data-lapangan.show', compact('dataLapangan'));
     }
+
+    /**
+     * Check if a nik exists in the database
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkNik(Request $request)
+    {
+        $nik = $request->nik;
+
+        $exists = DataLapangan::where('nik', $nik)->first();
+
+        return response()->json([
+            'exists' => $exists ? true : false,
+            'nama_pu' => $exists ? $exists->nama_pu : null
+        ]);
+    }
 }

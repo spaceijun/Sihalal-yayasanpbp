@@ -127,7 +127,12 @@
                                                     value="{{ old('nik') }}" required
                                                     placeholder="Masukkan NIK (16 digit)" maxlength="16" pattern="[0-9]{16}"
                                                     inputmode="numeric">
-                                                <small class="text-muted" id="nikCounter">0/16 digit</small>
+                                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                                    <small class="text-muted" id="nikCounter">
+                                                        <i class="ri-information-line"></i> 0/16 digit
+                                                    </small>
+                                                    <small class="text-muted" id="nikStatus">Belum lengkap</small>
+                                                </div>
                                                 @error('nik')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -200,7 +205,7 @@
                                                     <input type="file" id="foto_ktp" name="foto_ktp"
                                                         class="form-control @error('foto_ktp') is-invalid @enderror"
                                                         accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 2MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_ktp')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -213,7 +218,7 @@
                                                     <input type="file" id="foto_rumah" name="foto_rumah"
                                                         class="form-control @error('foto_rumah') is-invalid @enderror"
                                                         accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 2MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_rumah')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -226,7 +231,7 @@
                                                     <input type="file" id="foto_pendamping" name="foto_pendamping"
                                                         class="form-control @error('foto_pendamping') is-invalid @enderror"
                                                         accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 2MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_pendamping')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -239,7 +244,7 @@
                                                     <input type="file" id="foto_proses" name="foto_proses"
                                                         class="form-control @error('foto_proses') is-invalid @enderror"
                                                         accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 2MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_proses')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -252,7 +257,7 @@
                                                     <input type="file" id="foto_produk" name="foto_produk"
                                                         class="form-control @error('foto_produk') is-invalid @enderror"
                                                         accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 2MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_produk')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -296,13 +301,21 @@
             const submitBtn = document.getElementById('submitBtn');
             const namaPuInput = document.getElementById('nama_pu');
 
+            // Check if all elements exist before proceeding
+            if (!nikInput || !nikCounter || !form || !submitBtn || !namaPuInput) {
+                console.error('Required form elements not found');
+                return;
+            }
+
+            let nikCheckTimeout;
+            let isNikValid = false;
+
             // ============================================
             // AUTO HIDE SUCCESS/ERROR ALERTS
             // ============================================
             const alerts = document.querySelectorAll('.alert');
             if (alerts.length > 0) {
                 alerts.forEach(alert => {
-                    // Auto hide after 5 seconds
                     setTimeout(() => {
                         const bsAlert = new bootstrap.Alert(alert);
                         bsAlert.close();
@@ -324,28 +337,157 @@
             });
 
             // ============================================
-            // NIK VALIDATION
+            // NIK VALIDATION & COUNTER (FIXED)
             // ============================================
+            function updateNikCounter(length) {
+                if (!nikCounter) return;
 
-            nikInput.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
+                const nikStatus = document.getElementById('nikStatus');
+                if (!nikStatus) return;
 
-                const length = this.value.length;
-                nikCounter.textContent = `${length}/16 digit`;
+                // Update counter text dengan icon
+                nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
 
                 if (length === 16) {
-                    nikCounter.classList.remove('text-muted', 'text-danger');
+                    // Valid: 16 digit
+                    nikCounter.classList.remove('text-muted', 'text-danger', 'text-warning');
                     nikCounter.classList.add('text-success');
-                    nikInput.classList.remove('is-invalid');
-                    nikInput.classList.add('is-valid');
-                } else if (length > 0) {
-                    nikCounter.classList.remove('text-muted', 'text-success');
+                    nikCounter.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${length}/16 digit`;
+                    nikStatus.textContent = '✓ Lengkap';
+                    nikStatus.classList.remove('text-muted', 'text-danger', 'text-warning');
+                    nikStatus.classList.add('text-success');
+                } else if (length > 16) {
+                    // Error: Lebih dari 16 digit (tidak akan terjadi karena maxlength, tapi sebagai fallback)
+                    nikCounter.classList.remove('text-muted', 'text-success', 'text-warning');
                     nikCounter.classList.add('text-danger');
-                    nikInput.classList.remove('is-valid');
+                    nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
+                    nikStatus.textContent = '✗ Terlalu panjang!';
+                    nikStatus.classList.remove('text-muted', 'text-success', 'text-warning');
+                    nikStatus.classList.add('text-danger');
+                } else if (length > 0) {
+                    // Warning: Kurang dari 16 digit
+                    nikCounter.classList.remove('text-muted', 'text-success', 'text-danger');
+                    nikCounter.classList.add('text-warning');
+                    nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
+                    nikStatus.textContent = `Kurang ${16 - length} digit`;
+                    nikStatus.classList.remove('text-muted', 'text-success', 'text-danger');
+                    nikStatus.classList.add('text-warning');
                 } else {
-                    nikCounter.classList.remove('text-success', 'text-danger');
+                    // Empty
+                    nikCounter.classList.remove('text-success', 'text-danger', 'text-warning');
                     nikCounter.classList.add('text-muted');
-                    nikInput.classList.remove('is-valid', 'is-invalid');
+                    nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
+                    nikStatus.textContent = 'Belum lengkap';
+                    nikStatus.classList.remove('text-success', 'text-danger', 'text-warning');
+                    nikStatus.classList.add('text-muted');
+                }
+            }
+
+            function checkNikExists(nik) {
+                if (!nikInput) return;
+
+                if (nik.length !== 16) {
+                    isNikValid = false;
+                    return;
+                }
+
+                // Remove existing warning
+                const existingWarning = document.getElementById('nikExistsWarning');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+
+                // Create loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'nikExistsWarning';
+                loadingDiv.className = 'mt-2';
+                loadingDiv.innerHTML =
+                    '<small class="text-info"><i class="ri-loader-4-line"></i> Memeriksa NIK...</small>';
+                nikInput.parentElement.appendChild(loadingDiv);
+
+                // Make AJAX request to check NIK
+                fetch('/check-nik', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                document.querySelector('input[name="_token"]')?.value
+                        },
+                        body: JSON.stringify({
+                            nik: nik
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const warningDiv = document.getElementById('nikExistsWarning');
+
+                        if (data.exists) {
+                            isNikValid = false;
+                            nikInput.classList.remove('is-valid');
+                            nikInput.classList.add('is-invalid');
+
+                            if (warningDiv) {
+                                warningDiv.innerHTML = `
+                                <div class="alert alert-warning alert-dismissible fade show p-2 mb-0" role="alert">
+                                    <i class="ri-error-warning-line me-1"></i>
+                                    <small><strong>NIK sudah terdaftar!</strong> NIK ini sudah digunakan oleh: <strong>${data.nama_pu || 'Pengguna lain'}</strong></small>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.7rem; padding: 0.25rem;"></button>
+                                </div>
+                            `;
+                            }
+
+                            showToast('warning', 'NIK sudah terdaftar di database!');
+                        } else {
+                            isNikValid = true;
+                            nikInput.classList.remove('is-invalid');
+                            nikInput.classList.add('is-valid');
+
+                            if (warningDiv) {
+                                warningDiv.innerHTML =
+                                    '<small class="text-success"><i class="ri-checkbox-circle-line me-1"></i>NIK tersedia</small>';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking NIK:', error);
+                        const warningDiv = document.getElementById('nikExistsWarning');
+                        if (warningDiv) {
+                            warningDiv.remove();
+                        }
+                        isNikValid = true; // Allow submission if check fails
+                    });
+            }
+
+            nikInput.addEventListener('input', function(e) {
+                // Only allow numbers and limit to 16 digits
+                let value = this.value.replace(/[^0-9]/g, '');
+
+                // Enforce maximum 16 digits
+                if (value.length > 16) {
+                    value = value.slice(0, 16);
+                }
+
+                this.value = value;
+                const length = value.length;
+                updateNikCounter(length);
+
+                // Clear previous validation states
+                nikInput.classList.remove('is-valid', 'is-invalid');
+                const existingWarning = document.getElementById('nikExistsWarning');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+
+                // Clear previous timeout
+                clearTimeout(nikCheckTimeout);
+
+                // Check NIK after user stops typing (debounce)
+                if (length === 16) {
+                    nikCheckTimeout = setTimeout(() => {
+                        checkNikExists(this.value);
+                    }, 500);
+                } else {
+                    isNikValid = false;
                 }
             });
 
@@ -353,31 +495,6 @@
                 if (e.key < '0' || e.key > '9') {
                     e.preventDefault();
                 }
-            });
-
-            form.addEventListener('submit', function(e) {
-                const nikValue = nikInput.value;
-
-                if (nikValue.length !== 16) {
-                    e.preventDefault();
-                    nikInput.classList.add('is-invalid');
-                    nikError.style.display = 'block';
-
-                    nikInput.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    nikInput.focus();
-
-                    // Show toast notification
-                    showToast('error', 'NIK harus tepat 16 digit!');
-                    return false;
-                }
-
-                // Disable submit button to prevent double submission
-                submitBtn.disabled = true;
-                submitBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
             });
 
             nikInput.addEventListener('paste', function(e) {
@@ -393,6 +510,49 @@
             });
 
             // ============================================
+            // FORM SUBMISSION
+            // ============================================
+            form.addEventListener('submit', function(e) {
+                if (!nikInput) return;
+
+                const nikValue = nikInput.value;
+
+                if (nikValue.length !== 16) {
+                    e.preventDefault();
+                    nikInput.classList.add('is-invalid');
+                    if (nikError) nikError.style.display = 'block';
+
+                    nikInput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    nikInput.focus();
+
+                    showToast('error', 'NIK harus tepat 16 digit!');
+                    return false;
+                }
+
+                if (!isNikValid) {
+                    e.preventDefault();
+                    nikInput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    nikInput.focus();
+
+                    showToast('error', 'NIK sudah terdaftar di database!');
+                    return false;
+                }
+
+                // Disable submit button to prevent double submission
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+                }
+            });
+
+            // ============================================
             // IMAGE FILE VALIDATION
             // ============================================
             const imageInputs = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_proses', 'foto_produk'];
@@ -403,20 +563,18 @@
                     input.addEventListener('change', function(e) {
                         const file = e.target.files[0];
                         if (file) {
-                            // Check file size (2MB = 2097152 bytes)
-                            if (file.size > 2097152) {
+                            if (file.size > 10485760) {
                                 showToast('error',
-                                    `Ukuran file ${inputId.replace(/_/g, ' ')} maksimal 2MB!`);
+                                    `Ukuran file ${inputId.replace(/_/g, ' ')} maksimal 10MB!`);
                                 this.value = '';
                                 return;
                             }
 
-                            // Check file type
                             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
                             if (!allowedTypes.includes(file.type)) {
                                 showToast('error',
                                     `Format file ${inputId.replace(/_/g, ' ')} harus JPG, JPEG, atau PNG!`
-                                );
+                                    );
                                 this.value = '';
                                 return;
                             }
@@ -429,12 +587,11 @@
             // TOAST NOTIFICATION FUNCTION
             // ============================================
             function showToast(type, message) {
-                // You can use SweetAlert2 or custom toast here
-                // For now, using alert as fallback
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: type,
-                        title: type === 'success' ? 'Berhasil!' : 'Gagal!',
+                        title: type === 'success' ? 'Berhasil!' : (type === 'warning' ? 'Peringatan!' :
+                            'Gagal!'),
                         text: message,
                         toast: true,
                         position: 'top-end',
@@ -445,6 +602,11 @@
                 } else {
                     alert(message);
                 }
+            }
+
+            // Trigger counter on page load if NIK already has value
+            if (nikInput.value) {
+                updateNikCounter(nikInput.value.length);
             }
         });
     </script>

@@ -37,6 +37,7 @@ class DataLapanganController extends Controller
 
         return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i'));
     }
+
     /**
      * Show the form for creating a new resource.
      */

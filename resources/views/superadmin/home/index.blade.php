@@ -22,8 +22,8 @@
                             </h4>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-trending-up text-success"></i>
+                            <span class="avatar-title bg-primary-subtle rounded fs-3">
+                                <i class="bx bx-group text-primary"></i>
                             </span>
                         </div>
                     </div>
@@ -45,8 +45,8 @@
                             </h4>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-trending-up text-success"></i>
+                            <span class="avatar-title bg-info-subtle rounded fs-3">
+                                <i class="bx bx-user-check text-info"></i>
                             </span>
                         </div>
                     </div>
@@ -68,8 +68,103 @@
                             </h4>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-danger-subtle rounded fs-3">
-                                <i class="bx bx-trending-down text-danger"></i>
+                            <span class="avatar-title bg-success-subtle rounded fs-3">
+                                <i class="bx bx-data text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- PROGRESS DATA LAPANGAN --}}
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Pending</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                <span class="counter-value" data-target="{{ $totalDataPending }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-warning-subtle rounded fs-3">
+                                <i class="bx bx-time-five text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Progress OSS</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                <span class="counter-value" data-target="{{ $totalDataProgressOSS }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-info-subtle rounded fs-3">
+                                <i class="bx bx-loader-circle text-info"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Progress Sihalal</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                <span class="counter-value" data-target="{{ $totalDataProgressSihalal }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-primary-subtle rounded fs-3">
+                                <i class="bx bx-sync text-primary"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Terbit SH</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                <span class="counter-value" data-target="{{ $totalDataTerbitSH }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-success-subtle rounded fs-3">
+                                <i class="bx bx-check-circle text-success"></i>
                             </span>
                         </div>
                     </div>

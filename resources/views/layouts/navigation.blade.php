@@ -32,6 +32,12 @@
                         <i data-feather="book"></i>Data Lapangan
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/laporan-harian') }}"
+                        class="nav-link {{ $current_url == 'superadmin/laporan-harian' ? 'active' : '' }}">
+                        <i data-feather="book"></i>Laporan Harian
+                    </a>
+                </li>
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/arus-kas') }}"

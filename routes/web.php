@@ -11,6 +11,7 @@ use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
+use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
+        Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
         // Finance Management
         Route::resource('arus-kas', CashflowController::class);
         Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');

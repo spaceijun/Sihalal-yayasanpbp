@@ -18,12 +18,16 @@ class DashboardController extends Controller
         $totalDataKoordinator = Koordinator::count();
         $totalDataEnumerator = Enumerator::count();
         $totalDataLapangan = DataLapangan::count();
+        $totalDataPending = DataLapangan::where('status', 'Pending')->count();
+        $totalDataProgressOSS = DataLapangan::where('status', 'Progress OSS')->count();
+        $totalDataProgressSihalal = DataLapangan::where('status', 'Progress SiHalal')->count();
+        $totalDataTerbitSH = DataLapangan::where('status', 'Terbit SH')->count();
 
         $latestData = DataLapangan::with('enumerator')
             ->orderBy('created_at', 'desc')
             ->take(20)
             ->get();
 
-        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestData'));
+        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestData', 'totalDataPending', 'totalDataProgressOSS', 'totalDataProgressSihalal', 'totalDataTerbitSH'));
     }
 }

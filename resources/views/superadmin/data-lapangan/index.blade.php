@@ -38,6 +38,8 @@
                                 <label for="status-1" class="form-label">Status</label>
                                 <select class="form-control" id="status-1" name="status">
                                     <option value="">Semua Status</option>
+                                    <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>
+                                        Pending</option>
                                     <option value="Progress OSS"
                                         {{ request('status') == 'Progress OSS' ? 'selected' : '' }}>Progress OSS
                                     </option>

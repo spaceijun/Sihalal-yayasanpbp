@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@section('template_title')
+    Dashboard
+@endsection
 @section('content')
     <div class="alert alert-info alert-dismissible fade show" role="alert">
         <i class="ri-admin-line"></i> <strong>Selamat datang, Superadmin!</strong>

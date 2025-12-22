@@ -15,12 +15,12 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>{{ $settingWebsite->title }}</title>
+    <title>@yield('template_title') | {{ $settingWebsite->title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ $settingWebsite->description }}" name="description" />
+    <meta content="{{ $settingWebsite->description ?? 'Yayasan Permata Bakti Pertiwi' }}" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ $settingWebsite->favicon }}">
+    <link rel="shortcut icon" href="{{ asset('storage/' . $settingWebsite->favicon) }}">
 
     <!-- jsvectormap css -->
     <link href="{{ asset('assets/libs/jsvectormap/css/jsvectormap.min.css') }}" rel="stylesheet" type="text/css" />

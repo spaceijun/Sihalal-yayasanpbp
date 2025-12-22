@@ -1,4 +1,5 @@
 @extends('layouts.guest')
+@section('title', 'Form Halal')
 @section('content')
     <div class="auth-page-wrapper auth-bg-cover py-5 d-flex justify-content-center align-items-center min-vh-100">
         <div class="bg-overlay"></div>
@@ -574,7 +575,7 @@
                             if (!allowedTypes.includes(file.type)) {
                                 showToast('error',
                                     `Format file ${inputId.replace(/_/g, ' ')} harus JPG, JPEG, atau PNG!`
-                                    );
+                                );
                                 this.value = '';
                                 return;
                             }

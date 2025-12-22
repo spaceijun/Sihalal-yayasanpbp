@@ -1,4 +1,6 @@
 @extends('layouts.app')
+@section('template_title')
+    Setting Website
 @section('content')
     <div class="row">
         <div class="col">

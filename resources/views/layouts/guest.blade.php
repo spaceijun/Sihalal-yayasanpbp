@@ -8,13 +8,12 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Login Page</title>
+    <title>@yield('title') | {{ $settingWebsite->title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="" name="description" />
     <meta content="Themesbrand" name="ijunnn" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="">
-
+    <link rel="shortcut icon" href="{{ asset('storage/' . $settingWebsite->favicon) }}">
     <!-- Layout config Js -->
     <script src="{{ asset('assets/js/layout.js') }}"></script>
     <!-- Bootstrap Css -->

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Enumerators
+    Recruitments
 @endsection
 
 @section('content')
@@ -14,11 +14,11 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Enumerators') }}
+                                {{ __('Recruitments') }}
                             </span>
 
                             <div class="float-right">
-                                <a href="{{ route('superadmin.enumerators.create') }}"
+                                <a href="{{ route('superadmin.recruitments.create') }}"
                                     class="btn btn-primary btn-sm float-right" data-placement="left">
                                     {{ __('Create New') }}
                                 </a>
@@ -35,35 +35,47 @@
                                         <th>Koordinator</th>
                                         <th>Nama Lengkap</th>
                                         <th>Telephone</th>
-                                        <th>No Reg</th>
+                                        {{-- <th>Alamat Lengkap</th>
+                                        <th>Pengalaman</th> --}}
+                                        <th>Rekomendasi</th>
+                                        {{-- <th>Pendidikan Terakhir</th>
+                                        <th>Foto Diri</th>
+                                        <th>Foto Ktp</th> --}}
                                         <th>Status</th>
+                                        {{-- <th>Alasan Penolakan</th> --}}
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($enumerators as $enumerator)
+                                    @forelse ($recruitments as $recruitment)
                                         <tr>
                                             <td>{{ ++$i }}</td>
 
-                                            <td>{{ $enumerator->koordinator->nama_lengkap }}</td>
-                                            <td>{{ $enumerator->nama_lengkap }}</td>
-                                            <td>{{ $enumerator->telephone }}</td>
-                                            <td>REG-{{ $enumerator->no_registrasi }}</td>
-                                            <td>{{ $enumerator->status }}</td>
+                                            <td>{{ $recruitment->koordinator->nama_lengkap ?? 'N/A' }}</td>
+                                            <td>{{ $recruitment->nama_lengkap }}</td>
+                                            <td>{{ $recruitment->telephone }}</td>
+                                            {{-- <td>{{ $recruitment->alamat_lengkap }}</td>
+                                            <td>{{ $recruitment->pengalaman }}</td> --}}
+                                            <td>{{ $recruitment->rekomendasi }}</td>
+                                            {{-- <td>{{ $recruitment->pendidikan_terakhir }}</td>
+                                            <td>{{ $recruitment->foto_diri }}</td>
+                                            <td>{{ $recruitment->foto_ktp }}</td> --}}
+                                            <td>{{ $recruitment->status }}</td>
+                                            {{-- <td>{{ $recruitment->alasan_penolakan }}</td> --}}
 
                                             <td>
                                                 <form
-                                                    action="{{ route('superadmin.enumerators.destroy', $enumerator->id) }}"
+                                                    action="{{ route('superadmin.recruitments.destroy', $recruitment->id) }}"
                                                     method="POST">
                                                     {{-- <button type="button" class="btn btn-sm btn-primary"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#showModal{{ $enumerator->id }}">
+                                                        data-bs-target="#showModal{{ $recruitment->id }}">
                                                         <i class="las la-eye"></i> {{ __('Show') }}
                                                     </button> --}}
                                                     <a class="btn btn-sm btn-primary"
-                                                        href="{{ route('superadmin.enumerators.show', $enumerator->id) }}"><i
-                                                            class="las la-eye"></i> {{ __('Edit') }}</a>
+                                                        href="{{ route('superadmin.recruitments.show', $recruitment->id) }}"><i
+                                                            class="las la-eye"></i> {{ __('Show') }}</a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm"
@@ -72,7 +84,7 @@
                                                 </form>
                                             </td>
                                         </tr>
-                                        {{-- @include('superadmin.enumerator.partials.modal-enumerator') --}}
+                                        {{-- @include('superadmin.recruitment.partials.modal-recruitment') --}}
                                     @empty
                                         <tr>
                                             <td colspan="100%" class="text-center py-4">
@@ -86,7 +98,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        @include('layouts.pagination', ['paginator' => $enumerators])
+                        @include('layouts.pagination', ['paginator' => $recruitments])
                     </div>
                 </div>
             </div>

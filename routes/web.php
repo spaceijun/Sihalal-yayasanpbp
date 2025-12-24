@@ -12,6 +12,7 @@ use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
+use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,8 @@ Route::get('/', function () {
 });
 Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
 Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
+Route::get('recruitment', [RecruitmentController::class, 'create'])->name('recruitment.formulir');
+Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recruitment.store');
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
@@ -35,6 +38,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::resource('enumerators', EnumeratorController::class);
+        Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
+        Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
         Route::resource('data-lapangans', DataLapanganController::class);
         Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])
             ->name('datalapangan.download-foto-rumah-pdf');
@@ -46,6 +51,10 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
+        // Recruitment
+        Route::resource('recruitments', RecruitmentController::class);
+        Route::post('recruitments/{id}/update-status', [RecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
+        Route::get('recruitments/{id}/download-foto/{type}', [RecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
         // Finance Management
         Route::resource('arus-kas', CashflowController::class);
         Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');

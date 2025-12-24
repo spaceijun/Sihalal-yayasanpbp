@@ -25,6 +25,8 @@ class EnumeratorRequest extends FormRequest
             'koordinator_id' => 'required',
             'nama_lengkap' => 'required|string',
             'telephone' => 'required|string',
+            'foto_diri' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            // 'no_registrasi' => 'required|string|unique:enumerators,no_registrasi',
             'alamat' => 'required|string',
             'status' => 'required',
         ];
@@ -40,6 +42,9 @@ class EnumeratorRequest extends FormRequest
             'koordinator_id.required' => 'Koordinator wajib diisi',
             'nama_lengkap.required' => 'Nama Lengkap wajib diisi',
             'telephone.required' => 'Nomor Telepon wajib diisi',
+            'foto_diri.required' => 'Foto Diri wajib diunggah',
+            // 'no_registrasi.required' => 'Nomor Registrasi wajib diisi',
+            // 'no_registrasi.unique' => 'Nomor Registrasi sudah digunakan',
             'alamat.required' => 'Alamat wajib diisi',
             'status.required' => 'Status wajib diisi',
         ];

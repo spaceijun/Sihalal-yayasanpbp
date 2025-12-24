@@ -21,6 +21,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/recruitments') }}"
+                        class="nav-link {{ $current_url == 'superadmin/recruitments' ? 'active' : '' }}">
+                        <i data-feather="users"></i>Recruitment
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="{{ url('superadmin/enumerators') }}"
                         class="nav-link {{ $current_url == 'superadmin/enumerators' ? 'active' : '' }}">
                         <i data-feather="users"></i>Enumerator

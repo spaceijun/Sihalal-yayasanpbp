@@ -5,14 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Enumerator
+ * Class Recruitment
  *
  * @property $id
  * @property $koordinator_id
  * @property $nama_lengkap
  * @property $telephone
- * @property $alamat
+ * @property $alamat_lengkap
+ * @property $pengalaman
+ * @property $rekomendasi
+ * @property $pendidikan_terakhir
+ * @property $foto_diri
+ * @property $foto_ktp
  * @property $status
+ * @property $alasan_penolakan
  * @property $created_at
  * @property $updated_at
  *
@@ -20,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-class Enumerator extends Model
+class Recruitment extends Model
 {
 
     protected $perPage = 20;
@@ -30,7 +36,7 @@ class Enumerator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status'];
+    protected $fillable = ['koordinator_id', 'nama_lengkap', 'telephone', 'alamat_lengkap', 'pengalaman', 'rekomendasi', 'pendidikan_terakhir', 'foto_diri', 'foto_ktp', 'status', 'alasan_penolakan'];
 
 
     /**

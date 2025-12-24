@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('koordinator_id')->constrained('koordinators')->onDelete('cascade');
             $table->string('nama_lengkap');
             $table->string('telephone');
+            $table->string('foto_diri')->nullable();
+            $table->string('no_registrasi')->unique();
             $table->text('alamat');
             $table->enum('status', ['Aktif', 'Tidak Aktif']);
             $table->timestamps();

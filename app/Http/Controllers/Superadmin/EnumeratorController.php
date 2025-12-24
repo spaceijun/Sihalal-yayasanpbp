@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\EnumeratorRequest;
 use App\Models\Superadmin\Koordinator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -40,20 +41,71 @@ class EnumeratorController extends Controller
      */
     public function store(EnumeratorRequest $request): RedirectResponse
     {
-        Enumerator::create($request->validated());
+        $validatedData = $request->validated();
+
+        // Upload foto diri (jika ada)
+        if ($request->hasFile('foto_diri')) {
+            $image = $request->file('foto_diri');
+            $extension = $image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . $extension;
+            $image->storeAs('foto-diri', $imageName, 'public');
+            $validatedData['foto_diri'] = 'foto-diri/' . $imageName;
+        }
+
+        DB::transaction(function () use ($validatedData) {
+
+            // Ambil no_registrasi terakhir (lock supaya tidak bentrok)
+            $lastNo = Enumerator::lockForUpdate()
+                ->orderBy('no_registrasi', 'desc')
+                ->value('no_registrasi');
+
+            // Tentukan nomor berikutnya
+            $nextNo = $lastNo ? ((int) $lastNo + 1) : 1;
+
+            if ($nextNo > 999) {
+                throw new \Exception('No registrasi sudah penuh');
+            }
+
+            $noRegistrasi = str_pad($nextNo, 3, '0', STR_PAD_LEFT);
+
+            // Simpan enumerator
+            Enumerator::create(array_merge(
+                $validatedData,
+                ['no_registrasi' => $noRegistrasi]
+            ));
+        });
 
         return Redirect::route('superadmin.enumerators.index')
             ->with('success', 'Enumerator created successfully.');
     }
-
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($id)
     {
-        $enumerator = Enumerator::find($id);
+        $enumerator = Enumerator::with('koordinator')->find($id);
 
         return view('superadmin.enumerator.show', compact('enumerator'));
+    }
+
+    /**
+     * Generate and display Surat Tugas
+     */
+    public function suratTugas($id)
+    {
+        $enumerator = Enumerator::with('koordinator')->findOrFail($id);
+
+        return view('superadmin.enumerator.partials.surat', compact('enumerator'));
+    }
+
+    /**
+     * Generate ID Card as HTML (will be converted to image via html2canvas in frontend)
+     */
+    public function idCard($id)
+    {
+        $enumerator = Enumerator::with('koordinator')->findOrFail($id);
+
+        return view('superadmin.enumerator.partials.idcard', compact('enumerator'));
     }
 
     /**

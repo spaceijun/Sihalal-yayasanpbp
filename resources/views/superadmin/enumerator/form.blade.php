@@ -32,6 +32,13 @@
             {!! $errors->first('telephone', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
+            <label for="foto_diri" class="form-label">{{ __('Foto Diri') }}</label>
+            <input type="file" name="foto_diri" class="form-control @error('foto_diri') is-invalid @enderror"
+                value="{{ old('foto_diri', $enumerator?->foto_diri) }}" id="foto_diri" placeholder="foto_diri">
+            {!! $errors->first('foto_diri', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+        </div>
+
+        <div class="form-group mb-2 mb20">
             <label for="alamat" class="form-label">{{ __('Alamat') }}</label>
             <input type="text" name="alamat" class="form-control @error('alamat') is-invalid @enderror"
                 value="{{ old('alamat', $enumerator?->alamat) }}" id="alamat" placeholder="Alamat">

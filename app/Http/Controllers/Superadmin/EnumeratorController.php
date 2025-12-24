@@ -103,7 +103,7 @@ class EnumeratorController extends Controller
      */
     public function idCard($id)
     {
-        $enumerator = Enumerator::with('koordinator')->findOrFail($id);
+        $enumerator = Enumerator::find($id);
 
         return view('superadmin.enumerator.partials.idcard', compact('enumerator'));
     }

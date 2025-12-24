@@ -228,31 +228,23 @@
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 30px;">
+            <div style="text-align: center; margin-top: 30px; position: relative; z-index: 20;">
                 <div
                     style="font-size: 48px; font-weight: 900; text-transform: uppercase; color: black; margin-bottom: 5px; letter-spacing: 1px;">
                     {{ strtoupper($enumerator->nama_lengkap) }}
                 </div>
                 <div style="font-size: 28px; font-weight: 500; color: black; letter-spacing: 2px;">
-                    No Registrasi<br>{{ $enumerator->no_registrasi }}
+                    No Registrasi<br>{{ $enumerator->no_registrasi }}/KH-YPBP/12/2025
                 </div>
             </div>
 
-            <div
-                style="position: absolute; width: 250px; height: 250px; border: 18px solid #dce4ff; transform: rotate(45deg); bottom: 180px; left: 50px;">
-            </div>
-            <div
-                style="position: absolute; width: 250px; height: 250px; border: 18px solid #dce4ff; transform: rotate(45deg); bottom: 80px; left: 150px;">
-            </div>
-
-            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 180px;">
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; z-index: 5;">
                 <svg viewBox="0 0 590 150" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
                     <path d="M0,100 C150,150 300,50 590,10 L590,150 L0,150 Z" fill="#2e0d6e"></path>
                 </svg>
             </div>
         </div>
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>

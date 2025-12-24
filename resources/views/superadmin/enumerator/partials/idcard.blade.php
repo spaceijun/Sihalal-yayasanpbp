@@ -96,7 +96,8 @@
         .info-section {
             text-align: center;
             margin-top: 30px;
-            z-index: 10;
+            position: relative;
+            z-index: 20;
         }
 
         .name-text {
@@ -189,9 +190,6 @@
             <div class="name-text">{{ $enumerator->nama_lengkap }}</div>
             <div class="id-number">No Registrasi <br />{{ $enumerator->no_registrasi }}/KH-YPBP/12/2025</div>
         </div>
-
-        {{-- <div class="pattern-box pattern-1"></div>
-        <div class="pattern-box pattern-2"></div> --}}
 
         <div class="footer-wave">
             <svg viewBox="0 0 590 150" preserveAspectRatio="none">

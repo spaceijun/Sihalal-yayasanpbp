@@ -32,8 +32,9 @@ class RecruitmentController extends Controller
     public function create(): View
     {
         $recruitment = new Recruitment();
+        $daftarKoordinator = Koordinator::all();
 
-        return view('publik.form-recruitment', compact('recruitment'));
+        return view('publik.form-recruitment', compact('recruitment', 'daftarKoordinator'));
     }
 
     /**

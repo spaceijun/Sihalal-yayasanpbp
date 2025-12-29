@@ -52,13 +52,15 @@
                                         Ditolak</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary me-2">
-                                    <i class="las la-search"></i> Cari
-                                </button>
-                                <button type="button" class="btn btn-secondary" id="btnReset">
-                                    <i class="las la-redo"></i> Reset
-                                </button>
+                            <div class="col-md-2">
+                                <label for="tanggal_dari" class="form-label">Tanggal Dari</label>
+                                <input type="date" class="form-control" id="tanggal_dari" name="tanggal_dari"
+                                    value="{{ request('tanggal_dari') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="tanggal_sampai" class="form-label">Tanggal Sampai</label>
+                                <input type="date" class="form-control" id="tanggal_sampai" name="tanggal_sampai"
+                                    value="{{ request('tanggal_sampai') }}">
                             </div>
                         </div>
                     </form>
@@ -111,11 +113,12 @@
             const searchForm = document.getElementById('searchForm');
             const namaPuInput = document.getElementById('nama_pu');
             const statusSelect = document.getElementById('status-1');
+            const tanggalDariInput = document.getElementById('tanggal_dari');
+            const tanggalSampaiInput = document.getElementById('tanggal_sampai');
             const tableBody = document.getElementById('tableBody');
             const paginationWrapper = document.getElementById('paginationWrapper');
             const tableLoading = document.getElementById('tableLoading');
             const tableWrapper = document.getElementById('tableWrapper');
-            const btnReset = document.getElementById('btnReset');
 
             // API Base URL
             const API_BASE_URL = '/api/superadmin/data-lapangans';
@@ -139,7 +142,7 @@
                 tableLoading.style.display = 'block';
 
                 // Disable form inputs during loading
-                const formInputs = searchForm.querySelectorAll('input, select, button');
+                const formInputs = searchForm.querySelectorAll('input, select');
                 formInputs.forEach(input => input.disabled = true);
 
                 // Prepare fetch URL with parameters
@@ -153,6 +156,14 @@
 
                 if (statusSelect.value.trim()) {
                     params.append('status', statusSelect.value.trim());
+                }
+
+                if (tanggalDariInput.value.trim()) {
+                    params.append('tanggal_dari', tanggalDariInput.value.trim());
+                }
+
+                if (tanggalSampaiInput.value.trim()) {
+                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
                 }
 
                 // Handle pagination
@@ -218,23 +229,6 @@
             }
 
             /**
-             * Handle form submit for search
-             */
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                loadData();
-            });
-
-            /**
-             * Handle reset button click
-             */
-            btnReset.addEventListener('click', function() {
-                namaPuInput.value = '';
-                statusSelect.value = '';
-                loadData();
-            });
-
-            /**
              * Instant search with debounce on nama_pu input
              */
             namaPuInput.addEventListener('input', function() {
@@ -248,6 +242,20 @@
              * Instant search on status change
              */
             statusSelect.addEventListener('change', function() {
+                loadData();
+            });
+
+            /**
+             * Instant search on tanggal_dari change
+             */
+            tanggalDariInput.addEventListener('change', function() {
+                loadData();
+            });
+
+            /**
+             * Instant search on tanggal_sampai change
+             */
+            tanggalSampaiInput.addEventListener('change', function() {
                 loadData();
             });
 

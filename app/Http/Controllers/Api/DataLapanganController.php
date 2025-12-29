@@ -446,14 +446,27 @@ class DataLapanganController extends Controller
     {
         $query = DataLapangan::with('enumerator');
 
+        // Filter by nama PU
         if ($request->filled('nama_pu')) {
             $query->where('nama_pu', 'like', '%' . $request->nama_pu . '%');
         }
 
+        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
+        // Filter by tanggal dari
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        }
+
+        // Filter by tanggal sampai
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+        }
+
+        // Order by created_at descending
         $query->orderBy('created_at', 'desc');
 
         return $query->paginate($request->get('per_page', 10));

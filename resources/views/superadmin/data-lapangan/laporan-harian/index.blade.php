@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Data Lapangans
+    Laporan Data Lapangan
 @endsection
 
 @section('content')
@@ -11,10 +11,25 @@
                 <div class="card-header">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <h5 class="card-title mb-0">Laporan Harian Data Lapangan</h5>
+                            <h5 class="card-title mb-0">Laporan Data Lapangan</h5>
                         </div>
                         <div class="col-md-6 text-end">
                             <div class="d-flex justify-content-end gap-2 align-items-center">
+                                <!-- Toggle Tipe Filter -->
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check btn-sm" name="tipeFilter" id="filterHarian"
+                                        value="harian" {{ $tipeFilter == 'harian' ? 'checked' : '' }}>
+                                    <label class="btn btn-outline-primary" for="filterHarian">
+                                        <i class="ri-calendar-line me-1"></i>Harian
+                                    </label>
+
+                                    <input type="radio" class="btn-check btn-sm" name="tipeFilter" id="filterBulanan"
+                                        value="bulanan" {{ $tipeFilter == 'bulanan' ? 'checked' : '' }}>
+                                    <label class="btn btn-outline-primary" for="filterBulanan">
+                                        <i class="ri-calendar-2-line me-1"></i>Bulanan
+                                    </label>
+                                </div>
+
                                 <!-- Filter Koordinator -->
                                 <select class="form-select" id="filterKoordinator" style="max-width: 250px;">
                                     <option value="">Semua Koordinator</option>
@@ -26,17 +41,21 @@
                                     @endforeach
                                 </select>
 
-                                <!-- Filter Tanggal -->
+                                <!-- Filter Tanggal (Harian) -->
                                 <input type="date" class="form-control" id="filterTanggal" value="{{ $tanggal }}"
-                                    style="max-width: 200px;">
+                                    style="max-width: 200px; {{ $tipeFilter == 'bulanan' ? 'display:none;' : '' }}">
+
+                                <!-- Filter Bulan (Bulanan) -->
+                                <input type="month" class="form-control" id="filterBulan" value="{{ $bulan }}"
+                                    style="max-width: 200px; {{ $tipeFilter == 'harian' ? 'display:none;' : '' }}">
 
                                 {{-- <!-- Export Excel -->
                                 <button class="btn btn-success" onclick="exportLaporan()">
-                                    <i class="ri-file-excel-2-line align-middle"></i> Export Excel
+                                    <i class="ri-file-excel-2-line align-middle"></i> Export
                                 </button> --}}
 
-                                {{-- <!-- Print -->
-                                <button class="btn btn-danger" onclick="printLaporan()">
+                                <!-- Print -->
+                                {{-- <button class="btn btn-danger" onclick="printLaporan()">
                                     <i class="ri-printer-line align-middle"></i> Print
                                 </button> --}}
                             </div>
@@ -47,8 +66,12 @@
                     @if ($laporanPerKoordinator->isEmpty())
                         <div class="alert alert-info text-center" role="alert">
                             <i class="ri-information-line fs-4"></i>
-                            <p class="mb-0 mt-2">Tidak ada data untuk tanggal
-                                {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }}
+                            <p class="mb-0 mt-2">Tidak ada data untuk
+                                @if ($tipeFilter == 'harian')
+                                    tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }}
+                                @else
+                                    bulan {{ \Carbon\Carbon::parse($bulan)->format('F Y') }}
+                                @endif
                                 @if ($koordinatorId)
                                     dan koordinator
                                     {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
@@ -56,6 +79,26 @@
                             </p>
                         </div>
                     @else
+                        <!-- Periode Info -->
+                        <div class="alert alert-primary border-0 mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="ri-calendar-check-line fs-4 me-2"></i>
+                                <div>
+                                    <strong>Periode Laporan:</strong>
+                                    @if ($tipeFilter == 'harian')
+                                        {{ \Carbon\Carbon::parse($tanggal)->isoFormat('dddd, D MMMM YYYY') }}
+                                    @else
+                                        {{ \Carbon\Carbon::parse($bulan)->isoFormat('MMMM YYYY') }}
+                                    @endif
+                                    @if ($koordinatorId)
+                                        <span class="mx-2">|</span>
+                                        <strong>Koordinator:</strong>
+                                        {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Summary Cards -->
                         <div class="row mb-4">
                             <div class="col-xl-3 col-md-6">
@@ -150,6 +193,19 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Grafik Data Harian (Hanya untuk Bulanan) -->
+                        @if ($tipeFilter == 'bulanan' && $grafikHarian)
+                            <div class="card border shadow-none mb-4 no-print">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>Grafik Data Per Hari
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="chartHarian" height="80"></canvas>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Laporan Per Koordinator -->
                         @foreach ($laporanPerKoordinator as $koordinator)
@@ -379,14 +435,83 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script>
-        // Fungsi untuk menerapkan filter
-        function applyFilter() {
-            const tanggal = document.getElementById('filterTanggal').value;
-            const koordinatorId = document.getElementById('filterKoordinator').value;
+        // Initialize Chart for Bulanan
+        @if ($tipeFilter == 'bulanan' && $grafikHarian)
+            const ctx = document.getElementById('chartHarian');
+            const grafikData = @json($grafikHarian);
 
-            let url = "{{ route('superadmin.laporan-harian.index') }}?tanggal=" + tanggal;
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: grafikData.map(item => {
+                        const date = new Date(item.tanggal);
+                        return date.getDate() + '/' + (date.getMonth() + 1);
+                    }),
+                    datasets: [{
+                        label: 'Total Data Per Hari',
+                        data: grafikData.map(item => item.total),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        @endif
+
+        // Toggle Filter Type
+        document.querySelectorAll('input[name="tipeFilter"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filterTanggal = document.getElementById('filterTanggal');
+                const filterBulan = document.getElementById('filterBulan');
+
+                if (this.value === 'harian') {
+                    filterTanggal.style.display = 'block';
+                    filterBulan.style.display = 'none';
+                } else {
+                    filterTanggal.style.display = 'none';
+                    filterBulan.style.display = 'block';
+                }
+
+                applyFilter();
+            });
+        });
+
+        // Apply Filter
+        function applyFilter() {
+            const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
+            const koordinatorId = document.getElementById('filterKoordinator').value;
+            const tanggal = document.getElementById('filterTanggal').value;
+            const bulan = document.getElementById('filterBulan').value;
+
+            let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter;
+
+            if (tipeFilter === 'harian') {
+                url += "&tanggal=" + tanggal;
+            } else {
+                url += "&bulan=" + bulan;
+            }
 
             if (koordinatorId) {
                 url += "&koordinator_id=" + koordinatorId;
@@ -395,26 +520,27 @@
             window.location.href = url;
         }
 
-        // Event listener untuk filter tanggal
+        // Event listeners
         document.getElementById('filterTanggal').addEventListener('change', applyFilter);
-
-        // Event listener untuk filter koordinator
+        document.getElementById('filterBulan').addEventListener('change', applyFilter);
         document.getElementById('filterKoordinator').addEventListener('change', applyFilter);
-
 
         // Print
         function printLaporan() {
             window.print();
         }
 
-        // Style untuk Print
+        // Print Style
         const style = document.createElement('style');
         style.textContent = `
             @media print {
+                .no-print,
                 .card-header .btn, 
+                .btn-group,
                 .breadcrumb,
                 .page-title-box,
                 #filterTanggal,
+                #filterBulan,
                 #filterKoordinator {
                     display: none !important;
                 }

@@ -181,22 +181,16 @@
                                                 <select id="rekomendasi" name="rekomendasi"
                                                     class="form-control @error('rekomendasi') is-invalid @enderror">
                                                     <option value="">-- Pilih Rekomendasi (Opsional) --</option>
-                                                    @php
-                                                        $daftarRekomendasi = [
-                                                            'Adi Tarman',
-                                                            'M. Faizun Aziz',
-                                                            'Ade Sofyan',
-                                                            'Agil Praditya Putu Yazier',
-                                                            'Ahmad Nurohim',
-                                                            'Zaenal Arifin',
-                                                        ];
-                                                    @endphp
-                                                    @foreach ($daftarRekomendasi as $nama)
-                                                        <option value="{{ $nama }}"
-                                                            {{ old('rekomendasi', $recruitment?->rekomendasi) == $nama ? 'selected' : '' }}>
-                                                            {{ $nama }}
-                                                        </option>
-                                                    @endforeach
+                                                    @if (isset($daftarRekomendasi) && count($daftarRekomendasi) > 0)
+                                                        @foreach ($daftarRekomendasi as $nama)
+                                                            <option value="{{ $nama }}"
+                                                                {{ old('rekomendasi', $recruitment?->rekomendasi) == $nama ? 'selected' : '' }}>
+                                                                {{ $nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    @else
+                                                        <option value="" disabled>Tidak ada data Rekomendasi</option>
+                                                    @endif
                                                 </select>
                                                 <small class="text-muted">Jika tidak ada, kosongkan saja</small>
                                                 @error('rekomendasi')

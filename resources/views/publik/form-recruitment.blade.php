@@ -180,19 +180,24 @@
                                                 <label for="rekomendasi" class="form-label">Rekomendasi</label>
                                                 <select id="rekomendasi" name="rekomendasi"
                                                     class="form-control @error('rekomendasi') is-invalid @enderror">
+
                                                     <option value="">-- Pilih Rekomendasi (Opsional) --</option>
-                                                    @if (isset($daftarRekomendasi) && count($daftarRekomendasi) > 0)
-                                                        @foreach ($daftarRekomendasi as $nama)
-                                                            <option value="{{ $nama }}"
-                                                                {{ old('rekomendasi', $recruitment?->rekomendasi) == $nama ? 'selected' : '' }}>
-                                                                {{ $nama }}
+
+                                                    @if (isset($daftarRekomendasi) && $daftarRekomendasi->count())
+                                                        @foreach ($daftarRekomendasi as $rekomendasi)
+                                                            <option value="{{ $rekomendasi->nama_lengkap }}"
+                                                                {{ old('rekomendasi', $recruitment?->rekomendasi) == $rekomendasi->nama_lengkap ? 'selected' : '' }}>
+                                                                {{ $rekomendasi->nama_lengkap }}
                                                             </option>
                                                         @endforeach
                                                     @else
                                                         <option value="" disabled>Tidak ada data Rekomendasi</option>
                                                     @endif
+
                                                 </select>
+
                                                 <small class="text-muted">Jika tidak ada, kosongkan saja</small>
+
                                                 @error('rekomendasi')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror

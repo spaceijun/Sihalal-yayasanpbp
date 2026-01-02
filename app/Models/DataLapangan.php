@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\SendsWhatsAppNotification;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DataLapangan extends Model
 {
-
+    use SendsWhatsAppNotification;
     protected $perPage = 20;
 
     /**

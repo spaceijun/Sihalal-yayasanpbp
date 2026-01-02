@@ -96,6 +96,9 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
         // Data Pendamping
         // Data Pendamping
         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
+        Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');
+        Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
+        Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
         Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
         // settings
         Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');

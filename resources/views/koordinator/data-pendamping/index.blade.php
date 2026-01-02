@@ -14,7 +14,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Enumerators') }}
+                                {{ __('Data Pendamping') }}
                             </span>
 
                             {{-- <div class="float-right">
@@ -34,7 +34,7 @@
 
                                         <th>Nama Lengkap</th>
                                         <th>Telephone</th>
-                                        <th>Alamat</th>
+                                        {{-- <th>Alamat</th> --}}
                                         <th>Status</th>
 
                                         <th></th>
@@ -47,28 +47,14 @@
 
                                             <td>{{ $enumerator->nama_lengkap }}</td>
                                             <td>{{ $enumerator->telephone }}</td>
-                                            <td>{{ $enumerator->alamat }}</td>
+                                            {{-- <td>{{ $enumerator->alamat }}</td> --}}
                                             <td>{{ $enumerator->status }}</td>
 
-                                            {{-- <td>
-                                                <form
-                                                    action="{{ route('superadmin.enumerators.destroy', $enumerator->id) }}"
-                                                    method="POST">
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#showModal{{ $enumerator->id }}">
-                                                        <i class="las la-eye"></i> {{ __('Show') }}
-                                                    </button>
-                                                    <a class="btn btn-sm btn-success"
-                                                        href="{{ route('superadmin.enumerators.edit', $enumerator->id) }}"><i
-                                                            class="las la-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i
-                                                            class="las la-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
-                                            </td> --}}
+                                            <td>
+                                                <a class="btn btn-sm btn-success"
+                                                    href="{{ route('koordinator.data-pendamping.show', $enumerator->id) }}"><i
+                                                        class="las la-eye"></i> {{ __('Detail') }}</a>
+                                            </td>
                                         </tr>
                                         {{-- @include('superadmin.enumerator.partials.modal-enumerator') --}}
                                     @empty

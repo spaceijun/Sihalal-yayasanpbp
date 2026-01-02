@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\DataLapanganRequest;
 use App\Models\Enumerator;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -68,36 +69,54 @@ class DataLapanganController extends Controller
     public function uploadFile(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf|max:5120', // 5MB
+            'file' => 'required|mimes:pdf|max:5120',
             'file_type' => 'required|in:oss,sihalal'
         ]);
 
         $fileType = $request->file_type;
         $fieldName = 'file_' . $fileType;
+        $isFirstUpload = is_null($dataLapangan->$fieldName);
 
-        // Delete old file if exists
         if ($dataLapangan->$fieldName) {
             Storage::delete($dataLapangan->$fieldName);
         }
 
-        // Upload new file
         $path = $request->file('file')->store('files/' . $fileType, 'public');
         $dataLapangan->$fieldName = $path;
 
-        // Update status based on file type
-        if ($fileType == 'oss') {
+        if ($fileType === 'oss') {
             $dataLapangan->status = 'PROGRESS OSS';
             $statusMessage = 'Status diubah menjadi PROGRESS OSS';
-        } elseif ($fileType == 'sihalal') {
+        } elseif ($fileType === 'sihalal') {
             $dataLapangan->status = 'TERBIT SH';
             $statusMessage = 'Status diubah menjadi TERBIT SH';
         }
 
         $dataLapangan->save();
 
-        return redirect()->back()->with('success', 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage);
-    }
+        if ($fileType === 'oss' && $isFirstUpload) {
+            try {
+                $notificationSent = $dataLapangan->sendOSSNotification();
 
+                $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
+
+                if ($notificationSent) {
+                    $message .= ' Notifikasi WhatsApp telah dikirim ke koordinator.';
+                    return redirect()->back()->with('success', $message);
+                } else {
+                    $message .= ' Namun notifikasi WhatsApp gagal dikirim.';
+                    return redirect()->back()->with('warning', $message);
+                }
+            } catch (\Exception $e) {
+                // Silent fail - file tetap terupload
+            }
+        }
+
+        return redirect()->back()->with(
+            'success',
+            'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage
+        );
+    }
     /**
      * Delete a file based on the given file type
      *

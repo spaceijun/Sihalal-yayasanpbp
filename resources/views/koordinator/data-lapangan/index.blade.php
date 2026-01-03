@@ -117,9 +117,6 @@
             currentPage: {{ $dataLapangans->currentPage() }},
             lastPage: {{ $dataLapangans->lastPage() }}
         };
-        let currentPage = 1;
-        const itemsPerPage = 10;
-        let filteredData = [...allData];
 
         // Fungsi untuk mendapatkan badge status
         function getStatusBadge(status) {
@@ -146,142 +143,123 @@
         // Fungsi untuk render table
         function renderTable() {
             const tbody = document.getElementById('tableBody');
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageData = filteredData.slice(start, end);
 
-            if (pageData.length === 0) {
+            if (allData.length === 0) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-4">
-                            <div class="text-muted">
-                                <i class="las la-inbox la-3x mb-2"></i>
-                                <p class="mb-0">{{ __('No data available') }}</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('resultCount').textContent = '';
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <div class="text-muted">
+                            <i class="las la-inbox la-3x mb-2"></i>
+                            <p class="mb-0">{{ __('No data available') }}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
                 document.getElementById('paginationInfo').textContent = '';
                 return;
             }
 
-            tbody.innerHTML = pageData.map((item, index) => {
-                const showUrl = "{{ route('koordinator.data-lapangan.show', ':id') }}".replace(':id', item.id);
+            const startNumber = (paginationData.currentPage - 1) * paginationData.perPage;
+
+            tbody.innerHTML = allData.map((item, index) => {
+                const showUrl = "{{ url('koordinator/data-lapangan') }}/" + item.id;
                 return `
-                <tr>
-                    <td>${start + index + 1}</td>
-                    <td>${item.enumerator.nama_lengkap}</td>
-                    <td>${item.nama_pu}</td>
-                    <td>${item.nik}</td>
-                    <td>${getStatusBadge(item.status)}</td>
-                    <td>${getStatusPembayaranBadge(item.status_pembayaran)}</td>
-                    <td>
-                        <a class="btn btn-sm btn-primary" href="${showUrl}">
-                            <i class="las la-eye"></i> {{ __('Show') }}
-                        </a>
-                    </td>
-                </tr>
+            <tr>
+                <td>${startNumber + index + 1}</td>
+                <td>${item.enumerator.nama_lengkap}</td>
+                <td>${item.nama_pu}</td>
+                <td>${item.nik}</td>
+                <td>${getStatusBadge(item.status)}</td>
+                <td>${getStatusPembayaranBadge(item.status_pembayaran)}</td>
+                <td>
+                    <a class="btn btn-sm btn-primary" href="${showUrl}">
+                        <i class="las la-eye"></i> {{ __('Show') }}
+                    </a>
+                </td>
+            </tr>
             `;
             }).join('');
 
-            document.getElementById('resultCount').textContent =
-                `Menampilkan ${start + 1} - ${Math.min(end, filteredData.length)} dari ${filteredData.length} data`;
+            const start = startNumber + 1;
+            const end = Math.min(startNumber + allData.length, paginationData.total);
 
             document.getElementById('paginationInfo').innerHTML = `
-                <div class="dataTables_info">
-                    Showing ${start + 1} to ${Math.min(end, filteredData.length)} of ${filteredData.length} entries
-                </div>
-            `;
-
-            renderPagination();
+            <div class="dataTables_info">
+                Showing ${start} to ${end} of ${paginationData.total} entries
+            </div>
+        `;
         }
 
-        // Fungsi untuk render pagination
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            const pagination = document.getElementById('pagination');
-
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-
-            let html = '';
-
-            // Previous button
-            html += `
-                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
-                </li>
-            `;
-
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    html += `
-                        <li class="page-item ${i === currentPage ? 'active' : ''}">
-                            <a class="page-link" href="#" data-page="${i}">${i}</a>
-                        </li>
-                    `;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                }
-            }
-
-            // Next button
-            html += `
-                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
-                </li>
-            `;
-
-            pagination.innerHTML = html;
-        }
-
-        // Fungsi filter data
+        // Fungsi filter data - redirect dengan query parameters
         function filterData() {
-            const namaPU = document.getElementById('searchNamaPU').value.toLowerCase();
+            const namaPU = document.getElementById('searchNamaPU').value;
             const status = document.getElementById('filterStatus').value;
             const statusPembayaran = document.getElementById('filterStatusPembayaran').value;
 
-            filteredData = allData.filter(item => {
-                const matchNamaPU = item.nama_pu.toLowerCase().includes(namaPU);
-                const matchStatus = !status || item.status === status;
-                const matchStatusPembayaran = !statusPembayaran || item.status_pembayaran === statusPembayaran;
+            const params = new URLSearchParams(window.location.search);
 
-                return matchNamaPU && matchStatus && matchStatusPembayaran;
-            });
+            if (namaPU) {
+                params.set('nama_pu', namaPU);
+            } else {
+                params.delete('nama_pu');
+            }
 
-            currentPage = 1;
-            renderTable();
+            if (status) {
+                params.set('status', status);
+            } else {
+                params.delete('status');
+            }
+
+            if (statusPembayaran) {
+                params.set('status_pembayaran', statusPembayaran);
+            } else {
+                params.delete('status_pembayaran');
+            }
+
+            // Reset ke halaman 1 saat filter
+            params.delete('page');
+
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.location.href = newUrl;
+        }
+
+        // Set nilai filter dari URL saat halaman load
+        function setFilterFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+
+            const namaPU = params.get('nama_pu');
+            const status = params.get('status');
+            const statusPembayaran = params.get('status_pembayaran');
+
+            if (namaPU) document.getElementById('searchNamaPU').value = namaPU;
+            if (status) document.getElementById('filterStatus').value = status;
+            if (statusPembayaran) document.getElementById('filterStatusPembayaran').value = statusPembayaran;
         }
 
         // Event listeners
-        document.getElementById('searchNamaPU').addEventListener('input', filterData);
+        document.getElementById('searchNamaPU').addEventListener('input', debounce(filterData, 500));
         document.getElementById('filterStatus').addEventListener('change', filterData);
         document.getElementById('filterStatusPembayaran').addEventListener('change', filterData);
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-            document.getElementById('searchNamaPU').value = '';
-            document.getElementById('filterStatus').value = '';
-            document.getElementById('filterStatusPembayaran').value = '';
-            filterData();
+            window.location.href = window.location.pathname;
         });
 
-        document.getElementById('pagination').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('disabled')) {
-                currentPage = parseInt(e.target.dataset.page);
-                renderTable();
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }
-        });
+        // Debounce function untuk search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
 
         // Initial render
+        setFilterFromUrl();
         renderTable();
     </script>
 @endsection

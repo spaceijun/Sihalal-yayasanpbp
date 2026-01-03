@@ -11,12 +11,26 @@ use Illuminate\View\View;
 class DataLapanganController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $dataLapangans = DataLapangan::with('enumerator')
-            ->whereHas('enumerator', function ($q) {
-                $q->where('koordinator_id', Auth::user()->koordinator->id);
-            })->latest()->paginate(10); // ← jumlah data per halaman
+        $query = DataLapangan::with('enumerator');
+
+        // Filter berdasarkan nama PU
+        if ($request->filled('nama_pu')) {
+            $query->where('nama_pu', 'like', '%' . $request->nama_pu . '%');
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter berdasarkan status pembayaran
+        if ($request->filled('status_pembayaran')) {
+            $query->where('status_pembayaran', $request->status_pembayaran);
+        }
+
+        $dataLapangans = $query->paginate(10)->appends($request->all());
 
         return view('koordinator.data-lapangan.index', compact('dataLapangans'));
     }

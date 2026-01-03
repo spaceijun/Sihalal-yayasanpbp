@@ -13,7 +13,10 @@ class DataLapanganController extends Controller
 
     public function index(Request $request)
     {
-        $query = DataLapangan::with('enumerator');
+        $query = DataLapangan::with('enumerator')
+            ->whereHas('enumerator', function ($q) {
+                $q->where('koordinator_id', Auth::user()->koordinator->id);
+            });
 
         // Filter berdasarkan nama PU
         if ($request->filled('nama_pu')) {
@@ -30,11 +33,10 @@ class DataLapanganController extends Controller
             $query->where('status_pembayaran', $request->status_pembayaran);
         }
 
-        $dataLapangans = $query->paginate(10)->appends($request->all());
+        $dataLapangans = $query->latest()->paginate(10)->appends($request->all());
 
         return view('koordinator.data-lapangan.index', compact('dataLapangans'));
     }
-
     public function show($id): View
     {
         $dataLapangan = DataLapangan::with('enumerator')->find($id);

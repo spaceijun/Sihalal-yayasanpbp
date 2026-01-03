@@ -100,9 +100,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div id="paginationInfo"></div>
-                            <nav>
-                                <ul class="pagination mb-0" id="pagination"></ul>
-                            </nav>
+                            @include('layouts.pagination', ['paginator' => $dataLapangans])
                         </div>
                     </div>
                 </div>
@@ -113,7 +111,12 @@
     <script>
         // Data dari Laravel (inject dari controller)
         const allData = @json($dataLapangans->items());
-
+        const paginationData = {
+            total: {{ $dataLapangans->total() }},
+            perPage: {{ $dataLapangans->perPage() }},
+            currentPage: {{ $dataLapangans->currentPage() }},
+            lastPage: {{ $dataLapangans->lastPage() }}
+        };
         let currentPage = 1;
         const itemsPerPage = 10;
         let filteredData = [...allData];

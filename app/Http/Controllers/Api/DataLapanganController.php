@@ -446,9 +446,18 @@ class DataLapanganController extends Controller
     {
         $query = DataLapangan::with('enumerator');
 
-        // Filter by nama PU
-        if ($request->filled('nama_pu')) {
-            $query->where('nama_pu', 'like', '%' . $request->nama_pu . '%');
+        // Filter berdasarkan search (nama_pu atau nama_lengkap enumerator)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+
+            $query->where(function ($q) use ($searchTerm) {
+                // Cari di nama_pu
+                $q->where('nama_pu', 'like', '%' . $searchTerm . '%')
+                    // ATAU cari di nama_lengkap enumerator
+                    ->orWhereHas('enumerator', function ($subQ) use ($searchTerm) {
+                        $subQ->where('nama_lengkap', 'like', '%' . $searchTerm . '%');
+                    });
+            });
         }
 
         // Filter by status

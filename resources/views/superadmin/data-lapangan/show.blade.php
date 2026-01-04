@@ -133,6 +133,11 @@
                         <strong>NIK</strong>
                         <p class="text-muted mb-0">{{ $dataLapangan->nik }}</p>
                     </div>
+                    <hr>
+                    <div class="form-group mb-3">
+                        <strong>No Telephone</strong>
+                        <p class="text-muted mb-0">{{ $dataLapangan->telephone ?? 'Tidak Ada Data' }}</p>
+                    </div>
 
                     <hr>
 

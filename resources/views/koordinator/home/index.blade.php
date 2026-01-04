@@ -132,9 +132,9 @@
                                 @forelse($dataLapangan as $index => $data)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
+                                        <td>{{ $data->created_at->format('d M Y H:i') }}</td>
                                         <td>{{ $data->enumerator->nama_lengkap }}</td>
                                         <td>{{ $data->nama_pu }}</td>
-                                        <td>{{ $data->status }}</td>
                                         <td>
                                             @if ($data->status == 'PENDING')
                                                 <span class="badge bg-warning">{{ $data->status }}</span>
@@ -146,7 +146,6 @@
                                                 <span class="badge bg-secondary">{{ $data->status }}</span>
                                             @endif
                                         </td>
-                                        <td>{{ $data->created_at->format('d M Y H:i') }}</td>
                                     </tr>
                                 @empty
                                     <tr>

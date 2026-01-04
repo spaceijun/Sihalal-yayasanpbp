@@ -29,12 +29,13 @@
                     <form id="searchForm">
                         @csrf
                         <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="nama_pu" class="form-label">Nama PU</label>
-                                <input type="text" class="form-control" id="nama_pu" name="nama_pu"
-                                    placeholder="Cari berdasarkan nama PU..." value="{{ request('nama_pu') }}">
+                            <div class="col-md-5">
+                                <label for="search" class="form-label">Cari Nama PU / Pendamping</label>
+                                <input type="text" class="form-control" id="search" name="search"
+                                    placeholder="Cari berdasarkan nama PU atau pendamping..."
+                                    value="{{ request('search') }}">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="status-1" class="form-label">Status</label>
                                 <select class="form-control" id="status-1" name="status">
                                     <option value="">Semua Status</option>
@@ -111,7 +112,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Element references
             const searchForm = document.getElementById('searchForm');
-            const namaPuInput = document.getElementById('nama_pu');
+            const searchInput = document.getElementById('search');
             const statusSelect = document.getElementById('status-1');
             const tanggalDariInput = document.getElementById('tanggal_dari');
             const tanggalSampaiInput = document.getElementById('tanggal_sampai');
@@ -150,8 +151,8 @@
                 const params = new URLSearchParams();
 
                 // Add search parameters
-                if (namaPuInput.value.trim()) {
-                    params.append('nama_pu', namaPuInput.value.trim());
+                if (searchInput.value.trim()) {
+                    params.append('search', searchInput.value.trim());
                 }
 
                 if (statusSelect.value.trim()) {
@@ -229,9 +230,9 @@
             }
 
             /**
-             * Instant search with debounce on nama_pu input
+             * Instant search with debounce on search input
              */
-            namaPuInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     loadData();

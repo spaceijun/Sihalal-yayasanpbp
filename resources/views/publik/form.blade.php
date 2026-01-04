@@ -119,6 +119,20 @@
                                                 @enderror
                                             </div>
 
+                                            <!-- Telephone -->
+                                            <div class="mb-3">
+                                                <label for="telephone" class="form-label">Nomor Telepon <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="number" id="telephone" name="telephone"
+                                                    class="form-control @error('telephone') is-invalid @enderror"
+                                                    value="{{ old('telephone') }}" required autofocus
+                                                    placeholder="Masukkan nomor telepon">
+                                                <small class="text-muted">Nomor telepon harus diisi</small>
+                                                @error('telephone')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
                                             <!-- NIK with Validation -->
                                             <div class="mb-3">
                                                 <label for="nik" class="form-label">NIK <span
@@ -126,8 +140,8 @@
                                                 <input type="text" id="nik" name="nik"
                                                     class="form-control @error('nik') is-invalid @enderror"
                                                     value="{{ old('nik') }}" required
-                                                    placeholder="Masukkan NIK (16 digit)" maxlength="16" pattern="[0-9]{16}"
-                                                    inputmode="numeric">
+                                                    placeholder="Masukkan NIK (16 digit)" maxlength="16"
+                                                    pattern="[0-9]{16}" inputmode="numeric">
                                                 <div class="d-flex justify-content-between align-items-center mt-1">
                                                     <small class="text-muted" id="nikCounter">
                                                         <i class="ri-information-line"></i> 0/16 digit

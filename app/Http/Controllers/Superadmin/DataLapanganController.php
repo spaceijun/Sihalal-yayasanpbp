@@ -28,6 +28,11 @@ class DataLapanganController extends Controller
             $query->where('nama_pu', 'like', '%' . $request->nama_pu . '%');
         }
 
+        // Filter berdasarkan enumerator_id
+        if ($request->filled('enumerator_id')) {
+            $query->where('enumerator_id', $request->enumerator_id);
+        }
+
         // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->where('status', $request->status);

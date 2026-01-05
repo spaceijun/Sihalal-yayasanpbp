@@ -50,7 +50,7 @@ class DataLapanganController extends Controller
     public function create(): View
     {
         $dataLapangan = new DataLapangan();
-        $enumerators = Enumerator::all();
+        $enumerators = Enumerator::orderBy('nama_lengkap')->get();
 
         return view('publik.form', compact('dataLapangan', 'enumerators'));
     }
@@ -296,6 +296,11 @@ class DataLapanganController extends Controller
     {
         $validatedData = $request->validated();
 
+        // FORCE UPPERCASE untuk nama_pu (double protection)
+        if (isset($validatedData['nama_pu'])) {
+            $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
+        }
+
         // Handle foto_ktp
         if ($request->hasFile('foto_ktp')) {
             $image = $request->file('foto_ktp');
@@ -345,9 +350,20 @@ class DataLapanganController extends Controller
         DataLapangan::create($validatedData);
 
         return Redirect::route('formulir.halal')
-            ->with('success', 'Data lapangan berhasil disimpan!');;
+            ->with('success', 'Data lapangan berhasil disimpan!');
     }
 
+    /**
+     * Update the status of a data lapangan.
+     *
+     * @param Request $request
+     * @param DataLapangan $dataLapangan
+     * @return RedirectResponse
+     *
+     * Validate the request data and update the status of the specified data lapangan.
+     * If the validation is successful, the status of the data lapangan will be updated.
+     * A success message will be displayed to the user.
+     */
     public function updateStatusPayment(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([

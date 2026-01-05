@@ -85,23 +85,50 @@
                                             enctype="multipart/form-data" class="mt-4" id="formDataLapangan">
                                             @csrf
 
-                                            <!-- Enumerator -->
+                                            <!-- Enumerator dengan Search -->
                                             <div class="mb-3">
-                                                <label for="enumerator_id" class="form-label">Nama Pendamping <span
+                                                <label for="enumerator_search" class="form-label">Nama Pendamping <span
                                                         class="text-danger">*</span></label>
+
+                                                <!-- Search Input -->
+                                                <div class="position-relative">
+                                                    <input type="text" id="enumerator_search" class="form-control"
+                                                        placeholder="🔍 Ketik untuk mencari pendamping..."
+                                                        autocomplete="off">
+                                                    <div id="search_results"
+                                                        class="position-absolute w-100 bg-white border rounded shadow-sm mt-1"
+                                                        style="display: none; max-height: 200px; overflow-y: auto; z-index: 1000;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Hidden Select (actual form field) -->
                                                 <select id="enumerator_id" name="enumerator_id"
-                                                    class="form-control @error('enumerator_id') is-invalid @enderror"
-                                                    required>
+                                                    class="form-control mt-2 @error('enumerator_id') is-invalid @enderror"
+                                                    required style="display: none;">
                                                     <option value="">-- Pilih Pendamping --</option>
                                                     @foreach ($enumerators as $enumerator)
                                                         <option value="{{ $enumerator->id }}"
+                                                            data-name="{{ $enumerator->nama_lengkap }}"
                                                             {{ old('enumerator_id') == $enumerator->id ? 'selected' : '' }}>
                                                             {{ $enumerator->nama_lengkap }}
                                                         </option>
                                                     @endforeach
                                                 </select>
+
+                                                <!-- Display Selected -->
+                                                <div id="selected_enumerator" class="mt-2" style="display: none;">
+                                                    <div class="alert alert-info alert-dismissible fade show p-2 mb-0"
+                                                        role="alert">
+                                                        <i class="ri-user-line me-1"></i>
+                                                        <strong>Terpilih:</strong> <span id="selected_name"></span>
+                                                        <button type="button" class="btn-close"
+                                                            style="font-size: 0.7rem; padding: 0.25rem;"
+                                                            onclick="clearEnumeratorSelection()"></button>
+                                                    </div>
+                                                </div>
+
                                                 @error('enumerator_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -110,9 +137,9 @@
                                                 <label for="nama_pu" class="form-label">Nama PU <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" id="nama_pu" name="nama_pu"
-                                                    class="form-control text-uppercase @error('nama_pu') is-invalid @enderror"
+                                                    class="form-control @error('nama_pu') is-invalid @enderror"
                                                     value="{{ old('nama_pu') }}" required autofocus
-                                                    placeholder="Masukkan nama PU" style="text-transform: uppercase;">
+                                                    placeholder="Masukkan nama PU">
                                                 <small class="text-muted">Nama akan otomatis diubah ke huruf besar</small>
                                                 @error('nama_pu')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -125,7 +152,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="number" id="telephone" name="telephone"
                                                     class="form-control @error('telephone') is-invalid @enderror"
-                                                    value="{{ old('telephone') }}" required autofocus
+                                                    value="{{ old('telephone') }}" required
                                                     placeholder="Masukkan nomor telepon">
                                                 <small class="text-muted">Nomor telepon harus diisi</small>
                                                 @error('telephone')
@@ -304,325 +331,7 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const nikInput = document.getElementById('nik');
-            const nikCounter = document.getElementById('nikCounter');
-            const nikError = document.getElementById('nikError');
-            const form = document.getElementById('formDataLapangan');
-            const submitBtn = document.getElementById('submitBtn');
-            const namaPuInput = document.getElementById('nama_pu');
-
-            // Check if all elements exist before proceeding
-            if (!nikInput || !nikCounter || !form || !submitBtn || !namaPuInput) {
-                console.error('Required form elements not found');
-                return;
-            }
-
-            let nikCheckTimeout;
-            let isNikValid = false;
-
-            // ============================================
-            // AUTO HIDE SUCCESS/ERROR ALERTS
-            // ============================================
-            const alerts = document.querySelectorAll('.alert');
-            if (alerts.length > 0) {
-                alerts.forEach(alert => {
-                    setTimeout(() => {
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    }, 5000);
-                });
-            }
-
-            // ============================================
-            // NAMA PU - AUTO UPPERCASE
-            // ============================================
-            namaPuInput.addEventListener('input', function(e) {
-                this.value = this.value.toUpperCase();
-            });
-
-            namaPuInput.addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    this.value = this.value.toUpperCase();
-                }, 10);
-            });
-
-            // ============================================
-            // NIK VALIDATION & COUNTER (FIXED)
-            // ============================================
-            function updateNikCounter(length) {
-                if (!nikCounter) return;
-
-                const nikStatus = document.getElementById('nikStatus');
-                if (!nikStatus) return;
-
-                // Update counter text dengan icon
-                nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
-
-                if (length === 16) {
-                    // Valid: 16 digit
-                    nikCounter.classList.remove('text-muted', 'text-danger', 'text-warning');
-                    nikCounter.classList.add('text-success');
-                    nikCounter.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${length}/16 digit`;
-                    nikStatus.textContent = '✓ Lengkap';
-                    nikStatus.classList.remove('text-muted', 'text-danger', 'text-warning');
-                    nikStatus.classList.add('text-success');
-                } else if (length > 16) {
-                    // Error: Lebih dari 16 digit (tidak akan terjadi karena maxlength, tapi sebagai fallback)
-                    nikCounter.classList.remove('text-muted', 'text-success', 'text-warning');
-                    nikCounter.classList.add('text-danger');
-                    nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
-                    nikStatus.textContent = '✗ Terlalu panjang!';
-                    nikStatus.classList.remove('text-muted', 'text-success', 'text-warning');
-                    nikStatus.classList.add('text-danger');
-                } else if (length > 0) {
-                    // Warning: Kurang dari 16 digit
-                    nikCounter.classList.remove('text-muted', 'text-success', 'text-danger');
-                    nikCounter.classList.add('text-warning');
-                    nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
-                    nikStatus.textContent = `Kurang ${16 - length} digit`;
-                    nikStatus.classList.remove('text-muted', 'text-success', 'text-danger');
-                    nikStatus.classList.add('text-warning');
-                } else {
-                    // Empty
-                    nikCounter.classList.remove('text-success', 'text-danger', 'text-warning');
-                    nikCounter.classList.add('text-muted');
-                    nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
-                    nikStatus.textContent = 'Belum lengkap';
-                    nikStatus.classList.remove('text-success', 'text-danger', 'text-warning');
-                    nikStatus.classList.add('text-muted');
-                }
-            }
-
-            function checkNikExists(nik) {
-                if (!nikInput) return;
-
-                if (nik.length !== 16) {
-                    isNikValid = false;
-                    return;
-                }
-
-                // Remove existing warning
-                const existingWarning = document.getElementById('nikExistsWarning');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-
-                // Create loading indicator
-                const loadingDiv = document.createElement('div');
-                loadingDiv.id = 'nikExistsWarning';
-                loadingDiv.className = 'mt-2';
-                loadingDiv.innerHTML =
-                    '<small class="text-info"><i class="ri-loader-4-line"></i> Memeriksa NIK...</small>';
-                nikInput.parentElement.appendChild(loadingDiv);
-
-                // Make AJAX request to check NIK
-                fetch('/check-nik', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
-                                document.querySelector('input[name="_token"]')?.value
-                        },
-                        body: JSON.stringify({
-                            nik: nik
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const warningDiv = document.getElementById('nikExistsWarning');
-
-                        if (data.exists) {
-                            isNikValid = false;
-                            nikInput.classList.remove('is-valid');
-                            nikInput.classList.add('is-invalid');
-
-                            if (warningDiv) {
-                                warningDiv.innerHTML = `
-                                <div class="alert alert-warning alert-dismissible fade show p-2 mb-0" role="alert">
-                                    <i class="ri-error-warning-line me-1"></i>
-                                    <small><strong>NIK sudah terdaftar!</strong> NIK ini sudah digunakan oleh: <strong>${data.nama_pu || 'Pengguna lain'}</strong></small>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.7rem; padding: 0.25rem;"></button>
-                                </div>
-                            `;
-                            }
-
-                            showToast('warning', 'NIK sudah terdaftar di database!');
-                        } else {
-                            isNikValid = true;
-                            nikInput.classList.remove('is-invalid');
-                            nikInput.classList.add('is-valid');
-
-                            if (warningDiv) {
-                                warningDiv.innerHTML =
-                                    '<small class="text-success"><i class="ri-checkbox-circle-line me-1"></i>NIK tersedia</small>';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking NIK:', error);
-                        const warningDiv = document.getElementById('nikExistsWarning');
-                        if (warningDiv) {
-                            warningDiv.remove();
-                        }
-                        isNikValid = true; // Allow submission if check fails
-                    });
-            }
-
-            nikInput.addEventListener('input', function(e) {
-                // Only allow numbers and limit to 16 digits
-                let value = this.value.replace(/[^0-9]/g, '');
-
-                // Enforce maximum 16 digits
-                if (value.length > 16) {
-                    value = value.slice(0, 16);
-                }
-
-                this.value = value;
-                const length = value.length;
-                updateNikCounter(length);
-
-                // Clear previous validation states
-                nikInput.classList.remove('is-valid', 'is-invalid');
-                const existingWarning = document.getElementById('nikExistsWarning');
-                if (existingWarning) {
-                    existingWarning.remove();
-                }
-
-                // Clear previous timeout
-                clearTimeout(nikCheckTimeout);
-
-                // Check NIK after user stops typing (debounce)
-                if (length === 16) {
-                    nikCheckTimeout = setTimeout(() => {
-                        checkNikExists(this.value);
-                    }, 500);
-                } else {
-                    isNikValid = false;
-                }
-            });
-
-            nikInput.addEventListener('keypress', function(e) {
-                if (e.key < '0' || e.key > '9') {
-                    e.preventDefault();
-                }
-            });
-
-            nikInput.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-                const numericData = pastedData.replace(/[^0-9]/g, '').slice(0, 16);
-                this.value = numericData;
-
-                const event = new Event('input', {
-                    bubbles: true
-                });
-                this.dispatchEvent(event);
-            });
-
-            // ============================================
-            // FORM SUBMISSION
-            // ============================================
-            form.addEventListener('submit', function(e) {
-                if (!nikInput) return;
-
-                const nikValue = nikInput.value;
-
-                if (nikValue.length !== 16) {
-                    e.preventDefault();
-                    nikInput.classList.add('is-invalid');
-                    if (nikError) nikError.style.display = 'block';
-
-                    nikInput.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    nikInput.focus();
-
-                    showToast('error', 'NIK harus tepat 16 digit!');
-                    return false;
-                }
-
-                if (!isNikValid) {
-                    e.preventDefault();
-                    nikInput.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    nikInput.focus();
-
-                    showToast('error', 'NIK sudah terdaftar di database!');
-                    return false;
-                }
-
-                // Disable submit button to prevent double submission
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
-                }
-            });
-
-            // ============================================
-            // IMAGE FILE VALIDATION
-            // ============================================
-            const imageInputs = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_proses', 'foto_produk'];
-
-            imageInputs.forEach(inputId => {
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.addEventListener('change', function(e) {
-                        const file = e.target.files[0];
-                        if (file) {
-                            if (file.size > 10485760) {
-                                showToast('error',
-                                    `Ukuran file ${inputId.replace(/_/g, ' ')} maksimal 10MB!`);
-                                this.value = '';
-                                return;
-                            }
-
-                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                            if (!allowedTypes.includes(file.type)) {
-                                showToast('error',
-                                    `Format file ${inputId.replace(/_/g, ' ')} harus JPG, JPEG, atau PNG!`
-                                );
-                                this.value = '';
-                                return;
-                            }
-                        }
-                    });
-                }
-            });
-
-            // ============================================
-            // TOAST NOTIFICATION FUNCTION
-            // ============================================
-            function showToast(type, message) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: type,
-                        title: type === 'success' ? 'Berhasil!' : (type === 'warning' ? 'Peringatan!' :
-                            'Gagal!'),
-                        text: message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                } else {
-                    alert(message);
-                }
-            }
-
-            // Trigger counter on page load if NIK already has value
-            if (nikInput.value) {
-                updateNikCounter(nikInput.value.length);
-            }
-        });
-    </script>
+    <!-- Load External JavaScript -->
+    <script src="{{ asset('assets/js/form-halal.js') }}"></script>
 @endsection

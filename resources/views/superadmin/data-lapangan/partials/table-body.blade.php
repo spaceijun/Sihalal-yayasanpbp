@@ -41,9 +41,9 @@
                 @csrf
                 @method('DELETE')
                 @if (
-                    $dataLapangan->status == 'Pending' ||
-                        $dataLapangan->status == 'Ditolak' ||
-                        $dataLapangan->status_pembayaran == 'Pending')
+                    $dataLapangan->status == 'PENDING' ||
+                        $dataLapangan->status == 'DITOLAK' ||
+                        $dataLapangan->status_pembayaran == 'PENDING')
                     <button type="submit" class="btn btn-danger btn-sm">
                         <i class="las la-trash"></i> {{ __('Delete') }}
                     </button>

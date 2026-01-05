@@ -40,7 +40,7 @@
                         <span>Data Informasi</span>
 
                         <!-- Button Update Status - Hanya muncul jika status PROGRESS OSS -->
-                        @if ($dataLapangan->status == 'PROGRESS OSS')
+                        @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#modalUpdateStatusHalal">
                                 <i class="fas fa-edit me-2"></i>Update Status Halal

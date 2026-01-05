@@ -139,8 +139,17 @@ class DataLapanganController extends Controller
             return back()->with('error', 'Foto KTP tidak tersedia');
         }
 
-        $fotoPath = public_path('storage/' . $dataLapangan->foto_ktp);
+        // Alternatif yang lebih reliable:
+        $fotoPath = storage_path('app/public/' . $dataLapangan->foto_ktp);
 
+        // Atau deteksi otomatis:
+        if (file_exists(public_path('storage/' . $dataLapangan->foto_ktp))) {
+            $fotoPath = public_path('storage/' . $dataLapangan->foto_ktp);
+        } elseif (file_exists(storage_path('app/public/' . $dataLapangan->foto_ktp))) {
+            $fotoPath = storage_path('app/public/' . $dataLapangan->foto_ktp);
+        } else {
+            return response()->json(['error' => 'File foto KTP tidak ditemukan'], 404);
+        }
         if (!file_exists($fotoPath)) {
             return back()->with('error', 'File foto KTP tidak ditemukan');
         }

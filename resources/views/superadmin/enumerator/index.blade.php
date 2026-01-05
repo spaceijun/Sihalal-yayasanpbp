@@ -37,8 +37,8 @@
                                         value="{{ request('search') }}">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="status" class="form-label">Status</label>
-                                    <select class="form-control" id="status" name="status">
+                                    <label for="" class="form-label">Status</label>
+                                    <select class="form-control" id="" name="status">
                                         <option value="">Semua Status</option>
                                         <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>
                                             Aktif</option>

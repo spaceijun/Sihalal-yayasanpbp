@@ -38,7 +38,7 @@ class DataLapanganController extends Controller
             $query->where('status', $request->status);
         }
 
-        $dataLapangans = $query->paginate(10);
+        $dataLapangans = $query->paginate(20);
         $i = ($dataLapangans->currentPage() - 1) * $dataLapangans->perPage();
 
         return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i'));

@@ -37,8 +37,8 @@
                                         value="{{ request('search') }}">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="" class="form-label">Status</label>
-                                    <select class="form-control" id="" name="status">
+                                    <label for="status-1" class="form-label">Status</label>
+                                    <select class="form-control" id="status-1" name="status">
                                         <option value="">Semua Status</option>
                                         <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>
                                             Aktif</option>
@@ -107,7 +107,7 @@
             // Element references
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('search');
-            const statusSelect = document.getElementById('status');
+            const statusSelect = document.getElementById('status-1');
             const resetBtn = document.getElementById('resetBtn');
             const tableBody = document.getElementById('tableBody');
             const paginationWrapper = document.getElementById('paginationWrapper');
@@ -123,6 +123,7 @@
             const API_BASE_URL = '/api/superadmin/enumerators';
 
             let searchTimeout;
+            let isLoading = false; // Flag to prevent multiple simultaneous requests
 
             /**
              * Get CSRF token from meta tag or form input
@@ -136,8 +137,17 @@
              * Main function to load data via AJAX
              */
             function loadData(url = null) {
-                // Show loading state - HIDE TABLE AND SHOW LOADING
-                tableWrapper.style.display = 'none';
+                // Prevent multiple simultaneous requests
+                if (isLoading) {
+                    console.log('Request already in progress, skipping...');
+                    return;
+                }
+
+                isLoading = true;
+
+                // Show loading state - HIDE table content and SHOW loading
+                tableWrapper.style.opacity = '0.5';
+                tableWrapper.style.pointerEvents = 'none';
                 tableLoading.style.display = 'block';
 
                 // Disable form inputs during loading
@@ -173,6 +183,8 @@
                     fetchUrl += '?' + queryString;
                 }
 
+                console.log('Fetching URL:', fetchUrl);
+
                 // Fetch data from API
                 fetch(fetchUrl, {
                         method: 'GET',
@@ -191,6 +203,8 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Data received:', data);
+
                         if (data.success) {
                             // Update table body with new HTML
                             tableBody.innerHTML = data.table;
@@ -210,12 +224,16 @@
                         alert('Terjadi kesalahan saat memuat data: ' + error.message);
                     })
                     .finally(() => {
-                        // Hide loading state - SHOW TABLE AND HIDE LOADING
+                        // Hide loading state - SHOW table and HIDE loading
                         tableLoading.style.display = 'none';
-                        tableWrapper.style.display = 'block';
+                        tableWrapper.style.opacity = '1';
+                        tableWrapper.style.pointerEvents = 'auto';
 
                         // Enable form inputs
                         formInputs.forEach(input => input.disabled = false);
+
+                        // Reset loading flag
+                        isLoading = false;
                     });
             }
 
@@ -252,7 +270,11 @@
                 const deleteButtons = document.querySelectorAll('.btn-delete');
 
                 deleteButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
+                    // Remove old event listeners by cloning
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function(e) {
                         e.preventDefault();
 
                         // Store the enumerator ID
@@ -319,7 +341,11 @@
                 const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
 
                 paginationLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
+                    // Remove old event listeners by cloning
+                    const newLink = link.cloneNode(true);
+                    link.parentNode.replaceChild(newLink, link);
+
+                    newLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = this.getAttribute('href');
                         if (url && url !== '#') {
@@ -341,6 +367,8 @@
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted ||
                     (window.performance && window.performance.navigation.type === 2)) {
+                    // Reset loading flag in case it was stuck
+                    isLoading = false;
                     loadData();
                 }
             });

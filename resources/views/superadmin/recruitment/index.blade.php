@@ -37,8 +37,8 @@
                                         value="{{ request('search') }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="" class="form-label">Status</label>
-                                    <select class="form-control" id="" name="status">
+                                    <label for="status-1" class="form-label">Status</label>
+                                    <select class="form-control" id="status-1" name="status">
                                         <option value="">Semua Status</option>
                                         <option value="Melamar" {{ request('status') == 'Melamar' ? 'selected' : '' }}>
                                             Melamar</option>
@@ -51,7 +51,7 @@
                                 <div class="col-md-4">
                                     <label class="form-label">&nbsp;</label>
                                     <button type="button" id="resetBtn" class="btn btn-secondary w-100">
-                                        <i class="las la-redo-alt"></i>Reset Filter
+                                        <i class="las la-redo-alt"></i> Reset Filter
                                     </button>
                                 </div>
                             </div>
@@ -108,22 +108,35 @@
             // Element references
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('search');
-            const statusSelect = document.getElementById('status');
+            const statusSelect = document.getElementById('status-1');
             const resetBtn = document.getElementById('resetBtn');
             const tableBody = document.getElementById('tableBody');
             const paginationWrapper = document.getElementById('paginationWrapper');
             const tableLoading = document.getElementById('tableLoading');
             const tableWrapper = document.getElementById('tableWrapper');
 
+            // Check if all elements exist
+            if (!searchInput || !statusSelect || !tableBody || !paginationWrapper) {
+                console.error('Required elements not found!');
+                return;
+            }
+
             // Modal elements
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const deleteModalEl = document.getElementById('deleteModal');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            let deleteModal = null;
             let deleteRecruitmentId = null;
+
+            // Initialize modal only if element exists
+            if (deleteModalEl && typeof bootstrap !== 'undefined') {
+                deleteModal = new bootstrap.Modal(deleteModalEl);
+            }
 
             // API Base URL
             const API_BASE_URL = '/api/superadmin/recruitments';
 
             let searchTimeout;
+            let isLoading = false; // Prevent multiple simultaneous requests
 
             /**
              * Get CSRF token from meta tag or form input
@@ -137,12 +150,20 @@
              * Main function to load data via AJAX
              */
             function loadData(url = null) {
+                // Prevent multiple simultaneous requests
+                if (isLoading) {
+                    console.log('Already loading, skipping...');
+                    return;
+                }
+
+                isLoading = true;
+
                 // Show loading state - HIDE TABLE AND SHOW LOADING
                 tableWrapper.style.display = 'none';
                 tableLoading.style.display = 'block';
 
                 // Disable form inputs during loading
-                const formInputs = searchForm.querySelectorAll('input, select');
+                const formInputs = searchForm.querySelectorAll('input, select, button');
                 formInputs.forEach(input => input.disabled = true);
 
                 // Prepare fetch URL with parameters
@@ -150,21 +171,27 @@
                 const params = new URLSearchParams();
 
                 // Add search parameters
-                if (searchInput.value.trim()) {
-                    params.append('search', searchInput.value.trim());
+                const searchValue = searchInput.value.trim();
+                if (searchValue) {
+                    params.append('search', searchValue);
                 }
 
-                if (statusSelect.value.trim()) {
-                    params.append('status', statusSelect.value.trim());
+                const statusValue = statusSelect.value.trim();
+                if (statusValue) {
+                    params.append('status', statusValue);
                 }
 
                 // Handle pagination
                 if (url) {
-                    // Extract page parameter from pagination URL
-                    const urlObj = new URL(url, window.location.origin);
-                    const page = urlObj.searchParams.get('page');
-                    if (page) {
-                        params.append('page', page);
+                    try {
+                        // Extract page parameter from pagination URL
+                        const urlObj = new URL(url, window.location.origin);
+                        const page = urlObj.searchParams.get('page');
+                        if (page) {
+                            params.append('page', page);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing URL:', e);
                     }
                 }
 
@@ -173,6 +200,8 @@
                 if (queryString) {
                     fetchUrl += '?' + queryString;
                 }
+
+                console.log('Fetching:', fetchUrl);
 
                 // Fetch data from API
                 fetch(fetchUrl, {
@@ -192,6 +221,8 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Data received:', data);
+
                         if (data.success) {
                             // Update table body with new HTML
                             tableBody.innerHTML = data.table;
@@ -203,6 +234,7 @@
                             attachDeleteHandlers();
                             attachPaginationHandlers();
                         } else {
+                            console.error('API returned error:', data.message);
                             alert(data.message || 'Terjadi kesalahan saat memuat data');
                         }
                     })
@@ -217,6 +249,9 @@
 
                         // Enable form inputs
                         formInputs.forEach(input => input.disabled = false);
+
+                        // Reset loading flag
+                        isLoading = false;
                     });
             }
 
@@ -260,7 +295,9 @@
                         deleteRecruitmentId = this.dataset.id;
 
                         // Show the modal
-                        deleteModal.show();
+                        if (deleteModal) {
+                            deleteModal.show();
+                        }
                     });
                 });
             }
@@ -268,50 +305,54 @@
             /**
              * Handle confirm delete button click
              */
-            confirmDeleteBtn.addEventListener('click', function() {
-                if (!deleteRecruitmentId) return;
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (!deleteRecruitmentId) return;
 
-                // Disable button during deletion
-                confirmDeleteBtn.disabled = true;
-                confirmDeleteBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghapus...';
+                    // Disable button during deletion
+                    confirmDeleteBtn.disabled = true;
+                    confirmDeleteBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghapus...';
 
-                fetch(`${API_BASE_URL}/${deleteRecruitmentId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': getCsrfToken(),
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Hide modal
-                            deleteModal.hide();
+                    fetch(`${API_BASE_URL}/${deleteRecruitmentId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': getCsrfToken(),
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Hide modal
+                                if (deleteModal) {
+                                    deleteModal.hide();
+                                }
 
-                            // Show success message
-                            alert(data.message || 'Data berhasil dihapus');
+                                // Show success message
+                                alert(data.message || 'Data berhasil dihapus');
 
-                            // Reload data after successful delete
-                            loadData();
-                        } else {
-                            alert(data.message || 'Gagal menghapus data');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting data:', error);
-                        alert('Terjadi kesalahan saat menghapus data');
-                    })
-                    .finally(() => {
-                        // Reset button state
-                        confirmDeleteBtn.disabled = false;
-                        confirmDeleteBtn.innerHTML = '<i class="las la-trash"></i> Hapus';
-                        deleteRecruitmentId = null;
-                    });
-            });
+                                // Reload data after successful delete
+                                loadData();
+                            } else {
+                                alert(data.message || 'Gagal menghapus data');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting data:', error);
+                            alert('Terjadi kesalahan saat menghapus data');
+                        })
+                        .finally(() => {
+                            // Reset button state
+                            confirmDeleteBtn.disabled = false;
+                            confirmDeleteBtn.innerHTML = '<i class="las la-trash"></i> Hapus';
+                            deleteRecruitmentId = null;
+                        });
+                });
+            }
 
             /**
              * Attach pagination handlers to all pagination links
@@ -323,7 +364,8 @@
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = this.getAttribute('href');
-                        if (url && url !== '#') {
+                        if (url && url !== '#' && !this.parentElement.classList.contains(
+                            'disabled')) {
                             loadData(url);
                         }
                     });
@@ -342,6 +384,8 @@
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted ||
                     (window.performance && window.performance.navigation.type === 2)) {
+                    // Reset loading flag in case it was stuck
+                    isLoading = false;
                     loadData();
                 }
             });

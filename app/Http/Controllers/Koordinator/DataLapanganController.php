@@ -60,8 +60,8 @@ class DataLapanganController extends Controller
             $dataLapangan = DataLapangan::findOrFail($id);
 
             // Validasi bahwa status saat ini adalah PROGRESS OSS
-            if ($dataLapangan->status !== 'PROGRESS OSS') {
-                return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS');
+            if ($dataLapangan->status !== 'PROGRESS OSS' && $dataLapangan->status !== 'DITOLAK') {
+                return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK');
             }
 
             // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)

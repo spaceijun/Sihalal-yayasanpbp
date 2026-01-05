@@ -154,7 +154,7 @@
                                         data-bs-target="#modalFotoKTP">
                                         <i class="fas fa-eye me-2"></i>Lihat Foto
                                     </button>
-                                    <a href="{{ route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                    <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                         class="btn btn-primary btn-sm">
                                         <i class="fas fa-download me-2"></i>Download KTP
                                     </a>

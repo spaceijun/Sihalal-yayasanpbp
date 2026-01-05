@@ -18,7 +18,7 @@
             background-color: #fafafa;
             font-family: "Times New Roman", Times, serif;
             font-size: 12pt;
-            line-height: 1.3;
+            line-height: 1.2;
             color: #000;
             -webkit-font-smoothing: antialiased;
         }
@@ -146,6 +146,7 @@
 
         .bio-table td {
             vertical-align: top;
+            line-height: 1;
             padding: 3px 0;
         }
 

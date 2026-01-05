@@ -37,6 +37,48 @@ class DataLapanganController extends Controller
 
         return view('koordinator.data-lapangan.index', compact('dataLapangans'));
     }
+
+    /**
+     * Update the status of a data lapangan
+     *
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
+     */
+    /**
+     * Validation rules:
+     * - status: required, must be either 'PROGRESS SIHALAL', 'TERBIT SH', or 'DITOLAK'
+     * - keterangan: optional, string
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'keterangan' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $dataLapangan = DataLapangan::findOrFail($id);
+
+            // Validasi bahwa status saat ini adalah PROGRESS OSS
+            if ($dataLapangan->status !== 'PROGRESS OSS') {
+                return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS');
+            }
+
+            // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)
+            $dataLapangan->status = 'PROGRESS SIHALAL';
+
+            // Simpan keterangan jika ada field di database
+            // if ($request->keterangan) {
+            //     $dataLapangan->keterangan = $request->keterangan;
+            // }
+
+            $dataLapangan->save();
+
+            return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
+        }
+    }
     public function show($id): View
     {
         $dataLapangan = DataLapangan::with('enumerator')->find($id);

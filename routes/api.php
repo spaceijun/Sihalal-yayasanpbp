@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\DataLapanganController;
+use App\Http\Controllers\Api\EnumeratorApi;
+use App\Http\Controllers\Api\RecruitmentApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +15,12 @@ Route::post('/check-nik', [DataLapanganController::class, 'checkNik'])->name('ch
 Route::middleware(['auth:web', 'role:superadmin'])->group(function () {
 
     Route::prefix('superadmin')->name('api.superadmin.')->group(function () {
-
+        // Enumerator API
+        Route::get('/enumerators', [EnumeratorApi::class, 'index']);
+        Route::delete('/enumerators/{id}', [EnumeratorApi::class, 'destroy']);
+        // Recruitment API
+        Route::get('/recruitments', [RecruitmentApi::class, 'index']);
+        Route::delete('/recruitments/{id}', [RecruitmentApi::class, 'destroy']);
         // Data Lapangan API
         Route::prefix('data-lapangans')->name('data-lapangans.')->group(function () {
             Route::get('/', [DataLapanganController::class, 'apiIndex'])

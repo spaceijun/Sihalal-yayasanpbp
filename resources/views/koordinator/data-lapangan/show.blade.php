@@ -33,10 +33,19 @@
         @endif
 
         <div class="row mt-3">
+            <!-- Card Data Informasi -->
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>
+
+                        <!-- Button Update Status - Hanya muncul jika status PROGRESS OSS -->
+                        @if ($dataLapangan->status == 'PROGRESS OSS')
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalUpdateStatusHalal">
+                                <i class="fas fa-edit me-2"></i>Update Status Halal
+                            </button>
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -126,6 +135,7 @@
                 </div>
             </div>
 
+            <!-- Card Dokumentasi Foto & File -->
             <div class="col-md-6">
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -207,18 +217,12 @@
                                         class="btn btn-outline-success btn-sm flex-grow-1">
                                         <i class="fas fa-download me-2"></i> Download File OSS
                                     </a>
-                                    {{-- <button type="button" class="btn btn-outline-danger btn-sm"
-                                        onclick="deleteFile('{{ $dataLapangan->id }}', 'oss')">
-                                        <i class="fas fa-trash"></i>
-                                    </button> --}}
                                 </div>
                             @else
                                 <div class="alert alert-warning mt-2 mb-0">
                                     <i class="fas fa-exclamation-triangle me-2"></i>File OSS belum tersedia
                                 </div>
                             @endif
-
-
                         </div>
 
                         <hr>
@@ -231,18 +235,12 @@
                                         class="btn btn-outline-success btn-sm flex-grow-1">
                                         <i class="fas fa-download me-2"></i> Download File SIHALAL
                                     </a>
-                                    {{-- <button type="button" class="btn btn-outline-danger btn-sm"
-                                        onclick="deleteFile('{{ $dataLapangan->id }}', 'sihalal')">
-                                        <i class="fas fa-trash"></i>
-                                    </button> --}}
                                 </div>
                             @else
                                 <div class="alert alert-warning mt-2 mb-0">
                                     <i class="fas fa-exclamation-triangle me-2"></i>File SIHALAL belum tersedia
                                 </div>
                             @endif
-
-
                         </div>
                     </div>
                 </div>
@@ -250,7 +248,10 @@
         </div>
     </section>
 
-    <!-- Modal Kolase Foto - UPDATED: Only 3 Photos -->
+    <!-- Include Modal Update Status -->
+    @include('koordinator.data-lapangan.partials.status-modal')
+
+    <!-- Modal Kolase Foto -->
     <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
@@ -260,7 +261,6 @@
                 </div>
                 <div class="modal-body p-3" id="collageContent">
                     <div class="row g-3">
-                        <!-- Grid Layout: 3 Photos in a Row -->
                         <div class="col-md-4">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
@@ -442,58 +442,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        function deleteFile(id, fileType) {
-            if (confirm('Apakah Anda yakin ingin menghapus file ini?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `{{ url('superadmin/data-lapangans') }}/${id}/delete-file`;
-
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = '{{ csrf_token() }}';
-                form.appendChild(csrfToken);
-
-                const fileTypeInput = document.createElement('input');
-                fileTypeInput.type = 'hidden';
-                fileTypeInput.name = 'file_type';
-                fileTypeInput.value = fileType;
-                form.appendChild(fileTypeInput);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
-
-        // File validation
-        document.getElementById('file_oss').addEventListener('change', function(e) {
-            validatePdfFile(e.target);
-        });
-
-        document.getElementById('file_sihalal').addEventListener('change', function(e) {
-            validatePdfFile(e.target);
-        });
-
-        function validatePdfFile(input) {
-            const file = input.files[0];
-            if (file) {
-                if (file.type !== 'application/pdf') {
-                    alert('File harus berformat PDF!');
-                    input.value = '';
-                    return false;
-                }
-
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file maksimal 5MB!');
-                    input.value = '';
-                    return false;
-                }
-            }
-        }
-
-        // Auto hide alerts after 5 seconds
+        // Auto hide alerts after 5 seconds - KECUALI alert di dalam modal
         setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
+            // Hanya ambil alert yang ada di luar modal
+            var alerts = document.querySelectorAll('.content.container-fluid > .alert');
             alerts.forEach(function(alert) {
                 var bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
@@ -537,7 +489,6 @@
             const collageContent = document.getElementById('collageContent');
             const namaPU = '{{ $dataLapangan->nama_pu }}';
 
-            // Show loading indicator
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';

@@ -31,8 +31,6 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-
-                                        <th>User Id</th>
                                         <th>Nama Lengkap</th>
                                         <th>Email</th>
                                         <th>Telephone</th>
@@ -47,22 +45,24 @@
                                         <tr>
                                             <td>{{ ++$i }}</td>
 
-                                            <td>{{ $koordinator->user_id }}</td>
                                             <td>{{ $koordinator->nama_lengkap }}</td>
                                             <td>{{ $koordinator->email }}</td>
                                             <td>{{ $koordinator->telephone }}</td>
                                             <td>{{ $koordinator->alamat }}</td>
-                                            <td>{{ $koordinator->status }}</td>
+                                            <td> <span
+                                                    class="badge bg-{{ $koordinator->status == 'Aktif' ? 'success' : 'danger' }}">
+                                                    {{ $koordinator->status }}
+                                                </span></td>
 
                                             <td>
                                                 <form
                                                     action="{{ route('superadmin.koordinators.destroy', $koordinator->id) }}"
                                                     method="POST">
-                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                    {{-- <button type="button" class="btn btn-sm btn-primary"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#showModal{{ $koordinator->id }}">
                                                         <i class="las la-eye"></i> {{ __('Show') }}
-                                                    </button>
+                                                    </button> --}}
                                                     <a class="btn btn-sm btn-success"
                                                         href="{{ route('superadmin.koordinators.edit', $koordinator->id) }}"><i
                                                             class="las la-edit"></i> {{ __('Edit') }}</a>

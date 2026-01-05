@@ -93,6 +93,7 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
         // Data Lapangan
         Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
         Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
+        Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
         // Data Pendamping
         // Data Pendamping
         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');

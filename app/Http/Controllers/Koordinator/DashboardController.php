@@ -37,7 +37,7 @@ class DashboardController extends Controller
 
         $dataLapangan = DataLapangan::whereHas('enumerator', function ($q) use ($koordinatorId) {
             $q->where('koordinator_id', $koordinatorId);
-        })->get();
+        })->orderBy('created_at', 'desc')->take(20)->get();
 
         return view('koordinator.home.index', compact('pending', 'progress', 'terbitSH', 'dataMasuk', 'dataLapangan'));
     }

@@ -20,12 +20,16 @@ class LaporanHarianController extends Controller
     public function index(Request $request)
     {
         $tipeFilter = $request->input('tipe', 'harian'); // harian atau bulanan
+        $tipeData = $request->input('tipe_data', 'created'); // created atau updated
         $tanggal = $request->input('tanggal', now()->format('Y-m-d'));
         $bulan = $request->input('bulan', now()->format('Y-m'));
         $koordinatorId = $request->input('koordinator_id');
 
         // Ambil semua koordinator untuk dropdown filter
         $koordinators = Koordinator::orderBy('nama_lengkap')->get();
+
+        // Tentukan kolom tanggal yang digunakan
+        $dateColumn = $tipeData === 'updated' ? 'data_lapangans.updated_at' : 'data_lapangans.created_at';
 
         // Query berdasarkan tipe filter
         if ($tipeFilter === 'bulanan') {
@@ -49,14 +53,14 @@ class LaporanHarianController extends Controller
             )
                 ->join('enumerators', 'data_lapangans.enumerator_id', '=', 'enumerators.id')
                 ->join('koordinators', 'enumerators.koordinator_id', '=', 'koordinators.id')
-                ->whereBetween('data_lapangans.created_at', [$startDate, $endDate . ' 23:59:59']);
+                ->whereBetween($dateColumn, [$startDate, $endDate . ' 23:59:59']);
 
             // Data untuk grafik per hari
             $grafikHarian = DataLapangan::select(
-                DB::raw('DATE(created_at) as tanggal'),
+                DB::raw("DATE($dateColumn) as tanggal"),
                 DB::raw('COUNT(*) as total')
             )
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59']);
+                ->whereBetween($dateColumn, [$startDate, $endDate . ' 23:59:59']);
 
             if ($koordinatorId) {
                 $grafikHarian->whereHas('enumerator', function ($q) use ($koordinatorId) {
@@ -85,7 +89,7 @@ class LaporanHarianController extends Controller
             )
                 ->join('enumerators', 'data_lapangans.enumerator_id', '=', 'enumerators.id')
                 ->join('koordinators', 'enumerators.koordinator_id', '=', 'koordinators.id')
-                ->whereDate('data_lapangans.created_at', $tanggal);
+                ->whereDate($dateColumn, $tanggal);
 
             $grafikHarian = null;
         }
@@ -138,6 +142,7 @@ class LaporanHarianController extends Controller
         return view('superadmin.data-lapangan.laporan-harian.index', compact(
             'laporanPerKoordinator',
             'tipeFilter',
+            'tipeData',
             'tanggal',
             'bulan',
             'koordinators',
@@ -149,23 +154,24 @@ class LaporanHarianController extends Controller
     /**
      * Export Excel
      */
-    public function export(Request $request)
-    {
-        // $tipeFilter = $request->input('tipe', 'harian');
-        // $koordinatorId = $request->input('koordinator_id');
+    // public function export(Request $request)
+    // {
+    //     $tipeFilter = $request->input('tipe', 'harian');
+    //     $tipeData = $request->input('tipe_data', 'created');
+    //     $koordinatorId = $request->input('koordinator_id');
 
-        // if ($tipeFilter === 'bulanan') {
-        //     $bulan = $request->input('bulan', now()->format('Y-m'));
-        //     return Excel::download(
-        //         new LaporanBulananExport($bulan, $koordinatorId),
-        //         'laporan-bulanan-' . $bulan . '.xlsx'
-        //     );
-        // } else {
-        //     $tanggal = $request->input('tanggal', now()->format('Y-m-d'));
-        //     return Excel::download(
-        //         new LaporanHarianExport($tanggal, $koordinatorId),
-        //         'laporan-harian-' . $tanggal . '.xlsx'
-        //     );
-        // }
-    }
+    //     if ($tipeFilter === 'bulanan') {
+    //         $bulan = $request->input('bulan', now()->format('Y-m'));
+    //         return Excel::download(
+    //             new LaporanBulananExport($bulan, $koordinatorId, $tipeData),
+    //             'laporan-bulanan-' . $bulan . '.xlsx'
+    //         );
+    //     } else {
+    //         $tanggal = $request->input('tanggal', now()->format('Y-m-d'));
+    //         return Excel::download(
+    //             new LaporanHarianExport($tanggal, $koordinatorId, $tipeData),
+    //             'laporan-harian-' . $tanggal . '.xlsx'
+    //         );
+    //     }
+    // }
 }

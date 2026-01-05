@@ -14,9 +14,24 @@
                             <h5 class="card-title mb-0">Laporan Data Lapangan</h5>
                         </div>
                         <div class="col-md-6 text-end">
-                            <div class="d-flex justify-content-end gap-2 align-items-center">
+                            <div class="d-flex justify-content-end gap-2 align-items-center flex-wrap">
+                                <!-- Toggle Tipe Data -->
+                                <div class="btn-group no-print" role="group">
+                                    <input type="radio" class="btn-check btn-sm" name="tipeData" id="filterCreated"
+                                        value="created" {{ $tipeData == 'created' ? 'checked' : '' }}>
+                                    <label class="btn btn-outline-success" for="filterCreated">
+                                        <i class="ri-add-circle-line me-1"></i>Data Masuk
+                                    </label>
+
+                                    <input type="radio" class="btn-check btn-sm" name="tipeData" id="filterUpdated"
+                                        value="updated" {{ $tipeData == 'updated' ? 'checked' : '' }}>
+                                    <label class="btn btn-outline-info" for="filterUpdated">
+                                        <i class="ri-edit-circle-line me-1"></i>Data Diubah
+                                    </label>
+                                </div>
+
                                 <!-- Toggle Tipe Filter -->
-                                <div class="btn-group" role="group">
+                                <div class="btn-group no-print" role="group">
                                     <input type="radio" class="btn-check btn-sm" name="tipeFilter" id="filterHarian"
                                         value="harian" {{ $tipeFilter == 'harian' ? 'checked' : '' }}>
                                     <label class="btn btn-outline-primary" for="filterHarian">
@@ -31,7 +46,7 @@
                                 </div>
 
                                 <!-- Filter Koordinator -->
-                                <select class="form-select" id="filterKoordinator" style="max-width: 250px;">
+                                <select class="form-select no-print" id="filterKoordinator" style="max-width: 250px;">
                                     <option value="">Semua Koordinator</option>
                                     @foreach ($koordinators as $koordinator)
                                         <option value="{{ $koordinator->id }}"
@@ -42,22 +57,14 @@
                                 </select>
 
                                 <!-- Filter Tanggal (Harian) -->
-                                <input type="date" class="form-control" id="filterTanggal" value="{{ $tanggal }}"
+                                <input type="date" class="form-control no-print" id="filterTanggal"
+                                    value="{{ $tanggal }}"
                                     style="max-width: 200px; {{ $tipeFilter == 'bulanan' ? 'display:none;' : '' }}">
 
                                 <!-- Filter Bulan (Bulanan) -->
-                                <input type="month" class="form-control" id="filterBulan" value="{{ $bulan }}"
+                                <input type="month" class="form-control no-print" id="filterBulan"
+                                    value="{{ $bulan }}"
                                     style="max-width: 200px; {{ $tipeFilter == 'harian' ? 'display:none;' : '' }}">
-
-                                {{-- <!-- Export Excel -->
-                                <button class="btn btn-success" onclick="exportLaporan()">
-                                    <i class="ri-file-excel-2-line align-middle"></i> Export
-                                </button> --}}
-
-                                <!-- Print -->
-                                {{-- <button class="btn btn-danger" onclick="printLaporan()">
-                                    <i class="ri-printer-line align-middle"></i> Print
-                                </button> --}}
                             </div>
                         </div>
                     </div>
@@ -66,7 +73,8 @@
                     @if ($laporanPerKoordinator->isEmpty())
                         <div class="alert alert-info text-center" role="alert">
                             <i class="ri-information-line fs-4"></i>
-                            <p class="mb-0 mt-2">Tidak ada data untuk
+                            <p class="mb-0 mt-2">Tidak ada data
+                                <strong>{{ $tipeData == 'created' ? 'masuk' : 'diubah' }}</strong> untuk
                                 @if ($tipeFilter == 'harian')
                                     tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }}
                                 @else
@@ -84,7 +92,10 @@
                             <div class="d-flex align-items-center">
                                 <i class="ri-calendar-check-line fs-4 me-2"></i>
                                 <div>
-                                    <strong>Periode Laporan:</strong>
+                                    <strong>Tipe Data:</strong>
+                                    {{ $tipeData == 'created' ? 'Data Masuk (Created)' : 'Data Diubah (Updated)' }}
+                                    <span class="mx-2">|</span>
+                                    <strong>Periode:</strong>
                                     @if ($tipeFilter == 'harian')
                                         {{ \Carbon\Carbon::parse($tanggal)->isoFormat('dddd, D MMMM YYYY') }}
                                     @else
@@ -196,7 +207,7 @@
 
                         <!-- Grafik Data Harian (Hanya untuk Bulanan) -->
                         @if ($tipeFilter == 'bulanan' && $grafikHarian)
-                            <div class="card border shadow-none mb-4 no-print">
+                            <div class="card border shadow-none mb-4">
                                 <div class="card-header bg-light">
                                     <h5 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>Grafik Data Per Hari
                                     </h5>
@@ -209,7 +220,8 @@
 
                         <!-- Laporan Per Koordinator -->
                         @foreach ($laporanPerKoordinator as $koordinator)
-                            <div class="card border shadow-none mb-3">
+                            <div class="card border shadow-none mb-3"
+                                id="koordinator-{{ $koordinator['koordinator_id'] }}">
                                 <div class="card-header bg-primary-subtle">
                                     <div class="row align-items-center">
                                         <div class="col">
@@ -219,8 +231,12 @@
                                             </h5>
                                         </div>
                                         <div class="col-auto">
-                                            <span class="badge bg-primary fs-6">Total: {{ $koordinator['total_data'] }}
-                                                Data</span>
+                                            <button class="btn btn-sm btn-info no-print"
+                                                onclick="downloadKoordinatorImage({{ $koordinator['koordinator_id'] }}, '{{ $koordinator['nama_koordinator'] }}')">
+                                                <i class="ri-download-2-line me-1"></i> Download Gambar
+                                            </button>
+                                            <span class="badge bg-primary fs-6 ms-2">Total:
+                                                {{ $koordinator['total_data'] }} Data</span>
                                         </div>
                                     </div>
                                 </div>
@@ -304,8 +320,7 @@
                                                 @foreach ($koordinator['enumerators'] as $index => $enum)
                                                     <tr>
                                                         <td>{{ $index + 1 }}</td>
-                                                        <td>
-                                                            <i
+                                                        <td><i
                                                                 class="ri-user-3-line me-1"></i>{{ $enum['nama_enumerator'] }}
                                                         </td>
                                                         <td class="text-center fw-semibold">{{ $enum['total_data'] }}</td>
@@ -435,8 +450,10 @@
         </div>
     </div>
 
+    <!-- Library untuk export image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Initialize Chart for Bulanan
         @if ($tipeFilter == 'bulanan' && $grafikHarian)
@@ -498,14 +515,20 @@
             });
         });
 
+        // Toggle Tipe Data
+        document.querySelectorAll('input[name="tipeData"]').forEach(radio => {
+            radio.addEventListener('change', applyFilter);
+        });
+
         // Apply Filter
         function applyFilter() {
             const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
+            const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
             const koordinatorId = document.getElementById('filterKoordinator').value;
             const tanggal = document.getElementById('filterTanggal').value;
             const bulan = document.getElementById('filterBulan').value;
 
-            let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter;
+            let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter + "&tipe_data=" + tipeData;
 
             if (tipeFilter === 'harian') {
                 url += "&tanggal=" + tanggal;
@@ -525,34 +548,77 @@
         document.getElementById('filterBulan').addEventListener('change', applyFilter);
         document.getElementById('filterKoordinator').addEventListener('change', applyFilter);
 
-        // Print
-        function printLaporan() {
-            window.print();
-        }
+        // Download Koordinator as Image
+        function downloadKoordinatorImage(koordinatorId, namaKoordinator) {
+            // Show loading indicator
+            const button = event.target.closest('button');
+            const originalHTML = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="ri-loader-4-line me-1"></i> Memproses...';
 
-        // Print Style
-        const style = document.createElement('style');
-        style.textContent = `
-            @media print {
-                .no-print,
-                .card-header .btn, 
-                .btn-group,
-                .breadcrumb,
-                .page-title-box,
-                #filterTanggal,
-                #filterBulan,
-                #filterKoordinator {
-                    display: none !important;
+            // Hide all no-print elements
+            const noPrintElements = document.querySelectorAll('.no-print');
+            noPrintElements.forEach(el => el.style.display = 'none');
+
+            const element = document.getElementById('koordinator-' + koordinatorId);
+
+            html2canvas(element, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                // Show elements again
+                noPrintElements.forEach(el => el.style.display = '');
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+
+                // Convert canvas to blob
+                canvas.toBlob(function(blob) {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
+                    const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
+                    const tanggal = document.getElementById('filterTanggal').value;
+                    const bulan = document.getElementById('filterBulan').value;
+
+                    let filename = 'laporan-' + namaKoordinator.replace(/\s+/g, '-') + '-' + tipeData +
+                        '-' + tipeFilter + '-';
+                    filename += (tipeFilter === 'harian' ? tanggal : bulan) + '.png';
+
+                    link.download = filename;
+                    link.href = url;
+                    link.click();
+
+                    // Show success message if Swal is available
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Laporan ' + namaKoordinator + ' berhasil didownload',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        alert('Laporan ' + namaKoordinator + ' berhasil didownload!');
+                    }
+                });
+            }).catch(error => {
+                noPrintElements.forEach(el => el.style.display = '');
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan saat menggenerate gambar'
+                    });
+                } else {
+                    alert('Gagal menggenerate gambar!');
                 }
-                .card {
-                    border: 1px solid #000 !important;
-                    page-break-inside: avoid;
-                }
-                .table {
-                    font-size: 10px;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+                console.error('Error:', error);
+            });
+        }
     </script>
 @endsection

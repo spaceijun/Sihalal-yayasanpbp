@@ -40,9 +40,14 @@
                 </a> --}}
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="las la-trash"></i> {{ __('Delete') }}
-                </button>
+                @if (
+                    $dataLapangan->status == 'Pending' ||
+                        $dataLapangan->status == 'Ditolak' ||
+                        $dataLapangan->status_pembayaran == 'Pending')
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="las la-trash"></i> {{ __('Delete') }}
+                    </button>
+                @endif
             </form>
         </td>
     </tr>

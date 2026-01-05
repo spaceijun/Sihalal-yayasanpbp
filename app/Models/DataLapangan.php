@@ -92,7 +92,7 @@ class DataLapangan extends Model
                     CashflowsKoordinator::create([
                         'data_lapangan_id' => $dataLapangan->id,
                         'tipe' => 'PEMASUKAN',
-                        'nominal' => 70000,
+                        'nominal' => $dataLapangan->enumerator->koordinator->fee_enum,
                         'keterangan' => 'Pembayaran untuk ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
                         'tanggal' => now()
                     ]);
@@ -108,7 +108,7 @@ class DataLapangan extends Model
                     Cashflow::create([
                         'data_lapangan_id' => $dataLapangan->id,
                         'tipe' => 'Pengeluaran',
-                        'jumlah' => 70000,
+                        'jumlah' => $dataLapangan->enumerator->koordinator->fee_enum,
                         'keterangan' => 'Pembayaran untuk ' . $dataLapangan->enumerator->nama_lengkap . ' - ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
                         'tanggal' => now()
                     ]);

@@ -26,6 +26,12 @@
             {!! $errors->first('telephone', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
+            <label for="fee_enum" class="form-label">{{ __('Fee Enum') }}</label>
+            <input type="number" name="fee_enum" class="form-control @error('fee_enum') is-invalid @enderror"
+                value="{{ old('fee_enum', $koordinator?->fee_enum) }}" id="fee_enum" placeholder="Fee Enum">
+            {!! $errors->first('fee_enum', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+        </div>
+        <div class="form-group mb-2 mb20">
             <label for="alamat" class="form-label">{{ __('Alamat') }}</label>
             <input type="text" name="alamat" class="form-control @error('alamat') is-invalid @enderror"
                 value="{{ old('alamat', $koordinator?->alamat) }}" id="alamat" placeholder="Alamat">

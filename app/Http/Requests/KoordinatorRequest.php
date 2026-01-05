@@ -26,6 +26,7 @@ class KoordinatorRequest extends FormRequest
             'nama_lengkap' => 'required|string',
             'email' => 'required|string',
             'telephone' => 'required|string',
+            'fee_enum' => 'required|numeric',
             'alamat' => 'required|string',
             'status' => 'required',
         ];
@@ -43,6 +44,7 @@ class KoordinatorRequest extends FormRequest
             'nama_lengkap.required' => 'Nama Lengkap wajib diisi',
             'email.required' => 'Email wajib diisi',
             'telephone.required' => 'Nomor Telepon wajib diisi',
+            'fee_enum.required' => 'Fee Enum wajib diisi',
             'alamat.required' => 'Alamat wajib diisi',
             'status.required' => 'Status wajib diisi',
         ];

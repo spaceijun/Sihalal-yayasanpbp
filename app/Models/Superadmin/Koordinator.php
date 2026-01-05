@@ -2,6 +2,8 @@
 
 namespace App\Models\Superadmin;
 
+use App\Models\Enumerator;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -24,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Koordinator extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -32,7 +34,7 @@ class Koordinator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status'];
+    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'fee_enum', 'alamat', 'status'];
 
 
     /**
@@ -40,15 +42,14 @@ class Koordinator extends Model
      */
     public function user()
     {
-        return $this->belongsTo(\App\Models\Superadmin\User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function enumerators()
     {
-        return $this->hasMany(\App\Models\Superadmin\Enumerator::class, 'id', 'koordinator_id');
+        return $this->hasMany(Enumerator::class, 'id', 'koordinator_id');
     }
-    
 }

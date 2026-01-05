@@ -187,7 +187,7 @@
             });
 
             // RUMUS BARU: Net Cashflow = Pemasukan - Pengeluaran + Kas
-            const netCashflow = totalPemasukan - totalPengeluaran + totalKas;
+            const netCashflow = totalPemasukan - totalPengeluaran;
 
             // Update card summary dengan total keseluruhan
             document.getElementById('totalPemasukan').textContent = formatCurrency(totalPemasukan);

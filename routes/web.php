@@ -50,6 +50,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
+        Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
         // Recruitment
         Route::resource('recruitments', RecruitmentController::class);
@@ -94,7 +95,8 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
         Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
         Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
-        // Data Pendamping
+        Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
+
         // Data Pendamping
         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
         Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');

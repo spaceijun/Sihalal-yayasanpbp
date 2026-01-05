@@ -122,6 +122,67 @@ class DataLapanganController extends Controller
             'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage
         );
     }
+
+    /**
+     * Download foto KTP yang tersimpan di storage.
+     *
+     * @param int $id ID data lapangan yang foto KTP-nya akan diunduh
+     * @return Response
+     *
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    public function downloadFotoKTP($id)
+    {
+        $dataLapangan = DataLapangan::findOrFail($id);
+
+        if (!$dataLapangan->foto_ktp) {
+            return back()->with('error', 'Foto KTP tidak tersedia');
+        }
+
+        $fotoPath = public_path('storage/' . $dataLapangan->foto_ktp);
+
+        if (!file_exists($fotoPath)) {
+            return back()->with('error', 'File foto KTP tidak ditemukan');
+        }
+
+        // Deteksi tipe gambar
+        $imageInfo = getimagesize($fotoPath);
+        $mimeType = $imageInfo['mime'];
+
+        // Load gambar sesuai tipe
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $image = imagecreatefromjpeg($fotoPath);
+                break;
+            case 'image/png':
+                $image = imagecreatefrompng($fotoPath);
+                break;
+            case 'image/gif':
+                $image = imagecreatefromgif($fotoPath);
+                break;
+            default:
+                return back()->with('error', 'Format gambar tidak didukung');
+        }
+
+        // Compress dan simpan temporary
+        $tempPath = storage_path('app/temp_ktp_' . $id . '.jpg');
+        $quality = 85;
+
+        imagejpeg($image, $tempPath, $quality);
+
+        // Cek ukuran dan compress lebih jika perlu
+        while (filesize($tempPath) > 2 * 1024 * 1024 && $quality > 50) {
+            $quality -= 5;
+            imagejpeg($image, $tempPath, $quality);
+        }
+
+        imagedestroy($image);
+
+        $fileName = 'KTP_' . $dataLapangan->nama_pu . '.jpg';
+        $fileName = preg_replace('/[^A-Za-z0-9_\-.]/', '_', $fileName);
+
+        return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
+    }
     /**
      * Delete a file based on the given file type
      *

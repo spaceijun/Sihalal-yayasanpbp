@@ -54,6 +54,7 @@ class KoordinatorController extends Controller
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
             'telephone' => $request->telephone,
+            'fee_enum' => $request->fee_enum,
             'alamat' => $request->alamat,
             'status' => $request->status,
         ]);

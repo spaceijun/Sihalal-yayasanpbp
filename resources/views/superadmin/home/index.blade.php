@@ -267,7 +267,7 @@
                                                 <span class="badge bg-success">{{ $data->status }}</span>
                                             @endif
                                         </td>
-                                        <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
+                                        <td>{{ $data->updated_at->format('d/m/Y H:i') }}</td>
                                     </tr>
                                 @empty
                                     <tr>

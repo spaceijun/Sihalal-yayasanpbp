@@ -35,7 +35,6 @@
                                         <th>Email</th>
                                         <th>Telephone</th>
                                         <th>Fee Enum</th>
-                                        <th>Alamat</th>
                                         <th>Status</th>
 
                                         <th></th>
@@ -49,8 +48,7 @@
                                             <td>{{ $koordinator->nama_lengkap }}</td>
                                             <td>{{ $koordinator->email }}</td>
                                             <td>{{ $koordinator->telephone }}</td>
-                                            <td>{{ number_format($koordinator->fee_enum, 2, ',', '.') }}</td>
-                                            <td>{{ $koordinator->alamat }}</td>
+                                            <td>Rp. {{ number_format($koordinator->fee_enum, 2, ',', '.') }}</td>
                                             <td> <span
                                                     class="badge bg-{{ $koordinator->status == 'Aktif' ? 'success' : 'danger' }}">
                                                     {{ $koordinator->status }}

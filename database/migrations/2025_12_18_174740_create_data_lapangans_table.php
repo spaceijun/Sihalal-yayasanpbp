@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('enumerator_id')->constrained('enumerators')->onDelete('cascade');
             $table->string('nama_pu');
             $table->string('nik')->unique();
-            $table->string('rt');
-            $table->string('rw');
+            // $table->string('rt');
+            // $table->string('rw');
             $table->string('alamat');
             $table->string('titik_koordinat');
             $table->string('foto_ktp');

@@ -144,14 +144,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <strong>RT</strong>
-                                <p class="text-muted mb-0">{{ $dataLapangan->rt }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <strong>RW</strong>
-                                <p class="text-muted mb-0">{{ $dataLapangan->rw }}</p>
+                                <strong>Nama Produk</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->nama_produk ?? 'Tidak Ada Data' }}</p>
                             </div>
                         </div>
                     </div>

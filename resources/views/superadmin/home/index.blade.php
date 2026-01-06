@@ -234,7 +234,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">20 Data Update Terakhir</h5>
+                    <h5 class="card-title mb-0">20 Data Terbit SH Terbaru</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -245,11 +245,11 @@
                                     <th>Pendamping</th>
                                     <th>Nama PU</th>
                                     <th>Status</th>
-                                    <th>Tanggal Input</th>
+                                    <th>Update</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($latestDataToday as $index => $data)
+                                @forelse($latestDataUpdate as $index => $data)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>

@@ -121,9 +121,9 @@
                                                         role="alert">
                                                         <i class="ri-user-line me-1"></i>
                                                         <strong>Terpilih:</strong> <span id="selected_name"></span>
-                                                        <button type="button" class="btn-close"
+                                                        {{-- <button type="button" class="btn-close"
                                                             style="font-size: 0.7rem; padding: 0.25rem;"
-                                                            onclick="clearEnumeratorSelection()"></button>
+                                                            onclick="clearEnumeratorSelection()"></button> --}}
                                                     </div>
                                                 </div>
 
@@ -143,6 +143,19 @@
                                                 <small class="text-muted">Nama akan otomatis diubah ke huruf besar</small>
                                                 @error('nama_pu')
                                                     <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Nama Produk -->
+                                            <div class="mb-3">
+                                                <label for="nama_produk" class="form-label">Nama Produk <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" id="nama_produk" name="nama_produk"
+                                                    class="form-control @error('nama_produk') is-invalid @enderror"
+                                                    value="{{ old('nama_produk') }}" required
+                                                    placeholder="Masukkan nama produk">
+                                                @error('nama_produk')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -180,34 +193,6 @@
                                                 @enderror
                                                 <div class="invalid-feedback" id="nikError">
                                                     NIK harus tepat 16 digit angka
-                                                </div>
-                                            </div>
-
-                                            <!-- RT & RW -->
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="rt" class="form-label">RT <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="number" id="rt" name="rt"
-                                                            class="form-control @error('rt') is-invalid @enderror"
-                                                            value="{{ old('rt') }}" required placeholder="RT">
-                                                        @error('rt')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="rw" class="form-label">RW <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="number" id="rw" name="rw"
-                                                            class="form-control @error('rw') is-invalid @enderror"
-                                                            value="{{ old('rw') }}" required placeholder="RW">
-                                                        @error('rw')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
                                                 </div>
                                             </div>
 

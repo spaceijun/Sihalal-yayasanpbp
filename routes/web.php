@@ -4,6 +4,7 @@ use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
 use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
 use App\Http\Controllers\Koordinator\DataPendampingController;
+use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruitmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
@@ -15,14 +16,29 @@ use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
+// Redirect berdasarkan role jika sudah login
 Route::get('/', function () {
+    if (Auth::check()) {
+        $user = Auth::user();
+
+        // Redirect berdasarkan role
+        if ($user->role === 'superadmin') {
+            return redirect('/superadmin');
+        } elseif ($user->role === 'koordinator') {
+            return redirect('/koordinator');
+        }
+
+        // Default redirect jika role lain
+        return redirect('/dashboard');
+    }
+
     return view('auth.login');
 });
 Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
@@ -103,6 +119,12 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
         Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
         Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
         Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
+
+        // Recruitments
+        Route::resource('recruitments', KoordinatorRecruitmentController::class);
+        Route::post('recruitments/{id}/update-status', [KoordinatorRecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
+        Route::get('recruitments/{id}/download-foto/{type}', [KoordinatorRecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
+
         // settings
         Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
         // Profile

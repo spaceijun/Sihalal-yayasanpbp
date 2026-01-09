@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Superadmin;
+namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recruitment;
@@ -46,13 +46,13 @@ class RecruitmentController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'table' => view('superadmin.recruitment.partials.table-body', compact('recruitments'))->render(),
+                'table' => view('koordinator.recruitment.partials.table-body', compact('recruitments'))->render(),
                 'pagination' => view('layouts.pagination', ['paginator' => $recruitments])->render()
             ]);
         }
 
         // Jika normal request, return view
-        return view('superadmin.recruitment.index', compact('recruitments'))
+        return view('koordinator.recruitment.index', compact('recruitments'))
             ->with('i', ($request->input('page', 1) - 1) * $recruitments->perPage());
     }
     /**
@@ -235,7 +235,7 @@ class RecruitmentController extends Controller
         $recruitment = Recruitment::with('koordinator')->findOrFail($id);
         $koordinators = Koordinator::all();
 
-        return view('superadmin.recruitment.show', compact('recruitment', 'koordinators'));
+        return view('koordinator.recruitment.show', compact('recruitment', 'koordinators'));
     }
 
     /**
@@ -245,7 +245,7 @@ class RecruitmentController extends Controller
     {
         $recruitment = Recruitment::find($id);
 
-        return view('superadmin.recruitment.edit', compact('recruitment'));
+        return view('koordinator.recruitment.edit', compact('recruitment'));
     }
 
     /**
@@ -255,7 +255,7 @@ class RecruitmentController extends Controller
     {
         $recruitment->update($request->validated());
 
-        return Redirect::route('superadmin.recruitments.index')
+        return Redirect::route('koordinator.recruitments.index')
             ->with('success', 'Recruitment updated successfully');
     }
 
@@ -263,7 +263,7 @@ class RecruitmentController extends Controller
     {
         Recruitment::find($id)->delete();
 
-        return Redirect::route('superadmin.recruitments.index')
+        return Redirect::route('koordinator.recruitments.index')
             ->with('success', 'Recruitment deleted successfully');
     }
 }

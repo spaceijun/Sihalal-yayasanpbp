@@ -24,3 +24,9 @@
         <i data-feather="activity"></i>Cashflow
     </a>
 </li>
+<li class="nav-item">
+    <a href="{{ url('koordinator/recruitments') }}"
+        class="nav-link {{ $current_url == 'koordinator/recruitments' ? 'active' : '' }}">
+        <i data-feather="users"></i>Recruitment
+    </a>
+</li>

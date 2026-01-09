@@ -5,12 +5,30 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Recruitment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RecruitmentApi extends Controller
 {
     public function index(Request $request)
     {
+        // Cek role user
+        $user = Auth::user();
+        $allowedRoles = ['superadmin', 'koordinator'];
+
+        if (!in_array($user->role, $allowedRoles)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak'
+            ], 403);
+        }
+
         $query = Recruitment::with('koordinator');
+
+        // Filter berdasarkan koordinator jika diperlukan
+        // Jika ingin koordinator hanya melihat data mereka sendiri, uncomment baris berikut:
+        // if ($user->role === 'koordinator') {
+        //     $query->where('koordinator_id', $user->id);
+        // }
 
         // Search filter
         if ($request->filled('search')) {
@@ -28,7 +46,12 @@ class RecruitmentApi extends Controller
 
         $recruitments = $query->paginate(10);
 
-        $tableHtml = view('superadmin.recruitment.partials.table-body', [
+        // Tentukan view berdasarkan role
+        $viewPath = $user->role === 'superadmin'
+            ? 'superadmin.recruitment.partials.table-body'
+            : 'koordinator.recruitment.partials.table-body';
+
+        $tableHtml = view($viewPath, [
             'recruitments' => $recruitments
         ])->render();
 
@@ -46,6 +69,16 @@ class RecruitmentApi extends Controller
     public function destroy($id)
     {
         try {
+            $user = Auth::user();
+
+            // Validasi role
+            if (!in_array($user->role, ['superadmin', 'koordinator'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak'
+                ], 403);
+            }
+
             $recruitment = Recruitment::findOrFail($id);
             $recruitment->delete();
 

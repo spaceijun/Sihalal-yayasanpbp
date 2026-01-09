@@ -69,6 +69,13 @@
 
                         <hr>
 
+                        <div class="form-group mb-3">
+                            <strong>Telephone</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->telephone }}</p>
+                        </div>
+
+                        <hr>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">

@@ -86,12 +86,13 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-                                        <th>Tanggal Input</th>
+                                        <th>Created</th>
+                                        <th>Updated</th>
                                         <th>Pendamping</th>
                                         <th>Nama PU</th>
                                         <th>NIK</th>
                                         <th>Status</th>
-                                        <th>Status Pembayaran</th>
+                                        <th>Pembayaran</th>
                                         <th></th>
                                     </tr>
                                 </thead>

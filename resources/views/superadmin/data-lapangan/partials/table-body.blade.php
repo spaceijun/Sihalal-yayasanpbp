@@ -1,7 +1,8 @@
 @forelse ($dataLapangans as $dataLapangan)
     <tr>
         <td>{{ ++$i }}</td>
-        <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y') }}</td>
+        <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
+        <td>{{ \Carbon\Carbon::parse($dataLapangan->updated_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>
         <td>{{ $dataLapangan->nama_pu }}</td>
         <td>{{ $dataLapangan->nik }}</td>

@@ -266,7 +266,7 @@
                     Jasa Konsultasi Sertifikasi Produk Halal Untuk UMKM Low-Risk
                 </p>
                 <p>
-                    Noble House, Kuningan, Jakarta Selatan 12950 | CS: 0857 7258 5049
+                    Noble House, Kuningan, Jakarta Selatan 12950 | CS: 0897 6774 482
                 </p>
                 <p>www.sihalal.yayasanpermatabakti.com</p>
             </div>

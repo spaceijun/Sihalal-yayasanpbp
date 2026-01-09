@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Superadmin;
 
+use App\Exports\DataLapangansExport;
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataLapanganController extends Controller
 {
@@ -42,6 +44,23 @@ class DataLapanganController extends Controller
         $i = ($dataLapangans->currentPage() - 1) * $dataLapangans->perPage();
 
         return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i'));
+    }
+
+    /**
+     * Export data lapangan ke Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+            'status' => $request->input('status'),
+            'tanggal_dari' => $request->input('tanggal_dari'),
+            'tanggal_sampai' => $request->input('tanggal_sampai'),
+        ];
+
+        $fileName = 'data-lapangan-' . date('Y-m-d-His') . '.xlsx';
+
+        return Excel::download(new DataLapangansExport($filters), $fileName);
     }
 
     /**

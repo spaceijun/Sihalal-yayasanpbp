@@ -16,6 +16,9 @@
                         </span>
 
                         <div class="float-right">
+                            <button id="exportBtn" class="btn btn-success btn-sm me-2">
+                                <i class="fa fa-file-excel"></i> Export Excel
+                            </button>
                             <a href="{{ route('superadmin.data-lapangans.create') }}"
                                 class="btn btn-primary btn-sm float-right" data-placement="left">
                                 {{ __('Create New') }}
@@ -120,6 +123,7 @@
             const paginationWrapper = document.getElementById('paginationWrapper');
             const tableLoading = document.getElementById('tableLoading');
             const tableWrapper = document.getElementById('tableWrapper');
+            const exportBtn = document.getElementById('exportBtn');
 
             // API Base URL
             const API_BASE_URL = '/api/superadmin/data-lapangans';
@@ -133,6 +137,37 @@
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
                     document.querySelector('input[name="_token"]')?.value;
             }
+
+            /**
+             * Export data ke Excel dengan filter yang sama
+             */
+            exportBtn.addEventListener('click', function() {
+                const params = new URLSearchParams();
+
+                // Add search parameters (sama seperti filter)
+                if (searchInput.value.trim()) {
+                    params.append('search', searchInput.value.trim());
+                }
+
+                if (statusSelect.value.trim()) {
+                    params.append('status', statusSelect.value.trim());
+                }
+
+                if (tanggalDariInput.value.trim()) {
+                    params.append('tanggal_dari', tanggalDariInput.value.trim());
+                }
+
+                if (tanggalSampaiInput.value.trim()) {
+                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
+                }
+
+                // Build export URL
+                const exportUrl = '{{ route('superadmin.data-lapangans.export') }}' +
+                    (params.toString() ? '?' + params.toString() : '');
+
+                // Download file
+                window.location.href = exportUrl;
+            });
 
             /**
              * Main function to load data via AJAX

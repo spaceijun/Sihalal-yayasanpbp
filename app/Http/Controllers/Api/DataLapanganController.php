@@ -449,10 +449,11 @@ class DataLapanganController extends Controller
         // Filter berdasarkan search (nama_pu atau nama_lengkap enumerator)
         if ($request->filled('search')) {
             $searchTerm = $request->search;
-
             $query->where(function ($q) use ($searchTerm) {
                 // Cari di nama_pu
                 $q->where('nama_pu', 'like', '%' . $searchTerm . '%')
+                    // ATAU cari di nama_produk
+                    ->orWhere('nama_produk', 'like', '%' . $searchTerm . '%')
                     // ATAU cari di nama_lengkap enumerator
                     ->orWhereHas('enumerator', function ($subQ) use ($searchTerm) {
                         $subQ->where('nama_lengkap', 'like', '%' . $searchTerm . '%');

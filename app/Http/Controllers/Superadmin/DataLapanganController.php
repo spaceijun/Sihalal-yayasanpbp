@@ -47,6 +47,17 @@ class DataLapanganController extends Controller
     }
 
     /**
+     * Show Data Revisi
+     */
+    public function dataRevisi(Request $request): View
+    {
+        $dataLapangans = DataLapangan::with('enumerator')->whereNotNull('keterangan')->paginate();
+
+        return view('superadmin.data-lapangan.partials.data-revisi', compact('dataLapangans'))
+            ->with('i', ($request->input('page', 1) - 1) * $dataLapangans->perPage());
+    }
+
+    /**
      * Export data lapangan ke Excel
      */
     public function export(Request $request)

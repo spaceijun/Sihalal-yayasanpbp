@@ -23,6 +23,10 @@
                                 class="btn btn-primary btn-sm float-right" data-placement="left">
                                 {{ __('Create New') }}
                             </a>
+                            <a href="{{ route('superadmin.data-lapangans.data-revisi') }}"
+                                class="btn btn-primary btn-sm float-right" data-placement="left">
+                                {{ __('Data Revisi') }}
+                            </a>
                         </div>
                     </div>
                 </div>

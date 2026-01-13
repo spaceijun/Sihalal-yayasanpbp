@@ -22,12 +22,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let isNikValid = false;
 
     // ============================================
-    // AUTO HIDE SUCCESS/ERROR ALERTS (EXCLUDE SELECTED ENUMERATOR ALERT)
+    // AUTO HIDE SUCCESS/ERROR ALERTS
     // ============================================
     const alerts = document.querySelectorAll(".alert");
     if (alerts.length > 0) {
         alerts.forEach((alert) => {
-            // Jangan auto-hide alert nama pendamping yang terpilih
             if (!alert.closest("#selected_enumerator")) {
                 setTimeout(() => {
                     const bsAlert = new bootstrap.Alert(alert);
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const options = Array.from(enumeratorSelect.options).slice(1); // Skip first empty option
+        const options = Array.from(enumeratorSelect.options).slice(1);
         const filtered = options.filter((option) =>
             option.text.toLowerCase().includes(searchTerm)
         );
@@ -75,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Close search results when clicking outside
     document.addEventListener("click", function (e) {
         if (
             !enumeratorSearch.contains(e.target) &&
@@ -85,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Global function to select enumerator
     window.selectEnumerator = function (id, name) {
         enumeratorSelect.value = id;
         enumeratorSearch.value = "";
@@ -94,19 +91,16 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedEnumerator.style.display = "block";
         enumeratorSelect.classList.remove("is-invalid");
 
-        // Sembunyikan form pencarian setelah memilih
         if (searchContainer) {
             searchContainer.style.display = "none";
         }
     };
 
-    // Global function to clear selection
     window.clearEnumeratorSelection = function () {
         enumeratorSelect.value = "";
         selectedEnumerator.style.display = "none";
         enumeratorSearch.value = "";
 
-        // Tampilkan kembali form pencarian
         if (searchContainer) {
             searchContainer.style.display = "block";
         }
@@ -114,14 +108,12 @@ document.addEventListener("DOMContentLoaded", function () {
         enumeratorSearch.focus();
     };
 
-    // Show selected enumerator on page load if already selected
     if (enumeratorSelect.value) {
         const selectedOption =
             enumeratorSelect.options[enumeratorSelect.selectedIndex];
         if (selectedOption && selectedOption.value) {
             selectedName.textContent = selectedOption.text;
             selectedEnumerator.style.display = "block";
-            // Sembunyikan form pencarian jika sudah ada yang terpilih
             if (searchContainer) {
                 searchContainer.style.display = "none";
             }
@@ -129,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============================================
-    // NAMA PU - AUTO UPPERCASE (CLIENT-SIDE)
+    // NAMA PU - AUTO UPPERCASE
     // ============================================
     namaPuInput.addEventListener("input", function (e) {
         const start = this.selectionStart;
@@ -356,12 +348,235 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ============================================
+    // SEQUENTIAL UPLOAD WITH PROGRESS BAR
+    // ============================================
+
+    // Create upload modal HTML
+    const uploadModalHTML = `
+        <div class="modal fade" id="uploadProgressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">
+                            <i class="ri-upload-cloud-line me-2"></i>Mengupload Data
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="uploadSteps"></div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted" id="currentUploadText">Mempersiapkan...</small>
+                                <small class="text-muted" id="uploadPercentage">0%</small>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                     id="uploadProgressBar" 
+                                     role="progressbar" 
+                                     style="width: 0%">
+                                    <span id="progressText">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="ri-information-line"></i> Jangan tutup halaman ini
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append modal to body if not exists
+    if (!document.getElementById("uploadProgressModal")) {
+        document.body.insertAdjacentHTML("beforeend", uploadModalHTML);
+    }
+
+    // Upload steps configuration
+    const uploadSteps = [
+        { name: "foto_ktp", label: "Foto KTP", icon: "ri-bank-card-line" },
+        { name: "foto_rumah", label: "Foto Rumah", icon: "ri-home-4-line" },
+        {
+            name: "foto_pendamping",
+            label: "Foto Pendamping",
+            icon: "ri-user-3-line",
+        },
+        { name: "foto_proses", label: "Foto Proses", icon: "ri-image-line" },
+        {
+            name: "foto_produk",
+            label: "Foto Produk",
+            icon: "ri-product-hunt-line",
+        },
+    ];
+
+    function createUploadStepsHTML() {
+        return uploadSteps
+            .map(
+                (step, index) => `
+            <div class="d-flex align-items-center mb-2" id="step-${step.name}">
+                <div class="me-2" style="width: 30px;">
+                    <i class="${step.icon} fs-5 text-muted" id="icon-${step.name}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <small class="text-muted">${step.label}</small>
+                </div>
+                <div class="ms-2" id="status-${step.name}">
+                    <i class="ri-checkbox-blank-circle-line text-muted"></i>
+                </div>
+            </div>
+        `
+            )
+            .join("");
+    }
+
+    function updateStepStatus(stepName, status) {
+        const iconEl = document.getElementById(`icon-${stepName}`);
+        const statusEl = document.getElementById(`status-${stepName}`);
+
+        if (!iconEl || !statusEl) return;
+
+        iconEl.classList.remove("text-muted", "text-primary", "text-success");
+
+        switch (status) {
+            case "uploading":
+                iconEl.classList.add("text-primary");
+                statusEl.innerHTML =
+                    '<div class="spinner-border spinner-border-sm text-primary"></div>';
+                break;
+            case "success":
+                iconEl.classList.add("text-success");
+                statusEl.innerHTML =
+                    '<i class="ri-checkbox-circle-fill text-success"></i>';
+                break;
+            case "pending":
+                iconEl.classList.add("text-muted");
+                statusEl.innerHTML =
+                    '<i class="ri-checkbox-blank-circle-line text-muted"></i>';
+                break;
+        }
+    }
+
+    function updateProgressBar(percentage, text) {
+        const progressBar = document.getElementById("uploadProgressBar");
+        const progressText = document.getElementById("progressText");
+        const uploadPercentage = document.getElementById("uploadPercentage");
+
+        if (progressBar) {
+            progressBar.style.width = percentage + "%";
+            progressBar.setAttribute("aria-valuenow", percentage);
+        }
+        if (progressText) {
+            progressText.textContent = Math.round(percentage) + "%";
+        }
+        if (uploadPercentage) {
+            uploadPercentage.textContent = Math.round(percentage) + "%";
+        }
+        if (text) {
+            const currentUploadText =
+                document.getElementById("currentUploadText");
+            if (currentUploadText) {
+                currentUploadText.textContent = text;
+            }
+        }
+    }
+
+    async function uploadFileSequentially(formData, stepIndex = 0) {
+        if (stepIndex >= uploadSteps.length) {
+            // All uploads complete - submit remaining form data
+            return await submitFormData(formData);
+        }
+
+        const step = uploadSteps[stepIndex];
+        const fileInput = document.getElementById(step.name);
+
+        if (!fileInput || !fileInput.files[0]) {
+            // Skip if no file for this step
+            return uploadFileSequentially(formData, stepIndex + 1);
+        }
+
+        updateStepStatus(step.name, "uploading");
+        const baseProgress = (stepIndex / uploadSteps.length) * 100;
+        const stepProgress = 100 / uploadSteps.length;
+        updateProgressBar(baseProgress, `Mengupload ${step.label}...`);
+
+        const fileFormData = new FormData();
+        fileFormData.append(step.name, fileInput.files[0]);
+        fileFormData.append(
+            "_token",
+            document.querySelector('input[name="_token"]').value
+        );
+
+        try {
+            const response = await fetch(`/upload/${step.name}`, {
+                method: "POST",
+                body: fileFormData,
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                updateStepStatus(step.name, "success");
+                formData.append(`${step.name}_path`, result.path);
+
+                // Update progress to end of this step
+                updateProgressBar(
+                    baseProgress + stepProgress,
+                    `${step.label} berhasil diupload`
+                );
+
+                // Continue to next file
+                return uploadFileSequentially(formData, stepIndex + 1);
+            } else {
+                throw new Error(result.message || "Upload gagal");
+            }
+        } catch (error) {
+            console.error(`Error uploading ${step.name}:`, error);
+            throw error;
+        }
+    }
+
+    async function submitFormData(formData) {
+        updateProgressBar(95, "Menyimpan data...");
+
+        try {
+            // Submit form normally (not AJAX) to get redirect response
+            updateProgressBar(100, "Selesai!");
+
+            // Create a temporary form and submit it
+            const tempForm = document.createElement("form");
+            tempForm.method = "POST";
+            tempForm.action = form.action;
+            tempForm.style.display = "none";
+
+            // Append all form data
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = value;
+                tempForm.appendChild(input);
+            }
+
+            document.body.appendChild(tempForm);
+
+            setTimeout(() => {
+                tempForm.submit();
+            }, 500);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            throw error;
+        }
+    }
+
+    // ============================================
     // FORM SUBMISSION
     // ============================================
-    form.addEventListener("submit", function (e) {
-        // Check enumerator selection
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Validation checks
         if (!enumeratorSelect.value) {
-            e.preventDefault();
             enumeratorSearch.classList.add("is-invalid");
             enumeratorSearch.scrollIntoView({
                 behavior: "smooth",
@@ -372,43 +587,83 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Check NIK
-        if (!nikInput) return;
-
         const nikValue = nikInput.value;
-
         if (nikValue.length !== 16) {
-            e.preventDefault();
             nikInput.classList.add("is-invalid");
             if (nikError) nikError.style.display = "block";
-
             nikInput.scrollIntoView({
                 behavior: "smooth",
                 block: "center",
             });
             nikInput.focus();
-
             showToast("error", "NIK harus tepat 16 digit!");
             return false;
         }
 
         if (!isNikValid) {
-            e.preventDefault();
             nikInput.scrollIntoView({
                 behavior: "smooth",
                 block: "center",
             });
             nikInput.focus();
-
             showToast("error", "NIK sudah terdaftar di database!");
             return false;
         }
 
-        // Disable submit button to prevent double submission
+        // Disable submit button
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML =
-                '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+                '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+        }
+
+        // Show upload modal
+        const uploadModal = new bootstrap.Modal(
+            document.getElementById("uploadProgressModal")
+        );
+        const uploadStepsDiv = document.getElementById("uploadSteps");
+        if (uploadStepsDiv) {
+            uploadStepsDiv.innerHTML = createUploadStepsHTML();
+        }
+        uploadModal.show();
+
+        // Prepare form data (without files)
+        const formData = new FormData();
+        formData.append(
+            "_token",
+            document.querySelector('input[name="_token"]').value
+        );
+        formData.append("enumerator_id", enumeratorSelect.value);
+        formData.append("nama_pu", namaPuInput.value);
+        formData.append(
+            "nama_produk",
+            document.getElementById("nama_produk").value
+        );
+        formData.append(
+            "telephone",
+            document.getElementById("telephone").value
+        );
+        formData.append("nik", nikValue);
+        formData.append("alamat", document.getElementById("alamat").value);
+        formData.append(
+            "titik_koordinat",
+            document.getElementById("titik_koordinat").value
+        );
+
+        try {
+            await uploadFileSequentially(formData);
+        } catch (error) {
+            uploadModal.hide();
+            showToast(
+                "error",
+                error.message || "Terjadi kesalahan saat mengupload"
+            );
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML =
+                    '<i class="ri-save-line me-1"></i> Simpan Data';
+            }
         }
     });
 

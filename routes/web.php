@@ -43,6 +43,7 @@ Route::get('/', function () {
 });
 Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
 Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
+Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
 Route::get('recruitment', [RecruitmentController::class, 'create'])->name('recruitment.formulir');
 Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recruitment.store');
 

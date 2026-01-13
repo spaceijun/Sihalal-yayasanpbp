@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\JsonResponse;
 
 class DataLapanganController extends Controller
 {
@@ -322,67 +323,89 @@ class DataLapanganController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(DataLapanganRequest $request): RedirectResponse
+    public function uploadFileSequintal(Request $request, $type): JsonResponse
     {
-        $validatedData = $request->validated();
+        $allowedTypes = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_proses', 'foto_produk'];
 
-        // FORCE UPPERCASE untuk nama_pu (double protection)
-        if (isset($validatedData['nama_pu'])) {
-            $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
+        if (!in_array($type, $allowedTypes)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tipe file tidak valid'
+            ], 400);
         }
 
-        // Handle foto_ktp
-        if ($request->hasFile('foto_ktp')) {
-            $image = $request->file('foto_ktp');
-            $extension = $image->getClientOriginalExtension();
-            // Sanitasi nama file - hapus karakter spesial
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
-            $image->storeAs('foto-ktp', $imageName, 'public');
-            $validatedData['foto_ktp'] = 'foto-ktp/' . $imageName;
+        $request->validate([
+            $type => 'required|image|mimes:jpeg,jpg,png|max:10240'
+        ]);
+
+        try {
+            if ($request->hasFile($type)) {
+                $image = $request->file($type);
+                $extension = $image->getClientOriginalExtension();
+                $imageName = time() . '_' . uniqid() . '.' . $extension;
+
+                // Convert type name to folder name (foto_ktp -> foto-ktp)
+                $folderName = str_replace('_', '-', $type);
+
+                $image->storeAs($folderName, $imageName, 'public');
+                $path = $folderName . '/' . $imageName;
+
+                return response()->json([
+                    'success' => true,
+                    'path' => $path,
+                    'message' => ucwords(str_replace('_', ' ', $type)) . ' berhasil diupload'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'File tidak ditemukan'
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupload file: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Handle foto_rumah
-        if ($request->hasFile('foto_rumah')) {
-            $image = $request->file('foto_rumah');
-            $extension = $image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
-            $image->storeAs('foto-rumah', $imageName, 'public');
-            $validatedData['foto_rumah'] = 'foto-rumah/' . $imageName;
-        }
-
-        // Handle foto_pendamping
-        if ($request->hasFile('foto_pendamping')) {
-            $image = $request->file('foto_pendamping');
-            $extension = $image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
-            $image->storeAs('foto-pendamping', $imageName, 'public');
-            $validatedData['foto_pendamping'] = 'foto-pendamping/' . $imageName;
-        }
-
-        // Handle foto_proses
-        if ($request->hasFile('foto_proses')) {
-            $image = $request->file('foto_proses');
-            $extension = $image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
-            $image->storeAs('foto-proses', $imageName, 'public');
-            $validatedData['foto_proses'] = 'foto-proses/' . $imageName;
-        }
-
-        // Handle foto_produk
-        if ($request->hasFile('foto_produk')) {
-            $image = $request->file('foto_produk');
-            $extension = $image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
-            $image->storeAs('foto-produk', $imageName, 'public');
-            $validatedData['foto_produk'] = 'foto-produk/' . $imageName;
-        }
-
-        DataLapangan::create($validatedData);
-
-        return Redirect::route('formulir.halal')
-            ->with('success', 'Data lapangan berhasil disimpan!');
     }
 
+    // Update store method
+    public function store(DataLapanganRequest $request): RedirectResponse
+    {
+        try {
+            $validatedData = $request->validated();
+
+            // FORCE UPPERCASE untuk nama_pu
+            if (isset($validatedData['nama_pu'])) {
+                $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
+            }
+
+            // Map path fields to database fields (remove _path suffix)
+            $dataToSave = [
+                'enumerator_id' => $validatedData['enumerator_id'],
+                'nama_pu' => $validatedData['nama_pu'],
+                'nik' => $validatedData['nik'],
+                'telephone' => $validatedData['telephone'],
+                'nama_produk' => $validatedData['nama_produk'],
+                'alamat' => $validatedData['alamat'],
+                'titik_koordinat' => $validatedData['titik_koordinat'],
+                'foto_ktp' => $validatedData['foto_ktp_path'],
+                'foto_rumah' => $validatedData['foto_rumah_path'],
+                'foto_pendamping' => $validatedData['foto_pendamping_path'],
+                'foto_proses' => $validatedData['foto_proses_path'],
+                'foto_produk' => $validatedData['foto_produk_path'],
+            ];
+
+            DataLapangan::create($dataToSave);
+
+            return redirect()->route('formulir.halal')
+                ->with('success', 'Data lapangan berhasil disimpan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
     /**
      * Update the status of a data lapangan.
      *

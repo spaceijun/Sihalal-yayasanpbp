@@ -79,12 +79,13 @@ trait SendsWhatsAppNotification
         return "Halo {$namaPU}!\n\n" .
             "NIB kamu sudah terbit nih! Selanjutnya silahkan pengajuan ke sertifikasi halal ya!\n\n" .
             "Data Email PU :\n" .
-            "📧 email : {$emailUsername}@swaraningcode.com\n" .
+            "📧 email : *Bisa Dilihat Di File NIB.*\n" .
             "🔐 password : Halal@123\n\n" .
             "Link Login Email: \n" .
             "🔗 https://webmail.swaraningcode.com/\n\n" .
             "Link Pengajuan Sertifikasi :\n" .
             "🔗 https://ptsp.halal.go.id/register\n\n\n" .
+            "Note: *Untuk membuat akun pengajuan di PTSP Halal dimohon untuk disamakan passwordnya.*\n\n" .
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*";
     }

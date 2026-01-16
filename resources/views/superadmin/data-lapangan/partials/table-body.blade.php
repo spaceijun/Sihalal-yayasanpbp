@@ -2,7 +2,6 @@
     <tr>
         <td>{{ ++$i }}</td>
         <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
-        <td>{{ \Carbon\Carbon::parse($dataLapangan->updated_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>
         <td>{{ $dataLapangan->nama_pu }}</td>
         <td>{{ $dataLapangan->nik }}</td>
@@ -28,6 +27,7 @@
                 <span class="badge bg-success">{{ $dataLapangan->status_pembayaran }}</span>
             @endif
         </td>
+        <td>{{ $dataLapangan->keterangan ?? '-' }}</td>
         <td>
             <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->id) }}" method="POST"
                 class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">

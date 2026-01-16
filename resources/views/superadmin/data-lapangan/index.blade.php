@@ -91,12 +91,12 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Created</th>
-                                        <th>Updated</th>
                                         <th>Pendamping</th>
                                         <th>Nama PU</th>
                                         <th>NIK</th>
                                         <th>Status</th>
-                                        <th>Pembayaran</th>
+                                        <th>Payment</th>
+                                        <th>Catatan</th>
                                         <th></th>
                                     </tr>
                                 </thead>

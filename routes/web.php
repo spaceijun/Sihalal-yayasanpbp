@@ -59,18 +59,17 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::resource('data-lapangans', DataLapanganController::class);
-        Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])
-            ->name('datalapangan.download-foto-rumah-pdf');
-        Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])
-            ->name('data-lapangans.update-status');
-        Route::post('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])
-            ->name('data-lapangans.update-status-payment');
+        Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
+        Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])->name('data-lapangans.update-status');
+        Route::post('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])->name('data-lapangans.update-status-payment');
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
         Route::get('data-revisi', [DataLapanganController::class, 'dataRevisi'])->name('data-lapangans.data-revisi');
+        Route::post('/data-revisi/{id}/send-notification', [DataLapanganController::class, 'sendRevisiNotification'])->name('data-revisi.send-notification');
+        Route::post('/data-revisi/send-all-notifications', [DataLapanganController::class, 'sendAllRevisiNotifications'])->name('data-revisi.send-all-notifications');
         // Recruitment
         Route::resource('recruitments', RecruitmentController::class);
         Route::post('recruitments/{id}/update-status', [RecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');

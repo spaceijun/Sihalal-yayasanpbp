@@ -52,12 +52,106 @@ class DataLapanganController extends Controller
      */
     public function dataRevisi(Request $request): View
     {
-        $dataLapangans = DataLapangan::with('enumerator')->whereNotNull('keterangan')->paginate();
+        $dataLapangans = DataLapangan::with('enumerator')
+            ->whereNotNull('keterangan')
+            ->paginate();
 
         return view('superadmin.data-lapangan.partials.data-revisi', compact('dataLapangans'))
             ->with('i', ($request->input('page', 1) - 1) * $dataLapangans->perPage());
     }
 
+    /**
+     * Kirim notifikasi revisi untuk satu data
+     */
+    public function sendRevisiNotification($id): JsonResponse
+    {
+        try {
+            $dataLapangan = DataLapangan::with('enumerator')->findOrFail($id);
+
+            if (!$dataLapangan->keterangan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data tidak memiliki keterangan revisi'
+                ], 400);
+            }
+
+            $result = $dataLapangan->sendRevisiNotification();
+
+            if ($result) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Notifikasi berhasil dikirim ke ' . $dataLapangan->enumerator->nama_lengkap
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim notifikasi'
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Kirim notifikasi revisi untuk semua data
+     */
+    public function sendAllRevisiNotifications(): JsonResponse
+    {
+        try {
+            $dataLapangans = DataLapangan::with('enumerator')
+                ->whereNotNull('keterangan')
+                ->get();
+
+            if ($dataLapangans->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada data revisi yang ditemukan'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+            $failedData = [];
+
+            foreach ($dataLapangans as $dataLapangan) {
+                $result = $dataLapangan->sendRevisiNotification();
+
+                if ($result) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                    $failedData[] = $dataLapangan->nama_pu;
+                }
+
+                // Delay untuk menghindari rate limit
+                usleep(500000); // 0.5 detik
+            }
+
+            $message = "Berhasil mengirim {$successCount} notifikasi";
+            if ($failedCount > 0) {
+                $message .= ", {$failedCount} gagal";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => [
+                    'success' => $successCount,
+                    'failed' => $failedCount,
+                    'failed_data' => $failedData
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Export data lapangan ke Excel
      */
@@ -269,19 +363,7 @@ class DataLapanganController extends Controller
      * @param DataLapangan $dataLapangan
      * @return RedirectResponse
      */
-    /**
-     * Validate the request data.
-     *
-     * @param Request $request
-     * @return void
-     */
-    /**
-     * Update the status of a data lapangan.
-     *
-     * @param DataLapangan $dataLapangan
-     * @param string $newStatus
-     * @return void
-     */
+
     public function updateStatus(Request $request, DataLapangan $dataLapangan)
     {
         $request->validate([

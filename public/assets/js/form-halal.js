@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let nikCheckTimeout;
-    let isNikValid = false;
 
     // ============================================
     // AUTO HIDE SUCCESS/ERROR ALERTS
@@ -50,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const options = Array.from(enumeratorSelect.options).slice(1);
         const filtered = options.filter((option) =>
-            option.text.toLowerCase().includes(searchTerm)
+            option.text.toLowerCase().includes(searchTerm),
         );
 
         if (filtered.length > 0) {
@@ -133,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     namaPuInput.addEventListener("paste", function (e) {
         e.preventDefault();
         const pastedText = (e.clipboardData || window.clipboardData).getData(
-            "text"
+            "text",
         );
         const start = this.selectionStart;
         const end = this.selectionEnd;
@@ -145,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.value = newValue;
         this.setSelectionRange(
             start + pastedText.length,
-            start + pastedText.length
+            start + pastedText.length,
         );
     });
 
@@ -164,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nikCounter.classList.remove(
                 "text-muted",
                 "text-danger",
-                "text-warning"
+                "text-warning",
             );
             nikCounter.classList.add("text-success");
             nikCounter.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${length}/16 digit`;
@@ -172,14 +171,14 @@ document.addEventListener("DOMContentLoaded", function () {
             nikStatus.classList.remove(
                 "text-muted",
                 "text-danger",
-                "text-warning"
+                "text-warning",
             );
             nikStatus.classList.add("text-success");
         } else if (length > 16) {
             nikCounter.classList.remove(
                 "text-muted",
                 "text-success",
-                "text-warning"
+                "text-warning",
             );
             nikCounter.classList.add("text-danger");
             nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
@@ -187,14 +186,14 @@ document.addEventListener("DOMContentLoaded", function () {
             nikStatus.classList.remove(
                 "text-muted",
                 "text-success",
-                "text-warning"
+                "text-warning",
             );
             nikStatus.classList.add("text-danger");
         } else if (length > 0) {
             nikCounter.classList.remove(
                 "text-muted",
                 "text-success",
-                "text-danger"
+                "text-danger",
             );
             nikCounter.classList.add("text-warning");
             nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
@@ -202,14 +201,14 @@ document.addEventListener("DOMContentLoaded", function () {
             nikStatus.classList.remove(
                 "text-muted",
                 "text-success",
-                "text-danger"
+                "text-danger",
             );
             nikStatus.classList.add("text-warning");
         } else {
             nikCounter.classList.remove(
                 "text-success",
                 "text-danger",
-                "text-warning"
+                "text-warning",
             );
             nikCounter.classList.add("text-muted");
             nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
@@ -217,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nikStatus.classList.remove(
                 "text-success",
                 "text-danger",
-                "text-warning"
+                "text-warning",
             );
             nikStatus.classList.add("text-muted");
         }
@@ -227,7 +226,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!nikInput) return;
 
         if (nik.length !== 16) {
-            isNikValid = false;
             return;
         }
 
@@ -243,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '<small class="text-info"><i class="ri-loader-4-line"></i> Memeriksa NIK...</small>';
         nikInput.parentElement.appendChild(loadingDiv);
 
-        fetch("/check-nik", {
+        fetch("/api/check-nik", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -261,31 +259,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 const warningDiv = document.getElementById("nikExistsWarning");
 
                 if (data.exists) {
-                    isNikValid = false;
-                    nikInput.classList.remove("is-valid");
-                    nikInput.classList.add("is-invalid");
+                    // PERUBAHAN: Hanya tampilkan info, tidak blokir
+                    nikInput.classList.remove("is-invalid");
+                    nikInput.classList.add("is-valid");
 
                     if (warningDiv) {
                         warningDiv.innerHTML = `
-                        <div class="alert alert-warning alert-dismissible fade show p-2 mb-0" role="alert">
-                            <i class="ri-error-warning-line me-1"></i>
-                            <small><strong>NIK sudah terdaftar!</strong> NIK ini sudah digunakan oleh: <strong>${
-                                data.nama_pu || "Pengguna lain"
-                            }</strong></small>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.7rem; padding: 0.25rem;"></button>
-                        </div>
-                    `;
+                    <div class="alert alert-danger alert-dismissible fade show p-2 mb-0" role="alert">
+                        <small><strong>NIK ini sudah pernah terdaftar. Anda Mendaftarkan kembali dan pastikan produknya berbeda.</strong>"
+                        </small>
+                    </div>
+                `;
                     }
 
-                    showToast("warning", "NIK sudah terdaftar di database!");
+                    showToast(
+                        "info",
+                        "NIK sudah terdaftar, namun Anda tetap bisa melanjutkan.",
+                    );
                 } else {
-                    isNikValid = true;
                     nikInput.classList.remove("is-invalid");
                     nikInput.classList.add("is-valid");
 
                     if (warningDiv) {
                         warningDiv.innerHTML =
-                            '<small class="text-success"><i class="ri-checkbox-circle-line me-1"></i>NIK tersedia</small>';
+                            '<small class="text-success"><i class="ri-checkbox-circle-line me-1"></i>NIK belum terdaftar</small>';
                     }
                 }
             })
@@ -295,7 +292,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (warningDiv) {
                     warningDiv.remove();
                 }
-                isNikValid = true;
             });
     }
 
@@ -322,8 +318,6 @@ document.addEventListener("DOMContentLoaded", function () {
             nikCheckTimeout = setTimeout(() => {
                 checkNikExists(this.value);
             }, 500);
-        } else {
-            isNikValid = false;
         }
     });
 
@@ -336,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
     nikInput.addEventListener("paste", function (e) {
         e.preventDefault();
         const pastedData = (e.clipboardData || window.clipboardData).getData(
-            "text"
+            "text",
         );
         const numericData = pastedData.replace(/[^0-9]/g, "").slice(0, 16);
         this.value = numericData;
@@ -425,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="ri-checkbox-blank-circle-line text-muted"></i>
                 </div>
             </div>
-        `
+        `,
             )
             .join("");
     }
@@ -504,7 +498,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fileFormData.append(step.name, fileInput.files[0]);
         fileFormData.append(
             "_token",
-            document.querySelector('input[name="_token"]').value
+            document.querySelector('input[name="_token"]').value,
         );
 
         try {
@@ -522,7 +516,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Update progress to end of this step
                 updateProgressBar(
                     baseProgress + stepProgress,
-                    `${step.label} berhasil diupload`
+                    `${step.label} berhasil diupload`,
                 );
 
                 // Continue to next file
@@ -600,16 +594,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        if (!isNikValid) {
-            nikInput.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-            nikInput.focus();
-            showToast("error", "NIK sudah terdaftar di database!");
-            return false;
-        }
-
         // Disable submit button
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -619,7 +603,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Show upload modal
         const uploadModal = new bootstrap.Modal(
-            document.getElementById("uploadProgressModal")
+            document.getElementById("uploadProgressModal"),
         );
         const uploadStepsDiv = document.getElementById("uploadSteps");
         if (uploadStepsDiv) {
@@ -631,23 +615,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData();
         formData.append(
             "_token",
-            document.querySelector('input[name="_token"]').value
+            document.querySelector('input[name="_token"]').value,
         );
         formData.append("enumerator_id", enumeratorSelect.value);
         formData.append("nama_pu", namaPuInput.value);
         formData.append(
             "nama_produk",
-            document.getElementById("nama_produk").value
+            document.getElementById("nama_produk").value,
         );
         formData.append(
             "telephone",
-            document.getElementById("telephone").value
+            document.getElementById("telephone").value,
         );
         formData.append("nik", nikValue);
         formData.append("alamat", document.getElementById("alamat").value);
         formData.append(
             "titik_koordinat",
-            document.getElementById("titik_koordinat").value
+            document.getElementById("titik_koordinat").value,
         );
 
         try {
@@ -656,7 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
             uploadModal.hide();
             showToast(
                 "error",
-                error.message || "Terjadi kesalahan saat mengupload"
+                error.message || "Terjadi kesalahan saat mengupload",
             );
 
             if (submitBtn) {
@@ -689,8 +673,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             "error",
                             `Ukuran file ${inputId.replace(
                                 /_/g,
-                                " "
-                            )} maksimal 10MB!`
+                                " ",
+                            )} maksimal 10MB!`,
                         );
                         this.value = "";
                         return;
@@ -706,8 +690,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             "error",
                             `Format file ${inputId.replace(
                                 /_/g,
-                                " "
-                            )} harus JPG, JPEG, atau PNG!`
+                                " ",
+                            )} harus JPG, JPEG, atau PNG!`,
                         );
                         this.value = "";
                         return;
@@ -728,8 +712,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     type === "success"
                         ? "Berhasil!"
                         : type === "warning"
-                        ? "Peringatan!"
-                        : "Gagal!",
+                          ? "Peringatan!"
+                          : type === "info"
+                            ? "Informasi"
+                            : "Gagal!",
                 text: message,
                 toast: true,
                 position: "top-end",

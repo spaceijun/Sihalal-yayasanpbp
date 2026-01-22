@@ -481,4 +481,40 @@ class DataLapanganController extends Controller
 
         return $query->paginate($request->get('per_page', 10));
     }
+
+    /**
+     * Check if NIK exists in database
+     * Hanya memberikan informasi, tidak memblokir
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkNik(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string|size:16'
+        ]);
+
+        $nik = $request->nik;
+
+        // Sesuaikan dengan model/tabel Anda
+        // Contoh 1: Menggunakan Model
+        $existingData = \App\Models\DataLapangan::where('nik', $nik)->first();
+
+        // Contoh 2: Menggunakan Query Builder
+        // $existingData = DB::table('data_lapangans')->where('nik', $nik)->first();
+
+        if ($existingData) {
+            return response()->json([
+                'exists' => true,
+                'nama_pu' => $existingData->nama_pu ?? 'Pengguna lain',
+                'message' => 'NIK sudah terdaftar'
+            ]);
+        }
+
+        return response()->json([
+            'exists' => false,
+            'message' => 'NIK tersedia'
+        ]);
+    }
 }

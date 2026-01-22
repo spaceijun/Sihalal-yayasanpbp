@@ -24,7 +24,7 @@ class DataLapanganRequest extends FormRequest
         return [
             'enumerator_id' => 'required',
             'nama_pu' => 'required|string',
-            'nik' => 'required|digits:16|unique:data_lapangans,nik',
+            'nik' => 'required|digits:16',
             'telephone' => 'required|string',
             'nama_produk' => 'required|string',
             'alamat' => 'required|string',

@@ -234,24 +234,13 @@ class DataLapanganController extends Controller
                 } else {
                     $message .= ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
                 }
-
-                // Notifikasi baru: kirim link file OSS ke PU
-                try {
-                    $puNotificationSent = $dataLapangan->sendOSSUploadNotification();
-                    if ($puNotificationSent) {
-                        $message .= ' Link file OSS telah dikirim ke PU.';
-                    }
-                } catch (\Exception $e) {
-                    // Silent fail
-                }
-
                 return redirect()->back()->with('success', $message);
             } catch (\Exception $e) {
                 // Silent fail - file tetap terupload
             }
         }
 
-        // Notifikasi baru: kirim link file Sertifikat Halal ke PU
+        // Notifikasi: kirim link file Sertifikat Halal ke PU
         if ($fileType === 'sihalal' && $isFirstUpload) {
             try {
                 $notificationSent = $dataLapangan->sendSihalalUploadNotification();

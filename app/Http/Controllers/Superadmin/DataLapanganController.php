@@ -224,14 +224,40 @@ class DataLapanganController extends Controller
 
         $dataLapangan->save();
 
+        // Notifikasi untuk upload OSS (ke koordinator - logika lama)
         if ($fileType === 'oss' && $isFirstUpload) {
             try {
                 $notificationSent = $dataLapangan->sendOSSNotification();
-
                 $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
-
                 if ($notificationSent) {
                     $message .= ' Notifikasi WhatsApp telah dikirim ke koordinator.';
+                } else {
+                    $message .= ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
+                }
+
+                // Notifikasi baru: kirim link file OSS ke PU
+                try {
+                    $puNotificationSent = $dataLapangan->sendOSSUploadNotification();
+                    if ($puNotificationSent) {
+                        $message .= ' Link file OSS telah dikirim ke PU.';
+                    }
+                } catch (\Exception $e) {
+                    // Silent fail
+                }
+
+                return redirect()->back()->with('success', $message);
+            } catch (\Exception $e) {
+                // Silent fail - file tetap terupload
+            }
+        }
+
+        // Notifikasi baru: kirim link file Sertifikat Halal ke PU
+        if ($fileType === 'sihalal' && $isFirstUpload) {
+            try {
+                $notificationSent = $dataLapangan->sendSihalalUploadNotification();
+                $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
+                if ($notificationSent) {
+                    $message .= ' Link sertifikat halal telah dikirim ke PU.';
                     return redirect()->back()->with('success', $message);
                 } else {
                     $message .= ' Namun notifikasi WhatsApp gagal dikirim.';

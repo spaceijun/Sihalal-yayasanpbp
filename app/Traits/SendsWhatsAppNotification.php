@@ -88,6 +88,82 @@ trait SendsWhatsAppNotification
     }
 
     /**
+     * Kirim notifikasi WhatsApp untuk upload file OSS dengan link download
+     *
+     * @return bool
+     */
+    public function sendOSSUploadNotification(): bool
+    {
+        try {
+            $phoneNumber = $this->telephone ?? null;
+
+            if (!$phoneNumber || !$this->file_oss) {
+                return false;
+            }
+
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+            $fileUrl = asset('storage/' . $this->file_oss);
+            $message = $this->formatOSSUploadMessage($this->nama_pu, $fileUrl);
+
+            $fonnteService = app(FonnteService::class);
+            $deviceToken = env('DEVICE_TOKEN');
+
+            if (!$deviceToken) {
+                return false;
+            }
+
+            $response = $fonnteService->sendWhatsAppMessage(
+                $phoneNumber,
+                $message,
+                $deviceToken
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('Error sending OSS upload notification: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Kirim notifikasi WhatsApp untuk upload file Sertifikat Halal dengan link download
+     *
+     * @return bool
+     */
+    public function sendSihalalUploadNotification(): bool
+    {
+        try {
+            $phoneNumber = $this->telephone ?? null;
+
+            if (!$phoneNumber || !$this->file_sihalal) {
+                return false;
+            }
+
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+            $fileUrl = asset('storage/' . $this->file_sihalal);
+            $message = $this->formatSihalalUploadMessage($this->nama_pu, $fileUrl);
+
+            $fonnteService = app(FonnteService::class);
+            $deviceToken = env('DEVICE_TOKEN');
+
+            if (!$deviceToken) {
+                return false;
+            }
+
+            $response = $fonnteService->sendWhatsAppMessage(
+                $phoneNumber,
+                $message,
+                $deviceToken
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('Error sending Sihalal upload notification: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Format nomor telepon ke format internasional
      *
      * @param string $phone
@@ -147,6 +223,51 @@ trait SendsWhatsAppNotification
             "Revisi : \n{$revisi}\n" .
             "*Mohon segera diperbaiki ya!*\n\n" .
             "Jika terkendala, silahkan hubungi koordinator masing-masing.\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*";
+    }
+
+    /**
+     * Format template pesan WhatsApp untuk upload file OSS
+     *
+     * @param string $namaPU
+     * @param string $fileUrl
+     * @return string
+     */
+    protected function formatOSSUploadMessage(string $namaPU, string $fileUrl): string
+    {
+        return "📄 *SELAMAT! NIB TELAH TERBIT*\n\n" .
+            "Halo *{$namaPU}*!\n\n" .
+            "File NIB Anda telah Terbit.\n\n" .
+            "📥 Download File OSS:\n" .
+            "🔗 {$fileUrl}\n\n" .
+            "Silahkan download dan simpan file NIB Anda, jika ada pertanyaan lebih lanjut hubungi :\n" .
+            "085876550051\n" .
+            "Faizun - HR\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*";
+    }
+
+    /**
+     * Format template pesan WhatsApp untuk upload file Sertifikat Halal
+     *
+     * @param string $namaPU
+     * @param string $fileUrl
+     * @return string
+     */
+    protected function formatSihalalUploadMessage(string $namaPU, string $fileUrl): string
+    {
+        return "🎉 *SELAMAT! SERTIFIKAT HALAL TERBIT*\n\n" .
+            "Halo *{$namaPU}*!\n\n" .
+            "Sertifikat Halal Anda telah terbit.\n\n" .
+            "📥 Download Sertifikat Halal:\n" .
+            "🔗 {$fileUrl}\n\n" .
+            "*Selamat! Produk Anda kini telah tersertifikasi halal.*🎉 \n\n" .
+            "Silahkan download dan simpan sertifikat Anda. Jika ada pertanyaan lebih lanjut hubungi :\n" .
+            "085876550051\n" .
+            "Faizun - HR\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*";
     }

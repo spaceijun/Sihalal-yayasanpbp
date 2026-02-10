@@ -107,6 +107,8 @@
                                                     <span class="badge bg-success">{{ $data->status_pembayaran }}</span>
                                                 @elseif ($data->status_pembayaran === 'PENDING')
                                                     <span class="badge bg-warning">{{ $data->status_pembayaran }}</span>
+                                                @elseif ($data->status_pembayaran === 'PENGAJUAN')
+                                                    <span class="badge bg-info">{{ $data->status_pembayaran }}</span>
                                                 @else
                                                     <span
                                                         class="badge badge-secondary">{{ $data->status_pembayaran ?? 'Belum Diproses' }}</span>

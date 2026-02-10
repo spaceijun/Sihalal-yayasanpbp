@@ -252,6 +252,11 @@
                                                         class="badge bg-warning">{{ $koordinator['total_pending'] }}</span>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span><i class="ri-time-line text-danger me-1"></i> Revisi</span>
+                                                    <span
+                                                        class="badge bg-danger">{{ $koordinator['total_revisi'] }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span><i class="ri-file-text-line text-primary me-1"></i> Progress
                                                         OSS</span>
                                                     <span
@@ -302,12 +307,13 @@
                                                     <th>No</th>
                                                     <th>Nama Enumerator</th>
                                                     <th class="text-center">Total</th>
-                                                    <th class="text-center" colspan="4">Status Proses</th>
+                                                    <th class="text-center" colspan="5">Status Proses</th>
                                                     <th class="text-center" colspan="3">Status Pembayaran</th>
                                                 </tr>
                                                 <tr>
                                                     <th colspan="3"></th>
                                                     <th class="text-center bg-warning-subtle">Pending</th>
+                                                    <th class="text-center bg-danger-subtle">Revisi</th>
                                                     <th class="text-center bg-primary-subtle">OSS</th>
                                                     <th class="text-center bg-info-subtle">SIHALAL</th>
                                                     <th class="text-center bg-success-subtle">Terbit</th>
@@ -328,6 +334,14 @@
                                                             @if ($enum['status']['pending'] > 0)
                                                                 <span
                                                                     class="badge bg-warning">{{ $enum['status']['pending'] }}</span>
+                                                            @else
+                                                                <span class="text-muted">-</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if ($enum['status']['revisi'] > 0)
+                                                                <span
+                                                                    class="badge bg-danger">{{ $enum['status']['revisi'] }}</span>
                                                             @else
                                                                 <span class="text-muted">-</span>
                                                             @endif
@@ -388,6 +402,7 @@
                                                     <td colspan="2" class="text-end">Subtotal:</td>
                                                     <td class="text-center">{{ $koordinator['total_data'] }}</td>
                                                     <td class="text-center">{{ $koordinator['total_pending'] }}</td>
+                                                    <td class="text-center">{{ $koordinator['total_revisi'] }}</td>
                                                     <td class="text-center">{{ $koordinator['total_progress_oss'] }}</td>
                                                     <td class="text-center">{{ $koordinator['total_progress_sihalal'] }}
                                                     </td>
@@ -415,7 +430,7 @@
                                             <tr>
                                                 <th class="text-center fw-bold">GRAND TOTAL</th>
                                                 <th class="text-center fw-bold">Total Data</th>
-                                                <th class="text-center fw-bold" colspan="4">Status Proses</th>
+                                                <th class="text-center fw-bold" colspan="5">Status Proses</th>
                                                 <th class="text-center fw-bold" colspan="3">Status Pembayaran</th>
                                             </tr>
                                         </thead>
@@ -426,6 +441,8 @@
                                                     {{ $laporanPerKoordinator->sum('total_data') }}</td>
                                                 <td class="text-center fw-bold text-warning">
                                                     {{ $laporanPerKoordinator->sum('total_pending') }}</td>
+                                                <td class="text-center fw-bold text-danger">
+                                                    {{ $laporanPerKoordinator->sum('total_revisi') }}</td>
                                                 <td class="text-center fw-bold text-primary">
                                                     {{ $laporanPerKoordinator->sum('total_progress_oss') }}</td>
                                                 <td class="text-center fw-bold text-info">

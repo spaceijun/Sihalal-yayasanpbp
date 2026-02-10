@@ -250,7 +250,7 @@ class DataLapanganController extends Controller
     public function updateStatus(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
         $request->validate([
-            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH,DITOLAK',
+            'status' => 'required|in:PENDING,REVISI,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH,DITOLAK',
         ]);
 
         $result = $this->statusService->updateStatus($dataLapangan, $request->status);

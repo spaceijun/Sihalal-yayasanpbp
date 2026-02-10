@@ -170,6 +170,8 @@
                                                         <span class="badge bg-info">{{ $data->status }}</span>
                                                     @elseif($data->status == 'TERBIT SH')
                                                         <span class="badge bg-success">{{ $data->status }}</span>
+                                                    @elseif ($data->status == 'REVISI')
+                                                        <span class="badge bg-danger">{{ $data->status }}</span>
                                                     @else
                                                         <span class="badge bg-secondary">{{ $data->status }}</span>
                                                     @endif
@@ -226,6 +228,8 @@
                                                     <span class="badge bg-info">{{ $data->status }}</span>
                                                 @elseif($data->status == 'TERBIT SH')
                                                     <span class="badge bg-success">{{ $data->status }}</span>
+                                                @elseif ($data->status == 'REVISI')
+                                                    <span class="badge bg-danger">{{ $data->status }}</span>
                                                 @else
                                                     <span class="badge bg-secondary">{{ $data->status }}</span>
                                                 @endif

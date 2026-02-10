@@ -307,13 +307,15 @@
                                             @if ($data->status == 'PENDING')
                                                 <span class="badge bg-warning">{{ $data->status }}</span>
                                             @elseif($data->status == 'DITOLAK')
-                                                <span class="badge bg-danger">{{ $data->status }}</span>
+                                                <span class="badge bg-dark">{{ $data->status }}</span>
                                             @elseif($data->status == 'PROGRESS OSS')
                                                 <span class="badge bg-info">{{ $data->status }}</span>
                                             @elseif($data->status == 'PROGRESS SIHALAL')
                                                 <span class="badge bg-primary">{{ $data->status }}</span>
                                             @elseif($data->status == 'TERBIT SH')
                                                 <span class="badge bg-success">{{ $data->status }}</span>
+                                            @elseif($data->status == 'REVISI')
+                                                <span class="badge bg-danger">{{ $data->status }}</span>
                                             @endif
                                         </td>
                                         <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>

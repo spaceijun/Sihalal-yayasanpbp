@@ -68,6 +68,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             'Koordinator',
             'Pendamping',
             'Nama PU',
+            'Alamat',
             'Status',
             'Status Pembayaran',
             'Spotcheck',
@@ -93,6 +94,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             $dataLapangan->enumerator->koordinator->nama_lengkap ?? 'N/A',
             $dataLapangan->enumerator->nama_lengkap ?? 'N/A',
             $dataLapangan->nama_pu,
+            $dataLapangan->alamat,
             $dataLapangan->status,
             $dataLapangan->status_pembayaran,
             $statusSpotcheck,
@@ -130,7 +132,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 $sheet = $event->sheet->getDelegate();
 
                 // Auto-size columns
-                foreach (range('A', 'H') as $column) {
+                foreach (range('A', 'I') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
@@ -142,14 +144,14 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
 
                 // Apply conditional formatting based on status
                 for ($row = 2; $row <= $highestRow; $row++) {
-                    $status = $sheet->getCell('F' . $row)->getValue();
-                    $statusPembayaran = $sheet->getCell('G' . $row)->getValue();
-                    $statusSpotcheck = $sheet->getCell('H' . $row)->getValue();
+                    $status = $sheet->getCell('G' . $row)->getValue();
+                    $statusPembayaran = $sheet->getCell('H' . $row)->getValue();
+                    $statusSpotcheck = $sheet->getCell('I' . $row)->getValue();
 
-                    // Styling untuk kolom Status (kolom F)
+                    // Styling untuk kolom Status (kolom G)
                     $statusColor = $this->getStatusColor($status);
                     if ($statusColor) {
-                        $sheet->getStyle('F' . $row)->applyFromArray([
+                        $sheet->getStyle('G' . $row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
                                 'startColor' => ['rgb' => $statusColor]
@@ -165,10 +167,10 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                         ]);
                     }
 
-                    // Styling untuk kolom Status Pembayaran (kolom G)
+                    // Styling untuk kolom Status Pembayaran (kolom H)
                     $pembayaranColor = $this->getStatusPembayaranColor($statusPembayaran);
                     if ($pembayaranColor) {
-                        $sheet->getStyle('G' . $row)->applyFromArray([
+                        $sheet->getStyle('H' . $row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
                                 'startColor' => ['rgb' => $pembayaranColor]
@@ -184,10 +186,10 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                         ]);
                     }
 
-                    // Styling untuk kolom Spotcheck (kolom H)
+                    // Styling untuk kolom Spotcheck (kolom I)
                     $spotcheckColor = $this->getSpotcheckColor($statusSpotcheck);
                     if ($spotcheckColor) {
-                        $sheet->getStyle('H' . $row)->applyFromArray([
+                        $sheet->getStyle('I' . $row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
                                 'startColor' => ['rgb' => $spotcheckColor]
@@ -204,7 +206,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                     }
 
                     // Center alignment untuk semua sel di row
-                    $sheet->getStyle('A' . $row . ':H' . $row)->applyFromArray([
+                    $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
                         'alignment' => [
                             'vertical' => Alignment::VERTICAL_CENTER,
                         ],
@@ -212,7 +214,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 }
 
                 // Add borders to all cells
-                $sheet->getStyle('A1:H' . $highestRow)->applyFromArray([
+                $sheet->getStyle('A1:I' . $highestRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,

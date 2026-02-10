@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $totalDataProgressOSS = DataLapangan::where('status', 'Progress OSS')->count();
         $totalDataProgressSihalal = DataLapangan::where('status', 'Progress SiHalal')->count();
         $totalDataTerbitSH = DataLapangan::where('status', 'Terbit SH')->count();
-        $totalPembayaranPending = DataLapangan::where('status_pembayaran', 'PENDING')->count();
+        $totalPembayaranPending = DataLapangan::where('status', 'TERBIT SH')->where('status_pembayaran', 'PENDING')->count();
         $totalPembayaranPengajuan = DataLapangan::where('status_pembayaran', 'PENGAJUAN')->count();
         $totalDibayar = DataLapangan::where('status_pembayaran', 'DIBAYAR')->count();
         $totalDataRevisi = DataLapangan::where('status', 'REVISI')->count();

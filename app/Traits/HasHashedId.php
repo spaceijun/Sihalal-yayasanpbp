@@ -32,4 +32,9 @@ trait HasHashedId
 
         return static::findOrFail($decoded[0]);
     }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return static::findByHashedIdOrFail($value);
+    }
 }

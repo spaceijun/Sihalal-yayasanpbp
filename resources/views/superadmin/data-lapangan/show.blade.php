@@ -255,7 +255,7 @@
                                     data-bs-target="#modalFotoPendamping">
                                     <i class="fas fa-eye me-2"></i>Lihat Foto
                                 </button>
-                                <a href="{{ route('koordinator.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
+                                <a href="{{ route('superadmin.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
                                     class="btn btn-success btn-sm">
                                     <i class="fas fa-download me-2"></i>Download
                                 </a>

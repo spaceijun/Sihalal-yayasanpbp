@@ -10,7 +10,7 @@
     </div>
     <!-- Summary Cards -->
     <div class="row">
-        <div class="col-xl-4">
+        <div class="col-xl-4" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4">
+        <div class="col-xl-4" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4">
+        <div class="col-xl-4" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -82,7 +82,7 @@
     </div>
     {{-- PROGRESS DATA LAPANGAN --}}
     <div class="row">
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl col-md-6" data-aos="flip-left" data-aos-delay="100">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -105,7 +105,30 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl col-md-6">
+            <div class="card card-animate" data-aos="flip-left" data-aos-delay="100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Revisi</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                <span class="counter-value" data-target="{{ $totalDataRevisi ?? 0 }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-danger-subtle rounded fs-3">
+                                <i class="bx bx-edit text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl col-md-6" data-aos="flip-left" data-aos-delay="100">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -128,7 +151,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl col-md-6" data-aos="flip-left" data-aos-delay="100">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -151,7 +174,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl col-md-6" data-aos="flip-left" data-aos-delay="100">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -168,6 +191,85 @@
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-success-subtle rounded fs-3">
                                 <i class="bx bx-check-circle text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- CARD PEMBAYARAN DENGAN GRADIENT DAN AOS --}}
+    <div class="row">
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="card card-animate overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); opacity: 0.9;"></div>
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-semibold text-white mb-0">Pembayaran Pending</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                <span class="counter-value" data-target="{{ $totalPembayaranPending ?? 0 }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-white bg-opacity-25 rounded fs-3">
+                                <i class="bx bx-wallet text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="card card-animate overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100"
+                    style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); opacity: 0.9;"></div>
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-semibold text-white mb-0">Pembayaran Pengajuan</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                <span class="counter-value" data-target="{{ $totalPembayaranPengajuan ?? 0 }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-white bg-opacity-25 rounded fs-3">
+                                <i class="bx bx-money text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="card card-animate overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100"
+                    style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); opacity: 0.9;"></div>
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-uppercase fw-semibold text-white mb-0">Dibayar</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                <span class="counter-value" data-target="{{ $totalDibayar ?? 0 }}">0</span>
+                            </h4>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-white bg-opacity-25 rounded fs-3">
+                                <i class="bx bx-check-double text-white"></i>
                             </span>
                         </div>
                     </div>

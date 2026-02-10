@@ -68,6 +68,9 @@
                                         <option value="DITOLAK" {{ $dataLapangan->status == 'DITOLAK' ? 'selected' : '' }}>
                                             DITOLAK
                                         </option>
+                                        <option value="REVISI" {{ $dataLapangan->status == 'REVISI' ? 'selected' : '' }}>
+                                            REVISI
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
@@ -159,18 +162,11 @@
 
                     <hr>
 
-                    <div class="form-group mb-3">
-                        <strong>Titik Koordinat</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->titik_koordinat }}</p>
-                    </div>
-
-                    <hr>
-
                     <div class="form-group mb-0">
                         <strong>Status</strong>
                         <p class="mb-0 mt-2">
                             @if ($dataLapangan->status == 'PENDING')
-                                <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
+                                <span class="badge bg-warning">{{ $dataLapangan->status }}</span>
                             @elseif($dataLapangan->status == 'PROGRESS OSS')
                                 <span class="badge bg-info">{{ $dataLapangan->status }}</span>
                             @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
@@ -178,6 +174,8 @@
                             @elseif($dataLapangan->status == 'TERBIT SH')
                                 <span class="badge bg-success">{{ $dataLapangan->status }}</span>
                             @elseif($dataLapangan->status == 'DITOLAK')
+                                <span class="badge bg-dark">{{ $dataLapangan->status }}</span>
+                            @elseif($dataLapangan->status == 'REVISI')
                                 <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
                             @endif
                         </p>
@@ -189,7 +187,7 @@
                         <strong>Status Pembayaran</strong>
                         <p class="mb-0 mt-2">
                             @if ($dataLapangan->status_pembayaran == 'PENDING')
-                                <span class="badge bg-warning text-dark">{{ $dataLapangan->status_pembayaran }}</span>
+                                <span class="badge bg-warning">{{ $dataLapangan->status_pembayaran }}</span>
                             @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
                                 <span class="badge bg-info">{{ $dataLapangan->status_pembayaran }}</span>
                             @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
@@ -252,23 +250,16 @@
                     <div class="form-group mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <strong>Foto Pendamping</strong>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#modalFotoPendamping">
-                                <i class="fas fa-eye me-2"></i>Lihat Foto
-                            </button>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <!-- Foto Proses -->
-                    <div class="form-group mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Foto Proses</strong>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#modalFotoProses">
-                                <i class="fas fa-eye me-2"></i>Lihat Foto
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoPendamping">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
+                                <a href="{{ route('koordinator.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
+                                    class="btn btn-success btn-sm">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -278,11 +269,53 @@
                     <div class="form-group mb-0">
                         <div class="d-flex justify-content-between align-items-center">
                             <strong>Foto Produk</strong>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#modalFotoProduk">
-                                <i class="fas fa-eye me-2"></i>Lihat Foto
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#modalFotoProduk">
+                                    <i class="fas fa-eye me-2"></i>Lihat Foto
+                                </button>
+                                <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                    class="btn btn-success btn-sm">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
                         </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Foto Spotcheck - LAYOUT DIPERBAIKI -->
+                    <div class="form-group mb-0">
+                        <strong>Foto Spotcheck</strong>
+                        @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
+                            <div class="mt-2">
+                                @foreach ($dataLapangan->spotchecks as $index => $spotcheck)
+                                    @if ($spotcheck->foto_pu)
+                                        <div class="mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted">Spotcheck {{ $index + 1 }}</span>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-primary btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalFotoSpotcheck{{ $spotcheck->id }}">
+                                                        <i class="fas fa-eye me-2"></i>Lihat
+                                                    </button>
+                                                    <a href="{{ asset('storage/' . $spotcheck->foto_pu) }}"
+                                                        download="Spotcheck_{{ $spotcheck->nama_spotcheck ?? $index + 1 }}.jpg"
+                                                        class="btn btn-success btn-sm">
+                                                        <i class="fas fa-download me-2"></i>Download
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="alert alert-info mt-2 mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Belum ada foto spotcheck
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -290,7 +323,7 @@
             <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan</span>
+                    <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan Revisi</span>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
@@ -298,13 +331,13 @@
                         @csrf
                         <div class="form-group mb-3">
                             <label for="keterangan" class="form-label">
-                                <strong>Keterangan / Catatan</strong>
+                                <strong>Keterangan / Catatan Revisi</strong>
                             </label>
                             <textarea name="keterangan" id="keterangan" class="form-control" rows="5"
                                 placeholder="Masukkan keterangan atau catatan tambahan...">{{ old('keterangan', $dataLapangan->keterangan ?? '') }}</textarea>
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Tambahkan catatan penting terkait data lapangan ini
+                                Tambahkan catatan penting terkait data lapangan Revisi ini
                             </small>
                         </div>
 
@@ -356,7 +389,7 @@
 
                         <!-- Upload Form OSS -->
                         <div class="mt-2">
-                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->id) }}"
+                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
                                 method="POST" enctype="multipart/form-data" id="uploadOssForm">
                                 @csrf
                                 <input type="hidden" name="file_type" value="oss">
@@ -417,9 +450,9 @@
         </div>
     </section>
 
-    <!-- Modal Kolase Foto - UPDATED: Only 3 Photos -->
+    <!-- Modal Kolase Foto - UPDATED: Only 2 Photos -->
     <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Kolase Dokumentasi Foto</h5>
@@ -427,37 +460,26 @@
                 </div>
                 <div class="modal-body p-3" id="collageContent">
                     <div class="row g-3">
-                        <!-- Grid Layout: 3 Photos in a Row -->
-                        <div class="col-md-4">
+                        <!-- Grid Layout: 2 Photos in a Row -->
+                        <div class="col-md-6">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
                                     <small class="fw-bold">Foto Pendamping</small>
                                 </div>
                                 <img src="{{ asset('storage/' . $dataLapangan->foto_pendamping) }}" alt="Foto Pendamping"
                                     class="card-img-bottom collage-img"
-                                    style="height: 250px; object-fit: cover; cursor: pointer;"
+                                    style="height: 300px; object-fit: cover; cursor: pointer;"
                                     onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_pendamping) }}', 'Foto Pendamping')">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card shadow-sm">
-                                <div class="card-header bg-light py-2 px-3">
-                                    <small class="fw-bold">Foto Proses</small>
-                                </div>
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
-                                    class="card-img-bottom collage-img"
-                                    style="height: 250px; object-fit: cover; cursor: pointer;"
-                                    onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_proses) }}', 'Foto Proses')">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
                                     <small class="fw-bold">Foto Produk</small>
                                 </div>
                                 <img src="{{ asset('storage/' . $dataLapangan->foto_produk) }}" alt="Foto Produk"
                                     class="card-img-bottom collage-img"
-                                    style="height: 250px; object-fit: cover; cursor: pointer;"
+                                    style="height: 300px; object-fit: cover; cursor: pointer;"
                                     onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_produk) }}', 'Foto Produk')">
                             </div>
                         </div>
@@ -565,27 +587,6 @@
         </div>
     </div>
 
-    <!-- Modal Foto Proses -->
-    <div class="modal fade" id="modalFotoProses" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Foto Proses</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-3">
-                    <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
-                        class="img-fluid rounded" style="max-height: 500px;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal Foto Produk -->
     <div class="modal fade" id="modalFotoProduk" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -606,6 +607,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Foto Spotcheck -->
+    @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
+        @foreach ($dataLapangan->spotchecks as $spotcheck)
+            @if ($spotcheck->foto_pu)
+                <div class="modal fade" id="modalFotoSpotcheck{{ $spotcheck->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Foto Spotcheck
+                                    @if ($spotcheck->nama_spotcheck)
+                                        - {{ $spotcheck->nama_spotcheck }}
+                                    @endif
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center p-3">
+                                <img src="{{ asset('storage/' . $spotcheck->foto_pu) }}" alt="Foto Spotcheck"
+                                    class="img-fluid rounded" style="max-height: 500px;">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Tutup
+                                </button>
+                                <a href="{{ asset('storage/' . $spotcheck->foto_pu) }}"
+                                    download="Spotcheck_{{ $spotcheck->nama_spotcheck ?? $spotcheck->id }}.jpg"
+                                    class="btn btn-success btn-sm">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    @endif
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
@@ -752,7 +791,7 @@
                 '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">'
             );
             printWindow.document.write('<style>');
-            printWindow.document.write('.collage-img { height: 250px !important; object-fit: cover; }');
+            printWindow.document.write('.collage-img { height: 300px !important; object-fit: cover; }');
             printWindow.document.write('.card { break-inside: avoid; }');
             printWindow.document.write(
                 '@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }');

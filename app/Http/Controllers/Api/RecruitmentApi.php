@@ -44,7 +44,7 @@ class RecruitmentApi extends Controller
             $query->where('status', $request->status);
         }
 
-        $recruitments = $query->paginate(10);
+        $recruitments = $query->paginate(20);
 
         // Tentukan view berdasarkan role
         $viewPath = $user->role === 'superadmin'

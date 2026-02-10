@@ -20,10 +20,45 @@
             @endif
 
             {{-- Page Numbers --}}
-            @foreach ($paginator->getUrlRange(1, $paginator->lastPage()) as $page => $url)
-                <li class="page-item {{ $page == $paginator->currentPage() ? 'active' : '' }}">
-                    <a href="{{ $url }}" class="page-link">{{ $page }}</a>
-                </li>
+            @php
+                $current = $paginator->currentPage();
+                $last = $paginator->lastPage();
+                $delta = 2; // Jumlah halaman di kiri dan kanan halaman aktif
+                $left = $current - $delta;
+                $right = $current + $delta + 1;
+                $range = [];
+                $rangeWithDots = [];
+                $l = 0;
+
+                for ($i = 1; $i <= $last; $i++) {
+                    if ($i == 1 || $i == $last || ($i >= $left && $i < $right)) {
+                        $range[] = $i;
+                    }
+                }
+
+                foreach ($range as $i) {
+                    if ($l) {
+                        if ($i - $l === 2) {
+                            $rangeWithDots[] = $l + 1;
+                        } elseif ($i - $l !== 1) {
+                            $rangeWithDots[] = '...';
+                        }
+                    }
+                    $rangeWithDots[] = $i;
+                    $l = $i;
+                }
+            @endphp
+
+            @foreach ($rangeWithDots as $page)
+                @if ($page === '...')
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                @else
+                    <li class="page-item {{ $page == $current ? 'active' : '' }}">
+                        <a href="{{ $paginator->url($page) }}" class="page-link">{{ $page }}</a>
+                    </li>
+                @endif
             @endforeach
 
             {{-- Next Button --}}

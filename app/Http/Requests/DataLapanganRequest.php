@@ -28,11 +28,9 @@ class DataLapanganRequest extends FormRequest
             'telephone' => 'required|string',
             'nama_produk' => 'required|string',
             'alamat' => 'required|string',
-            'titik_koordinat' => 'required|string',
             'foto_ktp_path' => 'required|string',
             'foto_rumah_path' => 'required|string',
             'foto_pendamping_path' => 'required|string',
-            'foto_proses_path' => 'required|string',
             'foto_produk_path' => 'required|string',
         ];
     }
@@ -46,11 +44,9 @@ class DataLapanganRequest extends FormRequest
             'telephone.required' => 'Nomor Telepon wajib diisi.',
             'nama_produk.required' => 'Nama Produk wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
-            'titik_koordinat.required' => 'Titik Koordinat wajib diisi.',
             'foto_ktp_path.required' => 'Foto KTP wajib diunggah.',
             'foto_rumah_path.required' => 'Foto Rumah wajib diunggah.',
             'foto_pendamping_path.required' => 'Foto Pendamping wajib diunggah.',
-            'foto_proses_path.required' => 'Foto Proses wajib diunggah.',
             'foto_produk_path.required' => 'Foto Produk wajib diunggah.',
         ];
     }

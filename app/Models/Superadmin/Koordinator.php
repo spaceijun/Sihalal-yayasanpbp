@@ -2,6 +2,7 @@
 
 namespace App\Models\Superadmin;
 
+use App\Models\DataLapangan;
 use App\Models\Enumerator;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -51,5 +52,16 @@ class Koordinator extends Model
     public function enumerators()
     {
         return $this->hasMany(Enumerator::class, 'id', 'koordinator_id');
+    }
+
+    /**
+     * Get the associated data_lapangans model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    
+    public function dataLapangans()
+    {
+        return $this->hasMany(DataLapangan::class, 'koordinator_id');
     }
 }

@@ -46,7 +46,7 @@
                                             <td>{{ $dataLapangan->created_at }}</td>
                                             <td>{{ $dataLapangan->enumerator->nama_lengkap }}</td>
                                             <td>{{ $dataLapangan->nama_pu }}</td>
-                                            <td><span class="badge bg-warning">{{ $dataLapangan->status }}</span></td>
+                                            <td><span class="badge bg-danger">{{ $dataLapangan->status }}</span></td>
                                             <td>{{ $dataLapangan->keterangan }}</td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-primary send-notification-btn"

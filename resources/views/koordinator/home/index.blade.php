@@ -9,7 +9,7 @@
     <!-- Summary Cards -->
     <div class="row">
         <!-- Data Masuk -->
-        <div class="col-xl-3">
+        <div class="col-xl-4 col-md-6">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Data Pending -->
-        <div class="col-xl-3">
+        <div class="col-xl-4 col-md-6">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -58,24 +58,24 @@
             </div>
         </div>
 
-        <!-- Data Proses -->
-        <div class="col-xl-3">
+        <!-- Data Revisi -->
+        <div class="col-xl-4 col-md-6">
             <div class="card card-animate">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Proses</p>
+                            <p class="text-uppercase fw-medium text-muted mb-0">Data Revisi</p>
                         </div>
                     </div>
                     <div class="d-flex align-items-end justify-content-between mt-4">
                         <div>
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $progress }}">0</span>
+                                <span class="counter-value" data-target="{{ $revisi }}">0</span>
                             </h4>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-info-subtle rounded fs-3">
-                                <i class="bx bx-loader-circle text-info"></i>
+                            <span class="avatar-title bg-warning-subtle rounded fs-3">
+                                <i class="bx bx-edit text-danger"></i>
                             </span>
                         </div>
                     </div>
@@ -83,25 +83,52 @@
             </div>
         </div>
 
-        <!-- Data Terbit -->
-        <div class="col-xl-3">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Terbit</p>
+        <div class="row">
+            <!-- Data Proses -->
+            <div class="col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0">Data Proses</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-4">
+                            <div>
+                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                    <span class="counter-value" data-target="{{ $progress }}">0</span>
+                                </h4>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-info-subtle rounded fs-3">
+                                    <i class="bx bx-loader-circle text-info"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $terbitSH }}">0</span>
-                            </h4>
+                </div>
+            </div>
+
+            <!-- Data Terbit -->
+            <div class="col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0">Data Terbit</p>
+                            </div>
                         </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-primary-subtle rounded fs-3">
-                                <i class="bx bx-check-circle text-primary"></i>
-                            </span>
+                        <div class="d-flex align-items-end justify-content-between mt-4">
+                            <div>
+                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                    <span class="counter-value" data-target="{{ $terbitSH }}">0</span>
+                                </h4>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-primary-subtle rounded fs-3">
+                                    <i class="bx bx-check-circle text-primary"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -15,6 +15,7 @@ use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
+use App\Http\Controllers\Superadmin\SpotcheckController;
 use App\Http\Controllers\Superadmin\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,10 @@ Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('f
 Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
 Route::get('recruitment', [RecruitmentController::class, 'create'])->name('recruitment.formulir');
 Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recruitment.store');
+Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
+Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
+
+
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
@@ -70,6 +75,11 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('data-revisi', [DataLapanganController::class, 'dataRevisi'])->name('data-lapangans.data-revisi');
         Route::post('/data-revisi/{id}/send-notification', [DataLapanganController::class, 'sendRevisiNotification'])->name('data-revisi.send-notification');
         Route::post('/data-revisi/send-all-notifications', [DataLapanganController::class, 'sendAllRevisiNotifications'])->name('data-revisi.send-all-notifications');
+        Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
+        Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+
+        // Spotcheck
+        Route::resource('spotchecks', SpotcheckController::class);
         // Recruitment
         Route::resource('recruitments', RecruitmentController::class);
         Route::post('recruitments/{id}/update-status', [RecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
@@ -114,12 +124,16 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
         Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
+        Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
+        Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+
 
         // Data Pendamping
         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
         Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');
         Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
         Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
+        Route::get('data-pendamping/{id}/data-lapangan', [DataPendampingController::class, 'dataLapangan'])->name('data-pendamping.data-lapangan');
         Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
 
         // Recruitments

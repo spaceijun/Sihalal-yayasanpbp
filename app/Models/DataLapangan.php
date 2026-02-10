@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Superadmin\Koordinator;
+use App\Traits\HasHashedId;
 use App\Traits\SendsWhatsAppNotification;
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DataLapangan extends Model
 {
-    use SendsWhatsAppNotification;
+    use SendsWhatsAppNotification, HasHashedId;
     protected $perPage = 20;
 
     /**
@@ -38,7 +40,7 @@ class DataLapangan extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['enumerator_id', 'nama_pu', 'nik', 'telephone', 'nama_produk', 'alamat', 'titik_koordinat', 'foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_proses', 'foto_produk', 'status', 'status_pembayaran', 'file_oss', 'file_sihalal', 'keterangan_oss', 'keterangan_sihalal'];
+    protected $fillable = ['enumerator_id', 'nama_pu', 'nik', 'telephone', 'nama_produk', 'alamat', 'foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk', 'status', 'status_pembayaran', 'file_oss', 'file_sihalal', 'keterangan_oss', 'keterangan_sihalal'];
 
 
     /**
@@ -57,6 +59,27 @@ class DataLapangan extends Model
     public function CashflowsKoordinator()
     {
         return $this->hasMany(CashflowsKoordinator::class);
+    }
+
+    /**
+     * Get the associated spotchecks model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function spotchecks()
+    {
+        return $this->hasMany(Spotcheck::class, 'data_lapangan_id');
+    }
+
+    /**
+     * Get the associated Koordinator model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function koordinator()
+    {
+        return $this->belongsTo(Koordinator::class, 'koordinator_id');
     }
 
     /**
@@ -112,6 +135,15 @@ class DataLapangan extends Model
                         'keterangan' => 'Pembayaran untuk ' . $dataLapangan->enumerator->nama_lengkap . ' - ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
                         'tanggal' => now()
                     ]);
+
+                    // ===== KIRIM NOTIFIKASI WHATSAPP =====
+                    // Load relasi enumerator jika belum di-load
+                    $dataLapangan->load('enumerator');
+
+                    // Kirim notifikasi ke enumerator
+                    if ($dataLapangan->enumerator && $dataLapangan->enumerator->telephone) {
+                        $dataLapangan->sendPembayaranNotificationToEnumerator();
+                    }
                 }
             }
         });

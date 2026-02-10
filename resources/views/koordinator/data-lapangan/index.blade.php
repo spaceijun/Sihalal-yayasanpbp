@@ -1,106 +1,99 @@
 @extends('layouts.app')
+
 @section('template_title')
     Data Lapangans
 @endsection
+
 @section('content')
-    <style>
-        .search-highlight {
-            background-color: #fff3cd;
-            font-weight: 500;
-        }
-
-        .no-data {
-            padding: 3rem;
-            text-align: center;
-            color: #6c757d;
-        }
-    </style>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                @include('layouts.messages')
-
-                <!-- Filter Section -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <span>{{ __('Filter Data') }}</span>
+    <div class="row">
+        <div class="col">
+            @include('layouts.messages')
+            <div class="card">
+                <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="card_title">
+                            {{ __('Data Lapangans') }}
+                        </span>
                     </div>
-                    <div class="card-body bg-white">
+                </div>
+
+                <!-- Form Search -->
+                <div class="card-body bg-white border-bottom">
+                    <form id="searchForm">
+                        @csrf
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label for="searchNamaPU" class="form-label">Nama PU</label>
-                                <input type="text" class="form-control" id="searchNamaPU"
-                                    placeholder="Cari berdasarkan nama PU...">
+                                <label for="search" class="form-label">Cari Nama PU / Pendamping</label>
+                                <input type="text" class="form-control" id="search" name="search"
+                                    placeholder="Cari berdasarkan nama PU atau pendamping...">
                             </div>
-                            <div class="col-md-4">
-                                <label for="filterStatus" class="form-label">Status</label>
-                                <select class="form-control" id="filterStatus">
+                            <div class="col-md-2">
+                                <label for="status_data" class="form-label">Status</label>
+                                <select class="form-control" id="status_data" name="status">
                                     <option value="">Semua Status</option>
                                     <option value="PENDING">Pending</option>
                                     <option value="PROGRESS OSS">Progress OSS</option>
                                     <option value="PROGRESS SIHALAL">Progress SIHALAL</option>
                                     <option value="TERBIT SH">Terbit SH</option>
                                     <option value="DITOLAK">Ditolak</option>
+                                    <option value="REVISI">Revisi</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
-                                <label for="filterStatusPembayaran" class="form-label">Status Pembayaran</label>
-                                <select class="form-control" id="filterStatusPembayaran">
-                                    <option value="">Semua Status</option>
+                            <div class="col-md-2">
+                                <label for="status_pembayaran" class="form-label">Status Pembayaran</label>
+                                <select class="form-control" id="status_pembayaran" name="status_pembayaran">
+                                    <option value="">Semua</option>
                                     <option value="PENDING">Pending</option>
                                     <option value="PENGAJUAN">Pengajuan</option>
                                     <option value="DIBAYAR">Dibayar</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <button type="button" class="btn btn-secondary" id="resetBtn">
-                                    <i class="las la-redo"></i> Reset
-                                </button>
-                                {{-- <span class="ms-3 text-muted" id="resultCount"></span> --}}
+                            <div class="col-md-2">
+                                <label for="tanggal_dari" class="form-label">Tanggal Dari</label>
+                                <input type="date" class="form-control" id="tanggal_dari" name="tanggal_dari">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="tanggal_sampai" class="form-label">Tanggal Sampai</label>
+                                <input type="date" class="form-control" id="tanggal_sampai" name="tanggal_sampai">
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
-                <!-- Table Section -->
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span id="card_title">
-                                {{ __('Data Lapangans') }}
-                            </span>
-                            <div class="float-right">
-                                {{-- <a href="{{ route('koordinator.data-lapangans.create') }}"
-                                    class="btn btn-primary btn-sm float-right" data-placement="left">
-                                    {{ __('Create New') }}
-                                </a> --}}
-                            </div>
+                <div class="card-body bg-white">
+                    <!-- Loading indicator -->
+                    <div id="tableLoading" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
+                        <p class="mt-3 text-muted fw-bold">SABAR BOS...</p>
                     </div>
-                    <div class="card-body bg-white">
+
+                    <!-- Table wrapper -->
+                    <div id="tableWrapper">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="dataTable">
+                            <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
+                                        <th>Created</th>
                                         <th>Pendamping</th>
                                         <th>Nama PU</th>
                                         <th>NIK</th>
                                         <th>Status</th>
-                                        <th>Status Pembayaran</th>
-                                        <th></th>
+                                        <th>Payment</th>
+                                        <th>Spotcheck</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tableBody">
-                                    <!-- Data akan diisi oleh JavaScript -->
+                                    {{-- Data will be loaded via AJAX --}}
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div id="paginationInfo"></div>
-                            @include('layouts.pagination', ['paginator' => $dataLapangans])
+
+                        {{-- Pagination wrapper --}}
+                        <div id="paginationWrapper">
+                            {{-- Pagination will be loaded via AJAX --}}
                         </div>
                     </div>
                 </div>
@@ -109,157 +102,156 @@
     </div>
 
     <script>
-        // Data dari Laravel (inject dari controller)
-        const allData = @json($dataLapangans->items());
-        const paginationData = {
-            total: {{ $dataLapangans->total() }},
-            perPage: {{ $dataLapangans->perPage() }},
-            currentPage: {{ $dataLapangans->currentPage() }},
-            lastPage: {{ $dataLapangans->lastPage() }}
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            // Element references
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('search');
+            const statusSelect = document.getElementById('status_data');
+            const statusPembayaranSelect = document.getElementById('status_pembayaran');
+            const tanggalDariInput = document.getElementById('tanggal_dari');
+            const tanggalSampaiInput = document.getElementById('tanggal_sampai');
+            const tableBody = document.getElementById('tableBody');
+            const paginationWrapper = document.getElementById('paginationWrapper');
+            const tableLoading = document.getElementById('tableLoading');
+            const tableWrapper = document.getElementById('tableWrapper');
 
-        // Fungsi untuk mendapatkan badge status
-        function getStatusBadge(status) {
-            const badges = {
-                'PENDING': '<span class="badge bg-warning text-dark">PENDING</span>',
-                'PROGRESS OSS': '<span class="badge bg-info">PROGRESS OSS</span>',
-                'PROGRESS SIHALAL': '<span class="badge bg-primary">PROGRESS SIHALAL</span>',
-                'TERBIT SH': '<span class="badge bg-success">TERBIT SH</span>',
-                'DITOLAK': '<span class="badge bg-danger">DITOLAK</span>'
-            };
-            return badges[status] || status;
-        }
+            const API_BASE_URL = '/api/koordinator/data-lapangans';
+            let searchTimeout;
 
-        // Fungsi untuk mendapatkan badge status pembayaran
-        function getStatusPembayaranBadge(status) {
-            const badges = {
-                'PENDING': '<span class="badge bg-warning text-dark">PENDING</span>',
-                'PENGAJUAN': '<span class="badge bg-info">PENGAJUAN</span>',
-                'DIBAYAR': '<span class="badge bg-success">DIBAYAR</span>'
-            };
-            return badges[status] || status;
-        }
-
-        // Fungsi untuk render table
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
-
-            if (allData.length === 0) {
-                tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-4">
-                        <div class="text-muted">
-                            <i class="las la-inbox la-3x mb-2"></i>
-                            <p class="mb-0">{{ __('No data available') }}</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-                document.getElementById('paginationInfo').textContent = '';
-                return;
+            function getCsrfToken() {
+                return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                    document.querySelector('input[name="_token"]')?.value;
             }
 
-            const startNumber = (paginationData.currentPage - 1) * paginationData.perPage;
+            function loadData(url = null) {
+                // Show loading
+                tableWrapper.style.display = 'none';
+                tableLoading.style.display = 'block';
 
-            tbody.innerHTML = allData.map((item, index) => {
-                const showUrl = "{{ url('koordinator/data-lapangan') }}/" + item.id;
-                return `
-            <tr>
-                <td>${startNumber + index + 1}</td>
-                <td>${item.enumerator.nama_lengkap}</td>
-                <td>${item.nama_pu}</td>
-                <td>${item.nik}</td>
-                <td>${getStatusBadge(item.status)}</td>
-                <td>${getStatusPembayaranBadge(item.status_pembayaran)}</td>
-                <td>
-                    <a class="btn btn-sm btn-primary" href="${showUrl}">
-                        <i class="las la-eye"></i> {{ __('Show') }}
-                    </a>
-                </td>
-            </tr>
-            `;
-            }).join('');
+                // Disable form inputs
+                const formInputs = searchForm.querySelectorAll('input, select');
+                formInputs.forEach(input => input.disabled = true);
 
-            const start = startNumber + 1;
-            const end = Math.min(startNumber + allData.length, paginationData.total);
+                // Build URL with filters
+                let fetchUrl = API_BASE_URL;
+                const params = new URLSearchParams();
 
-            document.getElementById('paginationInfo').innerHTML = `
-            <div class="dataTables_info">
-                Showing ${start} to ${end} of ${paginationData.total} entries
-            </div>
-        `;
-        }
+                // Add filters
+                if (searchInput.value.trim()) {
+                    params.append('search', searchInput.value.trim());
+                }
+                if (statusSelect.value.trim()) {
+                    params.append('status', statusSelect.value.trim());
+                }
+                if (statusPembayaranSelect.value.trim()) {
+                    params.append('status_pembayaran', statusPembayaranSelect.value.trim());
+                }
+                if (tanggalDariInput.value.trim()) {
+                    params.append('tanggal_dari', tanggalDariInput.value.trim());
+                }
+                if (tanggalSampaiInput.value.trim()) {
+                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
+                }
 
-        // Fungsi filter data - redirect dengan query parameters
-        function filterData() {
-            const namaPU = document.getElementById('searchNamaPU').value;
-            const status = document.getElementById('filterStatus').value;
-            const statusPembayaran = document.getElementById('filterStatusPembayaran').value;
+                // Handle pagination
+                if (url) {
+                    const urlObj = new URL(url, window.location.origin);
+                    const page = urlObj.searchParams.get('page');
+                    if (page) {
+                        params.append('page', page);
+                    }
+                }
 
-            const params = new URLSearchParams(window.location.search);
+                const queryString = params.toString();
+                if (queryString) {
+                    fetchUrl += '?' + queryString;
+                }
 
-            if (namaPU) {
-                params.set('nama_pu', namaPU);
-            } else {
-                params.delete('nama_pu');
+                fetch(fetchUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            tableBody.innerHTML = data.table;
+                            paginationWrapper.innerHTML = data.pagination;
+                            attachPaginationHandlers();
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan saat memuat data');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading data:', error);
+                        tableBody.innerHTML =
+                            '<tr><td colspan="8" class="text-center text-danger">Terjadi kesalahan saat memuat data</td></tr>';
+                    })
+                    .finally(() => {
+                        tableLoading.style.display = 'none';
+                        tableWrapper.style.display = 'block';
+                        formInputs.forEach(input => input.disabled = false);
+                    });
             }
 
-            if (status) {
-                params.set('status', status);
-            } else {
-                params.delete('status');
+            // Instant search with debounce
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadData();
+                }, 500);
+            });
+
+            // Instant filter on status change
+            statusSelect.addEventListener('change', function() {
+                loadData();
+            });
+
+            statusPembayaranSelect.addEventListener('change', function() {
+                loadData();
+            });
+
+            tanggalDariInput.addEventListener('change', function() {
+                loadData();
+            });
+
+            tanggalSampaiInput.addEventListener('change', function() {
+                loadData();
+            });
+
+            function attachPaginationHandlers() {
+                const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('href');
+                        if (url && url !== '#') {
+                            loadData(url);
+                        }
+                    });
+                });
             }
 
-            if (statusPembayaran) {
-                params.set('status_pembayaran', statusPembayaran);
-            } else {
-                params.delete('status_pembayaran');
-            }
+            // Initial load
+            loadData();
 
-            // Reset ke halaman 1 saat filter
-            params.delete('page');
-
-            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-            window.location.href = newUrl;
-        }
-
-        // Set nilai filter dari URL saat halaman load
-        function setFilterFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-
-            const namaPU = params.get('nama_pu');
-            const status = params.get('status');
-            const statusPembayaran = params.get('status_pembayaran');
-
-            if (namaPU) document.getElementById('searchNamaPU').value = namaPU;
-            if (status) document.getElementById('filterStatus').value = status;
-            if (statusPembayaran) document.getElementById('filterStatusPembayaran').value = statusPembayaran;
-        }
-
-        // Event listeners
-        document.getElementById('searchNamaPU').addEventListener('input', debounce(filterData, 500));
-        document.getElementById('filterStatus').addEventListener('change', filterData);
-        document.getElementById('filterStatusPembayaran').addEventListener('change', filterData);
-
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            window.location.href = window.location.pathname;
+            // Auto refresh
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted ||
+                    (window.performance && window.performance.navigation.type === 2)) {
+                    loadData();
+                }
+            });
         });
-
-        // Debounce function untuk search
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Initial render
-        setFilterFromUrl();
-        renderTable();
     </script>
 @endsection

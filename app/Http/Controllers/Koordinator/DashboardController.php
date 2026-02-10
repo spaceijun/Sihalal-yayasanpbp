@@ -31,6 +31,12 @@ class DashboardController extends Controller
             ->where('status', 'TERBIT SH')
             ->count();
 
+        $revisi = DataLapangan::whereHas('enumerator', function ($q) use ($koordinatorId) {
+            $q->where('koordinator_id', $koordinatorId);
+        })
+            ->where('status', 'REVISI')
+            ->count();
+
         $dataMasuk = DataLapangan::whereHas('enumerator', function ($q) use ($koordinatorId) {
             $q->where('koordinator_id', $koordinatorId);
         })->count();
@@ -42,14 +48,14 @@ class DashboardController extends Controller
         $dataLapanganRevisi = DataLapangan::whereHas('enumerator', function ($q) use ($koordinatorId) {
             $q->where('koordinator_id', $koordinatorId);
         })
-            ->whereNotNull('keterangan')       
-            ->where('keterangan', '!=', '')    
+            ->whereNotNull('keterangan')
+            ->where('keterangan', '!=', '')
             ->orderBy('created_at', 'desc')
             ->take(20)
             ->get();
 
 
 
-        return view('koordinator.home.index', compact('pending', 'progress', 'terbitSH', 'dataMasuk', 'dataLapangan', 'dataLapanganRevisi'));
+        return view('koordinator.home.index', compact('pending', 'progress', 'terbitSH', 'revisi', 'dataMasuk', 'dataLapangan', 'dataLapanganRevisi'));
     }
 }

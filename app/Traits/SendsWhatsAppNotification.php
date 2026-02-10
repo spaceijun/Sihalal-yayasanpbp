@@ -199,7 +199,7 @@ trait SendsWhatsAppNotification
             "📧 email : *Bisa Dilihat Di File NIB.*\n" .
             "🔐 password : Halal@123\n\n" .
             "Link Login Email: \n" .
-            "🔗 https://webmail.swaraningcode.com/\n\n" .
+            "🔗 https://webmail.kawulohalal.id/\n\n" .
             "Link Pengajuan Sertifikasi :\n" .
             "🔗 https://ptsp.halal.go.id/register\n\n\n" .
             "Note: *Untuk membuat akun pengajuan di PTSP Halal dimohon untuk disamakan passwordnya.*\n\n" .
@@ -222,7 +222,7 @@ trait SendsWhatsAppNotification
             "Nama PU : *{$namaPU}*\n" .
             "Revisi : \n{$revisi}\n" .
             "*Mohon segera diperbaiki ya!*\n\n" .
-            "Jika terkendala, silahkan hubungi koordinator masing-masing.\n" .
+            "Jika terkendala, silahkan hubungi :\n" . "+62 897-6774-482\n" . "Customer Service\n\n" . "_Dikirim otomatis oleh sistem.\n" .
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*";
     }
@@ -242,8 +242,8 @@ trait SendsWhatsAppNotification
             "📥 Download File OSS:\n" .
             "🔗 {$fileUrl}\n\n" .
             "Silahkan download dan simpan file NIB Anda, jika ada pertanyaan lebih lanjut hubungi :\n" .
-            "085876550051\n" .
-            "Faizun - HR\n\n" .
+            "+62 897-6774-482\n" .
+            "Customer Service\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*";
@@ -265,10 +265,78 @@ trait SendsWhatsAppNotification
             "🔗 {$fileUrl}\n\n" .
             "*Selamat! Produk Anda kini telah tersertifikasi halal.*🎉 \n\n" .
             "Silahkan download dan simpan sertifikat Anda. Jika ada pertanyaan lebih lanjut hubungi :\n" .
-            "085876550051\n" .
-            "Faizun - HR\n\n" .
+            "+62 897-6774-482\n" .
+            "Customer Service\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*";
+    }
+
+    /**
+     * Kirim notifikasi WhatsApp untuk pembayaran enumerator
+     *
+     * @return bool
+     */
+    public function sendPembayaranNotificationToEnumerator(): bool
+    {
+        try {
+            // Load relasi enumerator
+            $this->load('enumerator.koordinator');
+
+            $phoneNumber = $this->enumerator->telephone ?? null;
+
+            if (!$phoneNumber) {
+                return false;
+            }
+
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+
+            $message = $this->formatPembayaranMessage(
+                $this->enumerator->nama_lengkap,
+                $this->nama_pu,
+                $this->nik,
+                $this->enumerator->koordinator->fee_enum
+            );
+
+            $fonnteService = app(FonnteService::class);
+            $deviceToken = env('DEVICE_TOKEN');
+
+            if (!$deviceToken) {
+                return false;
+            }
+
+            $response = $fonnteService->sendWhatsAppMessage(
+                $phoneNumber,
+                $message,
+                $deviceToken
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('Error sending pembayaran notification: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Format template pesan WhatsApp untuk pembayaran enumerator
+     *
+     * @param string $namaEnumerator
+     * @param string $namaPU
+     * @param string $nik
+     * @param int $nominal
+     * @return string
+     */
+    protected function formatPembayaranMessage(string $namaEnumerator, string $namaPU, string $nik, int $nominal): string
+    {
+        $nominalFormatted = 'Rp ' . number_format($nominal, 0, ',', '.');
+
+        return "*NOTIFIKASI PEMBAYARAN*\n\n" .
+            "Halo *{$namaEnumerator}*!\n\n" .
+            "Pembayaran atas nama *{$namaPU}* berhasil dikirim dengan nominal *{$nominalFormatted}*.\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*\n" .
+            "+62 897-6774-482 (CS)";
     }
 }

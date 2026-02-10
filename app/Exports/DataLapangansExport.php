@@ -29,7 +29,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
      */
     public function collection()
     {
-        $query = DataLapangan::with(['enumerator.koordinator']);
+        $query = DataLapangan::with(['enumerator.koordinator', 'spotchecks']);
 
         // Apply filters
         if (!empty($this->filters['search'])) {
@@ -70,6 +70,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             'Nama PU',
             'Status',
             'Status Pembayaran',
+            'Spotcheck',
         ];
     }
 
@@ -81,6 +82,11 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
         static $rowNumber = 0;
         $rowNumber++;
 
+        // Cek apakah sudah ada spotcheck
+        $statusSpotcheck = $dataLapangan->spotchecks->count() > 0
+            ? 'Sudah Spotcheck'
+            : 'Belum Spotcheck';
+
         return [
             $rowNumber,
             \Carbon\Carbon::parse($dataLapangan->updated_at)->format('d/m/Y H:i'),
@@ -89,6 +95,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             $dataLapangan->nama_pu,
             $dataLapangan->status,
             $dataLapangan->status_pembayaran,
+            $statusSpotcheck,
         ];
     }
 
@@ -123,7 +130,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 $sheet = $event->sheet->getDelegate();
 
                 // Auto-size columns
-                foreach (range('A', 'G') as $column) {
+                foreach (range('A', 'H') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
@@ -137,6 +144,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 for ($row = 2; $row <= $highestRow; $row++) {
                     $status = $sheet->getCell('F' . $row)->getValue();
                     $statusPembayaran = $sheet->getCell('G' . $row)->getValue();
+                    $statusSpotcheck = $sheet->getCell('H' . $row)->getValue();
 
                     // Styling untuk kolom Status (kolom F)
                     $statusColor = $this->getStatusColor($status);
@@ -176,8 +184,27 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                         ]);
                     }
 
+                    // Styling untuk kolom Spotcheck (kolom H)
+                    $spotcheckColor = $this->getSpotcheckColor($statusSpotcheck);
+                    if ($spotcheckColor) {
+                        $sheet->getStyle('H' . $row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => $spotcheckColor]
+                            ],
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['rgb' => $this->getTextColorSpotcheck($statusSpotcheck)]
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                    }
+
                     // Center alignment untuk semua sel di row
-                    $sheet->getStyle('A' . $row . ':G' . $row)->applyFromArray([
+                    $sheet->getStyle('A' . $row . ':H' . $row)->applyFromArray([
                         'alignment' => [
                             'vertical' => Alignment::VERTICAL_CENTER,
                         ],
@@ -185,7 +212,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 }
 
                 // Add borders to all cells
-                $sheet->getStyle('A1:G' . $highestRow)->applyFromArray([
+                $sheet->getStyle('A1:H' . $highestRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -204,10 +231,11 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
     {
         $colors = [
             'PENDING' => 'FFFF00',           // Kuning
-            'DITOLAK' => 'FF0000',           // Merah
+            'DITOLAK' => '000000',           // Hitam
             'PROGRESS OSS' => 'ADD8E6',      // Biru muda
             'PROGRESS SIHALAL' => '00008B',  // Biru tua
             'TERBIT SH' => '00FF00',         // Hijau
+            'REVISI' => 'FF0000',             // Merah
         ];
 
         return $colors[$status] ?? null;
@@ -244,6 +272,28 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
     private function getTextColorPembayaran($statusPembayaran)
     {
         // Dark text for light backgrounds
+        return '000000';
+    }
+
+    /**
+     * Get color for spotcheck status field
+     */
+    private function getSpotcheckColor($statusSpotcheck)
+    {
+        $colors = [
+            'Sudah Spotcheck' => '00FF00',   // Hijau
+            'Belum Spotcheck' => 'FFFF00',   // Kuning
+        ];
+
+        return $colors[$statusSpotcheck] ?? null;
+    }
+
+    /**
+     * Get text color for spotcheck status field
+     */
+    private function getTextColorSpotcheck($statusSpotcheck)
+    {
+        // Dark text for both (green and yellow backgrounds)
         return '000000';
     }
 }

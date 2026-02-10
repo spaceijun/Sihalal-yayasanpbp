@@ -36,13 +36,13 @@
                     <form id="searchForm">
                         @csrf
                         <div class="row g-3">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label for="search" class="form-label">Cari Nama PU / Pendamping</label>
                                 <input type="text" class="form-control" id="search" name="search"
                                     placeholder="Cari berdasarkan nama PU atau pendamping..."
                                     value="{{ request('search') }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="status-1" class="form-label">Status</label>
                                 <select class="form-control" id="status-1" name="status">
                                     <option value="">Semua Status</option>
@@ -58,6 +58,23 @@
                                         Terbit SH</option>
                                     <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>
                                         Ditolak</option>
+                                    <option value="Revisi" {{ request('status') == 'Revisi' ? 'selected' : '' }}>
+                                        Revisi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="status_pembayaran" class="form-label">Status Pembayaran</label>
+                                <select class="form-control" id="status_pembayaran" name="status_pembayaran">
+                                    <option value="">Semua</option>
+                                    <option value="PENDING"
+                                        {{ request('status_pembayaran') == 'PENDING' ? 'selected' : '' }}>
+                                        Pending</option>
+                                    <option value="PENGAJUAN"
+                                        {{ request('status_pembayaran') == 'PENGAJUAN' ? 'selected' : '' }}>
+                                        Pengajuan</option>
+                                    <option value="DIBAYAR"
+                                        {{ request('status_pembayaran') == 'DIBAYAR' ? 'selected' : '' }}>
+                                        Dibayar</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -96,7 +113,7 @@
                                         <th>NIK</th>
                                         <th>Status</th>
                                         <th>Payment</th>
-                                        <th>Catatan</th>
+                                        <th>Spotcheck</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -122,6 +139,7 @@
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('search');
             const statusSelect = document.getElementById('status-1');
+            const statusPembayaranSelect = document.getElementById('status_pembayaran');
             const tanggalDariInput = document.getElementById('tanggal_dari');
             const tanggalSampaiInput = document.getElementById('tanggal_sampai');
             const tableBody = document.getElementById('tableBody');
@@ -156,6 +174,10 @@
 
                 if (statusSelect.value.trim()) {
                     params.append('status', statusSelect.value.trim());
+                }
+
+                if (statusPembayaranSelect.value.trim()) {
+                    params.append('status_pembayaran', statusPembayaranSelect.value.trim());
                 }
 
                 if (tanggalDariInput.value.trim()) {
@@ -197,6 +219,10 @@
 
                 if (statusSelect.value.trim()) {
                     params.append('status', statusSelect.value.trim());
+                }
+
+                if (statusPembayaranSelect.value.trim()) {
+                    params.append('status_pembayaran', statusPembayaranSelect.value.trim());
                 }
 
                 if (tanggalDariInput.value.trim()) {
@@ -283,6 +309,13 @@
              * Instant search on status change
              */
             statusSelect.addEventListener('change', function() {
+                loadData();
+            });
+
+            /**
+             * Instant search on status_pembayaran change
+             */
+            statusPembayaranSelect.addEventListener('change', function() {
                 loadData();
             });
 

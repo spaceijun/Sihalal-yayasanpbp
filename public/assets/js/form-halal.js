@@ -387,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.insertAdjacentHTML("beforeend", uploadModalHTML);
     }
 
-    // Upload steps configuration
+    // Upload steps configuration - REMOVED foto_proses
     const uploadSteps = [
         { name: "foto_ktp", label: "Foto KTP", icon: "ri-bank-card-line" },
         { name: "foto_rumah", label: "Foto Rumah", icon: "ri-home-4-line" },
@@ -396,7 +396,6 @@ document.addEventListener("DOMContentLoaded", function () {
             label: "Foto Pendamping",
             icon: "ri-user-3-line",
         },
-        { name: "foto_proses", label: "Foto Proses", icon: "ri-image-line" },
         {
             name: "foto_produk",
             label: "Foto Produk",
@@ -611,7 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         uploadModal.show();
 
-        // Prepare form data (without files)
+        // Prepare form data (without files) - REMOVED titik_koordinat
         const formData = new FormData();
         formData.append(
             "_token",
@@ -629,10 +628,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         formData.append("nik", nikValue);
         formData.append("alamat", document.getElementById("alamat").value);
-        formData.append(
-            "titik_koordinat",
-            document.getElementById("titik_koordinat").value,
-        );
 
         try {
             await uploadFileSequentially(formData);
@@ -652,13 +647,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ============================================
-    // IMAGE FILE VALIDATION
+    // IMAGE FILE VALIDATION - REMOVED foto_proses
     // ============================================
     const imageInputs = [
         "foto_ktp",
         "foto_rumah",
         "foto_pendamping",
-        "foto_proses",
         "foto_produk",
     ];
 

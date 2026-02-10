@@ -19,15 +19,6 @@
                         diupdate dari <strong>PROGRESS OSS</strong> menjadi <strong>PROGRESS
                             SIHALAL</strong>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="keterangan" class="form-label">Keterangan <span
-                                class="text-muted">(Opsional)</span></label>
-                        <textarea class="form-control" id="keterangan" name="keterangan" rows="3"
-                            placeholder="Masukkan keterangan tambahan jika diperlukan..."></textarea>
-                        <small class="text-muted">Catatan: Keterangan ini akan disimpan sebagai histori perubahan
-                            status.</small>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>

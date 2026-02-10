@@ -35,33 +35,27 @@
                     <i class="las la-check-circle"></i> Sudah Spotcheck
                 </span>
             @else
-                <span class="badge bg-secondary">
-                    <i class="las la-times-circle"></i> Belum Spotcheck
+                <span class="badge bg-danger">
+                    <i class="las la-times-circle"></i> Tidak Spotcheck
                 </span>
             @endif
         </td>
         <td>
-            <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}" method="POST"
-                class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
-                <a class="btn btn-sm btn-primary"
-                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}">
-                    <i class="las la-eye"></i> {{ __('Show') }}
-                </a>
-                {{-- <a class="btn btn-sm btn-success"
+            <a class="btn btn-sm btn-primary"
+                href="{{ route('koordinator.data-lapangan.show', $dataLapangan->hashed_id) }}">
+                <i class="las la-eye"></i> {{ __('Show') }}
+            </a>
+            {{-- <a class="btn btn-sm btn-success"
                     href="{{ route('superadmin.data-lapangans.edit', $dataLapangan->id) }}">
                     <i class="las la-edit"></i> {{ __('Edit') }}
                 </a> --}}
-                @csrf
-                @method('DELETE')
-                @if (
-                    $dataLapangan->status == 'PENDING' ||
-                        $dataLapangan->status == 'DITOLAK' ||
-                        $dataLapangan->status_pembayaran == 'PENDING')
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="las la-trash"></i> {{ __('Delete') }}
-                    </button>
-                @endif
-            </form>
+            @csrf
+            @method('DELETE')
+            @if (
+                $dataLapangan->status == 'PENDING' ||
+                    $dataLapangan->status == 'DITOLAK' ||
+                    $dataLapangan->status_pembayaran == 'PENDING')
+            @endif
         </td>
     </tr>
 @empty

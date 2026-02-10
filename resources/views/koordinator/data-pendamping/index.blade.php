@@ -17,12 +17,12 @@
                                 {{ __('Data Pendamping') }}
                             </span>
 
-                            {{-- <div class="float-right">
-                                <a href="{{ route('superadmin.enumerators.create') }}"
+                            <div class="float-right">
+                                {{-- <a href="{{ route('superadmin.enumerators.create') }}"
                                     class="btn btn-primary btn-sm float-right" data-placement="left">
-                                    {{ __('Create New') }}
+                                    {{ __('Create New') }} --}}
                                 </a>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
                     <div class="card-body bg-white">
@@ -34,6 +34,8 @@
 
                                         <th>Nama Lengkap</th>
                                         <th>Telephone</th>
+                                        <th>Terbit SH</th>
+                                        <th>Dibayar</th>
                                         {{-- <th>Alamat</th> --}}
                                         <th>Status</th>
 
@@ -42,11 +44,19 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($enumerators as $enumerator)
+                                        @php
+                                            $totalTerbitSh =
+                                                $terbitSh->firstWhere('enumerator_id', $enumerator->id)?->total ?? 0;
+                                            $totalDibayar =
+                                                $dataDibayar->firstWhere('enumerator_id', $enumerator->id)?->total ?? 0;
+                                        @endphp
                                         <tr>
                                             <td>{{ $enumerators->firstItem() + $loop->index }}</td>
 
                                             <td>{{ $enumerator->nama_lengkap }}</td>
                                             <td>{{ $enumerator->telephone }}</td>
+                                            <td>{{ $totalTerbitSh }}</td>
+                                            <td>{{ $totalDibayar }}</td>
                                             {{-- <td>{{ $enumerator->alamat }}</td> --}}
                                             <td>{{ $enumerator->status }}</td>
 
@@ -54,6 +64,10 @@
                                                 <a class="btn btn-sm btn-success"
                                                     href="{{ route('koordinator.data-pendamping.show', $enumerator->id) }}"><i
                                                         class="las la-eye"></i> {{ __('Detail') }}</a>
+                                                <a class="btn btn-sm btn-primary"
+                                                    href="{{ route('koordinator.data-pendamping.data-lapangan', $enumerator->id) }}">
+                                                    <i class="las la-list"></i> {{ __('Data Lapangan') }}
+                                                </a>
                                             </td>
                                         </tr>
                                         {{-- @include('superadmin.enumerator.partials.modal-enumerator') --}}

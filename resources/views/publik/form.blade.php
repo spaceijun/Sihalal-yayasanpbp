@@ -121,9 +121,6 @@
                                                         role="alert">
                                                         <i class="ri-user-line me-1"></i>
                                                         <strong>Terpilih:</strong> <span id="selected_name"></span>
-                                                        {{-- <button type="button" class="btn-close"
-                                                            style="font-size: 0.7rem; padding: 0.25rem;"
-                                                            onclick="clearEnumeratorSelection()"></button> --}}
                                                     </div>
                                                 </div>
 
@@ -207,19 +204,6 @@
                                                 @enderror
                                             </div>
 
-                                            <!-- Titik Koordinat -->
-                                            <div class="mb-3">
-                                                <label for="titik_koordinat" class="form-label">Titik Koordinat <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" id="titik_koordinat" name="titik_koordinat"
-                                                    class="form-control @error('titik_koordinat') is-invalid @enderror"
-                                                    value="{{ old('titik_koordinat') }}" required
-                                                    placeholder="Contoh: -7.123456, 110.123456">
-                                                @error('titik_koordinat')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
                                             <!-- Upload Foto Section -->
                                             <div class="mb-3">
                                                 <h6 class="text-muted mb-3">Upload Dokumentasi <span
@@ -260,19 +244,6 @@
                                                         accept="image/*" required>
                                                     <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
                                                     @error('foto_pendamping')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <!-- Foto Proses -->
-                                                <div class="mb-3">
-                                                    <label for="foto_proses" class="form-label">Foto Proses <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="file" id="foto_proses" name="foto_proses"
-                                                        class="form-control @error('foto_proses') is-invalid @enderror"
-                                                        accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
-                                                    @error('foto_proses')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>

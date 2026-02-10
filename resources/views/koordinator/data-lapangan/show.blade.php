@@ -94,18 +94,11 @@
 
                         <hr>
 
-                        <div class="form-group mb-3">
-                            <strong>Titik Koordinat</strong>
-                            <p class="text-muted mb-0">{{ $dataLapangan->titik_koordinat }}</p>
-                        </div>
-
-                        <hr>
-
                         <div class="form-group mb-0">
                             <strong>Status</strong>
                             <p class="mb-0 mt-2">
                                 @if ($dataLapangan->status == 'PENDING')
-                                    <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
+                                    <span class="badge bg-warning">{{ $dataLapangan->status }}</span>
                                 @elseif($dataLapangan->status == 'PROGRESS OSS')
                                     <span class="badge bg-info">{{ $dataLapangan->status }}</span>
                                 @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
@@ -113,6 +106,8 @@
                                 @elseif($dataLapangan->status == 'TERBIT SH')
                                     <span class="badge bg-success">{{ $dataLapangan->status }}</span>
                                 @elseif($dataLapangan->status == 'DITOLAK')
+                                    <span class="badge bg-dark">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'REVISI')
                                     <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
                                 @endif
                             </p>
@@ -124,7 +119,7 @@
                             <strong>Status Pembayaran</strong>
                             <p class="mb-0 mt-2">
                                 @if ($dataLapangan->status_pembayaran == 'PENDING')
-                                    <span class="badge bg-warning text-dark">{{ $dataLapangan->status_pembayaran }}</span>
+                                    <span class="badge bg-warning">{{ $dataLapangan->status_pembayaran }}</span>
                                 @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
                                     <span class="badge bg-info">{{ $dataLapangan->status_pembayaran }}</span>
                                 @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
@@ -180,30 +175,32 @@
                         <div class="form-group mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <strong>Foto Pendamping</strong>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoPendamping">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="form-group mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>Foto Proses</strong>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoProses">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoPendamping">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <hr>
                         <div class="form-group mb-0">
                             <div class="d-flex justify-content-between align-items-center">
                                 <strong>Foto Produk</strong>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoProduk">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoProduk">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -266,7 +263,7 @@
                 </div>
                 <div class="modal-body p-3" id="collageContent">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
                                     <small class="fw-bold">Foto Pendamping</small>
@@ -277,18 +274,7 @@
                                     onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_pendamping) }}', 'Foto Pendamping')">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card shadow-sm">
-                                <div class="card-header bg-light py-2 px-3">
-                                    <small class="fw-bold">Foto Proses</small>
-                                </div>
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
-                                    class="card-img-bottom collage-img"
-                                    style="height: 250px; object-fit: cover; cursor: pointer;"
-                                    onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_proses) }}', 'Foto Proses')">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
                                     <small class="fw-bold">Foto Produk</small>
@@ -392,27 +378,6 @@
                 </div>
                 <div class="modal-body text-center p-3">
                     <img src="{{ asset('storage/' . $dataLapangan->foto_pendamping) }}" alt="Foto Pendamping"
-                        class="img-fluid rounded" style="max-height: 500px;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Foto Proses -->
-    <div class="modal fade" id="modalFotoProses" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Foto Proses</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-3">
-                    <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
                         class="img-fluid rounded" style="max-height: 500px;">
                 </div>
                 <div class="modal-footer">

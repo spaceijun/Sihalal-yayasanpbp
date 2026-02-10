@@ -44,6 +44,10 @@
     {{-- Editor CKEditor --}}
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
+    <!-- aos css -->
+    <link rel="stylesheet" href="{{ asset('assets/libs/aos/aos.css') }}" />
+
+
 </head>
 
 <body>
@@ -687,6 +691,13 @@
 
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+
+    <!-- aos js -->
+    <script src="{{ asset('assets/libs/aos/aos.js') }}"></script>
+
+    <!-- animation init -->
+    <script src="{{ asset('assets/js/pages/animation-aos.init.js') }}"></script>
+
 </body>
 
 

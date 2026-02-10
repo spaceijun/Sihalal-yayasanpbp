@@ -4,40 +4,33 @@ namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
+use App\Services\Koordinator\DataLapanganService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DataLapanganController extends Controller
 {
-
-    public function index(Request $request)
+    protected $dataLapanganService;
+    public function __construct(DataLapanganService $dataLapanganService)
     {
-        $query = DataLapangan::with('enumerator')
-            ->whereHas('enumerator', function ($q) {
-                $q->where('koordinator_id', Auth::user()->koordinator->id);
-            });
-
-        // Filter berdasarkan nama PU
-        if ($request->filled('nama_pu')) {
-            $query->where('nama_pu', 'like', '%' . $request->nama_pu . '%');
-        }
-
-        // Filter berdasarkan status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter berdasarkan status pembayaran
-        if ($request->filled('status_pembayaran')) {
-            $query->where('status_pembayaran', $request->status_pembayaran);
-        }
-
-        $dataLapangans = $query->latest()->paginate(10)->appends($request->all());
-
-        return view('koordinator.data-lapangan.index', compact('dataLapangans'));
+        $this->dataLapanganService = $dataLapanganService;
     }
 
+    public function index(Request $request): View
+    {
+        $filters = [
+            'nama_pu' => $request->nama_pu,
+            'enumerator_id' => $request->enumerator_id,
+            'status' => $request->status,
+            'koordinator_id' => Auth::id(),
+        ];
+
+        $dataLapangans = $this->dataLapanganService->getFilteredData($filters, 20);
+        $i = ($dataLapangans->currentPage() - 1) * $dataLapangans->perPage();
+
+        return view('koordinator.data-lapangan.index', compact('i', 'dataLapangans'));
+    }
     /**
      * Update the status of a data lapangan
      *
@@ -45,17 +38,8 @@ class DataLapanganController extends Controller
      * @param int $id
      * @return RedirectResponse
      */
-    /**
-     * Validation rules:
-     * - status: required, must be either 'PROGRESS SIHALAL', 'TERBIT SH', or 'DITOLAK'
-     * - keterangan: optional, string
-     */
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'keterangan' => 'nullable|string|max:500'
-        ]);
-
         try {
             $dataLapangan = DataLapangan::findOrFail($id);
 
@@ -66,12 +50,6 @@ class DataLapanganController extends Controller
 
             // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)
             $dataLapangan->status = 'PROGRESS SIHALAL';
-
-            // Simpan keterangan jika ada field di database
-            // if ($request->keterangan) {
-            //     $dataLapangan->keterangan = $request->keterangan;
-            // }
-
             $dataLapangan->save();
 
             return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
@@ -79,14 +57,12 @@ class DataLapanganController extends Controller
             return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
         }
     }
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $dataLapangan = DataLapangan::with('enumerator')->find($id);
-
-
+        // Ganti dari find($id) ke findByid($id)
+        $dataLapangan = DataLapangan::findByHashedId($hashedId);
         return view('koordinator.data-lapangan.show', compact('dataLapangan'));
     }
-
     /**
      * Download foto KTP yang tersimpan di storage.
      *

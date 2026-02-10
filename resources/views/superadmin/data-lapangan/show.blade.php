@@ -429,7 +429,7 @@
 
                         <!-- Upload Form SIHALAL -->
                         <div class="mt-2">
-                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->id) }}"
+                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
                                 method="POST" enctype="multipart/form-data" id="uploadSihalalForm">
                                 @csrf
                                 <input type="hidden" name="file_type" value="sihalal">

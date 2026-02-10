@@ -43,7 +43,7 @@
                     </div>
                     <div class="card-body">
                         <label for="">Status Data</label>
-                        <form action="{{ route('superadmin.data-lapangans.update-status', $dataLapangan->id) }}"
+                        <form action="{{ route('superadmin.data-lapangans.update-status', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
                             <div class="row align-items-end">
@@ -81,7 +81,8 @@
                             </div>
                         </form>
                         <label for="">Status Pembayaran</label>
-                        <form action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->id) }}"
+                        <form
+                            action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
                             <div class="row align-items-end">

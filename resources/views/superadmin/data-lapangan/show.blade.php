@@ -42,35 +42,42 @@
                         <span><i class="fas fa-edit me-2"></i>Edit Status</span>
                     </div>
                     <div class="card-body">
+                        {{-- Button Trigger Modal Update Email & Verifikasi --}}
+                        @if ($dataLapangan->status == 'PENDING')
+                            <div class="mt-1 d-flex gap-2">
+                                <button type="button" class="btn btn-success btn-sm w-50" data-bs-toggle="modal"
+                                    data-bs-target="#modalUpdateEmail">
+                                    Update Email & Verifikasi Data
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm w-50" data-bs-toggle="modal"
+                                    data-bs-target="#modalRevisi">
+                                    Update Data Revisi
+                                </button>
+                            </div>
+                        @endif
+                        {{-- Status Data
                         <label for="">Status Data</label>
                         <form action="{{ route('superadmin.data-lapangans.update-status', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
-                            <div class="row align-items-end">
+                            <div class="row align-items-end mb-3">
                                 <div class="col-md-8">
-                                    <select name="status" id="" class="form-select" required>
+                                    <select name="status" class="form-select" required>
                                         <option value="">-- Pilih Status --</option>
                                         <option value="PENDING" {{ $dataLapangan->status == 'PENDING' ? 'selected' : '' }}>
-                                            PENDING
-                                        </option>
+                                            PENDING</option>
                                         <option value="PROGRESS OSS"
-                                            {{ $dataLapangan->status == 'PROGRESS OSS' ? 'selected' : '' }}>
-                                            PROGRESS OSS
+                                            {{ $dataLapangan->status == 'PROGRESS OSS' ? 'selected' : '' }}>PROGRESS OSS
                                         </option>
                                         <option value="PROGRESS SIHALAL"
-                                            {{ $dataLapangan->status == 'PROGRESS SIHALAL' ? 'selected' : '' }}>
-                                            PROGRESS SIHALAL
-                                        </option>
+                                            {{ $dataLapangan->status == 'PROGRESS SIHALAL' ? 'selected' : '' }}>PROGRESS
+                                            SIHALAL</option>
                                         <option value="TERBIT SH"
-                                            {{ $dataLapangan->status == 'TERBIT SH' ? 'selected' : '' }}>
-                                            TERBIT SH
-                                        </option>
+                                            {{ $dataLapangan->status == 'TERBIT SH' ? 'selected' : '' }}>TERBIT SH</option>
                                         <option value="DITOLAK" {{ $dataLapangan->status == 'DITOLAK' ? 'selected' : '' }}>
-                                            DITOLAK
-                                        </option>
+                                            DITOLAK</option>
                                         <option value="REVISI" {{ $dataLapangan->status == 'REVISI' ? 'selected' : '' }}>
-                                            REVISI
-                                        </option>
+                                            REVISI</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
@@ -79,375 +86,537 @@
                                     </button>
                                 </div>
                             </div>
-                        </form>
-                        <label for="">Status Pembayaran</label>
-                        <form
-                            action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
-                            method="POST">
-                            @csrf
-                            <div class="row align-items-end">
-                                <div class="col-md-8">
-                                    <select name="status_pembayaran" id="" class="form-select" required>
-                                        <option value="">-- Pilih Status --</option>
-                                        <option value="PENDING"
-                                            {{ $dataLapangan->status_pembayaran == 'PENDING' ? 'selected' : '' }}>
-                                            PENDING
-                                        </option>
-                                        <option value="PENGAJUAN"
-                                            {{ $dataLapangan->status_pembayaran == 'PENGAJUAN' ? 'selected' : '' }}>
-                                            PENGAJUAN
-                                        </option>
-                                        <option value="DIBAYAR"
-                                            {{ $dataLapangan->status_pembayaran == 'DIBAYAR' ? 'selected' : '' }}>
-                                            DIBAYAR
-                                        </option>
-                                    </select>
+                        </form> --}}
+
+                        {{-- Status Pembayaran --}}
+                        <div class="mt-2">
+                            <label for="">Status Pembayaran</label>
+                            <form
+                                action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
+                                method="POST">
+                                @csrf
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-md-8">
+                                        <select name="status_pembayaran" class="form-select" required>
+                                            <option value="">-- Pilih Status --</option>
+                                            <option value="PENDING"
+                                                {{ $dataLapangan->status_pembayaran == 'PENDING' ? 'selected' : '' }}>
+                                                PENDING
+                                            </option>
+                                            <option value="PENGAJUAN"
+                                                {{ $dataLapangan->status_pembayaran == 'PENGAJUAN' ? 'selected' : '' }}>
+                                                PENGAJUAN</option>
+                                            <option value="DIBAYAR"
+                                                {{ $dataLapangan->status_pembayaran == 'DIBAYAR' ? 'selected' : '' }}>
+                                                DIBAYAR
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fas fa-save me-2"></i>Update
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-success w-100">
-                                        <i class="fas fa-save me-2"></i>Update
-                                    </button>
-                                </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                            </form>
+                        </div>
 
-            <!-- Card Data Informasi -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <span>Data Informasi</span>
-                </div>
-                <div class="card-body">
-                    <div class="form-group mb-3">
-                        <strong>Nama Pendamping</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->enumerator->nama_lengkap }}</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="form-group mb-3">
-                        <strong>Nama Pelaku Usaha</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->nama_pu }}</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="form-group mb-3">
-                        <strong>NIK</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->nik }}</p>
-                    </div>
-                    <hr>
-                    <div class="form-group mb-3">
-                        <strong>No Telephone</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->telephone ?? 'Tidak Ada Data' }}</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col-md-6">
+                        @if ($dataLapangan->verifikator)
+                            <hr>
                             <div class="form-group mb-3">
-                                <strong>Nama Produk</strong>
-                                <p class="text-muted mb-0">{{ $dataLapangan->nama_produk ?? 'Tidak Ada Data' }}</p>
+                                <strong>Nama Verifikator</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->verifikator ?? 'Verifikator Kosong' }}</p>
                             </div>
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Tanggal Verifikasi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->tanggal_verifikasi ?? 'Tidak ada Tanggal Verif.' }}
+                                </p>
+                            </div>
+                        @elseif ($dataLapangan->status == 'REVISI')
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Keterangan Revisi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->keterangan ?? 'Tidak ada Keterangan.' }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Modal Update Email & Verifikasi --}}
+                <div class="modal fade" id="modalUpdateEmail" tabindex="-1" aria-labelledby="modalUpdateEmailLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalUpdateEmailLabel">
+                                    <i class="fas fa-envelope me-2"></i>Update Email & Verifikasi Data
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
+                                method="POST">
+                                @csrf
+                                <div class="modal-body">
+                                    <!-- Warning Alert -->
+                                    <div class="alert alert-warning alert-dismissible bg-warning text-white alert-label-icon fade show material-shadow"
+                                        role="alert">
+                                        <i class="ri-alert-line label-icon"></i><strong>PEHATIAN</strong> - Pastikan data
+                                        sudah divalidasi dengan baik serta sudah membuat email untuk PU!
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" name="email"
+                                            class="form-control @error('email') is-invalid @enderror" id="email"
+                                            value="{{ old('email', $dataLapangan->email) }}" placeholder="Masukkan email"
+                                            required>
+                                        @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="verifikator" class="form-label">Verifikator</label>
+                                        <input type="text" name="verifikator"
+                                            class="form-control @error('verifikator') is-invalid @enderror"
+                                            id="verifikator" value="{{ old('verifikator', $dataLapangan->verifikator) }}"
+                                            placeholder="Nama verifikator">
+                                        @error('verifikator')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tanggal_verifikasi" class="form-label">Tanggal Verifikasi</label>
+                                        <input type="date" name="tanggal_verifikasi"
+                                            class="form-control @error('tanggal_verifikasi') is-invalid @enderror"
+                                            id="tanggal_verifikasi"
+                                            value="{{ old('tanggal_verifikasi', optional($dataLapangan->tanggal_verifikasi)->format('Y-m-d')) }}">
+                                        @error('tanggal_verifikasi')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Batal
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Simpan
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
+                </div>
 
-                    <hr>
+                {{-- Modal Update Email & Verifikasi --}}
+                <div class="modal fade" id="modalRevisi" tabindex="-1" aria-labelledby="modalRevisiLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalRevisiLabel">
+                                    <i class="fas fa-envelope me-2"></i>Revisi Data
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
+                                method="POST">
+                                @csrf
+                                <div class="modal-body">
+                                    <!-- Warning Alert -->
+                                    <div class="alert alert-warning alert-dismissible bg-warning text-white alert-label-icon fade show material-shadow"
+                                        role="alert">
+                                        <i class="ri-alert-line label-icon"></i><strong>PEHATIAN</strong> - Pastikan data
+                                        sudah divalidasi dengan baik!
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
 
-                    <div class="form-group mb-3">
-                        <strong>Alamat</strong>
-                        <p class="text-muted mb-0">{{ $dataLapangan->alamat }}</p>
+                                    <div class="mb-3">
+                                        <label for="keterangan" class="form-label">Keterangan Revisi</label>
+                                        <textarea name="keterangan" id="keterangan" rows="3"
+                                            class="form-control @error('keterangan') is-invalid @enderror" placeholder="Masukkan keterangan">{{ old('keterangan', $dataLapangan->keterangan) }}</textarea>
+                                        @error('keterangan')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Batal
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Simpan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+                </div>
 
-                    <hr>
+                @if ($errors->hasAny(['email', 'verifikator', 'tanggal_verifikasi']))
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            new bootstrap.Modal(document.getElementById('modalUpdateEmail')).show();
+                        });
+                    </script>
+                @endif
 
-                    <div class="form-group mb-0">
-                        <strong>Status</strong>
-                        <p class="mb-0 mt-2">
-                            @if ($dataLapangan->status == 'PENDING')
-                                <span class="badge bg-warning">{{ $dataLapangan->status }}</span>
-                            @elseif($dataLapangan->status == 'PROGRESS OSS')
-                                <span class="badge bg-info">{{ $dataLapangan->status }}</span>
-                            @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
-                                <span class="badge bg-primary">{{ $dataLapangan->status }}</span>
-                            @elseif($dataLapangan->status == 'TERBIT SH')
-                                <span class="badge bg-success">{{ $dataLapangan->status }}</span>
-                            @elseif($dataLapangan->status == 'DITOLAK')
-                                <span class="badge bg-dark">{{ $dataLapangan->status }}</span>
-                            @elseif($dataLapangan->status == 'REVISI')
-                                <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
-                            @endif
-                        </p>
+                @if ($errors->hasAny(['keterangan']))
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            new bootstrap.Modal(document.getElementById('modalRevisi')).show();
+                        });
+                    </script>
+                @endif
+
+                <!-- Card Data Informasi -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <span>Data Informasi</span>
                     </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <strong>Nama Pendamping</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->enumerator->nama_lengkap }}</p>
+                        </div>
 
-                    <hr>
+                        <hr>
 
-                    <div class="form-group mb-0">
-                        <strong>Status Pembayaran</strong>
-                        <p class="mb-0 mt-2">
-                            @if ($dataLapangan->status_pembayaran == 'PENDING')
-                                <span class="badge bg-warning">{{ $dataLapangan->status_pembayaran }}</span>
-                            @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
-                                <span class="badge bg-info">{{ $dataLapangan->status_pembayaran }}</span>
-                            @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
-                                <span class="badge bg-success">{{ $dataLapangan->status_pembayaran }}</span>
-                            @endif
-                        </p>
+                        <div class="form-group mb-3">
+                            <strong>Nama Pelaku Usaha</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->nama_pu }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
+                            <strong>NIK</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->nik }}</p>
+                        </div>
+                        <hr>
+                        <div class="form-group mb-3">
+                            <strong>No Telephone</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->telephone ?? 'Tidak Ada Data' }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <strong>Nama Produk</strong>
+                                    <p class="text-muted mb-0">{{ $dataLapangan->nama_produk ?? 'Tidak Ada Data' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
+                            <strong>Alamat</strong>
+                            <p class="text-muted mb-0">{{ $dataLapangan->alamat }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-0">
+                            <strong>Status</strong>
+                            <p class="mb-0 mt-2">
+                                @if ($dataLapangan->status == 'PENDING')
+                                    <span class="badge bg-warning">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'TERVERIFIKASI')
+                                    <span class="badge bg-secondary">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'PROGRESS OSS')
+                                    <span class="badge bg-info">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
+                                    <span class="badge bg-primary">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'TERBIT SH')
+                                    <span class="badge bg-success">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'DITOLAK')
+                                    <span class="badge bg-dark">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'REVISI')
+                                    <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
+                                @endif
+                            </p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-0">
+                            <strong>Status Pembayaran</strong>
+                            <p class="mb-0 mt-2">
+                                @if ($dataLapangan->status_pembayaran == 'PENDING')
+                                    <span class="badge bg-warning">{{ $dataLapangan->status_pembayaran }}</span>
+                                @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
+                                    <span class="badge bg-info">{{ $dataLapangan->status_pembayaran }}</span>
+                                @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
+                                    <span class="badge bg-success">{{ $dataLapangan->status_pembayaran }}</span>
+                                @endif
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Card 2: Foto & File (Kanan) -->
-        <div class="col-md-6">
-            <!-- Section Foto -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span>Dokumentasi Foto</span>
-                    <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#modalKolaseFoto">
-                        <i class="fas fa-th me-2"></i>Lihat Kolase
-                    </button>
-                </div>
-                <div class="card-body">
-                    <!-- Foto KTP -->
-                    <div class="form-group mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Foto KTP</strong>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoKTP">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
-                                <a href="{{ route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
-                                    class="btn btn-primary btn-sm">
-                                    <i class="fas fa-download me-2"></i>Download KTP
-                                </a>
+            <!-- Card 2: Foto & File (Kanan) -->
+            <div class="col-md-6">
+                <!-- Section Foto -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <span>Dokumentasi Foto</span>
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#modalKolaseFoto">
+                            <i class="fas fa-th me-2"></i>Lihat Kolase
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- Foto KTP -->
+                        <div class="form-group mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto KTP</strong>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoKTP">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download KTP
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <hr>
+                        <hr>
 
-                    <!-- Foto Rumah -->
-                    <div class="form-group mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Foto Rumah</strong>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoRumah">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
-                                <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
-                                    class="btn btn-primary btn-sm">Download PDF</a>
+                        <!-- Foto Rumah -->
+                        <div class="form-group mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Rumah</strong>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoRumah">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                                        class="btn btn-primary btn-sm">Download PDF</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr>
+                        <hr>
 
-                    <!-- Foto Pendamping -->
-                    <div class="form-group mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Foto Pendamping</strong>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoPendamping">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
-                                <a href="{{ route('superadmin.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
-                                    class="btn btn-success btn-sm">
-                                    <i class="fas fa-download me-2"></i>Download
-                                </a>
+                        <!-- Foto Pendamping -->
+                        <div class="form-group mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Pendamping</strong>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoPendamping">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('superadmin.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
+                                        class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr>
+                        <hr>
 
-                    <!-- Foto Produk -->
-                    <div class="form-group mb-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Foto Produk</strong>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modalFotoProduk">
-                                    <i class="fas fa-eye me-2"></i>Lihat Foto
-                                </button>
-                                <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->id) }}"
-                                    class="btn btn-success btn-sm">
-                                    <i class="fas fa-download me-2"></i>Download
-                                </a>
+                        <!-- Foto Produk -->
+                        <div class="form-group mb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Foto Produk</strong>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalFotoProduk">
+                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                    </button>
+                                    <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                        class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr>
+                        <hr>
 
-                    <!-- Foto Spotcheck - LAYOUT DIPERBAIKI -->
-                    <div class="form-group mb-0">
-                        <strong>Foto Spotcheck</strong>
-                        @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
-                            <div class="mt-2">
-                                @foreach ($dataLapangan->spotchecks as $index => $spotcheck)
-                                    @if ($spotcheck->foto_pu)
-                                        <div class="mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted">Spotcheck {{ $index + 1 }}</span>
-                                                <div class="d-flex gap-2">
-                                                    <button type="button" class="btn btn-primary btn-sm"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalFotoSpotcheck{{ $spotcheck->id }}">
-                                                        <i class="fas fa-eye me-2"></i>Lihat
-                                                    </button>
-                                                    <a href="{{ asset('storage/' . $spotcheck->foto_pu) }}"
-                                                        download="Spotcheck_{{ $spotcheck->nama_spotcheck ?? $index + 1 }}.jpg"
-                                                        class="btn btn-success btn-sm">
-                                                        <i class="fas fa-download me-2"></i>Download
-                                                    </a>
+                        <!-- Foto Spotcheck - LAYOUT DIPERBAIKI -->
+                        <div class="form-group mb-0">
+                            <strong>Foto Spotcheck</strong>
+                            @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
+                                <div class="mt-2">
+                                    @foreach ($dataLapangan->spotchecks as $index => $spotcheck)
+                                        @if ($spotcheck->foto_pu)
+                                            <div class="mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="text-muted">Spotcheck {{ $index + 1 }}</span>
+                                                    <div class="d-flex gap-2">
+                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalFotoSpotcheck{{ $spotcheck->id }}">
+                                                            <i class="fas fa-eye me-2"></i>Lihat
+                                                        </button>
+                                                        <a href="{{ asset('storage/' . $spotcheck->foto_pu) }}"
+                                                            download="Spotcheck_{{ $spotcheck->nama_spotcheck ?? $index + 1 }}.jpg"
+                                                            class="btn btn-success btn-sm">
+                                                            <i class="fas fa-download me-2"></i>Download
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endif
-                                @endforeach
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="alert alert-info mt-2 mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Belum ada foto spotcheck
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan Revisi</span>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
+                            method="POST">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label for="keterangan" class="form-label">
+                                    <strong>Keterangan / Catatan Revisi</strong>
+                                </label>
+                                <textarea name="keterangan" id="keterangan" class="form-control" rows="5"
+                                    placeholder="Masukkan keterangan atau catatan tambahan...">{{ old('keterangan', $dataLapangan->keterangan ?? '') }}</textarea>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Tambahkan catatan penting terkait data lapangan Revisi ini
+                                </small>
                             </div>
-                        @else
-                            <div class="alert alert-info mt-2 mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Belum ada foto spotcheck
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i>Simpan Keterangan
+                                </button>
+                            </div>
+                        </form>
+
+                        @if ($dataLapangan->keterangan)
+                            <hr class="my-3">
+                            <div class="alert alert-info mb-0">
+                                <strong><i class="fas fa-sticky-note me-2"></i>Keterangan Tersimpan:</strong>
+                                <p class="mb-0 mt-2">{{ $dataLapangan->keterangan }}</p>
+                                <small class="text-muted">
+                                    Terakhir diperbarui:
+                                    {{ $dataLapangan->updated_at ? $dataLapangan->updated_at->format('d M Y, H:i') : '-' }}
+                                </small>
                             </div>
                         @endif
                     </div>
-                </div>
-            </div>
-
-            <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan Revisi</span>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
-                        method="POST">
-                        @csrf
+                </div> --}}
+                <!-- Section File -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <span>Dokumentasi File</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- File OSS Section -->
                         <div class="form-group mb-3">
-                            <label for="keterangan" class="form-label">
-                                <strong>Keterangan / Catatan Revisi</strong>
-                            </label>
-                            <textarea name="keterangan" id="keterangan" class="form-control" rows="5"
-                                placeholder="Masukkan keterangan atau catatan tambahan...">{{ old('keterangan', $dataLapangan->keterangan ?? '') }}</textarea>
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Tambahkan catatan penting terkait data lapangan Revisi ini
-                            </small>
-                        </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Simpan Keterangan
-                            </button>
-                        </div>
-                    </form>
-
-                    @if ($dataLapangan->keterangan)
-                        <hr class="my-3">
-                        <div class="alert alert-info mb-0">
-                            <strong><i class="fas fa-sticky-note me-2"></i>Keterangan Tersimpan:</strong>
-                            <p class="mb-0 mt-2">{{ $dataLapangan->keterangan }}</p>
-                            <small class="text-muted">
-                                Terakhir diperbarui:
-                                {{ $dataLapangan->updated_at ? $dataLapangan->updated_at->format('d M Y, H:i') : '-' }}
-                            </small>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            <!-- Section File -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <span>Dokumentasi File</span>
-                </div>
-                <div class="card-body">
-                    <!-- File OSS Section -->
-                    <div class="form-group mb-3">
-                        <strong>File OSS:</strong>
-                        @if ($dataLapangan->file_oss)
-                            <div class="mt-2 d-flex gap-2">
-                                <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
-                                    class="btn btn-outline-success btn-sm flex-grow-1">
-                                    <i class="fas fa-download me-2"></i> Download File OSS
-                                </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm"
-                                    onclick="deleteFile('{{ $dataLapangan->id }}', 'oss')">
-                                    <i class="fas fa-trash">Delete</i>
-                                </button>
-                            </div>
-                        @else
-                            <div class="alert alert-warning mt-2 mb-0">
-                                <i class="fas fa-exclamation-triangle me-2"></i>File OSS belum tersedia
-                            </div>
-                        @endif
-
-                        <!-- Upload Form OSS -->
-                        <div class="mt-2">
-                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
-                                method="POST" enctype="multipart/form-data" id="uploadOssForm">
-                                @csrf
-                                <input type="hidden" name="file_type" value="oss">
-                                <div class="input-group">
-                                    <input type="file" class="form-control" name="file" id="file_oss"
-                                        accept=".pdf" required>
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-upload me-2"></i>Upload
+                            <strong>File OSS:</strong>
+                            @if ($dataLapangan->file_oss)
+                                <div class="mt-2 d-flex gap-2">
+                                    <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
+                                        class="btn btn-outline-success btn-sm flex-grow-1">
+                                        <i class="fas fa-download me-2"></i> Download File OSS
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="deleteFile('{{ $dataLapangan->id }}', 'oss')">
+                                        <i class="fas fa-trash">Delete</i>
                                     </button>
                                 </div>
-                                <small class="text-muted">Format: PDF (Max: 5MB)</small>
-                            </form>
+                            @else
+                                <div class="alert alert-warning mt-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>File OSS belum tersedia
+                                </div>
+                            @endif
+
+                            <!-- Upload Form OSS -->
+                            <div class="mt-2">
+                                <form
+                                    action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                                    method="POST" enctype="multipart/form-data" id="uploadOssForm">
+                                    @csrf
+                                    <input type="hidden" name="file_type" value="oss">
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" name="file" id="file_oss"
+                                            accept=".pdf" required>
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-upload me-2"></i>Upload
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Format: PDF (Max: 5MB)</small>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <hr>
+                        <hr>
 
-                    <!-- File SIHALAL Section -->
-                    <div class="form-group mb-0">
-                        <strong>File SIHALAL:</strong>
-                        @if ($dataLapangan->file_sihalal)
-                            <div class="mt-2 d-flex gap-2">
-                                <a href="{{ asset('storage/' . $dataLapangan->file_sihalal) }}" target="_blank"
-                                    class="btn btn-outline-success btn-sm flex-grow-1">
-                                    <i class="fas fa-download me-2"></i> Download File SIHALAL
-                                </a>
-                                <button type="button" class="btn btn-outline-danger btn-sm"
-                                    onclick="deleteFile('{{ $dataLapangan->id }}', 'sihalal')">
-                                    <i class="fas fa-trash">Delete</i>
-                                </button>
-                            </div>
-                        @else
-                            <div class="alert alert-warning mt-2 mb-0">
-                                <i class="fas fa-exclamation-triangle me-2"></i>File SIHALAL belum tersedia
-                            </div>
-                        @endif
-
-                        <!-- Upload Form SIHALAL -->
-                        <div class="mt-2">
-                            <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
-                                method="POST" enctype="multipart/form-data" id="uploadSihalalForm">
-                                @csrf
-                                <input type="hidden" name="file_type" value="sihalal">
-                                <div class="input-group">
-                                    <input type="file" class="form-control" name="file" id="file_sihalal"
-                                        accept=".pdf" required>
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-upload me-2"></i>Upload
+                        <!-- File SIHALAL Section -->
+                        <div class="form-group mb-0">
+                            <strong>File SIHALAL:</strong>
+                            @if ($dataLapangan->file_sihalal)
+                                <div class="mt-2 d-flex gap-2">
+                                    <a href="{{ asset('storage/' . $dataLapangan->file_sihalal) }}" target="_blank"
+                                        class="btn btn-outline-success btn-sm flex-grow-1">
+                                        <i class="fas fa-download me-2"></i> Download File SIHALAL
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="deleteFile('{{ $dataLapangan->id }}', 'sihalal')">
+                                        <i class="fas fa-trash">Delete</i>
                                     </button>
                                 </div>
-                                <small class="text-muted">Format: PDF (Max: 5MB)</small>
-                            </form>
+                            @else
+                                <div class="alert alert-warning mt-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>File SIHALAL belum tersedia
+                                </div>
+                            @endif
+
+                            <!-- Upload Form SIHALAL -->
+                            <div class="mt-2">
+                                <form
+                                    action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                                    method="POST" enctype="multipart/form-data" id="uploadSihalalForm">
+                                    @csrf
+                                    <input type="hidden" name="file_type" value="sihalal">
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" name="file" id="file_sihalal"
+                                            accept=".pdf" required>
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-upload me-2"></i>Upload
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Format: PDF (Max: 5MB)</small>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </section>
 
@@ -698,14 +867,14 @@
             }
         }
 
-        // Auto hide alerts after 5 seconds
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
+        // // Auto hide alerts after 5 seconds
+        // setTimeout(function() {
+        //     var alerts = document.querySelectorAll('.alert');
+        //     alerts.forEach(function(alert) {
+        //         var bsAlert = new bootstrap.Alert(alert);
+        //         bsAlert.close();
+        //     });
+        // }, 5000);
 
         // View full image function
         function viewFullImage(src, title) {

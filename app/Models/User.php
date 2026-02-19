@@ -62,4 +62,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Koordinator::class);
     }
+
+    /**
+     * Get the associated dataEntry model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    protected function dataEntry()
+    {
+        return $this->hasOne(DataEntry::class);
+    }
 }

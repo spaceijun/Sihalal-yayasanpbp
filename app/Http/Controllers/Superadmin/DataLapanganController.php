@@ -272,6 +272,23 @@ class DataLapanganController extends Controller
         return redirect()->back()->with('success', 'Data berhasil diperbarui');
     }
 
+    public function updateEmail(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'email'            => 'required|email|max:255',
+            'verifikator'      => 'nullable|string|max:255',
+            'tanggal_verifikasi' => 'nullable|date',
+        ]);
+
+        $this->dataLapanganService->updateEmail(
+            $id,
+            $request->email,
+            $request->verifikator,
+            $request->tanggal_verifikasi
+        );
+
+        return redirect()->back()->with('success', 'Email berhasil diperbarui');
+    }
     /**
      * Store a newly created resource in storage.
      */

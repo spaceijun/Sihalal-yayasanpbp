@@ -9,7 +9,7 @@
             @if ($dataLapangan->status == 'PENDING')
                 <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
             @elseif($dataLapangan->status == 'TERVERIFIKASI')
-                <span class="badge bg-secondary">{{ $dataLapangan->status }}</span>
+                <span class="badge bg-info">{{ $dataLapangan->status }}</span>
             @elseif($dataLapangan->status == 'PROGRESS OSS')
                 <span class="badge bg-info">{{ $dataLapangan->status }}</span>
             @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
@@ -22,7 +22,7 @@
                 <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
             @endif
         </td>
-        <td>
+        {{-- <td>
             @if ($dataLapangan->status_pembayaran == 'PENDING')
                 <span class="badge bg-warning text-dark">{{ $dataLapangan->status_pembayaran }}</span>
             @elseif($dataLapangan->status_pembayaran == 'PENGAJUAN')
@@ -30,40 +30,34 @@
             @elseif($dataLapangan->status_pembayaran == 'DIBAYAR')
                 <span class="badge bg-success">{{ $dataLapangan->status_pembayaran }}</span>
             @endif
-        </td>
-        <td>
+        </td> --}}
+        {{-- <td>
             @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
                 <span class="badge bg-success">
                     <i class="las la-check-circle"></i> Sudah Spotcheck
                 </span>
             @else
-                <span class="badge bg-secondary">
-                    <i class="las la-times-circle"></i> Belum Spotcheck
+                <span class="badge bg-danger">
+                    <i class="las la-times-circle"></i> Tidak Spotcheck
                 </span>
             @endif
-        </td>
+        </td> --}}
         <td>
-            <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}" method="POST"
-                class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
-                <a class="btn btn-sm btn-primary"
-                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}">
-                    <i class="las la-eye"></i> {{ __('Show') }}
-                </a>
-                {{-- <a class="btn btn-sm btn-success"
+            <a class="btn btn-sm btn-primary"
+                href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}">
+                <i class="las la-eye"></i> {{ __('Show') }}
+            </a>
+            {{-- <a class="btn btn-sm btn-success"
                     href="{{ route('superadmin.data-lapangans.edit', $dataLapangan->id) }}">
                     <i class="las la-edit"></i> {{ __('Edit') }}
                 </a> --}}
-                @csrf
-                @method('DELETE')
-                @if (
-                    $dataLapangan->status == 'PENDING' ||
-                        $dataLapangan->status == 'DITOLAK' ||
-                        $dataLapangan->status_pembayaran == 'PENDING')
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="las la-trash"></i> {{ __('Delete') }}
-                    </button>
-                @endif
-            </form>
+            @csrf
+            @method('DELETE')
+            @if (
+                $dataLapangan->status == 'PENDING' ||
+                    $dataLapangan->status == 'DITOLAK' ||
+                    $dataLapangan->status_pembayaran == 'PENDING')
+            @endif
         </td>
     </tr>
 @empty

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataLapanganController;
 use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\KoorDataLapanganController;
@@ -67,6 +68,18 @@ Route::middleware(['auth:web', 'role:koordinator'])->group(function () {
         // Data Lapangan API
         Route::prefix('data-lapangans')->name('data-lapangans.')->group(function () {
             Route::get('/', [KoorDataLapanganController::class, 'apiIndex'])->name('index');
+        });
+    });
+});
+
+// ============================================
+// DATA ENTRY ROUTES
+// ============================================
+Route::middleware(['auth:web', 'role:data_entry'])->group(function () {
+    Route::prefix('data-entry')->name('api.data-entry.')->group(function () {
+        // Data Lapangan API
+        Route::prefix('data-lapangans')->name('data-lapangans.')->group(function () {
+            Route::get('/', [DataEntryLapanganController::class, 'index'])->name('index');
         });
     });
 });

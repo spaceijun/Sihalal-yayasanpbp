@@ -40,7 +40,7 @@ class DataLapangan extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['enumerator_id', 'nama_pu', 'nik', 'telephone', 'nama_produk', 'alamat', 'foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk', 'status', 'status_pembayaran', 'file_oss', 'file_sihalal', 'keterangan_oss', 'keterangan_sihalal'];
+    protected $fillable = ['enumerator_id', 'nama_pu', 'nik', 'email', 'telephone', 'nama_produk', 'alamat', 'foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk', 'status', 'verifikator', 'tanggal_verifikasi', 'status_pembayaran', 'file_oss', 'file_sihalal', 'keterangan_oss', 'keterangan_sihalal'];
 
 
     /**

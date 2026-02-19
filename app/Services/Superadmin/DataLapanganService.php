@@ -102,4 +102,21 @@ class DataLapanganService
         $dataLapangan->save();
         return $dataLapangan;
     }
+
+    /**
+     * Update email, verifikator, dan tanggal_verifikasi
+     */
+    public function updateEmail(
+        $id,
+        string $email,
+        ?string $verifikator,
+        ?string $tanggalVerifikasi
+    ): void {
+        DataLapangan::where('id', $id)->update([
+            'email'              => $email,
+            'verifikator'        => $verifikator,
+            'tanggal_verifikasi' => $tanggalVerifikasi,
+            'status'             => 'TERVERIFIKASI',
+        ]);
+    }
 }

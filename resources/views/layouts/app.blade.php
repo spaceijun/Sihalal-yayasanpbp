@@ -5,6 +5,9 @@
 @elseif(auth()->check() && auth()->user()->role === 'koordinator')
     <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">
+@elseif(auth()->check() && auth()->user()->role === 'data_entry')
+    <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
+        data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">
 @else
     <html lang="en" data-layout="vertical" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="default">
@@ -469,6 +472,13 @@
                                         @elseif (auth()->check() && auth()->user()->role === 'koordinator')
                                             <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
                                                 {{ auth()->user()->koordinator->nama_lengkap }}
+                                            </span>
+                                            <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
+                                                {{ auth()->user()->email }}
+                                            </span>
+                                        @elseif (auth()->check() && auth()->user()->role === 'data_entry')
+                                            <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
+                                                {{ auth()->user()->dataEntry->nama_lengkap }}
                                             </span>
                                             <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
                                                 {{ auth()->user()->email }}

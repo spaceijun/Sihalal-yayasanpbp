@@ -33,6 +33,8 @@ class AuthenticatedSessionController extends Controller
             $url = "superadmin";
         } else if (Auth::user()->role == "koordinator") {
             $url = "koordinator";
+        } elseif (Auth::user()->role == "data_entry") {
+            $url = "data-entry";
         }
 
         return redirect()->intended($url);

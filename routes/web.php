@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
+use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
 use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
@@ -8,6 +10,8 @@ use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruit
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
+use App\Http\Controllers\Superadmin\DataEntryController;
+use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
 use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
@@ -59,6 +63,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
 
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
+        Route::resource('data-entries', DataEntryController::class);
         Route::resource('enumerators', EnumeratorController::class);
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
@@ -77,7 +82,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/data-revisi/send-all-notifications', [DataLapanganController::class, 'sendAllRevisiNotifications'])->name('data-revisi.send-all-notifications');
         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
-
+        Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
+        // Tagihan Data Entry
+        Route::get('/penagihan', [DataEntryPenagihanController::class, 'index'])->name('penagihan.index');
+        Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
+        Route::post('/penagihan/{penagihan}/proses', [DataEntryPenagihanController::class, 'proses'])->name('penagihan.proses');
+        Route::post('/penagihan/{penagihan}/tolak', [DataEntryPenagihanController::class, 'tolak'])->name('penagihan.tolak');
         // Spotcheck
         Route::resource('spotchecks', SpotcheckController::class);
         // Recruitment
@@ -152,6 +162,20 @@ Route::middleware('auth', 'role:koordinator')->group(function () {
     // Route::get('/', function () {
     //     return view('superadmin.home.index')->name('superadmin.index');
     // });
+});
+
+/**
+ * DATA ENTRY ROUTES
+ */
+Route::middleware('auth', 'role:data_entry')->group(function () {
+    Route::prefix('data-entry')->name('data-entry.')->group(function () {
+        Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
+        Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
+        Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
+        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
+    });
 });
 
 

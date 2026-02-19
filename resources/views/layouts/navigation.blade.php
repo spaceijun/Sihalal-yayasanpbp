@@ -21,6 +21,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/data-entries') }}"
+                        class="nav-link {{ $current_url == 'superadmin/data-entries' ? 'active' : '' }}">
+                        <i data-feather="user"></i>Data Entry
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/recruitments') }}"
                         class="nav-link {{ $current_url == 'superadmin/recruitments' ? 'active' : '' }}">
                         <i data-feather="users"></i>Recruitment
@@ -46,6 +52,12 @@
                     </a>
                 </li>
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/penagihan') }}"
+                        class="nav-link {{ $current_url == 'superadmin/penagihan' ? 'active' : '' }}">
+                        <i data-feather="database"></i>Tagihan Data Entry
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/arus-kas') }}"
                         class="nav-link {{ $current_url == 'superadmin/arus-kas' ? 'active' : '' }}">
@@ -76,6 +88,8 @@
                 </li>
             @elseif ($role == 'koordinator')
                 @include('layouts.navigation-koordinator')
+            @elseif ($role == 'data_entry')
+                @include('layouts.navigation-data-entry')
             @endif
 
             {{-- Menu yang tersedia untuk semua role --}}

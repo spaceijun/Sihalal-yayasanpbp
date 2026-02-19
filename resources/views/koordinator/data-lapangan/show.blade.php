@@ -99,6 +99,8 @@
                             <p class="mb-0 mt-2">
                                 @if ($dataLapangan->status == 'PENDING')
                                     <span class="badge bg-warning">{{ $dataLapangan->status }}</span>
+                                @elseif($dataLapangan->status == 'TERVERIFIKASI')
+                                    <span class="badge bg-secondary">{{ $dataLapangan->status }}</span>
                                 @elseif($dataLapangan->status == 'PROGRESS OSS')
                                     <span class="badge bg-info">{{ $dataLapangan->status }}</span>
                                 @elseif($dataLapangan->status == 'PROGRESS SIHALAL')

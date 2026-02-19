@@ -48,6 +48,9 @@
                                     <option value="">Semua Status</option>
                                     <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>
                                         Pending</option>
+                                    <option value="Terverifikasi"
+                                        {{ request('status') == 'Terverifikasi' ? 'selected' : '' }}>Terverifikasi
+                                    </option>
                                     <option value="Progress OSS"
                                         {{ request('status') == 'Progress OSS' ? 'selected' : '' }}>Progress OSS
                                     </option>

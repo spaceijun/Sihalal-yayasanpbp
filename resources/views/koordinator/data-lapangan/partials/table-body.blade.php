@@ -8,6 +8,8 @@
         <td>
             @if ($dataLapangan->status == 'PENDING')
                 <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
+            @elseif($dataLapangan->status == 'TERVERIFIKASI')
+                <span class="badge bg-secondary">{{ $dataLapangan->status }}</span>
             @elseif($dataLapangan->status == 'PROGRESS OSS')
                 <span class="badge bg-info">{{ $dataLapangan->status }}</span>
             @elseif($dataLapangan->status == 'PROGRESS SIHALAL')

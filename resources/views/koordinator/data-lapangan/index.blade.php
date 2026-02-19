@@ -32,6 +32,7 @@
                                 <select class="form-control" id="status_data" name="status">
                                     <option value="">Semua Status</option>
                                     <option value="PENDING">Pending</option>
+                                    <option value="TERVERIFIKASI">Terverifikasi</option>
                                     <option value="PROGRESS OSS">Progress OSS</option>
                                     <option value="PROGRESS SIHALAL">Progress SIHALAL</option>
                                     <option value="TERBIT SH">Terbit SH</option>

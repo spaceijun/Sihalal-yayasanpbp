@@ -75,6 +75,13 @@
 
                         <hr>
 
+                        <div class="form-group mb-3">
+                            <strong>Password</strong>
+                            <p class="text-muted mb-0">Halal@123 <br><strong>(Samakan semua password)</strong></p>
+                        </div>
+
+                        <hr>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
@@ -145,7 +152,23 @@
                                 </div>
                             </div>
                             <hr>
+                            <div class="form-group mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Foto KTP</strong>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modalFotoKTP">
+                                            <i class="fas fa-eye me-2"></i>Lihat Foto
+                                        </button>
+                                        <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                            class="btn btn-primary btn-sm">
+                                            <i class="fas fa-download me-2"></i>Download KTP
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         @elseif ($entryType == 'SIHALAL')
+                            <hr>
                             <div class="form-group mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <strong>Foto KTP</strong>
@@ -232,7 +255,6 @@
                                     @endif
                                 </div>
                             </div>
-            
                         @else
                             <div class="alert alert-secondary mb-0">
                                 <i class="fas fa-info-circle me-2"></i>Tipe entry tidak dikenali

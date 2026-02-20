@@ -2,6 +2,7 @@
 
 namespace App\Models\Superadmin;
 
+use App\Models\DataEntry;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
 use App\Models\User;
@@ -59,9 +60,26 @@ class Koordinator extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    
+
     public function dataLapangans()
     {
-        return $this->hasMany(DataLapangan::class, 'koordinator_id');
+        return $this->hasManyThrough(
+            DataLapangan::class,  // Model tujuan
+            Enumerator::class,    // Model perantara
+            'koordinator_id',     // FK di tabel enumerators
+            'enumerator_id',      // FK di tabel data_lapangans
+            'id',                 // PK di tabel koordinators
+            'id'                  // PK di tabel enumerators
+        );
+    }
+    /**
+     * Get the associated data entry models.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+
+    public function dataEntrys()
+    {
+        return $this->belongsToMany(DataEntry::class, 'data_entry_koordinator', 'koordinator_id', 'data_entry_id');
     }
 }

@@ -30,7 +30,8 @@ class PdfService
             'tanggal_cetak' => now()->format('d-m-Y H:i:s')
         ];
 
-        $pdf = app('dompdf')->loadView('superadmin.data-lapangan.partials.foto-rumah-pdf', $data);
+        $html = view('superadmin.data-lapangan.partials.foto-rumah-pdf', $data)->render();
+        $pdf = app('dompdf.wrapper')->loadHTML($html);
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf;

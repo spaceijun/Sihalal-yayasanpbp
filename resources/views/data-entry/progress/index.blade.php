@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Koordinators
+    Data Entries
 @endsection
 
 @section('content')
@@ -14,11 +14,11 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Data Koordinator') }}
+                                {{ __('Data Entries') }}
                             </span>
 
                             <div class="float-right">
-                                <a href="{{ route('superadmin.koordinators.create') }}"
+                                <a href="{{ route('superadmin.data-entries.create') }}"
                                     class="btn btn-primary btn-sm float-right" data-placement="left">
                                     {{ __('Create New') }}
                                 </a>
@@ -31,46 +31,40 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
+
                                         <th>Nama Lengkap</th>
                                         <th>Email</th>
                                         <th>Telephone</th>
-                                        <th>Fee Enum</th>
-                                        <th>Total Data</th>
-                                        <th>Terbit SH</th>
+                                        <th>Alamat</th>
                                         <th>Status</th>
+                                        <th>Entry Type</th>
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($koordinators as $koordinator)
+                                    @forelse ($dataEntries as $dataEntry)
                                         <tr>
                                             <td>{{ ++$i }}</td>
 
-                                            <td>{{ $koordinator->nama_lengkap }}</td>
-                                            <td>{{ $koordinator->email }}</td>
-                                            <td>{{ $koordinator->telephone }}</td>
-                                            <td>Rp. {{ number_format($koordinator->fee_enum, 2, ',', '.') }}</td>
-                                            <td><span
-                                                    class="badge bg-primary">{{ $koordinator->data_lapangans_count }}</span>
-                                            </td>
-                                            <td><span class="badge bg-success">{{ $koordinator->terbit_sh_count }}</span>
-                                            </td>
-                                            <td> <span
-                                                    class="badge bg-{{ $koordinator->status == 'Aktif' ? 'success' : 'danger' }}">
-                                                    {{ $koordinator->status }}
-                                                </span></td>
+                                            <td>{{ $dataEntry->nama_lengkap }}</td>
+                                            <td>{{ $dataEntry->email }}</td>
+                                            <td>{{ $dataEntry->telephone }}</td>
+                                            <td>{{ $dataEntry->alamat }}</td>
+                                            <td>{{ $dataEntry->status }}</td>
+                                            <td><span class="badge bg-primary">{{ $dataEntry->entry_type }}</span></td>
+
                                             <td>
                                                 <form
-                                                    action="{{ route('superadmin.koordinators.destroy', $koordinator->id) }}"
+                                                    action="{{ route('superadmin.data-entries.destroy', $dataEntry->id) }}"
                                                     method="POST">
                                                     {{-- <button type="button" class="btn btn-sm btn-primary"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#showModal{{ $koordinator->id }}">
+                                                        data-bs-target="#showModal{{ $dataEntry->id }}">
                                                         <i class="las la-eye"></i> {{ __('Show') }}
                                                     </button> --}}
                                                     <a class="btn btn-sm btn-success"
-                                                        href="{{ route('superadmin.koordinators.edit', $koordinator->id) }}"><i
+                                                        href="{{ route('superadmin.data-entries.edit', $dataEntry->id) }}"><i
                                                             class="las la-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
@@ -80,7 +74,6 @@
                                                 </form>
                                             </td>
                                         </tr>
-                                        {{-- @include('superadmin.koordinator.partials.modal-koordinator') --}}
                                     @empty
                                         <tr>
                                             <td colspan="100%" class="text-center py-4">
@@ -94,7 +87,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        @include('layouts.pagination', ['paginator' => $koordinators])
+                        @include('layouts.pagination', ['paginator' => $dataEntries])
                     </div>
                 </div>
             </div>

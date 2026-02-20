@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class DataEntryLapanganController extends Controller
@@ -61,8 +62,17 @@ class DataEntryLapanganController extends Controller
         // Hanya tampilkan data dengan status Terverifikasi
         $query->where('status', 'TERVERIFIKASI');
 
+        // Filter berdasarkan koordinator yang di-assign ke user data_entry
+        $user = Auth::user();
+        if ($user->hasRole('data_entry')) {
+            $koordinatorIds = $user->dataEntry()->with('koordinators')->first()->koordinators->pluck('id');
+            $query->whereHas('enumerator', function ($q) use ($koordinatorIds) {
+                $q->whereIn('koordinator_id', $koordinatorIds);
+            });
+        }
+
         // Load relationships
-        $query->with(['enumerator', 'spotchecks']);
+        $query->with(['enumerator', 'spotchecks', 'koordinator']);
 
         // Apply search and filters
         $this->applySearchFilter($query, $request);
@@ -73,7 +83,6 @@ class DataEntryLapanganController extends Controller
 
         return $query->paginate($request->get('per_page', 10));
     }
-
     /**
      * Apply search filter
      */

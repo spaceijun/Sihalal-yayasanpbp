@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Superadmin\Koordinator;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -51,5 +52,15 @@ class DataEntry extends Model
     public function progress()
     {
         return $this->hasMany(DataEntryProgress::class, 'data_entry_id');
+    }
+
+    /**
+     * Get the associated koordinators models.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function koordinators()
+    {
+        return $this->belongsToMany(Koordinator::class, 'data_entry_koordinator', 'data_entry_id', 'koordinator_id');
     }
 }

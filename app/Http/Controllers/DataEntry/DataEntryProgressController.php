@@ -36,7 +36,7 @@ class DataEntryProgressController extends Controller
             ->latest('actioned_at')
             ->paginate(20);
 
-        return view('progress.all', compact('progress'));
+        return view('progress.index', compact('progress'));
     }
 
     // Ringkasan progress per data entry

@@ -18,12 +18,15 @@ class KoordinatorController extends Controller
      */
     public function index(Request $request): View
     {
-        $koordinators = Koordinator::paginate();
+        $koordinators = Koordinator::withCount([
+            'dataLapangans',
+            'dataLapangans as terbit_sh_count' => fn($q) => $q->where('data_lapangans.status', 'TERBIT SH'),
+            'dataLapangans as dibayar_count'   => fn($q) => $q->where('data_lapangans.status_pembayaran', 'DIBAYAR'),
+        ])->paginate();
 
         return view('superadmin.koordinator.index', compact('koordinators'))
             ->with('i', ($request->input('page', 1) - 1) * $koordinators->perPage());
     }
-
     /**
      * Show the form for creating a new resource.
      */

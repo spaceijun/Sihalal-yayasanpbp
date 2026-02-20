@@ -58,7 +58,7 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    protected function koordinator()
+    public function koordinator()
     {
         return $this->hasOne(Koordinator::class);
     }
@@ -68,7 +68,7 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    protected function dataEntry()
+    public function dataEntry()
     {
         return $this->hasOne(DataEntry::class);
     }

@@ -346,19 +346,20 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Update the status pembayaran of a data lapangan.
+     * Update the status of a data lapangan to DIBAYAR.
+     *
+     * @param Request $request
+     * @param DataLapangan $dataLapangan
+     * @return RedirectResponse
      */
     public function updateStatusPayment(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
-        $request->validate([
-            'status_pembayaran' => 'required|in:PENDING,PENGAJUAN,DIBAYAR'
+        $dataLapangan->update([
+            'status_pembayaran' => 'DIBAYAR'
         ]);
 
-        $result = $this->statusService->updateStatusPayment($dataLapangan, $request->status_pembayaran);
-
-        return redirect()->back()->with('success', $result['message']);
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diubah menjadi DIBAYAR');
     }
-
     /**
      * Display the specified resource.
      */

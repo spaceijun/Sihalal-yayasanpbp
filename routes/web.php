@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
+use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
@@ -71,7 +72,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('data-lapangans', DataLapanganController::class);
         Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])->name('data-lapangans.update-status');
-        Route::post('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])->name('data-lapangans.update-status-payment');
+        Route::patch('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])->name('data-lapangans.update-status-payment');
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
@@ -173,8 +174,11 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
+        Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
+        Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
     });
 });
 

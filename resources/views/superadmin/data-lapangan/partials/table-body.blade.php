@@ -43,24 +43,31 @@
             @endif
         </td>
         <td>
-            <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}" method="POST"
-                class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
-                <a class="btn btn-sm btn-primary"
-                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}">
-                    <i class="las la-eye"></i> {{ __('Show') }}
-                </a>
-                {{-- <a class="btn btn-sm btn-success"
+            <a class="btn btn-sm btn-primary"
+                href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}" title="Lihat Detail">
+                <i class="las la-eye"></i>
+            </a>
+            @if ($dataLapangan->status == 'TERBIT SH')
+                <form action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
+                    method="POST" class="d-inline">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn btn-sm btn-success" title="Status Dibayar">
+                        <i class="las la-file-invoice-dollar"></i>
+                    </button>
+                </form>
+            @endif
+            {{-- <a class="btn btn-sm btn-success"
                     href="{{ route('superadmin.data-lapangans.edit', $dataLapangan->id) }}">
                     <i class="las la-edit"></i> {{ __('Edit') }}
                 </a> --}}
+            <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}" method="POST"
+                class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
                 @csrf
                 @method('DELETE')
-                @if (
-                    $dataLapangan->status == 'PENDING' ||
-                        $dataLapangan->status == 'DITOLAK' ||
-                        $dataLapangan->status_pembayaran == 'PENDING')
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="las la-trash"></i> {{ __('Delete') }}
+                @if ($dataLapangan->status == 'PENDING' || $dataLapangan->status == 'DITOLAK')
+                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus Data">
+                        <i class="las la-trash"></i>
                     </button>
                 @endif
             </form>

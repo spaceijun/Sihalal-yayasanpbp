@@ -26,6 +26,7 @@ class DashboardController extends Controller
         $totalPembayaranPengajuan = DataLapangan::where('status_pembayaran', 'PENGAJUAN')->count();
         $totalDibayar = DataLapangan::where('status_pembayaran', 'DIBAYAR')->count();
         $totalDataRevisi = DataLapangan::where('status', 'REVISI')->count();
+        $totalDataTerverifikasi = DataLapangan::where('status', 'TERVERIFIKASI')->count();
 
         $latestDataToday = DataLapangan::with('enumerator')
             ->whereDate('created_at', today())
@@ -39,6 +40,6 @@ class DashboardController extends Controller
             ->take(20)
             ->get();
 
-        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestDataToday', 'latestDataUpdate', 'totalDataPending', 'totalDataProgressOSS', 'totalDataProgressSihalal', 'totalDataTerbitSH', 'totalPembayaranPending', 'totalPembayaranPengajuan', 'totalDibayar', 'totalDataRevisi'));
+        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestDataToday', 'latestDataUpdate', 'totalDataPending', 'totalDataProgressOSS', 'totalDataProgressSihalal', 'totalDataTerbitSH', 'totalPembayaranPending', 'totalPembayaranPengajuan', 'totalDibayar', 'totalDataRevisi', 'totalDataTerverifikasi'));
     }
 }

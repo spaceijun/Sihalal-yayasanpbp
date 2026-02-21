@@ -11,6 +11,14 @@
         <i data-feather="user"></i>Data Lapangan
     </a>
 </li>
+
+<li class="nav-item">
+    <a href="{{ url('data-entry/progress') }}"
+        class="nav-link {{ $current_url == 'data-entry/progress' ? 'active' : '' }}">
+        <i data-feather="database"></i>My Progress
+    </a>
+</li>
+
 <li class="nav-item">
     <a href="javascript:void(0)" class="nav-link disabled"
         style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">

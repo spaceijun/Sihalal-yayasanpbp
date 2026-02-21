@@ -89,7 +89,7 @@
                         </form> --}}
 
                         {{-- Status Pembayaran --}}
-                        <div class="mt-2">
+                        {{-- <div class="mt-2">
                             <label for="">Status Pembayaran</label>
                             <form
                                 action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
@@ -119,7 +119,7 @@
                                     </div>
                                 </div>
                             </form>
-                        </div>
+                        </div> --}}
 
                         @if ($dataLapangan->verifikator)
                             <hr>
@@ -131,7 +131,9 @@
                             <div class="form-group mb-3">
                                 <strong>Tanggal Verifikasi</strong>
                                 <p class="text-muted mb-0">
-                                    {{ $dataLapangan->tanggal_verifikasi ?? 'Tidak ada Tanggal Verif.' }}
+                                    {{ $dataLapangan->tanggal_verifikasi
+                                        ? \Carbon\Carbon::parse($dataLapangan->tanggal_verifikasi)->translatedFormat('d M Y')
+                                        : 'Tidak ada Tanggal Verif.' }}
                                 </p>
                             </div>
                         @elseif ($dataLapangan->status == 'REVISI')
@@ -184,8 +186,8 @@
                                     <div class="mb-3">
                                         <label for="verifikator" class="form-label">Verifikator</label>
                                         <input type="text" name="verifikator"
-                                            class="form-control @error('verifikator') is-invalid @enderror"
-                                            id="verifikator" value="{{ old('verifikator', $dataLapangan->verifikator) }}"
+                                            class="form-control @error('verifikator') is-invalid @enderror" id="verifikator"
+                                            value="{{ old('verifikator', $dataLapangan->verifikator) }}"
                                             placeholder="Nama verifikator">
                                         @error('verifikator')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -494,7 +496,7 @@
                     </div>
                 </div>
 
-                {{-- <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
+                <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan Revisi</span>
@@ -534,7 +536,7 @@
                             </div>
                         @endif
                     </div>
-                </div> --}}
+                </div>
                 <!-- Section File -->
                 <div class="card">
                     <div class="card-header bg-primary text-white">

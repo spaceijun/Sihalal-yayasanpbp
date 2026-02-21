@@ -8,26 +8,31 @@ use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class DataEntryProgressController extends Controller
 {
     // Lihat progress milik data entry yang sedang login
-    public function myProgress()
+    public function index()
     {
         $dataEntry = DataEntry::where('user_id', Auth::id())->firstOrFail();
-
-        $totalKeseluruhan = DataEntryProgress::where('data_entry_id', $dataEntry->id)
-            ->count();
-
-        $totalPerAction = DataEntryProgress::where('data_entry_id', $dataEntry->id)
-            ->selectRaw('action, COUNT(*) as total')
-            ->groupBy('action')
-            ->pluck('total', 'action');
-
-        $totalDataLapangan = DataLapangan::all()->count();
-
-        return view('data-entry.dashboard', compact('progress'));
+        $progress = DataEntryProgress::with('dataLapangan')
+            ->where('data_entry_id', $dataEntry->id)
+            ->latest('actioned_at')
+            ->paginate(20);
+        return view('data-entry.progress.index', compact('progress'));
     }
+
+    public function show($hashedId): View
+    {
+        $dataLapangan = DataLapangan::findByHashedId($hashedId);
+
+        $entryType = DataEntry::where('user_id', Auth::id())
+            ->value('entry_type');
+
+        return view('data-entry.progress.show', compact('dataLapangan', 'entryType'));
+    }
+
 
     // Lihat progress semua data entry (untuk admin)
     public function allProgress()

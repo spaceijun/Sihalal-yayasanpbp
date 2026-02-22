@@ -252,19 +252,16 @@
                                             </div>
                                             <small class="text-muted">Format: PDF (Max: 5MB)</small>
                                         </form>
-                                    @else
-                                        <div class="mt-2 d-flex gap-2">
-                                            <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
-                                                class="btn btn-outline-success btn-sm flex-grow-1">
-                                                <i class="fas fa-download me-2"></i> Download File OSS
-                                            </a>
-                                        </div>
                                     @endif
                                 </div>
                             </div>
-                        @else
-                            <div class="alert alert-secondary mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Tipe entry tidak dikenali
+                        @endif
+                        @if ($dataLapangan->file_oss)
+                            <div class="mt-2 d-flex gap-2">
+                                <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
+                                    class="btn btn-outline-success btn-sm flex-grow-1">
+                                    <i class="fas fa-download me-2"></i><strong>Lihat File NIB</strong>
+                                </a>
                             </div>
                         @endif
                     </div>

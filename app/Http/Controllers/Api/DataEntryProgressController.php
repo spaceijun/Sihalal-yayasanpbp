@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataEntryProgress;
+use App\Models\DataEntry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,11 +61,12 @@ class DataEntryProgressController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $dataEntry = $user->dataEntry;
+        $status = $dataEntry->entry_type === 'OSS' ? 'TERVERIFIKASI' : 'PROGRESS SIHALAL';
         $query = DataEntryProgress::query()
             ->where('user_id', $user->id)
-            ->whereHas('dataLapangan', function ($q) {
-                // Hanya tampilkan yang status PROGRESS OSS
-                $q->where('status', 'PROGRESS OSS');
+            ->whereHas('dataLapangan', function ($q) use ($status) {
+                $q->where('status', $status);
             })
             ->with([
                 'user',

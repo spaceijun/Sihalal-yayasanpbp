@@ -47,7 +47,7 @@
                 href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}" title="Lihat Detail">
                 <i class="las la-eye"></i>
             </a>
-            @if ($dataLapangan->status == 'TERBIT SH')
+            @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
                 <form action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                     method="POST" class="d-inline">
                     @csrf

@@ -38,6 +38,13 @@
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>
+                        <!-- Button Update Status - Hanya muncul jika status PROGRESS OSS -->
+                        @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalUpdateStatusHalal">
+                                <i class="fas fa-edit me-2"></i>Update Status Halal
+                            </button>
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -267,7 +274,7 @@
     </section>
 
     <!-- Include Modal Update Status -->
-    @include('koordinator.data-lapangan.partials.status-modal')
+    @include('data-entry.data-lapangan.partials.status-modal')
 
     <!-- Modal Kolase Foto -->
     <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">

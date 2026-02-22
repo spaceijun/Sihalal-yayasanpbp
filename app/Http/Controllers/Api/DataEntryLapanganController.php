@@ -59,16 +59,28 @@ class DataEntryLapanganController extends Controller
     {
         $query = DataLapangan::query();
 
-        // Hanya tampilkan data dengan status Terverifikasi
-        $query->where('status', 'TERVERIFIKASI');
-
-        // Filter berdasarkan koordinator yang di-assign ke user data_entry
         $user = Auth::user();
+
+        // Filter status berdasarkan entry_type pada tabel data_entrys
         if ($user->hasRole('data_entry')) {
-            $koordinatorIds = $user->dataEntry()->with('koordinators')->first()->koordinators->pluck('id');
+            $dataEntry = $user->dataEntry()->with('koordinators')->first();
+
+            // Tentukan status berdasarkan entry_type
+            if ($dataEntry->entry_type === 'SIHALAL') {
+                $query->where('status', 'PROGRESS OSS');
+            } else {
+                // Default: OSS atau entry_type lainnya
+                $query->where('status', 'TERVERIFIKASI');
+            }
+
+            // Filter berdasarkan koordinator yang di-assign ke user data_entry
+            $koordinatorIds = $dataEntry->koordinators->pluck('id');
             $query->whereHas('enumerator', function ($q) use ($koordinatorIds) {
                 $q->whereIn('koordinator_id', $koordinatorIds);
             });
+        } else {
+            // Jika bukan role data_entry, tampilkan status TERVERIFIKASI by default
+            $query->where('status', 'TERVERIFIKASI');
         }
 
         // Load relationships

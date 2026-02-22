@@ -174,6 +174,7 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::put('data-lapangans/{id}/update-status', [DataEntryDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
         Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');

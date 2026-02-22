@@ -142,4 +142,31 @@ class DataLapanganController extends Controller
 
         return redirect()->back()->with('success', $message);
     }
+
+    /**
+     * Update the status of a data lapangan
+     *
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $dataLapangan = DataLapangan::findOrFail($id);
+
+            // Validasi bahwa status saat ini adalah PROGRESS OSS
+            if ($dataLapangan->status !== 'PROGRESS OSS' && $dataLapangan->status !== 'DITOLAK') {
+                return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK');
+            }
+
+            // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)
+            $dataLapangan->status = 'PROGRESS SIHALAL';
+            $dataLapangan->save();
+
+            return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
+        }
+    }
 }

@@ -161,8 +161,17 @@ class DataLapanganController extends Controller
             }
 
             // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)
-            $dataLapangan->status = 'PROGRESS SIHALAL';
+            $newStatus = 'PROGRESS SIHALAL';
+            $dataLapangan->status = $newStatus;
             $dataLapangan->save();
+
+            // ✅ Track progress data entry
+            $this->trackDataEntryProgress(
+                $dataLapangan,
+                'status_update',
+                $newStatus,
+                'N/A'
+            );
 
             return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
         } catch (\Exception $e) {

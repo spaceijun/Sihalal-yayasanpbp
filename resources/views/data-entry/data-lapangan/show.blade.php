@@ -167,7 +167,7 @@
                                             data-bs-target="#modalFotoKTP">
                                             <i class="fas fa-eye me-2"></i>Lihat Foto
                                         </button>
-                                        <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                        <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
                                             <i class="fas fa-download me-2"></i>Download KTP
                                         </a>
@@ -184,25 +184,9 @@
                                             data-bs-target="#modalFotoKTP">
                                             <i class="fas fa-eye me-2"></i>Lihat Foto
                                         </button>
-                                        <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                        <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
                                             <i class="fas fa-download me-2"></i>Download KTP
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="form-group mb-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <strong>Foto Pendamping</strong>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#modalFotoPendamping">
-                                            <i class="fas fa-eye me-2"></i>Lihat Foto
-                                        </button>
-                                        <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
-                                            class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-2"></i>Download
                                         </a>
                                     </div>
                                 </div>
@@ -216,7 +200,7 @@
                                             data-bs-target="#modalFotoProduk">
                                             <i class="fas fa-eye me-2"></i>Lihat Foto
                                         </button>
-                                        <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                        <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
                                             <i class="fas fa-download me-2"></i>Download
                                         </a>

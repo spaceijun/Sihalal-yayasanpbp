@@ -489,6 +489,13 @@
                                             <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
                                                 {{ auth()->user()->email }}
                                             </span>
+                                        @elseif (auth()->check() && auth()->user()->role === 'enumerator')
+                                            <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
+                                                {{ auth()->user()->enumerator->nama_lengkap }}
+                                            </span>
+                                            <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
+                                                {{ auth()->user()->email }}
+                                            </span>
                                         @endif
 
                                     </span>

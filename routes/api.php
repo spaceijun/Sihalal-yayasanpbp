@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
 use App\Http\Controllers\Api\DataLapanganController;
+use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
+use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\KoorDataLapanganController;
 use App\Http\Controllers\Api\RecruitmentApi;
@@ -13,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
+Route::post('/login', [LoginController::class, 'store']);
 Route::post('/check-nik', [DataLapanganController::class, 'checkNik'])->name('check.nik');
 Route::get('data-lapangan/by-enumerator/{enumeratorId}', function ($enumeratorId) {
     $dataLapangan = DataLapangan::where('enumerator_id', $enumeratorId)
@@ -31,6 +34,7 @@ Route::middleware(['auth:web', 'role:superadmin'])->group(function () {
         // Enumerator API
         Route::get('/enumerators', [EnumeratorApi::class, 'index']);
         Route::delete('/enumerators/{id}', [EnumeratorApi::class, 'destroy']);
+        Route::post('enumerators/{id}/generate-user', [EnumeratorApi::class, 'generateUser']);
 
         // Recruitment API
         Route::get('/recruitments', [RecruitmentApi::class, 'index']);
@@ -83,5 +87,16 @@ Route::middleware(['auth:web', 'role:data_entry'])->group(function () {
             Route::get('/', [DataEntryLapanganController::class, 'index'])->name('index');
         });
         Route::get('progress', [DataEntryProgressController::class, 'index']);
+    });
+});
+
+// ============================================
+// ENUMERATOR ROUTES
+// ============================================
+Route::middleware(['auth:web', 'role:enumerator'])->group(function () {
+    Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
+        Route::get('/enumerator/dashboard', [HomeApiController::class, 'index']);
+        // Data Lapangan API
+        Route::post('/enumerator/data-lapangan', [DataLapanganEnumController::class, 'store']);
     });
 });

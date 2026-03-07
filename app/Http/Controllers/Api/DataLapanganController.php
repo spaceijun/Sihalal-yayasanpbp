@@ -29,70 +29,7 @@ class DataLapanganController extends Controller
         return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i'));
     }
 
-    /**
-     * Show the form for creating a new resource
-     */
-    public function create()
-    {
-        return view('superadmin.data-lapangan.create');
-    }
 
-    /**
-     * Store a newly created resource (from form)
-     */
-    public function store(Request $request)
-    {
-        // Validation and store logic
-
-        return redirect()
-            ->route('superadmin.data-lapangans.index')
-            ->with('success', 'Data berhasil ditambahkan');
-    }
-
-    /**
-     * Display the specified resource
-     */
-    public function show(string $id)
-    {
-        $dataLapangan = DataLapangan::with('enumerator')->findOrFail($id);
-
-        return view('superadmin.data-lapangan.show', compact('dataLapangan'));
-    }
-
-    /**
-     * Show the form for editing
-     */
-    public function edit(string $id)
-    {
-        $dataLapangan = DataLapangan::findOrFail($id);
-
-        return view('superadmin.data-lapangan.edit', compact('dataLapangan'));
-    }
-
-    /**
-     * Update the specified resource (from form)
-     */
-    public function update(Request $request, string $id)
-    {
-        // Validation and update logic
-
-        return redirect()
-            ->route('superadmin.data-lapangans.index')
-            ->with('success', 'Data berhasil diupdate');
-    }
-
-    /**
-     * Remove the specified resource (from form)
-     */
-    public function destroy(string $id)
-    {
-        $dataLapangan = DataLapangan::findOrFail($id);
-        $dataLapangan->delete();
-
-        return redirect()
-            ->route('superadmin.data-lapangans.index')
-            ->with('success', 'Data berhasil dihapus');
-    }
 
     /*
     |--------------------------------------------------------------------------

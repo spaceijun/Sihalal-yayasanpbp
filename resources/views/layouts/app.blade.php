@@ -8,6 +8,9 @@
 @elseif(auth()->check() && auth()->user()->role === 'data_entry')
     <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">
+@elseif(auth()->check() && auth()->user()->role === 'enumerator')
+    <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
+        data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">
 @else
     <html lang="en" data-layout="vertical" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="default">

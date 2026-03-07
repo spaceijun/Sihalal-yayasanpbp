@@ -11,6 +11,13 @@
             </span>
         </td>
         <td>
+            @if (!$enumerator->user_id)
+                <button type="button" class="btn btn-warning btn-sm btn-generate-user" data-id="{{ $enumerator->id }}"
+                    data-nama="{{ $enumerator->nama_lengkap }}" data-hp="{{ $enumerator->telephone }}"
+                    title="Generate akun user untuk enumerator ini">
+                    <i class="las la-user-plus"></i> Generate User
+                </button>
+            @endif
             <a class="btn btn-sm btn-primary" href="{{ route('superadmin.enumerators.show', $enumerator->id) }}">
                 <i class="las la-eye"></i> {{ __('Edit') }}
             </a>

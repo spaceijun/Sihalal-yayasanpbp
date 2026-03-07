@@ -90,6 +90,8 @@
                 @include('layouts.navigation-koordinator')
             @elseif ($role == 'data_entry')
                 @include('layouts.navigation-data-entry')
+            @elseif ($role == 'enumerator')
+                @include('layouts.navigation-enumerator')
             @endif
 
             {{-- Menu yang tersedia untuk semua role --}}

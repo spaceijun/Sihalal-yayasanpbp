@@ -102,6 +102,54 @@
     {{-- Include Delete Modal --}}
     @include('superadmin.enumerator.partials.delete-modal')
 
+    {{-- Generate User Modal --}}
+    <div id="generateUserModal" class="modal fade" tabindex="-1" aria-labelledby="generateUserModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generateUserModalLabel">
+                        <i class="las la-user-plus me-1"></i> Generate Akun User
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Akun user akan dibuat dengan detail berikut:</p>
+                    <table class="table table-sm table-bordered">
+                        <tr>
+                            <th class="text-nowrap" width="35%">Nama</th>
+                            <td id="generateUserNama">-</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap">Email</th>
+                            <td id="generateUserEmail">-</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap">Password</th>
+                            <td><code>enumkh123</code></td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap">Role</th>
+                            <td><span class="badge bg-info">Enumerator</span></td>
+                        </tr>
+                    </table>
+                    <div class="alert alert-warning mb-0 py-2">
+                        <i class="las la-exclamation-triangle"></i>
+                        Pastikan nomor telepon sudah benar karena digunakan sebagai email login.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="las la-times"></i> Batal
+                    </button>
+                    <button type="button" class="btn btn-warning" id="confirmGenerateUserBtn">
+                        <i class="las la-user-plus"></i> Generate User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Element references
@@ -119,11 +167,16 @@
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             let deleteEnumeratorId = null;
 
+            // Generate User Modal
+            const generateUserModal = new bootstrap.Modal(document.getElementById('generateUserModal'));
+            const confirmGenerateUserBtn = document.getElementById('confirmGenerateUserBtn');
+            let generateUserEnumeratorId = null;
+
             // API Base URL
             const API_BASE_URL = '/api/superadmin/enumerators';
 
             let searchTimeout;
-            let isLoading = false; // Flag to prevent multiple simultaneous requests
+            let isLoading = false;
 
             /**
              * Get CSRF token from meta tag or form input
@@ -137,7 +190,6 @@
              * Main function to load data via AJAX
              */
             function loadData(url = null) {
-                // Prevent multiple simultaneous requests
                 if (isLoading) {
                     console.log('Request already in progress, skipping...');
                     return;
@@ -145,20 +197,16 @@
 
                 isLoading = true;
 
-                // Show loading state - HIDE table content and SHOW loading
                 tableWrapper.style.opacity = '0.5';
                 tableWrapper.style.pointerEvents = 'none';
                 tableLoading.style.display = 'block';
 
-                // Disable form inputs during loading
                 const formInputs = searchForm.querySelectorAll('input, select, button');
                 formInputs.forEach(input => input.disabled = true);
 
-                // Prepare fetch URL with parameters
                 let fetchUrl = API_BASE_URL;
                 const params = new URLSearchParams();
 
-                // Add search parameters
                 if (searchInput.value.trim()) {
                     params.append('search', searchInput.value.trim());
                 }
@@ -167,9 +215,7 @@
                     params.append('status', statusSelect.value.trim());
                 }
 
-                // Handle pagination
                 if (url) {
-                    // Extract page parameter from pagination URL
                     const urlObj = new URL(url, window.location.origin);
                     const page = urlObj.searchParams.get('page');
                     if (page) {
@@ -177,15 +223,11 @@
                     }
                 }
 
-                // Build final URL
                 const queryString = params.toString();
                 if (queryString) {
                     fetchUrl += '?' + queryString;
                 }
 
-                console.log('Fetching URL:', fetchUrl);
-
-                // Fetch data from API
                 fetch(fetchUrl, {
                         method: 'GET',
                         headers: {
@@ -203,18 +245,14 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Data received:', data);
-
                         if (data.success) {
-                            // Update table body with new HTML
                             tableBody.innerHTML = data.table;
-
-                            // Update pagination with new HTML
                             paginationWrapper.innerHTML = data.pagination;
 
-                            // Re-attach event handlers to new elements
+                            // Re-attach ALL event handlers ke elemen baru
                             attachDeleteHandlers();
                             attachPaginationHandlers();
+                            attachGenerateUserHandlers();
                         } else {
                             alert(data.message || 'Terjadi kesalahan saat memuat data');
                         }
@@ -224,15 +262,10 @@
                         alert('Terjadi kesalahan saat memuat data: ' + error.message);
                     })
                     .finally(() => {
-                        // Hide loading state - SHOW table and HIDE loading
                         tableLoading.style.display = 'none';
                         tableWrapper.style.opacity = '1';
                         tableWrapper.style.pointerEvents = 'auto';
-
-                        // Enable form inputs
                         formInputs.forEach(input => input.disabled = false);
-
-                        // Reset loading flag
                         isLoading = false;
                     });
             }
@@ -244,7 +277,7 @@
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     loadData();
-                }, 500); // Wait 500ms after user stops typing
+                }, 500);
             });
 
             /**
@@ -270,17 +303,12 @@
                 const deleteButtons = document.querySelectorAll('.btn-delete');
 
                 deleteButtons.forEach(button => {
-                    // Remove old event listeners by cloning
                     const newButton = button.cloneNode(true);
                     button.parentNode.replaceChild(newButton, button);
 
                     newButton.addEventListener('click', function(e) {
                         e.preventDefault();
-
-                        // Store the enumerator ID
                         deleteEnumeratorId = this.dataset.id;
-
-                        // Show the modal
                         deleteModal.show();
                     });
                 });
@@ -292,7 +320,6 @@
             confirmDeleteBtn.addEventListener('click', function() {
                 if (!deleteEnumeratorId) return;
 
-                // Disable button during deletion
                 confirmDeleteBtn.disabled = true;
                 confirmDeleteBtn.innerHTML =
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghapus...';
@@ -310,13 +337,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Hide modal
                             deleteModal.hide();
-
-                            // Show success message
                             alert(data.message || 'Data berhasil dihapus');
-
-                            // Reload data after successful delete
                             loadData();
                         } else {
                             alert(data.message || 'Gagal menghapus data');
@@ -327,7 +349,6 @@
                         alert('Terjadi kesalahan saat menghapus data');
                     })
                     .finally(() => {
-                        // Reset button state
                         confirmDeleteBtn.disabled = false;
                         confirmDeleteBtn.innerHTML = '<i class="las la-trash"></i> Hapus';
                         deleteEnumeratorId = null;
@@ -341,7 +362,6 @@
                 const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
 
                 paginationLinks.forEach(link => {
-                    // Remove old event listeners by cloning
                     const newLink = link.cloneNode(true);
                     link.parentNode.replaceChild(newLink, link);
 
@@ -356,22 +376,80 @@
             }
 
             /**
+             * Attach generate user handlers to all generate user buttons
+             */
+            function attachGenerateUserHandlers() {
+                const generateButtons = document.querySelectorAll('.btn-generate-user');
+
+                generateButtons.forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function() {
+                        const enumeratorId = this.dataset.id;
+                        const namaLengkap = this.dataset.nama;
+                        const telephone = this.dataset.hp;
+
+                        // Isi detail ke modal
+                        generateUserEnumeratorId = enumeratorId;
+                        document.getElementById('generateUserNama').textContent = namaLengkap;
+                        document.getElementById('generateUserEmail').textContent = telephone +
+                            '@kawulohalal.id';
+
+                        // Tampilkan modal
+                        generateUserModal.show();
+                    });
+                });
+            }
+
+            /**
+             * Handle confirm generate user button click
+             */
+            confirmGenerateUserBtn.addEventListener('click', function() {
+                if (!generateUserEnumeratorId) return;
+
+                confirmGenerateUserBtn.disabled = true;
+                confirmGenerateUserBtn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
+
+                fetch(`${API_BASE_URL}/${generateUserEnumeratorId}/generate-user`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        generateUserModal.hide();
+                        if (data.success) {
+                            alert(data.message || 'User berhasil digenerate');
+                            loadData();
+                        } else {
+                            alert(data.message || 'Gagal generate user');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error generating user:', error);
+                        alert('Terjadi kesalahan saat generate user');
+                    })
+                    .finally(() => {
+                        confirmGenerateUserBtn.disabled = false;
+                        confirmGenerateUserBtn.innerHTML =
+                            '<i class="las la-user-plus"></i> Generate User';
+                        generateUserEnumeratorId = null;
+                    });
+            });
+
+            /**
              * Initial attachment of event handlers
              */
             attachDeleteHandlers();
             attachPaginationHandlers();
-
-            /**
-             * Auto refresh when user navigates back to this page
-             */
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted ||
-                    (window.performance && window.performance.navigation.type === 2)) {
-                    // Reset loading flag in case it was stuck
-                    isLoading = false;
-                    loadData();
-                }
-            });
+            attachGenerateUserHandlers();
         });
     </script>
 @endsection

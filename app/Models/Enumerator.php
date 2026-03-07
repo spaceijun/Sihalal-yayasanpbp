@@ -30,7 +30,7 @@ class Enumerator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status'];
+    protected $fillable = ['user_id', 'koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status'];
 
 
     /**

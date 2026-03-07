@@ -3,6 +3,7 @@
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
+use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
 use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
@@ -185,6 +186,29 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
     });
 });
+
+/**
+ * 
+ * ENUMERATOR ROUTES
+ */
+Route::middleware('auth', 'role:enumerator')->group(function () {
+    Route::prefix('enumerator')->name('enumerator.')->group(function () {
+        Route::get('dashboard', [DashboardEnumController::class, 'index']);
+        Route::get('/', [DashboardEnumController::class, 'index'])->name('dashboard');
+        Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::put('data-lapangans/{id}/update-status', [DataEntryDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
+        Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
+        Route::get('datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
+        Route::get('datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
+        Route::get('datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+        Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
+        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
+        Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
+        Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
+    });
+});
+
 
 
 require __DIR__ . '/auth.php';

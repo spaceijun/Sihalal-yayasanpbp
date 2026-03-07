@@ -35,6 +35,8 @@ class AuthenticatedSessionController extends Controller
             $url = "koordinator";
         } elseif (Auth::user()->role == "data_entry") {
             $url = "data-entry";
+        } elseif (Auth::user()->role == "enumerator") {
+            $url = "enumerator";
         }
 
         return redirect()->intended($url);

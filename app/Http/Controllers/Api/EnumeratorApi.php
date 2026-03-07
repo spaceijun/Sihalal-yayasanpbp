@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enumerator;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class EnumeratorApi extends Controller
 {
@@ -86,5 +89,45 @@ class EnumeratorApi extends Controller
                 'message' => 'Gagal menghapus data: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function generateUser($id)
+    {
+        $enumerator = Enumerator::findOrFail($id);
+
+        // Jika sudah punya user, tolak
+        if ($enumerator->user_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Enumerator ini sudah memiliki akun user.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($enumerator) {
+            $telephone = $enumerator->telephone;
+            $email     = $telephone . '@kawulohalal.id';
+
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name'      => $enumerator->nama_lengkap,
+                    'telephone' => $telephone,
+                    'password'  => Hash::make('enumkh123'),
+                    'role'      => 'enumerator',
+                ]
+            );
+
+            // Assign role via Spatie Permission (hanya jika user baru dibuat)
+            if ($user->wasRecentlyCreated) {
+                $user->assignRole('enumerator');
+            }
+
+            $enumerator->update(['user_id' => $user->id]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "User berhasil digenerate dengan email: {$enumerator->telephone}@kawulohalal.id",
+        ]);
     }
 }

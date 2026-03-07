@@ -433,13 +433,17 @@ class DataLapanganController extends Controller
     /**
      * Apply status filter
      */
+    // SESUDAH
     private function applyStatusFilter($query, Request $request): void
     {
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-    }
 
+        if ($request->filled('status_pembayaran')) {
+            $query->where('status_pembayaran', $request->status_pembayaran);
+        }
+    }
     /**
      * Apply date filters
      */

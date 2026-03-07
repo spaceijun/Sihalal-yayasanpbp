@@ -49,8 +49,17 @@ class DashboardEnumController extends Controller
             ->take(10)
             ->get();
 
+        $dataLapanganRevisi = DataLapangan::with('enumerator')
+            ->where('enumerator_id', $enumeratorId)
+            ->whereNotNull('keterangan')
+            ->where('keterangan', '!=', '')
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
 
 
-        return view('enumerator.home.index', compact('pending', 'progress', 'terbitSH', 'revisi', 'dataMasuk', 'dataLapangan', 'dataLapanganRevisi'));
+
+
+        return view('enumerator.home.index', compact('pending', 'progress', 'terbitSH', 'revisi', 'dataMasuk', 'dataLapangan', 'pengajuanTerakhir', 'dataLapanganRevisi', 'dibayar'));
     }
 }

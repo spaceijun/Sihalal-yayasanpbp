@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Api\Enumerator;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
+use App\Models\Enumerator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeApiController extends Controller
 {
     public function index(): JsonResponse
     {
-        $enumeratorId = Auth::user()->enumerator->id;
+        $enumerator = Enumerator::where('user_id', Auth::id())->firstOrFail();
+        $enumeratorId = $enumerator->id;
 
         $pending = DataLapangan::where('enumerator_id', $enumeratorId)
             ->where('status', 'PENDING')
@@ -42,7 +43,6 @@ class HomeApiController extends Controller
             ->take(20)
             ->get();
 
-        // 10 pengajuan terakhir (terbaru berdasarkan created_at)
         $pengajuanTerakhir = DataLapangan::with('enumerator')
             ->where('enumerator_id', $enumeratorId)
             ->orderBy('created_at', 'desc')

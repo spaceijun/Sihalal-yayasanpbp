@@ -12,6 +12,111 @@ use Illuminate\Support\Facades\Validator;
 
 class DataLapanganEnumController extends Controller
 {
+    const STATUS_LIST = [
+        'PENDING',
+        'TERVERIFIKASI',
+        'PROGRESS OSS',
+        'PROGRESS SIHALAL',
+        'TERBIT SH',
+    ];
+
+    /**
+     * GET /api/enumerator/data-lapangan
+     * Query params:
+     *   - search  : string (nama_pu)
+     *   - status  : PENDING | TERVERIFIKASI | PROGRESS OSS | PROGRESS SIHALAL | TERBIT SH
+     *   - per_page: int (default 10)
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'search'   => 'nullable|string|max:255',
+            'status'   => 'nullable|string|in:' . implode(',', self::STATUS_LIST),
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $enumeratorId = Auth::user()->enumerator->id;
+
+            $query = DataLapangan::where('enumerator_id', $enumeratorId);
+
+            // Search by nama_pu
+            if ($request->filled('search')) {
+                $query->where('nama_pu', 'like', '%' . $request->search . '%');
+            }
+
+            // Filter by status
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $data = $query->latest()->paginate($request->get('per_page', 10));
+
+            $data->getCollection()->transform(fn($item) => $this->formatData($item));
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data lapangan berhasil diambil',
+                'filters' => [
+                    'search'   => $request->search,
+                    'status'   => $request->status,
+                    'per_page' => $request->get('per_page', 10),
+                ],
+                'status_options' => self::STATUS_LIST,
+                'data'    => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat mengambil data',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+    /**
+     * GET /api/enumerator/data-lapangan/{id}
+     * Tampilkan detail satu data
+     */
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $enumeratorId = Auth::user()->enumerator->id;
+
+            $dataLapangan = DataLapangan::where('id', $id)
+                ->where('enumerator_id', $enumeratorId)
+                ->firstOrFail();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Detail data lapangan berhasil diambil',
+                'data'    => $this->formatData($dataLapangan),
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Data tidak ditemukan',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * POST /api/enumerator/data-lapangan
+     * Simpan data baru
+     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -37,43 +142,27 @@ class DataLapanganEnumController extends Controller
         try {
             $enumeratorId = Auth::user()->enumerator->id;
 
-            // Upload foto
             $foto_ktp_path        = $request->file('foto_ktp')->store('foto_ktp', 'public');
             $foto_rumah_path       = $request->file('foto_rumah')->store('foto_rumah', 'public');
             $foto_pendamping_path  = $request->file('foto_pendamping')->store('foto_pendamping', 'public');
             $foto_produk_path      = $request->file('foto_produk')->store('foto_produk', 'public');
 
             $validatedData = array_merge($validator->validated(), [
-                'enumerator_id'       => $enumeratorId,
-                'foto_ktp_path'       => $foto_ktp_path,
-                'foto_rumah_path'     => $foto_rumah_path,
+                'enumerator_id'        => $enumeratorId,
+                'foto_ktp_path'        => $foto_ktp_path,
+                'foto_rumah_path'      => $foto_rumah_path,
                 'foto_pendamping_path' => $foto_pendamping_path,
-                'foto_produk_path'    => $foto_produk_path,
+                'foto_produk_path'     => $foto_produk_path,
             ]);
 
-            $dataLapangan = $this->create($validatedData);
+            $dataLapangan = $this->createData($validatedData);
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Data lapangan berhasil disimpan',
-                'data'    => [
-                    'id'              => $dataLapangan->id,
-                    'enumerator_id'   => $dataLapangan->enumerator_id,
-                    'nama_pu'         => $dataLapangan->nama_pu,
-                    'nik'             => $dataLapangan->nik,
-                    'telephone'       => $dataLapangan->telephone,
-                    'nama_produk'     => $dataLapangan->nama_produk,
-                    'alamat'          => $dataLapangan->alamat,
-                    'foto_ktp'        => Storage::url($dataLapangan->foto_ktp),
-                    'foto_rumah'      => Storage::url($dataLapangan->foto_rumah),
-                    'foto_pendamping' => Storage::url($dataLapangan->foto_pendamping),
-                    'foto_produk'     => Storage::url($dataLapangan->foto_produk),
-                    'status'          => $dataLapangan->status,
-                    'created_at'      => $dataLapangan->created_at,
-                ],
+                'data'    => $this->formatData($dataLapangan),
             ], 201);
         } catch (\Exception $e) {
-            // Rollback foto jika gagal simpan ke DB
             if (isset($foto_ktp_path))        Storage::disk('public')->delete($foto_ktp_path);
             if (isset($foto_rumah_path))       Storage::disk('public')->delete($foto_rumah_path);
             if (isset($foto_pendamping_path))  Storage::disk('public')->delete($foto_pendamping_path);
@@ -87,13 +176,152 @@ class DataLapanganEnumController extends Controller
         }
     }
 
-    private function create(array $validatedData): DataLapangan
+    /**
+     * PUT/PATCH /api/enumerator/data-lapangan/{id}
+     * Update data (foto bersifat opsional)
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pu'         => 'sometimes|required|string|max:255',
+            'nik'             => 'sometimes|required|string|size:16',
+            'telephone'       => 'sometimes|required|string|max:15',
+            'nama_produk'     => 'sometimes|required|string|max:255',
+            'alamat'          => 'sometimes|required|string',
+            'foto_ktp'        => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_rumah'      => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_pendamping' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_produk'     => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $enumeratorId = Auth::user()->enumerator->id;
+
+            $dataLapangan = DataLapangan::where('id', $id)
+                ->where('enumerator_id', $enumeratorId)
+                ->firstOrFail();
+
+            $dataToUpdate = [];
+
+            // Update field teks
+            if ($request->has('nama_pu'))     $dataToUpdate['nama_pu']     = strtoupper($request->nama_pu);
+            if ($request->has('nik'))         $dataToUpdate['nik']         = $request->nik;
+            if ($request->has('telephone'))   $dataToUpdate['telephone']   = $request->telephone;
+            if ($request->has('nama_produk')) $dataToUpdate['nama_produk'] = $request->nama_produk;
+            if ($request->has('alamat'))      $dataToUpdate['alamat']      = $request->alamat;
+
+            // Update foto jika ada file baru
+            $fotoFields = [
+                'foto_ktp'        => 'foto_ktp',
+                'foto_rumah'      => 'foto_rumah',
+                'foto_pendamping' => 'foto_pendamping',
+                'foto_produk'     => 'foto_produk',
+            ];
+
+            $newPaths = [];
+            foreach ($fotoFields as $inputKey => $dbColumn) {
+                if ($request->hasFile($inputKey)) {
+                    $newPaths[$dbColumn] = $request->file($inputKey)->store($inputKey, 'public');
+                    $dataToUpdate[$dbColumn] = $newPaths[$dbColumn];
+                }
+            }
+
+            // Hapus foto lama setelah berhasil upload baru
+            $dataLapangan->update($dataToUpdate);
+
+            foreach ($fotoFields as $inputKey => $dbColumn) {
+                if (isset($newPaths[$dbColumn])) {
+                    $oldPath = $dataLapangan->getOriginal($dbColumn);
+                    if ($oldPath) Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $dataLapangan->refresh();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data lapangan berhasil diperbarui',
+                'data'    => $this->formatData($dataLapangan),
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Rollback foto baru jika record tidak ditemukan
+            foreach ($newPaths ?? [] as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            return response()->json([
+                'status'  => false,
+                'message' => 'Data tidak ditemukan',
+            ], 404);
+        } catch (\Exception $e) {
+            foreach ($newPaths ?? [] as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat memperbarui data',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/enumerator/data-lapangan/{id}
+     * Hapus data beserta semua fotonya
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $enumeratorId = Auth::user()->enumerator->id;
+
+            $dataLapangan = DataLapangan::where('id', $id)
+                ->where('enumerator_id', $enumeratorId)
+                ->firstOrFail();
+
+            // Hapus semua foto dari storage
+            $fotoColumns = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'];
+            foreach ($fotoColumns as $column) {
+                if ($dataLapangan->$column) {
+                    Storage::disk('public')->delete($dataLapangan->$column);
+                }
+            }
+
+            $dataLapangan->delete();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data lapangan berhasil dihapus',
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Data tidak ditemukan',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat menghapus data',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Helpers ────────────────────────────────────────────────────────────────
+
+    private function createData(array $validatedData): DataLapangan
     {
         if (isset($validatedData['nama_pu'])) {
             $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
         }
 
-        $dataToSave = [
+        return DataLapangan::create([
             'enumerator_id'   => $validatedData['enumerator_id'],
             'nama_pu'         => $validatedData['nama_pu'],
             'nik'             => $validatedData['nik'],
@@ -104,8 +332,26 @@ class DataLapanganEnumController extends Controller
             'foto_rumah'      => $validatedData['foto_rumah_path'],
             'foto_pendamping' => $validatedData['foto_pendamping_path'],
             'foto_produk'     => $validatedData['foto_produk_path'],
-        ];
+        ]);
+    }
 
-        return DataLapangan::create($dataToSave);
+    private function formatData(DataLapangan $item): array
+    {
+        return [
+            'id'              => $item->id,
+            'enumerator_id'   => $item->enumerator_id,
+            'nama_pu'         => $item->nama_pu,
+            'nik'             => $item->nik,
+            'telephone'       => $item->telephone,
+            'nama_produk'     => $item->nama_produk,
+            'alamat'          => $item->alamat,
+            'foto_ktp'        => $item->foto_ktp        ? Storage::url($item->foto_ktp)        : null,
+            'foto_rumah'      => $item->foto_rumah      ? Storage::url($item->foto_rumah)      : null,
+            'foto_pendamping' => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
+            'foto_produk'     => $item->foto_produk     ? Storage::url($item->foto_produk)     : null,
+            'status'          => $item->status,
+            'created_at'      => $item->created_at,
+            'updated_at'      => $item->updated_at,
+        ];
     }
 }

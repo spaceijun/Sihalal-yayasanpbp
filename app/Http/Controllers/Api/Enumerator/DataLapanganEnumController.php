@@ -183,17 +183,21 @@ class DataLapanganEnumController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        // Validasi foto hanya jika field tersebut berupa file (bukan string URL)
+        $fotoRules = [];
+        foreach (['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'] as $field) {
+            if ($request->hasFile($field)) {
+                $fotoRules[$field] = 'image|mimes:jpg,jpeg,png|max:2048';
+            }
+        }
+
+        $validator = Validator::make($request->all(), array_merge([
             'nama_pu'         => 'sometimes|required|string|max:255',
             'nik'             => 'sometimes|required|string|size:16',
             'telephone'       => 'sometimes|required|string|max:15',
             'nama_produk'     => 'sometimes|required|string|max:255',
             'alamat'          => 'sometimes|required|string',
-            'foto_ktp'        => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-            'foto_rumah'      => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-            'foto_pendamping' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-            'foto_produk'     => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+        ], $fotoRules));
 
         if ($validator->fails()) {
             return response()->json([

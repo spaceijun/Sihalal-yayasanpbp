@@ -81,6 +81,7 @@ class DataLapanganEnumController extends Controller
             ], 500);
         }
     }
+
     /**
      * GET /api/enumerator/data-lapangan/{id}
      * Tampilkan detail satu data
@@ -252,7 +253,6 @@ class DataLapanganEnumController extends Controller
                 'data'    => $this->formatData($dataLapangan),
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Rollback foto baru jika record tidak ditemukan
             foreach ($newPaths ?? [] as $path) {
                 Storage::disk('public')->delete($path);
             }
@@ -338,20 +338,27 @@ class DataLapanganEnumController extends Controller
     private function formatData(DataLapangan $item): array
     {
         return [
-            'id'              => $item->id,
-            'enumerator_id'   => $item->enumerator_id,
-            'nama_pu'         => $item->nama_pu,
-            'nik'             => $item->nik,
-            'telephone'       => $item->telephone,
-            'nama_produk'     => $item->nama_produk,
-            'alamat'          => $item->alamat,
-            'foto_ktp'        => $item->foto_ktp        ? Storage::url($item->foto_ktp)        : null,
-            'foto_rumah'      => $item->foto_rumah      ? Storage::url($item->foto_rumah)      : null,
-            'foto_pendamping' => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
-            'foto_produk'     => $item->foto_produk     ? Storage::url($item->foto_produk)     : null,
-            'status'          => $item->status,
-            'created_at'      => $item->created_at,
-            'updated_at'      => $item->updated_at,
+            'id'                  => $item->id,
+            'enumerator_id'       => $item->enumerator_id,
+            'nama_pu'             => $item->nama_pu,
+            'nik'                 => $item->nik,
+            'email'               => $item->email,
+            'telephone'           => $item->telephone,
+            'nama_produk'         => $item->nama_produk,
+            'alamat'              => $item->alamat,
+            'foto_ktp'            => $item->foto_ktp        ? Storage::url($item->foto_ktp)        : null,
+            'foto_rumah'          => $item->foto_rumah      ? Storage::url($item->foto_rumah)      : null,
+            'foto_pendamping'     => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
+            'foto_produk'         => $item->foto_produk     ? Storage::url($item->foto_produk)     : null,
+            'status'              => $item->status,
+            'status_pembayaran'   => $item->status_pembayaran,
+            'verifikator'         => $item->verifikator,
+            'tanggal_verifikasi'  => $item->tanggal_verifikasi,
+            'keterangan'          => $item->keterangan,
+            'file_oss'            => $item->file_oss  ? Storage::url($item->file_oss)  : null,
+            'file_sihalal'        => $item->file_sihalal ? Storage::url($item->file_sihalal) : null,
+            'created_at'          => $item->created_at,
+            'updated_at'          => $item->updated_at,
         ];
     }
 }

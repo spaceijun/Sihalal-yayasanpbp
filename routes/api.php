@@ -93,10 +93,9 @@ Route::middleware(['auth:web', 'role:data_entry'])->group(function () {
 // ============================================
 // ENUMERATOR ROUTES
 // ============================================
-Route::middleware(['auth:web', 'role:enumerator'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
-        Route::get('/enumerator/dashboard', [HomeApiController::class, 'index']);
-        // Data Lapangan API
-        Route::post('/enumerator/data-lapangan', [DataLapanganEnumController::class, 'store']);
+        Route::get('dashboard', [HomeApiController::class, 'index']);
+        Route::post('data-lapangan', [DataLapanganEnumController::class, 'store']);
     });
 });

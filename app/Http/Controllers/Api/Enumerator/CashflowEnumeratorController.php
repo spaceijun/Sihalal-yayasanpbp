@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api\Enumerator;
 
 use App\Http\Controllers\Controller;
 use App\Models\CashflowsKoordinator;

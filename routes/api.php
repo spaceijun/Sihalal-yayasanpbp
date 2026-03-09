@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
-use App\Http\Controllers\API\CashflowEnumeratorController;
+use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
 use App\Http\Controllers\Api\DataLapanganController;

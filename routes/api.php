@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
 use App\Http\Controllers\Api\DataLapanganController;
 use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
+use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\KoorDataLapanganController;
@@ -98,6 +99,16 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
         Route::get('dashboard', [HomeApiController::class, 'index'])->name('dashboard');
 
+        // Profile
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/',         [EnumeratorController::class, 'index'])->name('index');
+            Route::post('/',        [EnumeratorController::class, 'store'])->name('store');
+            Route::get('/{id}',     [EnumeratorController::class, 'show'])->name('show');
+            Route::put('/{id}',     [EnumeratorController::class, 'update'])->name('update');
+            Route::patch('/{id}',   [EnumeratorController::class, 'update'])->name('update.patch');
+            Route::delete('/{id}',  [EnumeratorController::class, 'destroy'])->name('destroy');
+        });
+
         // Data Lapangan
         Route::prefix('data-lapangan')->name('data-lapangan.')->group(function () {
             Route::get('/',         [DataLapanganEnumController::class, 'index'])->name('index');
@@ -107,6 +118,7 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::patch('/{id}',   [DataLapanganEnumController::class, 'update'])->name('update.patch');
             Route::delete('/{id}',  [DataLapanganEnumController::class, 'destroy'])->name('destroy');
         });
+
         // Cashflow
         Route::prefix('cashflow')->name('cashflow.')->group(function () {
             Route::get('/',     [CashflowEnumeratorController::class, 'index'])->name('index');

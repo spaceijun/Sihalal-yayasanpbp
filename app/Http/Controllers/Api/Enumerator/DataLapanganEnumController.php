@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Enumerator;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,10 +24,6 @@ class DataLapanganEnumController extends Controller
 
     /**
      * GET /api/enumerator/data-lapangan
-     * Query params:
-     *   - search  : string (nama_pu)
-     *   - status  : PENDING | TERVERIFIKASI | PROGRESS OSS | PROGRESS SIHALAL | TERBIT SH
-     *   - per_page: int (default 10)
      */
     public function index(Request $request): JsonResponse
     {
@@ -46,33 +43,28 @@ class DataLapanganEnumController extends Controller
 
         try {
             $enumeratorId = Auth::user()->enumerator->id;
-
             $query = DataLapangan::where('enumerator_id', $enumeratorId);
 
-            // Search by nama_pu
             if ($request->filled('search')) {
                 $query->where('nama_pu', 'like', '%' . $request->search . '%');
             }
-
-            // Filter by status
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
 
             $data = $query->latest()->paginate($request->get('per_page', 10));
-
             $data->getCollection()->transform(fn($item) => $this->formatData($item));
 
             return response()->json([
-                'status'  => true,
-                'message' => 'Data lapangan berhasil diambil',
-                'filters' => [
+                'status'         => true,
+                'message'        => 'Data lapangan berhasil diambil',
+                'filters'        => [
                     'search'   => $request->search,
                     'status'   => $request->status,
                     'per_page' => $request->get('per_page', 10),
                 ],
                 'status_options' => self::STATUS_LIST,
-                'data'    => $data,
+                'data'           => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -85,7 +77,6 @@ class DataLapanganEnumController extends Controller
 
     /**
      * GET /api/enumerator/data-lapangan/{id}
-     * Tampilkan detail satu data
      */
     public function show(int $id): JsonResponse
     {
@@ -117,10 +108,32 @@ class DataLapanganEnumController extends Controller
 
     /**
      * POST /api/enumerator/data-lapangan
-     * Simpan data baru
+     * Enumerator hanya bisa store jika statusnya 'Aktif'.
      */
     public function store(Request $request): JsonResponse
     {
+        // ── Guard: cek status enumerator ─────────────────────────────────────────
+        $enumerator = Auth::user()->enumerator;
+
+        if (! $enumerator || $enumerator->status === 'Tidak Aktif') {
+            $jumlah30Hari = $enumerator
+                ? $enumerator->dataLapangans()
+                ->where('created_at', '>=', Carbon::now()->subDays(30))
+                ->count()
+                : 0;
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Anda tidak dapat mengajukan data lapangan karena akun enumerator Anda tidak aktif. Silakan hubungi koordinator.',
+                'data'    => [
+                    'status_enumerator'   => $enumerator?->status ?? 'Tidak Ditemukan',
+                    'jumlah_data_30_hari' => $jumlah30Hari,
+                    'minimal_required'    => 20,
+                ],
+            ], 403);
+        }
+        // ─────────────────────────────────────────────────────────────────────────
+
         $validator = Validator::make($request->all(), [
             'nama_pu'         => 'required|string|max:255',
             'nik'             => 'required|string|size:16',
@@ -142,15 +155,13 @@ class DataLapanganEnumController extends Controller
         }
 
         try {
-            $enumeratorId = Auth::user()->enumerator->id;
-
             $foto_ktp_path        = $request->file('foto-ktp')->store('foto-ktp', 'public');
             $foto_rumah_path      = $request->file('foto-rumah')->store('foto-rumah', 'public');
             $foto_pendamping_path = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
             $foto_produk_path     = $request->file('foto-produk')->store('foto-produk', 'public');
 
-            $validatedData = [
-                'enumerator_id'        => $enumeratorId,
+            $dataLapangan = $this->createData([
+                'enumerator_id'        => $enumerator->id,
                 'nama_pu'              => $request->nama_pu,
                 'nik'                  => $request->nik,
                 'telephone'            => $request->telephone,
@@ -160,9 +171,7 @@ class DataLapanganEnumController extends Controller
                 'foto_rumah_path'      => $foto_rumah_path,
                 'foto_pendamping_path' => $foto_pendamping_path,
                 'foto_produk_path'     => $foto_produk_path,
-            ];
-
-            $dataLapangan = $this->createData($validatedData);
+            ]);
 
             return response()->json([
                 'status'  => true,
@@ -185,12 +194,10 @@ class DataLapanganEnumController extends Controller
 
     /**
      * PUT/PATCH /api/enumerator/data-lapangan/{id}
-     * Update data (foto bersifat opsional)
-     * Status otomatis direset ke PENDING setiap kali data diperbarui
+     * Status otomatis direset ke PENDING setiap kali data diperbarui.
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        // Validasi foto hanya jika field tersebut berupa file (bukan string URL)
         $fotoRules = [];
         foreach (['foto-ktp', 'foto-rumah', 'foto-pendamping', 'foto-produk'] as $field) {
             if ($request->hasFile($field)) {
@@ -224,14 +231,12 @@ class DataLapanganEnumController extends Controller
             // Reset status ke PENDING setiap kali data diperbarui
             $dataToUpdate = ['status' => 'PENDING'];
 
-            // Update field teks
             if ($request->has('nama_pu'))     $dataToUpdate['nama_pu']     = strtoupper($request->nama_pu);
             if ($request->has('nik'))         $dataToUpdate['nik']         = $request->nik;
             if ($request->has('telephone'))   $dataToUpdate['telephone']   = $request->telephone;
             if ($request->has('nama_produk')) $dataToUpdate['nama_produk'] = $request->nama_produk;
             if ($request->has('alamat'))      $dataToUpdate['alamat']      = $request->alamat;
 
-            // Mapping: input field (dash) => kolom DB (underscore)
             $fotoFields = [
                 'foto-ktp'        => 'foto_ktp',
                 'foto-rumah'      => 'foto_rumah',
@@ -247,7 +252,6 @@ class DataLapanganEnumController extends Controller
                 }
             }
 
-            // Simpan path lama sebelum update
             $oldPaths = [];
             foreach ($newPaths as $dbColumn => $newPath) {
                 $oldPaths[$dbColumn] = $dataLapangan->getOriginal($dbColumn);
@@ -255,7 +259,6 @@ class DataLapanganEnumController extends Controller
 
             $dataLapangan->update($dataToUpdate);
 
-            // Hapus foto lama setelah berhasil update
             foreach ($oldPaths as $dbColumn => $oldPath) {
                 if ($oldPath) Storage::disk('public')->delete($oldPath);
             }
@@ -268,17 +271,13 @@ class DataLapanganEnumController extends Controller
                 'data'    => $this->formatData($dataLapangan),
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            foreach ($newPaths ?? [] as $path) {
-                Storage::disk('public')->delete($path);
-            }
+            foreach ($newPaths ?? [] as $path) Storage::disk('public')->delete($path);
             return response()->json([
                 'status'  => false,
                 'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
-            foreach ($newPaths ?? [] as $path) {
-                Storage::disk('public')->delete($path);
-            }
+            foreach ($newPaths ?? [] as $path) Storage::disk('public')->delete($path);
             return response()->json([
                 'status'  => false,
                 'message' => 'Terjadi kesalahan saat memperbarui data',
@@ -289,7 +288,6 @@ class DataLapanganEnumController extends Controller
 
     /**
      * DELETE /api/enumerator/data-lapangan/{id}
-     * Hapus data beserta semua fotonya
      */
     public function destroy(int $id): JsonResponse
     {
@@ -300,9 +298,7 @@ class DataLapanganEnumController extends Controller
                 ->where('enumerator_id', $enumeratorId)
                 ->firstOrFail();
 
-            // Hapus semua foto dari storage
-            $fotoColumns = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'];
-            foreach ($fotoColumns as $column) {
+            foreach (['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'] as $column) {
                 if ($dataLapangan->$column) {
                     Storage::disk('public')->delete($dataLapangan->$column);
                 }

@@ -43,9 +43,8 @@ class EnumeratorController extends Controller
     {
         $validatedData = $request->validated();
 
-        // Upload foto diri (jika ada)
         if ($request->hasFile('foto_diri')) {
-            $image = $request->file('foto_diri');
+            $image     = $request->file('foto_diri');
             $extension = $image->getClientOriginalExtension();
             $imageName = time() . '_' . uniqid() . '.' . $extension;
             $image->storeAs('foto-diri', $imageName, 'public');
@@ -53,13 +52,10 @@ class EnumeratorController extends Controller
         }
 
         DB::transaction(function () use ($validatedData) {
-
-            // Ambil no_registrasi terakhir (lock supaya tidak bentrok)
             $lastNo = Enumerator::lockForUpdate()
                 ->orderBy('no_registrasi', 'desc')
                 ->value('no_registrasi');
 
-            // Tentukan nomor berikutnya
             $nextNo = $lastNo ? ((int) $lastNo + 1) : 1;
 
             if ($nextNo > 999) {
@@ -68,7 +64,6 @@ class EnumeratorController extends Controller
 
             $noRegistrasi = str_pad($nextNo, 3, '0', STR_PAD_LEFT);
 
-            // Simpan enumerator
             Enumerator::create(array_merge(
                 $validatedData,
                 ['no_registrasi' => $noRegistrasi]
@@ -78,6 +73,7 @@ class EnumeratorController extends Controller
         return Redirect::route('superadmin.enumerators.index')
             ->with('success', 'Enumerator created successfully.');
     }
+
     /**
      * Display the specified resource.
      */
@@ -99,7 +95,7 @@ class EnumeratorController extends Controller
     }
 
     /**
-     * Generate ID Card as HTML (will be converted to image via html2canvas in frontend)
+     * Generate ID Card as HTML
      */
     public function idCard($id)
     {
@@ -113,7 +109,7 @@ class EnumeratorController extends Controller
      */
     public function edit($id): View
     {
-        $enumerator = Enumerator::find($id);
+        $enumerator   = Enumerator::find($id);
         $koordinators = Koordinator::all();
 
         return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators'));
@@ -130,6 +126,27 @@ class EnumeratorController extends Controller
             ->with('success', 'Enumerator updated successfully');
     }
 
+    /**
+     * Aktifkan kembali enumerator yang berstatus Tidak Aktif.
+     */
+    public function aktivasi($id): RedirectResponse
+    {
+        $enumerator = Enumerator::findOrFail($id);
+
+        if ($enumerator->status === 'Tidak Aktif') {
+            $enumerator->update(['status' => 'Aktif']);
+
+            return Redirect::back()
+                ->with('success', "Enumerator {$enumerator->nama_lengkap} berhasil diaktifkan kembali.");
+        }
+
+        return Redirect::back()
+            ->with('error', 'Enumerator sudah berstatus Aktif.');
+    }
+
+    /**
+     * Delete the specified resource.
+     */
     public function destroy($id): RedirectResponse
     {
         Enumerator::find($id)->delete();

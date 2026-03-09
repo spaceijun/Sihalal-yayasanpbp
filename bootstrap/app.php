@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureEnumeratorIsActive;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,10 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
         $middleware->alias([
-            'auth' => Authenticate::class,
-            'role' => RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'auth'               => Authenticate::class,
+            'role'               => RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'enumerator.active'  => EnsureEnumeratorIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

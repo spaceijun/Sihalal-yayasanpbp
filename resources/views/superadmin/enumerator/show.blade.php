@@ -82,15 +82,36 @@
 
                         <hr>
 
+                        {{-- STATUS + BUTTON AKTIVASI --}}
                         <div class="form-group mb-3">
                             <strong>Status</strong>
-                            <p class="mb-0 mt-2">
+                            <div class="d-flex align-items-center gap-3 mt-2">
                                 @if ($enumerator->status == 'Aktif')
-                                    <span class="badge bg-success">{{ $enumerator->status }}</span>
+                                    <span class="badge bg-success fs-6">{{ $enumerator->status }}</span>
                                 @else
-                                    <span class="badge bg-danger">{{ $enumerator->status }}</span>
+                                    <span class="badge bg-danger fs-6">{{ $enumerator->status }}</span>
+
+                                    {{-- Tombol Aktifkan Kembali --}}
+                                    <form action="{{ route('superadmin.enumerators.aktivasi', $enumerator->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Aktifkan kembali enumerator {{ $enumerator->nama_lengkap }}?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-user-check me-1"></i>Aktifkan Kembali
+                                        </button>
+                                    </form>
                                 @endif
-                            </p>
+                            </div>
+
+                            {{-- Info jika Tidak Aktif --}}
+                            @if ($enumerator->status == 'Tidak Aktif')
+                                <small class="text-danger mt-2 d-block">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Enumerator ini dinonaktifkan karena tidak memenuhi target minimal
+                                    20 data lapangan dalam 30 hari terakhir.
+                                </small>
+                            @endif
                         </div>
 
                         <hr>
@@ -196,9 +217,6 @@
                     <button type="button" class="btn btn-primary" onclick="printSuratTugas()">
                         <i class="fas fa-print me-2"></i>Print
                     </button>
-                    {{-- <button type="button" class="btn btn-success" onclick="downloadSuratTugasPDF()">
-                        <i class="fas fa-download me-2"></i>Download PDF
-                    </button> --}}
                 </div>
             </div>
         </div>
@@ -245,10 +263,10 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // Auto hide alerts after 5 seconds
         setTimeout(function() {
             var alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
@@ -257,103 +275,30 @@
             });
         }, 5000);
 
-        // Load Surat Tugas when modal is shown
         const modalSuratTugas = document.getElementById('modalSuratTugas');
         modalSuratTugas.addEventListener('show.bs.modal', function() {
             const iframe = document.getElementById('suratTugasFrame');
             iframe.src = '{{ route('superadmin.enumerators.surat-tugas', $enumerator->id) }}';
         });
 
-        // Function when iframe loaded
         function suratTugasLoaded() {
             console.log('Surat Tugas loaded successfully');
         }
 
-        // Print Surat Tugas
         function printSuratTugas() {
             const iframe = document.getElementById('suratTugasFrame');
             iframe.contentWindow.print();
         }
 
-        // Download Surat Tugas as PDF
-        function downloadSuratTugasPDF() {
-            const iframe = document.getElementById('suratTugasFrame');
-            const namaLengkap = '{{ $enumerator->nama_lengkap }}';
-
-            // Show loading
-            const loadingDiv = document.createElement('div');
-            loadingDiv.innerHTML =
-                '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses PDF...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
-            document.body.appendChild(loadingDiv);
-
-            const {
-                jsPDF
-            } = window.jspdf;
-
-            // Get all pages from iframe
-            const pages = iframe.contentDocument.querySelectorAll('.page');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-
-            let processedPages = 0;
-            const totalPages = pages.length;
-
-            Array.from(pages).forEach((page, index) => {
-                html2canvas(page, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff'
-                }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                    const imgWidth = 210; // A4 width in mm
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                    if (index > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-
-                    processedPages++;
-
-                    if (processedPages === totalPages) {
-                        pdf.save('Surat_Tugas_' + namaLengkap.replace(/\s+/g, '_') + '.pdf');
-                        document.body.removeChild(loadingDiv);
-                    }
-                }).catch(err => {
-                    console.error('Error creating PDF:', err);
-                    alert('Gagal membuat PDF');
-                    document.body.removeChild(loadingDiv);
-                });
-            });
-        }
-
-        // Download ID Card as Image
         function downloadIdCard() {
             const idCardElement = document.getElementById('idCardContainer').children[0];
             const namaLengkap = '{{ $enumerator->nama_lengkap }}';
 
-            // Show loading indicator
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses ID Card...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
+            loadingDiv.style.cssText =
+                'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999;';
             document.body.appendChild(loadingDiv);
 
             html2canvas(idCardElement, {

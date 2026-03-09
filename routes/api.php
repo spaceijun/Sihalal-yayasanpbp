@@ -109,15 +109,16 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::delete('/{id}',  [EnumeratorController::class, 'destroy'])->name('destroy');
         });
 
-        // Data Lapangan
-        Route::prefix('data-lapangan')->name('data-lapangan.')->group(function () {
-            Route::get('/',         [DataLapanganEnumController::class, 'index'])->name('index');
-            Route::post('/',        [DataLapanganEnumController::class, 'store'])->name('store');
-            Route::get('/{id}',     [DataLapanganEnumController::class, 'show'])->name('show');
-            Route::put('/{id}',     [DataLapanganEnumController::class, 'update'])->name('update');
-            Route::patch('/{id}',   [DataLapanganEnumController::class, 'update'])->name('update.patch');
-            Route::delete('/{id}',  [DataLapanganEnumController::class, 'destroy'])->name('destroy');
-        });
+        // Data Lapangan 
+        Route::middleware(['enumerator.active'])
+            ->prefix('data-lapangan')->name('data-lapangan.')->group(function () {
+                Route::get('/',         [DataLapanganEnumController::class, 'index'])->name('index');
+                Route::post('/',        [DataLapanganEnumController::class, 'store'])->name('store');
+                Route::get('/{id}',     [DataLapanganEnumController::class, 'show'])->name('show');
+                Route::put('/{id}',     [DataLapanganEnumController::class, 'update'])->name('update');
+                Route::patch('/{id}',   [DataLapanganEnumController::class, 'update'])->name('update.patch');
+                Route::delete('/{id}',  [DataLapanganEnumController::class, 'destroy'])->name('destroy');
+            });
 
         // Cashflow
         Route::prefix('cashflow')->name('cashflow.')->group(function () {

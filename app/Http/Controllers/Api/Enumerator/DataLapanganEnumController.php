@@ -143,10 +143,10 @@ class DataLapanganEnumController extends Controller
         try {
             $enumeratorId = Auth::user()->enumerator->id;
 
-            $foto_ktp_path        = $request->file('foto_ktp')->store('foto_ktp', 'public');
-            $foto_rumah_path       = $request->file('foto_rumah')->store('foto_rumah', 'public');
-            $foto_pendamping_path  = $request->file('foto_pendamping')->store('foto_pendamping', 'public');
-            $foto_produk_path      = $request->file('foto_produk')->store('foto_produk', 'public');
+            $foto_ktp_path        = $request->file('foto-ktp')->store('foto-ktp', 'public');
+            $foto_rumah_path       = $request->file('foto-rumah')->store('foto-rumah', 'public');
+            $foto_pendamping_path  = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
+            $foto_produk_path      = $request->file('foto-produk')->store('foto-produk', 'public');
 
             $validatedData = array_merge($validator->validated(), [
                 'enumerator_id'        => $enumeratorId,
@@ -185,7 +185,7 @@ class DataLapanganEnumController extends Controller
     {
         // Validasi foto hanya jika field tersebut berupa file (bukan string URL)
         $fotoRules = [];
-        foreach (['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'] as $field) {
+        foreach (['foto-ktp', 'foto-rumah', 'foto-pendamping', 'foto-produk'] as $field) {
             if ($request->hasFile($field)) {
                 $fotoRules[$field] = 'image|mimes:jpg,jpeg,png|max:2048';
             }

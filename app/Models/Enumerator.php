@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Enumerator
@@ -39,5 +40,13 @@ class Enumerator extends Model
     public function koordinator()
     {
         return $this->belongsTo(\App\Models\Superadmin\Koordinator::class, 'koordinator_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function dataLapangans(): HasMany
+    {
+        return $this->hasMany(DataLapangan::class, 'enumerator_id', 'id');
     }
 }

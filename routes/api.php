@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\API\CashflowEnumeratorController;
 use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
 use App\Http\Controllers\Api\DataLapanganController;
@@ -96,6 +97,7 @@ Route::middleware(['auth:web', 'role:data_entry'])->group(function () {
 Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
         Route::get('dashboard', [HomeApiController::class, 'index'])->name('dashboard');
+
         // Data Lapangan
         Route::prefix('data-lapangan')->name('data-lapangan.')->group(function () {
             Route::get('/',         [DataLapanganEnumController::class, 'index'])->name('index');
@@ -104,6 +106,11 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::put('/{id}',     [DataLapanganEnumController::class, 'update'])->name('update');
             Route::patch('/{id}',   [DataLapanganEnumController::class, 'update'])->name('update.patch');
             Route::delete('/{id}',  [DataLapanganEnumController::class, 'destroy'])->name('destroy');
+        });
+        // Cashflow
+        Route::prefix('cashflow')->name('cashflow.')->group(function () {
+            Route::get('/',     [CashflowEnumeratorController::class, 'index'])->name('index');
+            Route::get('/{id}', [CashflowEnumeratorController::class, 'show'])->name('show');
         });
     });
 });

@@ -417,6 +417,28 @@
                 const nama = opt ? opt.dataset.name : '';
                 checkEnumeratorStatus(selectEl.value, nama);
             }
+
+            // ── Cegah alert tidak aktif ikut auto-dismiss dari layout/global script ──
+            // Override Bootstrap Alert close pada elemen ini
+            const alertTidakAktifEl = document.getElementById('alert_tidak_aktif');
+            if (alertTidakAktifEl) {
+                alertTidakAktifEl.addEventListener('close.bs.alert', function(e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return false;
+                }, true);
+            }
+
+            // Jika layout punya setTimeout auto-dismiss, re-show alert ini setelahnya
+            setTimeout(function() {
+                const enumeratorId = selectEl.value;
+                if (enumeratorId) {
+                    const status = enumeratorStatusMap[enumeratorId];
+                    if (status === 'Tidak Aktif') {
+                        alertTidakAktif.style.display = 'block';
+                    }
+                }
+            }, 6000); // 6 detik (setelah auto-dismiss 5 detik)
         });
     </script>
 @endsection

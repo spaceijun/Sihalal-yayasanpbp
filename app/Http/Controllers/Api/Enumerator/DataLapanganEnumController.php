@@ -14,6 +14,7 @@ class DataLapanganEnumController extends Controller
 {
     const STATUS_LIST = [
         'PENDING',
+        'REVISI',
         'TERVERIFIKASI',
         'PROGRESS OSS',
         'PROGRESS SIHALAL',

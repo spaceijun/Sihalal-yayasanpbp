@@ -140,6 +140,39 @@
                                         <div class="card-body">
                                             <p class="fw-semibold mb-3">
                                                 <span class="badge bg-primary me-2">2</span>
+                                                Apakah NIK sudah dicek melalui
+                                                <a href="https://oss.go.id" target="_blank"
+                                                    class="fw-semibold">oss.go.id</a>?
+                                            </p>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_nik" id="q_nik_sudah" value="sudah">
+                                                    <label class="form-check-label" for="q_nik_sudah">
+                                                        <span class="badge bg-success px-3 py-2">Sudah</span>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_nik" id="q_nik_belum" value="belum">
+                                                    <label class="form-check-label" for="q_nik_belum">
+                                                        <span class="badge bg-danger px-3 py-2">Belum</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 d-none alert alert-danger py-2 mb-0" id="warn_nik">
+                                                <i class="fas fa-times-circle me-2"></i>NIK harus dicek melalui
+                                                <a href="https://oss.go.id" target="_blank">oss.go.id</a> terlebih dahulu
+                                                sebelum melanjutkan.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Pertanyaan 3 --}}
+                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ3">
+                                        <div class="card-body">
+                                            <p class="fw-semibold mb-3">
+                                                <span class="badge bg-primary me-2">3</span>
                                                 Apakah Email sudah dibuat?
                                             </p>
                                             <div class="d-flex gap-3">
@@ -165,11 +198,11 @@
                                         </div>
                                     </div>
 
-                                    {{-- Pertanyaan 3 --}}
-                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ3">
+                                    {{-- Pertanyaan 4 --}}
+                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ4">
                                         <div class="card-body">
                                             <p class="fw-semibold mb-3">
-                                                <span class="badge bg-primary me-2">3</span>
+                                                <span class="badge bg-primary me-2">4</span>
                                                 Apakah ada komentar pada Form Keterangan Revisi?
                                             </p>
                                             <div class="d-flex gap-3">
@@ -890,13 +923,15 @@
         // ===== CHECKLIST VALIDATION =====
         function validateChecklist() {
             const qFoto = document.querySelector('input[name="q_foto"]:checked');
+            const qNik = document.querySelector('input[name="q_nik"]:checked');
             const qEmail = document.querySelector('input[name="q_email"]:checked');
             const qKeterangan = document.querySelector('input[name="q_keterangan"]:checked');
 
             let valid = true;
 
-            // Reset warnings
+            // Reset semua warnings
             document.getElementById('warn_foto').classList.add('d-none');
+            document.getElementById('warn_nik').classList.add('d-none');
             document.getElementById('warn_email_q').classList.add('d-none');
 
             // Q1: harus Ya
@@ -905,18 +940,23 @@
                 valid = false;
             }
 
-            // Q2: harus Ya
+            // Q2: harus Sudah
+            if (!qNik || qNik.value !== 'sudah') {
+                document.getElementById('warn_nik').classList.remove('d-none');
+                valid = false;
+            }
+
+            // Q3: harus Ya
             if (!qEmail || qEmail.value !== 'ya') {
                 document.getElementById('warn_email_q').classList.remove('d-none');
                 valid = false;
             }
 
-            // Q3: boleh keduanya (ya atau tidak)
+            // Q4: boleh keduanya (ya atau tidak), wajib dipilih salah satu
             if (!qKeterangan) {
                 valid = false;
-                // Highlight card
-                document.getElementById('cardQ3').classList.add('border', 'border-danger');
-                setTimeout(() => document.getElementById('cardQ3').classList.remove('border', 'border-danger'), 2000);
+                document.getElementById('cardQ4').classList.add('border', 'border-danger');
+                setTimeout(() => document.getElementById('cardQ4').classList.remove('border', 'border-danger'), 2000);
             }
 
             if (valid) {
@@ -936,6 +976,7 @@
             document.querySelectorAll('#stepChecklist input[type="radio"]').forEach(r => r.checked = false);
             // Reset warnings
             document.getElementById('warn_foto').classList.add('d-none');
+            document.getElementById('warn_nik').classList.add('d-none');
             document.getElementById('warn_email_q').classList.add('d-none');
             // Kembali ke step checklist
             document.getElementById('stepChecklist').classList.remove('d-none');

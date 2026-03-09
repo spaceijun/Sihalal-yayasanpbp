@@ -40,7 +40,6 @@ class EnumeratorController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        // Pastikan user belum memiliki data enumerator
         $existing = Enumerator::where('user_id', Auth::id())->first();
         if ($existing) {
             return response()->json([
@@ -53,7 +52,7 @@ class EnumeratorController extends Controller
             'koordinator_id' => 'required|exists:koordinators,id',
             'nama_lengkap'   => 'required|string|max:255',
             'telephone'      => 'required|string|max:20',
-            'foto-diri'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_diri'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'no_registrasi'  => 'required|string|unique:enumerators,no_registrasi',
             'alamat'         => 'required|string',
             'status'         => 'required|in:Aktif,Tidak Aktif',
@@ -70,10 +69,10 @@ class EnumeratorController extends Controller
         $data = $validator->validated();
         $data['user_id'] = Auth::id();
 
-        // Handle upload foto-diri
-        if ($request->hasFile('foto-diri')) {
-            $data['foto-diri'] = $request->file('foto-diri')
-                ->store('enumerators/foto', 'public');
+        // Handle upload foto_diri
+        if ($request->hasFile('foto_diri')) {
+            $data['foto_diri'] = $request->file('foto_diri')
+                ->store('foto-diri', 'public');
         }
 
         $enumerator = Enumerator::create($data);
@@ -129,7 +128,7 @@ class EnumeratorController extends Controller
             'koordinator_id' => 'sometimes|exists:koordinators,id',
             'nama_lengkap'   => 'sometimes|string|max:255',
             'telephone'      => 'sometimes|string|max:20',
-            'foto-diri'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_diri'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'no_registrasi'  => 'sometimes|string|unique:enumerators,no_registrasi,' . $enumerator->id,
             'alamat'         => 'sometimes|string',
             'status'         => 'sometimes|in:Aktif,Tidak Aktif',
@@ -145,13 +144,13 @@ class EnumeratorController extends Controller
 
         $data = $validator->validated();
 
-        // Handle upload foto-diri baru & hapus yang lama
-        if ($request->hasFile('foto-diri')) {
+        // Handle upload foto_diri baru & hapus yang lama
+        if ($request->hasFile('foto_diri')) {
             if ($enumerator->foto_diri) {
                 Storage::disk('public')->delete($enumerator->foto_diri);
             }
-            $data['foto-diri'] = $request->file('foto-diri')
-                ->store('enumerators/foto', 'public');
+            $data['foto_diri'] = $request->file('foto_diri')
+                ->store('foto-diri', 'public');
         }
 
         $enumerator->update($data);
@@ -179,7 +178,6 @@ class EnumeratorController extends Controller
             ], 404);
         }
 
-        // Hapus foto jika ada
         if ($enumerator->foto_diri) {
             Storage::disk('public')->delete($enumerator->foto_diri);
         }

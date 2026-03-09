@@ -186,6 +186,7 @@ class DataLapanganEnumController extends Controller
     /**
      * PUT/PATCH /api/enumerator/data-lapangan/{id}
      * Update data (foto bersifat opsional)
+     * Status otomatis direset ke PENDING setiap kali data diperbarui
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -220,7 +221,8 @@ class DataLapanganEnumController extends Controller
                 ->where('enumerator_id', $enumeratorId)
                 ->firstOrFail();
 
-            $dataToUpdate = [];
+            // Reset status ke PENDING setiap kali data diperbarui
+            $dataToUpdate = ['status' => 'PENDING'];
 
             // Update field teks
             if ($request->has('nama_pu'))     $dataToUpdate['nama_pu']     = strtoupper($request->nama_pu);

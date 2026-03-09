@@ -55,71 +55,6 @@
                                 </button>
                             </div>
                         @endif
-                        {{-- Status Data
-                        <label for="">Status Data</label>
-                        <form action="{{ route('superadmin.data-lapangans.update-status', $dataLapangan->hashed_id) }}"
-                            method="POST">
-                            @csrf
-                            <div class="row align-items-end mb-3">
-                                <div class="col-md-8">
-                                    <select name="status" class="form-select" required>
-                                        <option value="">-- Pilih Status --</option>
-                                        <option value="PENDING" {{ $dataLapangan->status == 'PENDING' ? 'selected' : '' }}>
-                                            PENDING</option>
-                                        <option value="PROGRESS OSS"
-                                            {{ $dataLapangan->status == 'PROGRESS OSS' ? 'selected' : '' }}>PROGRESS OSS
-                                        </option>
-                                        <option value="PROGRESS SIHALAL"
-                                            {{ $dataLapangan->status == 'PROGRESS SIHALAL' ? 'selected' : '' }}>PROGRESS
-                                            SIHALAL</option>
-                                        <option value="TERBIT SH"
-                                            {{ $dataLapangan->status == 'TERBIT SH' ? 'selected' : '' }}>TERBIT SH</option>
-                                        <option value="DITOLAK" {{ $dataLapangan->status == 'DITOLAK' ? 'selected' : '' }}>
-                                            DITOLAK</option>
-                                        <option value="REVISI" {{ $dataLapangan->status == 'REVISI' ? 'selected' : '' }}>
-                                            REVISI</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-success w-100">
-                                        <i class="fas fa-save me-2"></i>Update
-                                    </button>
-                                </div>
-                            </div>
-                        </form> --}}
-
-                        {{-- Status Pembayaran --}}
-                        {{-- <div class="mt-2">
-                            <label for="">Status Pembayaran</label>
-                            <form
-                                action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
-                                method="POST">
-                                @csrf
-                                <div class="row align-items-end mb-3">
-                                    <div class="col-md-8">
-                                        <select name="status_pembayaran" class="form-select" required>
-                                            <option value="">-- Pilih Status --</option>
-                                            <option value="PENDING"
-                                                {{ $dataLapangan->status_pembayaran == 'PENDING' ? 'selected' : '' }}>
-                                                PENDING
-                                            </option>
-                                            <option value="PENGAJUAN"
-                                                {{ $dataLapangan->status_pembayaran == 'PENGAJUAN' ? 'selected' : '' }}>
-                                                PENGAJUAN</option>
-                                            <option value="DIBAYAR"
-                                                {{ $dataLapangan->status_pembayaran == 'DIBAYAR' ? 'selected' : '' }}>
-                                                DIBAYAR
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-success w-100">
-                                            <i class="fas fa-save me-2"></i>Update
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div> --}}
 
                         @if ($dataLapangan->verifikator)
                             <hr>
@@ -151,7 +86,7 @@
                 {{-- Modal Update Email & Verifikasi --}}
                 <div class="modal fade" id="modalUpdateEmail" tabindex="-1" aria-labelledby="modalUpdateEmailLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalUpdateEmailLabel">
@@ -160,64 +95,188 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
-                                method="POST">
-                                @csrf
-                                <div class="modal-body">
+                            <div class="modal-body">
+
+                                {{-- ===== STEP 1: CHECKLIST ===== --}}
+                                <div id="stepChecklist">
                                     <!-- Warning Alert -->
-                                    <div class="alert alert-warning alert-dismissible bg-warning text-white alert-label-icon fade show material-shadow"
-                                        role="alert">
-                                        <i class="ri-alert-line label-icon"></i><strong>PEHATIAN</strong> - Pastikan data
-                                        sudah divalidasi dengan baik serta sudah membuat email untuk PU!
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
+                                    <div class="alert alert-warning mb-4">
+                                        <i class="ri-alert-line me-2"></i><strong>PERHATIAN</strong> — Jawab semua
+                                        pertanyaan berikut sebelum melanjutkan verifikasi.
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" name="email"
-                                            class="form-control @error('email') is-invalid @enderror" id="email"
-                                            value="{{ old('email', $dataLapangan->email) }}" placeholder="Masukkan email"
-                                            required>
-                                        @error('email')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                    {{-- Pertanyaan 1 --}}
+                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ1">
+                                        <div class="card-body">
+                                            <p class="fw-semibold mb-3">
+                                                <span class="badge bg-primary me-2">1</span>
+                                                Apakah Foto sudah dicek dan dalam kondisi benar serta sesuai?
+                                            </p>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_foto" id="q_foto_ya" value="ya">
+                                                    <label class="form-check-label" for="q_foto_ya">
+                                                        <span class="badge bg-success px-3 py-2">Ya</span>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_foto" id="q_foto_tidak" value="tidak">
+                                                    <label class="form-check-label" for="q_foto_tidak">
+                                                        <span class="badge bg-danger px-3 py-2">Tidak</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 d-none alert alert-danger py-2 mb-0" id="warn_foto">
+                                                <i class="fas fa-times-circle me-2"></i>Foto harus dicek terlebih dahulu
+                                                sebelum melanjutkan.
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="verifikator" class="form-label">Verifikator</label>
-                                        <input type="text" name="verifikator"
-                                            class="form-control @error('verifikator') is-invalid @enderror" id="verifikator"
-                                            value="{{ old('verifikator', $dataLapangan->verifikator) }}"
-                                            placeholder="Nama verifikator">
-                                        @error('verifikator')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+
+                                    {{-- Pertanyaan 2 --}}
+                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ2">
+                                        <div class="card-body">
+                                            <p class="fw-semibold mb-3">
+                                                <span class="badge bg-primary me-2">2</span>
+                                                Apakah Email sudah dibuat?
+                                            </p>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_email" id="q_email_ya" value="ya">
+                                                    <label class="form-check-label" for="q_email_ya">
+                                                        <span class="badge bg-success px-3 py-2">Ya</span>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_email" id="q_email_tidak" value="tidak">
+                                                    <label class="form-check-label" for="q_email_tidak">
+                                                        <span class="badge bg-danger px-3 py-2">Tidak</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 d-none alert alert-danger py-2 mb-0" id="warn_email_q">
+                                                <i class="fas fa-times-circle me-2"></i>Email harus sudah dibuat sebelum
+                                                melanjutkan.
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="tanggal_verifikasi" class="form-label">Tanggal Verifikasi</label>
-                                        <input type="date" name="tanggal_verifikasi"
-                                            class="form-control @error('tanggal_verifikasi') is-invalid @enderror"
-                                            id="tanggal_verifikasi"
-                                            value="{{ old('tanggal_verifikasi', optional($dataLapangan->tanggal_verifikasi)->format('Y-m-d')) }}">
-                                        @error('tanggal_verifikasi')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+
+                                    {{-- Pertanyaan 3 --}}
+                                    <div class="card mb-3 border-0 shadow-sm" id="cardQ3">
+                                        <div class="card-body">
+                                            <p class="fw-semibold mb-3">
+                                                <span class="badge bg-primary me-2">3</span>
+                                                Apakah ada komentar pada Form Keterangan Revisi?
+                                            </p>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_keterangan" id="q_ket_ya" value="ya">
+                                                    <label class="form-check-label" for="q_ket_ya">
+                                                        <span class="badge bg-warning text-dark px-3 py-2">Ya, Tetapi Sudah
+                                                            saya hapus</span>
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input check-answer" type="radio"
+                                                        name="q_keterangan" id="q_ket_tidak" value="tidak">
+                                                    <label class="form-check-label" for="q_ket_tidak">
+                                                        <span class="badge bg-success px-3 py-2">Tidak</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button type="button" class="btn btn-primary" id="btnLanjutkan"
+                                            onclick="validateChecklist()">
+                                            <i class="fas fa-arrow-right me-2"></i>Lanjutkan
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Batal
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Simpan
-                                    </button>
+
+                                {{-- ===== STEP 2: FORM EMAIL & VERIFIKASI ===== --}}
+                                <div id="stepForm" class="d-none">
+                                    <div
+                                        class="alert alert-success alert-dismissible bg-success text-white fade show mb-4">
+                                        <i class="fas fa-check-circle me-2"></i><strong>Semua pengecekan
+                                            terpenuhi.</strong>
+                                        Silakan isi data verifikasi di bawah ini.
+                                    </div>
+
+                                    <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
+                                        method="POST" id="formVerifikasi">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label fw-semibold">Email</label>
+                                            <input type="email" name="email"
+                                                class="form-control @error('email') is-invalid @enderror" id="email"
+                                                value="{{ old('email', $dataLapangan->email) }}"
+                                                placeholder="Masukkan email" required>
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="verifikator" class="form-label fw-semibold">Verifikator</label>
+                                            <select name="verifikator"
+                                                class="form-select @error('verifikator') is-invalid @enderror"
+                                                id="verifikator" required>
+                                                <option value="">-- Pilih Verifikator --</option>
+                                                @php
+                                                    $verifikatorList = [
+                                                        'M. Faizun Aziz',
+                                                        'Agil Praditya Putu Yazier',
+                                                        'Ade Sofyan',
+                                                    ];
+                                                @endphp
+                                                @foreach ($verifikatorList as $v)
+                                                    <option value="{{ $v }}"
+                                                        {{ old('verifikator', $dataLapangan->verifikator) == $v ? 'selected' : '' }}>
+                                                        {{ $v }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('verifikator')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="tanggal_verifikasi" class="form-label fw-semibold">Tanggal
+                                                Verifikasi</label>
+                                            <input type="date" name="tanggal_verifikasi"
+                                                class="form-control @error('tanggal_verifikasi') is-invalid @enderror"
+                                                id="tanggal_verifikasi"
+                                                value="{{ old('tanggal_verifikasi', optional($dataLapangan->tanggal_verifikasi)->format('Y-m-d')) }}">
+                                            @error('tanggal_verifikasi')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <button type="button" class="btn btn-secondary" onclick="backToChecklist()">
+                                                <i class="fas fa-arrow-left me-2"></i>Kembali
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Simpan
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
+
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Modal Update Email & Verifikasi --}}
+                {{-- Modal Revisi --}}
                 <div class="modal fade" id="modalRevisi" tabindex="-1" aria-labelledby="modalRevisiLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -267,7 +326,11 @@
                 @if ($errors->hasAny(['email', 'verifikator', 'tanggal_verifikasi']))
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
-                            new bootstrap.Modal(document.getElementById('modalUpdateEmail')).show();
+                            const modal = new bootstrap.Modal(document.getElementById('modalUpdateEmail'));
+                            modal.show();
+                            // Langsung tampilkan form jika ada error validasi
+                            document.getElementById('stepChecklist').classList.add('d-none');
+                            document.getElementById('stepForm').classList.remove('d-none');
                         });
                     </script>
                 @endif
@@ -460,7 +523,7 @@
 
                         <hr>
 
-                        <!-- Foto Spotcheck - LAYOUT DIPERBAIKI -->
+                        <!-- Foto Spotcheck -->
                         <div class="form-group mb-0">
                             <strong>Foto Spotcheck</strong>
                             @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
@@ -496,7 +559,7 @@
                     </div>
                 </div>
 
-                <!-- Card Form Keterangan (Tambahkan setelah card Dokumentasi Foto) -->
+                <!-- Card Form Keterangan -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <span><i class="fas fa-comment-alt me-2"></i>Form Keterangan Revisi</span>
@@ -537,6 +600,7 @@
                         @endif
                     </div>
                 </div>
+
                 <!-- Section File -->
                 <div class="card">
                     <div class="card-header bg-primary text-white">
@@ -563,7 +627,6 @@
                                 </div>
                             @endif
 
-                            <!-- Upload Form OSS -->
                             <div class="mt-2">
                                 <form
                                     action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
@@ -604,7 +667,6 @@
                                 </div>
                             @endif
 
-                            <!-- Upload Form SIHALAL -->
                             <div class="mt-2">
                                 <form
                                     action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
@@ -628,7 +690,7 @@
         </div>
     </section>
 
-    <!-- Modal Kolase Foto - UPDATED: Only 2 Photos -->
+    <!-- Modal Kolase Foto -->
     <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -638,7 +700,6 @@
                 </div>
                 <div class="modal-body p-3" id="collageContent">
                     <div class="row g-3">
-                        <!-- Grid Layout: 2 Photos in a Row -->
                         <div class="col-md-6">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-light py-2 px-3">
@@ -826,6 +887,62 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
+        // ===== CHECKLIST VALIDATION =====
+        function validateChecklist() {
+            const qFoto = document.querySelector('input[name="q_foto"]:checked');
+            const qEmail = document.querySelector('input[name="q_email"]:checked');
+            const qKeterangan = document.querySelector('input[name="q_keterangan"]:checked');
+
+            let valid = true;
+
+            // Reset warnings
+            document.getElementById('warn_foto').classList.add('d-none');
+            document.getElementById('warn_email_q').classList.add('d-none');
+
+            // Q1: harus Ya
+            if (!qFoto || qFoto.value !== 'ya') {
+                document.getElementById('warn_foto').classList.remove('d-none');
+                valid = false;
+            }
+
+            // Q2: harus Ya
+            if (!qEmail || qEmail.value !== 'ya') {
+                document.getElementById('warn_email_q').classList.remove('d-none');
+                valid = false;
+            }
+
+            // Q3: boleh keduanya (ya atau tidak)
+            if (!qKeterangan) {
+                valid = false;
+                // Highlight card
+                document.getElementById('cardQ3').classList.add('border', 'border-danger');
+                setTimeout(() => document.getElementById('cardQ3').classList.remove('border', 'border-danger'), 2000);
+            }
+
+            if (valid) {
+                document.getElementById('stepChecklist').classList.add('d-none');
+                document.getElementById('stepForm').classList.remove('d-none');
+            }
+        }
+
+        function backToChecklist() {
+            document.getElementById('stepForm').classList.add('d-none');
+            document.getElementById('stepChecklist').classList.remove('d-none');
+        }
+
+        // Reset checklist saat modal ditutup
+        document.getElementById('modalUpdateEmail').addEventListener('hidden.bs.modal', function() {
+            // Reset radio buttons
+            document.querySelectorAll('#stepChecklist input[type="radio"]').forEach(r => r.checked = false);
+            // Reset warnings
+            document.getElementById('warn_foto').classList.add('d-none');
+            document.getElementById('warn_email_q').classList.add('d-none');
+            // Kembali ke step checklist
+            document.getElementById('stepChecklist').classList.remove('d-none');
+            document.getElementById('stepForm').classList.add('d-none');
+        });
+
+        // ===== FILE DELETE =====
         function deleteFile(id, fileType) {
             if (confirm('Apakah Anda yakin ingin menghapus file ini?')) {
                 const form = document.createElement('form');
@@ -866,7 +983,6 @@
                     input.value = '';
                     return false;
                 }
-
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Ukuran file maksimal 5MB!');
                     input.value = '';
@@ -874,15 +990,6 @@
                 }
             }
         }
-
-        // // Auto hide alerts after 5 seconds
-        // setTimeout(function() {
-        //     var alerts = document.querySelectorAll('.alert');
-        //     alerts.forEach(function(alert) {
-        //         var bsAlert = new bootstrap.Alert(alert);
-        //         bsAlert.close();
-        //     });
-        // }, 5000);
 
         // View full image function
         function viewFullImage(src, title) {
@@ -921,19 +1028,11 @@
             const collageContent = document.getElementById('collageContent');
             const namaPU = '{{ $dataLapangan->nama_pu }}';
 
-            // Show loading indicator
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
+            loadingDiv.style.cssText =
+                'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999;';
             document.body.appendChild(loadingDiv);
 
             html2canvas(collageContent, {
@@ -960,7 +1059,7 @@
             });
         }
 
-        // Print collage function
+        // Print collage
         function printCollage() {
             const printContent = document.getElementById('collageContent').innerHTML;
             const printWindow = window.open('', '', 'height=600,width=800');

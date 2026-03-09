@@ -354,25 +354,33 @@
             formFields.style.userSelect = '';
         }
 
+        // ── Elemen alert "Terpilih" ─────────────────────────────────────────────
+        const selectedEnumeratorEl = document.getElementById('selected_enumerator');
+        const selectedNameEl = document.getElementById('selected_name');
+
         // ── Cek status saat enumerator dipilih ──────────────────────────────────
         function checkEnumeratorStatus(enumeratorId, namaEnumerator) {
             if (!enumeratorId) {
+                // Sembunyikan kedua alert, buka form
+                selectedEnumeratorEl.style.display = 'none';
                 alertTidakAktif.style.display = 'none';
                 unlockForm();
                 return;
             }
 
+            // Selalu tampilkan alert "Terpilih"
+            selectedNameEl.textContent = namaEnumerator;
+            selectedEnumeratorEl.style.display = 'block';
+
             const status = enumeratorStatusMap[enumeratorId];
 
             if (status === 'Tidak Aktif') {
-                // Tampilkan alert
+                // Tampilkan juga alert tidak aktif + kunci form
                 namaTidakAktif.textContent = namaEnumerator;
                 alertTidakAktif.style.display = 'block';
-
-                // Kunci form
                 lockForm();
             } else {
-                // Sembunyikan alert, buka form
+                // Sembunyikan alert tidak aktif, buka form
                 alertTidakAktif.style.display = 'none';
                 unlockForm();
             }

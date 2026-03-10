@@ -36,55 +36,91 @@
         <div class="row mt-3">
             <!-- Card 1: Data Informasi (Kiri) -->
             <div class="col-md-6">
-                <!-- Card Data Entry -->
+                <!-- Card Edit Status -->
                 <div class="card mb-3">
-                    <div class="card-header bg-info text-white">
-                        <span><i class="fas fa-user-edit me-2"></i>Informasi Data Entry</span>
+                    <div class="card-header bg-primary text-white">
+                        <span><i class="fas fa-edit me-2"></i>Edit Status</span>
                     </div>
                     <div class="card-body">
+                        {{-- Button Trigger Modal Update Email & Verifikasi --}}
+                        @if ($dataLapangan->status == 'PENDING')
+                            <div class="mt-1 d-flex gap-2">
+                                <button type="button" class="btn btn-success btn-sm w-50" data-bs-toggle="modal"
+                                    data-bs-target="#modalUpdateEmail">
+                                    Update Email & Verifikasi Data
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm w-50" data-bs-toggle="modal"
+                                    data-bs-target="#modalRevisi">
+                                    Update Data Revisi
+                                </button>
+                            </div>
+                        @endif
+                        @if ($dataLapangan->verifikator)
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Nama Verifikator</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->verifikator ?? 'Verifikator Kosong' }}</p>
+                            </div>
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Tanggal Verifikasi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->tanggal_verifikasi
+                                        ? \Carbon\Carbon::parse($dataLapangan->tanggal_verifikasi)->translatedFormat('d M Y')
+                                        : 'Tidak ada Tanggal Verif.' }}
+                                </p>
+                            </div>
+                        @elseif ($dataLapangan->status == 'REVISI')
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Keterangan Revisi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->keterangan ?? 'Tidak ada Keterangan.' }}
+                                </p>
+                            </div>
+                        @endif
+
+                        {{-- Data Entry OSS & SIHALAL --}}
+                        <hr>
 
                         {{-- Data Entry OSS --}}
                         <div class="mb-3">
-                            <h6 class="fw-bold text-primary mb-2">
-                                <i class="fas fa-desktop me-1"></i> Data Entry OSS
-                            </h6>
-                            @if ($dataEntryOSS?->dataEntry)
-                                <div class="form-group mb-1">
-                                    <strong>Nama</strong>
-                                    <p class="text-muted mb-0">{{ $dataEntryOSS->dataEntry->nama_lengkap }}</p>
-                                </div>
-                                <div class="form-group mb-0">
-                                    <strong>Tanggal</strong>
-                                    <p class="text-muted mb-0">
-                                        {{ \Carbon\Carbon::parse($dataEntryOSS->actioned_at)->translatedFormat('d M Y') }}
-                                    </p>
-                                </div>
-                            @else
-                                <p class="text-muted fst-italic mb-0">Belum ada data entry OSS.</p>
-                            @endif
+                            <h6 class="fw-bold mb-2">Data Entry OSS</h6>
+                            <div class="form-group mb-1">
+                                <strong>Nama</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntryOSS?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
+                                </p>
+                            </div>
+                            <div class="form-group mb-0">
+                                <strong>Tanggal</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntryOSS?->actioned_at
+                                        ? \Carbon\Carbon::parse($dataEntryOSS->actioned_at)->translatedFormat('d M Y')
+                                        : 'Tidak ada data' }}
+                                </p>
+                            </div>
                         </div>
 
                         <hr>
 
                         {{-- Data Entry SIHALAL --}}
                         <div class="mb-0">
-                            <h6 class="fw-bold text-success mb-2">
-                                <i class="fas fa-check-circle me-1"></i> Data Entry SIHALAL
-                            </h6>
-                            @if ($dataEntrySihalal?->dataEntry)
-                                <div class="form-group mb-1">
-                                    <strong>Nama</strong>
-                                    <p class="text-muted mb-0">{{ $dataEntrySihalal->dataEntry->nama_lengkap }}</p>
-                                </div>
-                                <div class="form-group mb-0">
-                                    <strong>Tanggal</strong>
-                                    <p class="text-muted mb-0">
-                                        {{ \Carbon\Carbon::parse($dataEntrySihalal->actioned_at)->translatedFormat('d M Y') }}
-                                    </p>
-                                </div>
-                            @else
-                                <p class="text-muted fst-italic mb-0">Belum ada data entry SIHALAL.</p>
-                            @endif
+                            <h6 class="fw-bold mb-2">Data Entry SIHALAL</h6>
+                            <div class="form-group mb-1">
+                                <strong>Nama</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntrySihalal?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
+                                </p>
+                            </div>
+                            <div class="form-group mb-0">
+                                <strong>Tanggal</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntrySihalal?->actioned_at
+                                        ? \Carbon\Carbon::parse($dataEntrySihalal->actioned_at)->translatedFormat('d M Y')
+                                        : 'Tidak ada data' }}
+                                </p>
+                            </div>
                         </div>
 
                     </div>
@@ -249,7 +285,8 @@
                                         Silakan isi data verifikasi di bawah ini.
                                     </div>
 
-                                    <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
+                                    <form
+                                        action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
                                         method="POST" id="formVerifikasi">
                                         @csrf
                                         <div class="mb-3">

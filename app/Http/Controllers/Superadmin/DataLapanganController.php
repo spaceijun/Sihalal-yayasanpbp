@@ -8,6 +8,7 @@ use App\Models\DataLapangan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\DataLapanganRequest;
+use App\Models\DataEntryProgress;
 use App\Models\Enumerator;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -368,7 +369,24 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $dataLapangan->load(['enumerator', 'spotchecks']);
 
-        return view('superadmin.data-lapangan.show', compact('dataLapangan'));
+        // Ambil data entry berdasarkan entry_type
+        $dataEntryOSS = DataEntryProgress::with('dataEntry')
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->whereHas('dataEntry', fn($q) => $q->where('entry_type', 'OSS'))
+            ->orderBy('actioned_at', 'asc')
+            ->first();
+
+        $dataEntrySihalal = DataEntryProgress::with('dataEntry')
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->whereHas('dataEntry', fn($q) => $q->where('entry_type', 'SIHALAL'))
+            ->orderBy('actioned_at', 'asc')
+            ->first();
+
+        return view('superadmin.data-lapangan.show', compact(
+            'dataLapangan',
+            'dataEntryOSS',
+            'dataEntrySihalal'
+        ));
     }
     /**
      * Show the form for editing the specified resource.

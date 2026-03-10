@@ -1,41 +1,49 @@
-<!-- Modal Sukses -->
-<div class="modal flip" id="successModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
-    aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body text-center p-5">
-                <lord-icon src="https://cdn.lordicon.com/tqywkdcz.json" trigger="loop"
-                    colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px">
-                </lord-icon>
-
-                <div class="mt-4">
-                    <h4 class="mb-3">Berhasil!</h4>
-                    <p class="text-muted mb-4">{{ Session::get('success') }}.</p>
-                    <div class="hstack gap-2 justify-content-center">
-                        <button type="button" class="btn btn-link link-success fw-medium material-shadow-none"
-                            data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Tutup</button>
-                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Selesai</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Error Session Alert -->
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible alert-label-icon rounded-label fade show material-shadow"
+        role="alert">
+        <i class="ri-error-warning-line label-icon"></i><strong>Error</strong> - {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-</div>
+@endif
 
-<!-- Script untuk menampilkan modal -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @if (session('success'))
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-        @endif
+<!-- Validation Errors Alert -->
+@if ($errors->any())
+    <div class="alert alert-danger alert-dismissible alert-label-icon rounded-label fade show material-shadow"
+        role="alert">
+        <i class="ri-alert-line label-icon"></i><strong>Validation Error</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 
-        const demoButton = document.querySelector('.btn-soft-success');
-        if (demoButton) {
-            demoButton.addEventListener('click', function() {
-                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
-            });
-        }
-    });
-</script>
+<!-- Success Alert  -->
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show material-shadow"
+        role="alert">
+        <i class="ri-notification-off-line label-icon"></i><strong>Success</strong> - {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<!-- Warning Alert  -->
+@if (session('warning'))
+    <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show material-shadow"
+        role="alert">
+        <i class="ri-alert-line label-icon"></i><strong>Warning</strong> - {{ session('warning') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<!-- Info Alert  -->
+@if (session('info'))
+    <div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show material-shadow"
+        role="alert">
+        <i class="ri-airplay-line label-icon"></i><strong>Info</strong> - {{ session('info') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif

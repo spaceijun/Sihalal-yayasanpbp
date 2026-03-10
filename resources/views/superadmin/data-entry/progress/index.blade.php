@@ -258,7 +258,7 @@
 
                         {{-- Pagination --}}
                         <div class="mt-3">
-                            {{ $progresses->links() }}
+                            @include('layouts.pagination', ['paginator' => $progresses])
                         </div>
                     </form>
                 </div>

@@ -35,6 +35,80 @@
         <div class="row mt-3">
             <!-- Card Data Informasi -->
             <div class="col-md-6">
+                <!-- Card Edit Status -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <span><i class="fas fa-edit me-2"></i>Status Data</span>
+                    </div>
+                    <div class="card-body">
+                        @if ($dataLapangan->verifikator)
+                            <div class="form-group mb-3">
+                                <strong>Nama Verifikator</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->verifikator ?? 'Verifikator Kosong' }}</p>
+                            </div>
+                            <hr>
+                            <div class="form-group mb-3">
+                                <strong>Tanggal Verifikasi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->tanggal_verifikasi
+                                        ? \Carbon\Carbon::parse($dataLapangan->tanggal_verifikasi)->translatedFormat('d M Y')
+                                        : 'Tidak ada Tanggal Verif.' }}
+                                </p>
+                            </div>
+                        @elseif ($dataLapangan->status == 'REVISI')
+                            <div class="form-group mb-3">
+                                <strong>Keterangan Revisi</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->keterangan ?? 'Tidak ada Keterangan.' }}
+                                </p>
+                            </div>
+                        @endif
+
+                        <hr>
+
+                        {{-- Data Entry OSS --}}
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Data Entry OSS</h6>
+                            <div class="form-group mb-1">
+                                <strong>Nama Lengkap</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntryOSS?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
+                                </p>
+                            </div>
+                            <hr>
+                            <div class="form-group mb-0">
+                                <strong>Tanggal</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntryOSS?->actioned_at
+                                        ? \Carbon\Carbon::parse($dataEntryOSS->actioned_at)->translatedFormat('d M Y')
+                                        : 'Tidak ada data' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        {{-- Data Entry SIHALAL --}}
+                        <div class="mb-0">
+                            <h6 class="fw-bold mb-2">Data Entry SIHALAL</h6>
+                            <div class="form-group mb-1">
+                                <strong>Nama Lengkap</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntrySihalal?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
+                                </p>
+                            </div>
+                            <hr>
+                            <div class="form-group mb-0">
+                                <strong>Tanggal</strong>
+                                <p class="text-muted mb-0">
+                                    {{ $dataEntrySihalal?->actioned_at
+                                        ? \Carbon\Carbon::parse($dataEntrySihalal->actioned_at)->translatedFormat('d M Y')
+                                        : 'Tidak ada data' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>

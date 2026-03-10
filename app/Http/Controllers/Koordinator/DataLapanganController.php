@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Koordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
 use App\Services\Koordinator\DataLapanganService;
 use Illuminate\Http\Request;
@@ -59,9 +60,27 @@ class DataLapanganController extends Controller
     }
     public function show($hashedId): View
     {
-        // Ganti dari find($id) ke findByid($id)
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
-        return view('koordinator.data-lapangan.show', compact('dataLapangan'));
+        $dataLapangan->load(['enumerator', 'spotchecks']);
+
+        // Ambil data entry berdasarkan entry_type
+        $dataEntryOSS = DataEntryProgress::with('dataEntry')
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->whereHas('dataEntry', fn($q) => $q->where('entry_type', 'OSS'))
+            ->orderBy('actioned_at', 'asc')
+            ->first();
+
+        $dataEntrySihalal = DataEntryProgress::with('dataEntry')
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->whereHas('dataEntry', fn($q) => $q->where('entry_type', 'SIHALAL'))
+            ->orderBy('actioned_at', 'asc')
+            ->first();
+
+        return view('koordinator.data-lapangan.show', compact(
+            'dataLapangan',
+            'dataEntryOSS',
+            'dataEntrySihalal'
+        ));
     }
     /**
      * Download foto KTP yang tersimpan di storage.

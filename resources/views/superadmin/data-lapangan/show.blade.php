@@ -87,11 +87,12 @@
                         <div class="mb-3">
                             <h6 class="fw-bold mb-2">Data Entry OSS</h6>
                             <div class="form-group mb-1">
-                                <strong>Nama</strong>
+                                <strong>Nama Lengkap</strong>
                                 <p class="text-muted mb-0">
                                     {{ $dataEntryOSS?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
                                 </p>
                             </div>
+                            <hr>
                             <div class="form-group mb-0">
                                 <strong>Tanggal</strong>
                                 <p class="text-muted mb-0">
@@ -108,11 +109,12 @@
                         <div class="mb-0">
                             <h6 class="fw-bold mb-2">Data Entry SIHALAL</h6>
                             <div class="form-group mb-1">
-                                <strong>Nama</strong>
+                                <strong>Nama Lengkap</strong>
                                 <p class="text-muted mb-0">
                                     {{ $dataEntrySihalal?->dataEntry?->nama_lengkap ?? 'Tidak ada data' }}
                                 </p>
                             </div>
+                            <hr>
                             <div class="form-group mb-0">
                                 <strong>Tanggal</strong>
                                 <p class="text-muted mb-0">

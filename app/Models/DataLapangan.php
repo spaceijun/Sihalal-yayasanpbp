@@ -148,4 +148,20 @@ class DataLapangan extends Model
             }
         });
     }
+    public function dataEntryProgress()
+    {
+        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id');
+    }
+
+    public function dataEntry()
+    {
+        return $this->hasOneThrough(
+            DataEntry::class,
+            DataEntryProgress::class,
+            'data_lapangan_id', // FK di data_entry_progress
+            'id',               // FK di data_entrys
+            'id',               // PK di data_lapangans
+            'data_entry_id'     // FK di data_entry_progress
+        );
+    }
 }

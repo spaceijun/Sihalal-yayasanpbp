@@ -49,25 +49,21 @@ class DataEntryProgressController extends Controller
     */
 
     /**
-     * Get data entry progress milik user data_entry yang sedang login
-     * Hanya menampilkan data_lapangan dengan status PROGRESS OSS
+     * Get data entry progress milik user data_entry yang sedang login.
+     * Menampilkan semua progress tanpa filter status data_lapangan,
+     * karena status progress kini dikelola di kolom data_entry_progress.status.
      */
     private function getDataEntryProgress(Request $request)
     {
         $user = Auth::user();
 
-        // Pastikan user memiliki role data_entry
         if (!$user->hasRole('data_entry')) {
             abort(403, 'Unauthorized');
         }
 
-        $dataEntry = $user->dataEntry;
-        $status = $dataEntry->entry_type === 'OSS' ? 'TERVERIFIKASI' : 'PROGRESS SIHALAL';
         $query = DataEntryProgress::query()
             ->where('user_id', $user->id)
-            ->whereHas('dataLapangan', function ($q) use ($status) {
-                $q->where('status', $status);
-            })
+            ->where('action', 'created')
             ->with([
                 'user',
                 'dataEntry',
@@ -78,13 +74,14 @@ class DataEntryProgressController extends Controller
 
         // Apply filters
         $this->applySearchFilter($query, $request);
-        $this->applyActionFilter($query, $request);
+        $this->applyStatusFilter($query, $request);
         $this->applyDateFilters($query, $request);
 
         $query->orderBy('actioned_at', 'desc');
 
         return $query->paginate($request->get('per_page', 10));
     }
+
     /**
      * Apply search filter (berdasarkan nama_pu atau NIK di data_lapangan)
      */
@@ -103,12 +100,15 @@ class DataEntryProgressController extends Controller
     }
 
     /**
-     * Apply filter berdasarkan kolom action (e.g. 'create', 'update', 'delete')
+     * Apply filter berdasarkan status progress (PENDING / DITERIMA / REVISI / DITOLAK).
+     * Jika tidak diisi, tampilkan semua status.
      */
-    private function applyActionFilter($query, Request $request): void
+    private function applyStatusFilter($query, Request $request): void
     {
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
+        $allowedStatuses = ['PENDING', 'DITERIMA', 'REVISI', 'DITOLAK'];
+
+        if ($request->filled('status') && in_array(strtoupper($request->status), $allowedStatuses)) {
+            $query->where('status', strtoupper($request->status));
         }
     }
 

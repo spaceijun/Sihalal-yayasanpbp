@@ -12,39 +12,48 @@ use Illuminate\View\View;
 
 class DataEntryProgressController extends Controller
 {
-    // Lihat progress milik data entry yang sedang login
+    /**
+     * Lihat progress milik data entry yang sedang login
+     */
     public function index()
     {
         $dataEntry = DataEntry::where('user_id', Auth::id())->firstOrFail();
+
         $progress = DataEntryProgress::with('dataLapangan')
             ->where('data_entry_id', $dataEntry->id)
+            ->where('action', 'created')
             ->latest('actioned_at')
             ->paginate(20);
+
         return view('data-entry.progress.index', compact('progress'));
     }
 
+    /**
+     * Detail data lapangan dari halaman progress
+     */
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
 
-        $entryType = DataEntry::where('user_id', Auth::id())
-            ->value('entry_type');
+        $dataEntry = DataEntry::where('user_id', Auth::id())->first();
 
-        return view('data-entry.progress.show', compact('dataLapangan', 'entryType'));
-    }
+        $entryType = $dataEntry?->entry_type;
 
-
-    // Lihat progress semua data entry (untuk admin)
-    public function allProgress()
-    {
-        $progress = DataEntryProgress::with(['user', 'dataEntry', 'dataLapangan'])
+        // Ambil progress terbaru milik data lapangan ini untuk user yang login
+        $latestProgress = $dataEntry
+            ? DataEntryProgress::where('data_entry_id', $dataEntry->id)
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->where('action', 'created')
             ->latest('actioned_at')
-            ->paginate(20);
+            ->first()
+            : null;
 
-        return view('progress.index', compact('progress'));
+        return view('data-entry.progress.show', compact('dataLapangan', 'entryType', 'latestProgress'));
     }
 
-    // Ringkasan progress per data entry
+    /**
+     * Ringkasan progress per data entry (untuk admin)
+     */
     public function summary()
     {
         $summary = DataEntry::withCount([

@@ -13,21 +13,22 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <span id="card_title">
-                            <i class="fas fa-tasks me-2"></i>Review Progress Data Entry
+                            <i class="las la-tasks me-2"></i>Review Progress Data Entry
                         </span>
                         <div class="d-flex gap-2">
                             {{-- Bulk Terima --}}
                             <button type="button" id="btnBulkTerima" class="btn btn-success btn-sm" disabled
                                 onclick="submitBulkTerima()">
-                                <i class="fas fa-check-double me-1"></i>Terima Semua Dipilih
+                                <i class="las la-check-double me-1"></i>Terima Semua Dipilih
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {{-- Tab Status --}}
-                <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
-                    <ul class="nav nav-tabs card-header-tabs" id="statusTabs">
+                <div class="card-header bg-white p-0 border-bottom" style="overflow: visible;">
+                    <ul class="nav nav-tabs card-header-tabs px-3 pt-2 mb-0" id="statusTabs"
+                        style="margin-bottom: -1px !important;">
                         <li class="nav-item">
                             <a class="nav-link {{ !request('status') || in_array(request('status'), ['PENDING', 'REVISI']) ? 'active' : '' }}"
                                 href="{{ request()->fullUrlWithQuery(['status' => '']) }}">
@@ -98,13 +99,13 @@
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-search me-1"></i>Filter
+                                    <i class="las la-search me-1"></i>Filter
                                 </button>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <a href="{{ route('superadmin.data-entry-progress.index') }}"
                                     class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-redo me-1"></i>Reset
+                                    <i class="las la-redo me-1"></i>Reset
                                 </a>
                             </div>
                         </div>
@@ -127,7 +128,6 @@
                                         <th>Data Entry</th>
                                         <th>Type</th>
                                         <th>Nama PU</th>
-                                        <th>File / Aksi</th>
                                         <th>Status</th>
                                         <th>Keterangan</th>
                                         <th width="160">Aksi</th>
@@ -166,97 +166,80 @@
                                                     {{ $progress->dataLapangan?->nama_pu ?? '-' }}
                                                 </a>
                                                 <br>
-                                                <small class="text-muted">
-                                                    {{ $progress->dataLapangan?->nik ?? '' }}
-                                                </small>
+                                                <small class="text-muted">{{ $progress->dataLapangan?->nik ?? '' }}</small>
                                             </td>
-                                            <td>
-                                                @php $newData = $progress->new_data; @endphp
-                                                @if (is_array($newData))
-                                                    <span
-                                                        class="badge bg-light text-dark border">{{ strtoupper($newData['file_type'] ?? '-') }}</span>
-                                                    <br>
-                                                    <small
-                                                        class="text-muted">{{ $newData['file_name'] !== 'N/A' ? $newData['file_name'] : 'Update Status' }}</small>
-                                                @endif
-                                            </td>
+
                                             <td>
                                                 @if ($progress->status === 'PENDING')
                                                     <span class="badge bg-warning text-dark">
-                                                        <i class="fas fa-hourglass-half me-1"></i>PENDING
+                                                        <i class="las la-hourglass-half me-1"></i>PENDING
                                                     </span>
                                                 @elseif ($progress->status === 'DITERIMA')
                                                     <span class="badge bg-success">
-                                                        <i class="fas fa-check me-1"></i>DITERIMA
+                                                        <i class="las la-check me-1"></i>DITERIMA
                                                     </span>
                                                 @elseif ($progress->status === 'REVISI')
                                                     <span class="badge bg-warning text-dark">
-                                                        <i class="fas fa-edit me-1"></i>REVISI
+                                                        <i class="las la-edit me-1"></i>REVISI
                                                     </span>
                                                 @elseif ($progress->status === 'DITOLAK')
                                                     <span class="badge bg-dark">
-                                                        <i class="fas fa-times me-1"></i>DITOLAK
+                                                        <i class="las la-times me-1"></i>DITOLAK
                                                     </span>
                                                 @endif
                                             </td>
+
+                                            {{-- Kolom Keterangan --}}
                                             <td style="max-width: 200px;">
-                                                @if ($progress->keterangan_revisi)
-                                                    <small class="text-danger">
+                                                @if ($progress->keterangan_revisi || $progress->keterangan_update)
+                                                    <button type="button"
+                                                        class="btn btn-sm {{ $progress->keterangan_update ? 'btn-success' : 'btn-danger' }}"
+                                                        onclick="lihatKeterangan(
+                                                            {{ $progress->keterangan_revisi ? '\'' . addslashes(e($progress->keterangan_revisi)) . '\'' : 'null' }},
+                                                            {{ $progress->keterangan_update ? '\'' . addslashes(e($progress->keterangan_update)) . '\'' : 'null' }}
+                                                        )">
                                                         <i
-                                                            class="fas fa-comment me-1"></i>{{ Str::limit($progress->keterangan_revisi, 60) }}
-                                                    </small>
-                                                @endif
-                                                @if ($progress->keterangan_update)
-                                                    <small class="text-success d-block">
-                                                        <i
-                                                            class="fas fa-reply me-1"></i>{{ Str::limit($progress->keterangan_update, 60) }}
-                                                    </small>
-                                                @endif
-                                                @if (!$progress->keterangan_revisi && !$progress->keterangan_update)
+                                                            class="las {{ $progress->keterangan_update ? 'la-check-circle' : 'la-exclamation-circle' }} me-1"></i>
+                                                        {{ $progress->keterangan_update ? 'Sudah Direvisi' : 'Perlu Revisi' }}
+                                                    </button>
+                                                @else
                                                     <small class="text-muted">-</small>
                                                 @endif
                                             </td>
+
                                             <td>
                                                 @if ($progress->status === 'PENDING')
                                                     <div class="d-flex gap-1 flex-wrap">
                                                         {{-- Tombol Terima --}}
-                                                        <form
-                                                            action="{{ route('superadmin.data-entry-progress.terima', $progress->id) }}"
-                                                            method="POST" class="d-inline">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit" class="btn btn-success btn-sm"
-                                                                onclick="return confirm('Terima progress ini?')"
-                                                                title="Terima">
-                                                                <i class="fas fa-check"></i>
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" class="btn btn-success btn-sm"
+                                                            title="Terima" onclick="submitTerima({{ $progress->id }})">
+                                                            <i class="las la-check"></i>
+                                                        </button>
 
                                                         {{-- Tombol Revisi (buka modal) --}}
                                                         <button type="button" class="btn btn-warning btn-sm"
                                                             title="Minta Revisi"
                                                             onclick="bukaModalRevisi({{ $progress->id }})">
-                                                            <i class="fas fa-edit"></i>
+                                                            <i class="las la-edit"></i>
                                                         </button>
 
                                                         {{-- Tombol Tolak (buka modal) --}}
                                                         <button type="button" class="btn btn-danger btn-sm"
                                                             title="Tolak" onclick="bukaModalTolak({{ $progress->id }})">
-                                                            <i class="fas fa-times"></i>
+                                                            <i class="las la-times"></i>
                                                         </button>
                                                     </div>
                                                 @elseif ($progress->status === 'REVISI')
-                                                    {{-- Bisa terima atau tolak setelah resubmit --}}
                                                     <div class="d-flex gap-1 flex-wrap">
                                                         <a href="{{ route('superadmin.data-entry-progress.show', $progress->id) }}"
                                                             class="btn btn-outline-primary btn-sm" title="Lihat Detail">
-                                                            <i class="fas fa-eye"></i>
+                                                            <i class="las la-eye"></i>
                                                         </a>
                                                     </div>
                                                 @else
                                                     <a href="{{ route('superadmin.data-entry-progress.show', $progress->id) }}"
                                                         class="btn btn-outline-secondary btn-sm" title="Lihat Detail">
-                                                        <i class="fas fa-eye"></i>
+                                                        <i class="las la-eye"></i>
                                                     </a>
                                                 @endif
                                             </td>
@@ -264,7 +247,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="10" class="text-center py-5 text-muted">
-                                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                                <i class="las la-inbox la-2x mb-2 d-block"></i>
                                                 Tidak ada data progress
                                             </td>
                                         </tr>
@@ -284,57 +267,128 @@
     </div>
 
     {{-- ============================================================ --}}
-    {{-- MODAL REVISI                                                  --}}
+    {{-- FORM TERIMA (di luar bulkForm untuk hindari nested form)      --}}
     {{-- ============================================================ --}}
-    <div class="modal fade" id="modalRevisi" tabindex="-1" aria-hidden="true">
+    <form id="formTerima" method="POST" action="">
+        @csrf
+        @method('PATCH')
+    </form>
+
+    {{-- ============================================================ --}}
+    {{-- MODAL KONFIRMASI                                              --}}
+    {{-- ============================================================ --}}
+    <div id="modalKonfirmasi" class="modal fade" tabindex="-1" aria-labelledby="modalKonfirmasiLabel"
+        aria-hidden="true" style="display: none;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Minta Revisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalKonfirmasiLabel">
+                        <i class="las la-question-circle me-2"></i><span id="confirmTitle">Konfirmasi</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="fs-15">Apakah Anda yakin?</h5>
+                    <p class="text-muted" id="confirmMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" id="confirmBtn">
+                        <i class="las la-check me-1"></i>Ya, Lanjutkan
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    {{-- ============================================================ --}}
+    {{-- MODAL KETERANGAN                                              --}}
+    {{-- ============================================================ --}}
+    <div id="modalKeterangan" class="modal fade" tabindex="-1" aria-labelledby="modalKeteranganLabel"
+        aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalKeteranganLabel">
+                        <i class="las la-comment me-2"></i>Detail Keterangan
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="keteranganRevisiWrapper" style="display: none;">
+                        <h5 class="fs-15">Catatan Revisi</h5>
+                        <p class="text-muted" id="keteranganRevisiText"></p>
+                    </div>
+                    <div id="keteranganUpdateWrapper" style="display: none;">
+                        <h5 class="fs-15">Balasan Data Entry</h5>
+                        <p class="text-muted" id="keteranganUpdateText"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    {{-- ============================================================ --}}
+    {{-- MODAL REVISI                                                  --}}
+    {{-- ============================================================ --}}
+    <div id="modalRevisi" class="modal fade" tabindex="-1" aria-labelledby="modalRevisiLabel" aria-hidden="true"
+        style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRevisiLabel">
+                        <i class="las la-edit me-2"></i>Minta Revisi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="formRevisi" method="POST" action="">
                     @csrf
                     @method('PATCH')
                     <div class="modal-body">
+                        <h5 class="fs-15">Catatan Revisi untuk Data Entry</h5>
+                        <p class="text-muted">Jelaskan apa yang perlu diperbaiki agar data entry mengetahui langkah
+                            selanjutnya.</p>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Catatan Revisi untuk Data Entry <span
-                                    class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">Catatan Revisi <span class="text-danger">*</span></label>
                             <textarea name="keterangan_revisi" class="form-control" rows="4"
                                 placeholder="Jelaskan apa yang perlu diperbaiki oleh data entry..." required></textarea>
-                            <small class="text-muted">Catatan ini akan ditampilkan ke data entry agar mereka tahu apa yang
-                                harus diperbaiki.</small>
+                            <small class="text-muted">Catatan ini akan ditampilkan ke data entry.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-warning btn-sm">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Revisi
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="las la-paper-plane me-1"></i>Kirim Revisi
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     {{-- ============================================================ --}}
     {{-- MODAL TOLAK                                                   --}}
     {{-- ============================================================ --}}
-    <div class="modal fade" id="modalTolak" tabindex="-1" aria-hidden="true">
+    <div id="modalTolak" class="modal fade" tabindex="-1" aria-labelledby="modalTolakLabel" aria-hidden="true"
+        style="display: none;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Tolak Progress</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTolakLabel">
+                        <i class="las la-times-circle me-2"></i>Tolak Progress
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="formTolak" method="POST" action="">
                     @csrf
                     @method('PATCH')
                     <div class="modal-body">
-                        <div class="alert alert-danger py-2">
-                            <small><i class="fas fa-exclamation-triangle me-1"></i>Data ini akan ditolak dan tidak dapat
-                                masuk ke penagihan.</small>
-                        </div>
+                        <h5 class="fs-15">Konfirmasi Penolakan</h5>
+                        <p class="text-muted">Data ini akan ditolak dan <strong>tidak dapat masuk ke penagihan</strong>.
+                            Pastikan alasan penolakan sudah jelas sebelum melanjutkan.</p>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Alasan Penolakan <span class="text-danger">*</span></label>
                             <textarea name="keterangan_revisi" class="form-control" rows="4" placeholder="Jelaskan alasan penolakan..."
@@ -342,20 +396,19 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-times me-2"></i>Tolak
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="las la-times me-1"></i>Tolak
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // Check all checkbox
             const checkAll = document.getElementById('checkAll');
             const btnBulkTerima = document.getElementById('btnBulkTerima');
 
@@ -377,18 +430,64 @@
                     `Terima ${checked} Yang Dipilih` :
                     'Terima Semua Dipilih';
 
-                // Tambahkan icon kembali
                 const icon = document.createElement('i');
-                icon.className = 'fas fa-check-double me-1';
+                icon.className = 'las la-check-double me-1';
                 btnBulkTerima.prepend(icon);
             }
         });
 
+        function submitTerima(progressId) {
+            document.getElementById('confirmTitle').textContent = 'Konfirmasi Terima';
+            document.getElementById('confirmMessage').textContent = 'Apakah Anda yakin ingin menerima progress ini?';
+            document.getElementById('confirmBtn').className = 'btn btn-success';
+            document.getElementById('confirmBtn').innerHTML = '<i class="las la-check me-1"></i>Ya, Terima';
+
+            document.getElementById('confirmBtn').onclick = function() {
+                const url = `/superadmin/data-entry-progress/${progressId}/terima`;
+                document.getElementById('formTerima').action = url;
+                document.getElementById('formTerima').submit();
+            };
+
+            new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();
+        }
+
         function submitBulkTerima() {
             const checked = document.querySelectorAll('.row-check:checked').length;
             if (checked === 0) return;
-            if (!confirm(`Terima ${checked} progress yang dipilih?`)) return;
-            document.getElementById('bulkForm').submit();
+
+            document.getElementById('confirmTitle').textContent = 'Konfirmasi Terima Massal';
+            document.getElementById('confirmMessage').textContent =
+                `Apakah Anda yakin ingin menerima ${checked} progress yang dipilih?`;
+            document.getElementById('confirmBtn').className = 'btn btn-success';
+            document.getElementById('confirmBtn').innerHTML =
+                `<i class="las la-check-double me-1"></i>Ya, Terima ${checked}`;
+
+            document.getElementById('confirmBtn').onclick = function() {
+                document.getElementById('bulkForm').submit();
+            };
+
+            new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();
+        }
+
+        function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
+            const revisiWrapper = document.getElementById('keteranganRevisiWrapper');
+            const updateWrapper = document.getElementById('keteranganUpdateWrapper');
+
+            if (keteranganRevisi) {
+                document.getElementById('keteranganRevisiText').textContent = keteranganRevisi;
+                revisiWrapper.style.display = 'block';
+            } else {
+                revisiWrapper.style.display = 'none';
+            }
+
+            if (keteranganUpdate) {
+                document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
+                updateWrapper.style.display = 'block';
+            } else {
+                updateWrapper.style.display = 'none';
+            }
+
+            new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
         }
 
         function bukaModalRevisi(progressId) {

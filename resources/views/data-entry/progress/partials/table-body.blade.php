@@ -18,9 +18,18 @@
             </span>
         </td>
         <td>
-            <span class="badge bg-info">
-                {{ $progress->status ?? '-' }}
-            </span>
+            @php $status = $progress->status ?? '-'; @endphp
+            @if ($status === 'PENDING')
+                <span class="badge bg-warning text-dark">PENDING</span>
+            @elseif ($status === 'REVISI')
+                <span class="badge bg-danger">REVISI</span>
+            @elseif ($status === 'DITOLAK')
+                <span class="badge bg-dark">DITOLAK</span>
+            @elseif ($status === 'DITERIMA')
+                <span class="badge bg-success">DITERIMA</span>
+            @else
+                <span class="badge bg-secondary">{{ $status }}</span>
+            @endif
         </td>
         <td>
             <a class="btn btn-sm btn-primary"

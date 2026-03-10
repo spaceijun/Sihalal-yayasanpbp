@@ -1,30 +1,37 @@
 @extends('layouts.app')
+
 @section('template_title')
     Dashboard
 @endsection
+
 @section('content')
     <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <i class="ri-admin-line"></i> <strong>Selamat datang, Data Entry!</strong>
-        Semoga Hari Kalian Selalu "BEJO".
+        <i class="ri-admin-line"></i>
+        <strong>Selamat datang, {{ $dataEntry->user->name }}!</strong>
+        Entry Type:
+        <span class="badge {{ $dataEntry->entry_type === 'SIHALAL' ? 'bg-primary' : 'bg-info' }} ms-1">
+            {{ $dataEntry->entry_type }}
+        </span>
+        — Tarif: <strong>Rp {{ number_format($tarifPer15, 0, ',', '.') }}</strong> per {{ $kelipatanPer }} data.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Summary Cards -->
+    {{-- ============================================================ --}}
+    {{-- ROW 1: Summary Cards                                         --}}
+    {{-- ============================================================ --}}
     <div class="row">
-        <!-- Total Data Dientry -->
-        <div class="col-xl-3" data-aos="fade-up">
+
+        {{-- Total Dientry --}}
+        <div class="col-xl-3 col-md-6" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Data Dientry</p>
-                        </div>
-                    </div>
+                    <p class="text-uppercase fw-medium text-muted mb-0">Total Dientry</p>
                     <div class="d-flex align-items-end justify-content-between mt-4">
                         <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-1">
                                 <span class="counter-value" data-target="{{ $totalDientry }}">0</span>
                             </h4>
+                            <p class="text-muted mb-0 fs-12">Semua data yang pernah disubmit</p>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-success-subtle rounded fs-3">
@@ -36,18 +43,36 @@
             </div>
         </div>
 
-        <!-- Paket Terpenuhi -->
-        <div class="col-xl-3" data-aos="fade-up">
+        {{-- Data Diterima --}}
+        <div class="col-xl-3 col-md-6" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Paket Terpenuhi</p>
-                        </div>
-                    </div>
+                    <p class="text-uppercase fw-medium text-muted mb-0">Data Diterima</p>
                     <div class="d-flex align-items-end justify-content-between mt-4">
                         <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-1">
+                                <span class="counter-value" data-target="{{ $totalDiterima }}">0</span>
+                            </h4>
+                            <p class="text-muted mb-0 fs-12">Disetujui superadmin — basis penagihan</p>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-success-subtle rounded fs-3">
+                                <i class="bx bx-check-circle text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Paket Terpenuhi --}}
+        <div class="col-xl-3 col-md-6" data-aos="fade-up">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <p class="text-uppercase fw-medium text-muted mb-0">Paket Terpenuhi</p>
+                    <div class="d-flex align-items-end justify-content-between mt-4">
+                        <div>
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-1">
                                 <span class="counter-value" data-target="{{ $kelipatan }}">0</span>
                                 <small class="fs-13 text-muted">x Paket</small>
                             </h4>
@@ -65,50 +90,14 @@
             </div>
         </div>
 
-        <!-- Sisa Data -->
-        <div class="col-xl-3" data-aos="fade-up">
+        {{-- Total Penghasilan --}}
+        <div class="col-xl-3 col-md-6" data-aos="fade-up">
             <div class="card card-animate">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Sisa Data</p>
-                        </div>
-                    </div>
+                    <p class="text-uppercase fw-medium text-muted mb-0">Total Penghasilan</p>
                     <div class="d-flex align-items-end justify-content-between mt-4">
                         <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $sisaData }}">0</span>
-                                <small class="fs-13 text-muted">/ {{ $kelipatanPer }}</small>
-                            </h4>
-                            <p class="text-muted mb-0 fs-12">
-                                Butuh <strong>{{ $kelipatanPer - $sisaData }}</strong> data lagi
-                            </p>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-warning-subtle rounded fs-3">
-                                <i class="bx bx-time-five text-warning"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="progress mt-3" style="height: 6px;">
-                        <div class="progress-bar bg-warning" style="width: {{ ($sisaData / $kelipatanPer) * 100 }}%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Penghasilan -->
-        <div class="col-xl-3" data-aos="fade-up">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Penghasilan</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-1">
                                 Rp <span class="counter-value" data-target="{{ $totalPenghasilan }}">0</span>
                             </h4>
                             <p class="text-muted mb-0 fs-12">
@@ -128,7 +117,91 @@
         </div>
     </div>
 
-    <!-- Progress Bar Menuju Paket Berikutnya -->
+    {{-- ============================================================ --}}
+    {{-- ROW 2: Status Review Cards                                   --}}
+    {{-- ============================================================ --}}
+    <div class="row mt-2">
+
+        {{-- Pending --}}
+        <div class="col-xl-4 col-md-6" data-aos="fade-up">
+            <div class="card card-animate border-start border-warning border-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-uppercase fw-medium text-muted mb-1 fs-12">Menunggu Review</p>
+                            <h4 class="fs-20 fw-semibold mb-0 text-warning">
+                                {{ $totalPending }}
+                                <small class="fs-13 text-muted fw-normal">data</small>
+                            </h4>
+                            <p class="text-muted mb-0 fs-12 mt-1">Sedang diperiksa superadmin</p>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-warning-subtle rounded fs-3">
+                                <i class="bx bx-hourglass text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Revisi --}}
+        <div class="col-xl-4 col-md-6" data-aos="fade-up">
+            <div class="card card-animate border-start border-danger border-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-uppercase fw-medium text-muted mb-1 fs-12">Perlu Direvisi</p>
+                            <h4 class="fs-20 fw-semibold mb-0 text-danger">
+                                {{ $totalRevisi }}
+                                <small class="fs-13 text-muted fw-normal">data</small>
+                            </h4>
+                            <p class="text-muted mb-0 fs-12 mt-1">Mohon segera perbaiki</p>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-danger-subtle rounded fs-3">
+                                <i class="bx bx-edit text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+                    @if ($totalRevisi > 0)
+                        <div class="mt-2">
+                            <a href="{{ route('data-entry.progress.index') }}" class="btn btn-danger btn-sm w-100">
+                                <i class="bx bx-link-external me-1"></i>Lihat & Perbaiki
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Ditolak --}}
+        <div class="col-xl-4 col-md-6" data-aos="fade-up">
+            <div class="card card-animate border-start border-dark border-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-uppercase fw-medium text-muted mb-1 fs-12">Ditolak</p>
+                            <h4 class="fs-20 fw-semibold mb-0">
+                                {{ $totalDitolak }}
+                                <small class="fs-13 text-muted fw-normal">data</small>
+                            </h4>
+                            <p class="text-muted mb-0 fs-12 mt-1">Tidak dapat diproses lebih lanjut</p>
+                        </div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-light rounded fs-3">
+                                <i class="bx bx-x-circle text-dark"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- ROW 3: Progress Bar Menuju Paket Berikutnya                  --}}
+    {{-- ============================================================ --}}
     <div class="row mt-2">
         <div class="col-12" data-aos="fade-up">
             <div class="card card-animate">
@@ -137,34 +210,50 @@
                         <h6 class="fw-semibold mb-0">
                             <i class="bx bx-bar-chart-alt-2 text-primary me-1"></i>
                             Progress Menuju Paket Berikutnya
+                            <span
+                                class="badge {{ $dataEntry->entry_type === 'SIHALAL' ? 'bg-primary' : 'bg-info' }} ms-1 fs-11">
+                                {{ $dataEntry->entry_type }}
+                            </span>
                         </h6>
                         <span class="badge bg-primary-subtle text-primary fs-12">
-                            {{ $sisaData }} / {{ $kelipatanPer }} Data
+                            {{ $sisaData }} / {{ $kelipatanPer }} Data Diterima
                         </span>
                     </div>
                     <div class="progress" style="height: 10px; border-radius: 8px;">
                         <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
-                            style="width: {{ ($sisaData / $kelipatanPer) * 100 }}%; border-radius: 8px;"></div>
+                            style="width: {{ $kelipatanPer > 0 ? ($sisaData / $kelipatanPer) * 100 : 0 }}%; border-radius: 8px;">
+                        </div>
                     </div>
-                    <p class="text-muted mt-2 mb-0 fs-12">
-                        Tambahkan <strong>{{ $kelipatanPer - $sisaData }}</strong> data lagi untuk mendapatkan
-                        <strong class="text-success">Rp {{ number_format($tarifPer15, 0, ',', '.') }}</strong> berikutnya
-                    </p>
+                    <div class="d-flex justify-content-between mt-2">
+                        <p class="text-muted mb-0 fs-12">
+                            Tambahkan <strong>{{ $kelipatanPer - $sisaData }}</strong> data diterima lagi untuk
+                            mendapatkan
+                            <strong class="text-success">Rp {{ number_format($tarifPer15, 0, ',', '.') }}</strong>
+                            berikutnya
+                        </p>
+                        @if ($totalPending > 0)
+                            <p class="text-muted mb-0 fs-12">
+                                <i class="bx bx-info-circle text-warning me-1"></i>
+                                <strong>{{ $totalPending }}</strong> data masih menunggu review superadmin
+                            </p>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Riwayat Penagihan -->
+    {{-- ============================================================ --}}
+    {{-- ROW 4: Riwayat Penagihan                                     --}}
+    {{-- ============================================================ --}}
     <div class="row mt-2">
         <div class="col-12" data-aos="fade-up">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0">
                         <i class="bx bx-receipt text-primary me-1"></i> Riwayat Penagihan
                     </h5>
-                    <!-- Ringkasan Status -->
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <span class="badge bg-warning fs-12">
                             <i class="bx bx-time"></i>
                             Pending: {{ $penagihans->where('status', 'Menunggu')->count() }}
@@ -191,7 +280,9 @@
                                     <i class="bx bx-receipt text-muted"></i>
                                 </span>
                             </div>
-                            <p class="text-muted mb-0">Belum ada tagihan. Kumpulkan 15 data untuk membuat tagihan pertama!
+                            <p class="text-muted mb-0">
+                                Belum ada tagihan. Kumpulkan {{ $kelipatanPer }} data yang diterima untuk membuat tagihan
+                                pertama!
                             </p>
                         </div>
                     @else
@@ -282,7 +373,6 @@
                             </table>
                         </div>
 
-                        <!-- Total Sudah Dibayar -->
                         <div class="d-flex justify-content-end mt-3">
                             <div class="p-3 bg-success-subtle rounded">
                                 <p class="mb-0 text-success fw-semibold">

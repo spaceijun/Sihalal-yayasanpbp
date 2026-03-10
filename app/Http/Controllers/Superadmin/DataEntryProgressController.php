@@ -20,6 +20,19 @@ class DataEntryProgressController extends Controller
     }
 
     /**
+     * Hitung jumlah progress per status — dipakai di index dan show.
+     */
+    private function getStatusCounts(): array
+    {
+        return [
+            'countPending'  => DataEntryProgress::where('action', 'created')->where('status', 'PENDING')->count(),
+            'countRevisi'   => DataEntryProgress::where('action', 'created')->where('status', 'REVISI')->count(),
+            'countDiterima' => DataEntryProgress::where('action', 'created')->where('status', 'DITERIMA')->count(),
+            'countDitolak'  => DataEntryProgress::where('action', 'created')->where('status', 'DITOLAK')->count(),
+        ];
+    }
+
+    /**
      * Tampilkan daftar semua progress data entry untuk direview superadmin.
      */
     public function index(Request $request): View
@@ -59,18 +72,9 @@ class DataEntryProgressController extends Controller
 
         $progresses = $query->latest('actioned_at')->paginate(20)->withQueryString();
 
-        // Hitung badge per status untuk tab
-        $countPending  = DataEntryProgress::where('action', 'created')->where('status', 'PENDING')->count();
-        $countRevisi   = DataEntryProgress::where('action', 'created')->where('status', 'REVISI')->count();
-        $countDiterima = DataEntryProgress::where('action', 'created')->where('status', 'DITERIMA')->count();
-        $countDitolak  = DataEntryProgress::where('action', 'created')->where('status', 'DITOLAK')->count();
-
-        return view('superadmin.data-entry.progress.index', compact(
-            'progresses',
-            'countPending',
-            'countRevisi',
-            'countDiterima',
-            'countDitolak'
+        return view('superadmin.data-entry.progress.index', array_merge(
+            compact('progresses'),
+            $this->getStatusCounts()
         ));
     }
 
@@ -81,9 +85,27 @@ class DataEntryProgressController extends Controller
     {
         $progress->load(['dataLapangan.enumerator', 'dataEntry.user']);
 
-        return view('superadmin.data-entry.progress.show', compact('progress'));
-    }
+        // Ambil semua progress milik data_entry yang sama, untuk tabel di show view
+        $progresses = DataEntryProgress::with(['dataLapangan', 'dataEntry.user'])
+            ->where('action', 'created')
+            ->where('data_entry_id', $progress->data_entry_id)
+            ->latest('actioned_at')
+            ->paginate(20);
 
+        $countPending  = DataEntryProgress::where('action', 'created')->where('status', 'PENDING')->count();
+        $countRevisi   = DataEntryProgress::where('action', 'created')->where('status', 'REVISI')->count();
+        $countDiterima = DataEntryProgress::where('action', 'created')->where('status', 'DITERIMA')->count();
+        $countDitolak  = DataEntryProgress::where('action', 'created')->where('status', 'DITOLAK')->count();
+
+        return view('superadmin.data-entry.progress.show', compact(
+            'progress',
+            'progresses',       
+            'countPending',
+            'countRevisi',
+            'countDiterima',
+            'countDitolak'
+        ));
+    }
     /**
      * Terima progress — status jadi DITERIMA, lalu cek penagihan.
      */

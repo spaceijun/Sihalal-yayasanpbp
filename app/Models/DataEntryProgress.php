@@ -15,6 +15,9 @@ class DataEntryProgress extends Model
         'action',
         'old_data',
         'new_data',
+        'keterangan_revisi',
+        'keterangan_update',
+        'status',
         'actioned_at',
     ];
 

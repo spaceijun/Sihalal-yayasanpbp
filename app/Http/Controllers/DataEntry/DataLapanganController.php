@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
-use App\Services\DataEntryPenagihanService;
 use App\Services\Superadmin\FileService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\StatusService;
@@ -14,7 +13,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Intervention\Image\Colors\Rgb\Channels\Red;
 
 class DataLapanganController extends Controller
 {
@@ -27,15 +25,13 @@ class DataLapanganController extends Controller
         StatusService $statusService,
         NotificationService $notificationService
     ) {
-        $this->fileService = $fileService;
-        $this->statusService = $statusService;
+        $this->fileService         = $fileService;
+        $this->statusService       = $statusService;
         $this->notificationService = $notificationService;
     }
+
     /**
      * Show the verified data entry list
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
      */
     public function index(Request $request): View
     {
@@ -49,27 +45,39 @@ class DataLapanganController extends Controller
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
 
-        $entryType = DataEntry::where('user_id', Auth::id())
-            ->value('entry_type');
+        $dataEntry = DataEntry::where('user_id', Auth::id())->first();
 
-        return view('data-entry.data-lapangan.show', compact('dataLapangan', 'entryType'));
+        $entryType = $dataEntry?->entry_type;
+
+        // Ambil progress terbaru milik data lapangan ini untuk user yang login
+        $latestProgress = $dataEntry
+            ? DataEntryProgress::where('data_entry_id', $dataEntry->id)
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->latest()
+            ->first()
+            : null;
+
+        return view('data-entry.data-lapangan.show', compact('dataLapangan', 'entryType', 'latestProgress'));
     }
 
     /**
-     * Track progress data entry ketika upload file
+     * Track progress data entry ketika upload file / update status.
+     * Status default PENDING — menunggu review superadmin.
      */
-    private function trackDataEntryProgress(DataLapangan $dataLapangan, string $fileType, string $newStatus, string $fileName): void
-    {
-        if (!Auth::check() || Auth::user()->role !== 'data_entry') return;
-
+    private function trackDataEntryProgress(
+        DataLapangan $dataLapangan,
+        string $fileType,
+        string $newStatus,
+        string $fileName
+    ): DataEntryProgress {
         $dataEntry = DataEntry::where('user_id', Auth::id())->first();
-        if (!$dataEntry) return;
 
-        DataEntryProgress::create([
+        $progress = DataEntryProgress::create([
             'user_id'          => Auth::id(),
             'data_entry_id'    => $dataEntry->id,
             'data_lapangan_id' => $dataLapangan->id,
             'action'           => 'created',
+            'status'           => 'PENDING',
             'old_data'         => null,
             'new_data'         => [
                 'file_type' => $fileType,
@@ -79,26 +87,22 @@ class DataLapanganController extends Controller
             'actioned_at'      => now(),
         ]);
 
-        $penagihan = app(DataEntryPenagihanService::class)->cekDanBuatTagihan($dataEntry);
-
-        // Jika tagihan berhasil dibuat, kirim notifikasi ke superadmin
-        if ($penagihan) {
-            // Opsional: kirim notifikasi WhatsApp / email ke superadmin
-            // $this->notificationService->sendPenagihanNotification($penagihan);
-        }
+        return $progress;
     }
+
     /**
-     * Upload a file based on the given file type
+     * Upload file OSS (entry_type = OSS)
      */
     public function uploadFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
         $request->validate([
-            'file' => 'required|mimes:pdf|max:5120',
-            'file_type' => 'required|in:oss,sihalal'
+            'file'      => 'required|mimes:pdf|max:5120',
+            'file_type' => 'required|in:oss,sihalal',
         ]);
 
-        $fileType    = $request->file_type;
+        $fileType     = $request->file_type;
         $uploadedFile = $request->file('file');
+
         $uploadResult = $this->fileService->uploadFile($dataLapangan, $uploadedFile, $fileType);
 
         // Update status tanpa trigger Observer agar tidak double counting
@@ -108,7 +112,7 @@ class DataLapanganController extends Controller
             $dataLapangan->save();
         });
 
-        // ✅ Track progress data entry
+        // Track progress — status PENDING, belum masuk penagihan
         $this->trackDataEntryProgress(
             $dataLapangan,
             $fileType,
@@ -117,16 +121,14 @@ class DataLapanganController extends Controller
         );
 
         $statusMessage = "Status diubah menjadi {$newStatus}";
-        $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
+        $message       = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
 
         // Handle notifications
         if ($fileType === 'oss' && $uploadResult['is_first_upload']) {
             $notificationSent = $this->notificationService->sendOSSNotification($dataLapangan);
-            if ($notificationSent) {
-                $message .= ' Notifikasi WhatsApp telah dikirim ke koordinator.';
-            } else {
-                $message .= ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
-            }
+            $message .= $notificationSent
+                ? ' Notifikasi WhatsApp telah dikirim ke koordinator.'
+                : ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
         }
 
         if ($fileType === 'sihalal' && $uploadResult['is_first_upload']) {
@@ -144,28 +146,22 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Update the status of a data lapangan
-     *
-     * @param Request $request
-     * @param int $id
-     * @return RedirectResponse
+     * Update status ke PROGRESS SIHALAL (entry_type = SIHALAL)
      */
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id): RedirectResponse
     {
         try {
             $dataLapangan = DataLapangan::findOrFail($id);
 
-            // Validasi bahwa status saat ini adalah PROGRESS OSS
-            if ($dataLapangan->status !== 'PROGRESS OSS' && $dataLapangan->status !== 'DITOLAK') {
+            if (!in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
                 return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK');
             }
 
-            // Update status ke PROGRESS SIHALAL (fixed, tidak dari request)
-            $newStatus = 'PROGRESS SIHALAL';
+            $newStatus            = 'PROGRESS SIHALAL';
             $dataLapangan->status = $newStatus;
             $dataLapangan->save();
 
-            // ✅ Track progress data entry
+            // Track progress — status PENDING, belum masuk penagihan
             $this->trackDataEntryProgress(
                 $dataLapangan,
                 'status_update',
@@ -177,5 +173,41 @@ class DataLapanganController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Resubmit setelah revisi — data entry mengupdate keterangan atau file ulang
+     * Dipanggil dari tombol revisi di halaman show
+     */
+    public function resubmit(Request $request, DataLapangan $dataLapangan): RedirectResponse
+    {
+        $request->validate([
+            'keterangan_update' => 'required|string|max:1000',
+        ]);
+
+        $dataEntry = DataEntry::where('user_id', Auth::id())->first();
+        if (!$dataEntry) {
+            return redirect()->back()->with('error', 'Data entry tidak ditemukan.');
+        }
+
+        // Ambil progress terakhir yang berstatus REVISI untuk data lapangan ini
+        $progressRevisi = DataEntryProgress::where('data_entry_id', $dataEntry->id)
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->where('status', 'REVISI')
+            ->latest()
+            ->first();
+
+        if (!$progressRevisi) {
+            return redirect()->back()->with('error', 'Tidak ada data revisi yang perlu diupdate.');
+        }
+
+        // Update progress yang REVISI menjadi PENDING kembali dengan keterangan update
+        $progressRevisi->update([
+            'status'             => 'PENDING',
+            'keterangan_update'  => $request->keterangan_update,
+            'actioned_at'        => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Resubmit berhasil. Menunggu review dari superadmin.');
     }
 }

@@ -46,6 +46,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/data-entry-progress') }}"
+                        class="nav-link {{ $current_url == 'superadmin/data-entry-progress' ? 'active' : '' }}">
+                        <i data-feather="book"></i>Data Entry Progress
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/laporan-harian') }}"
                         class="nav-link {{ $current_url == 'superadmin/laporan-harian' ? 'active' : '' }}">
                         <i data-feather="book"></i>Laporan Harian

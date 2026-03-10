@@ -13,6 +13,13 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('warning') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
@@ -32,6 +39,48 @@
             </div>
         @endif
 
+        {{-- Banner status progress (PENDING / REVISI / DITERIMA / DITOLAK) --}}
+        @if ($latestProgress)
+            @if ($latestProgress->status === 'PENDING')
+                <div class="alert alert-info d-flex align-items-center gap-2">
+                    <i class="fas fa-hourglass-half fa-lg"></i>
+                    <div>
+                        <strong>Menunggu Review Superadmin</strong><br>
+                        <small>Data Anda sedang dalam proses verifikasi. Mohon tunggu konfirmasi dari superadmin.</small>
+                    </div>
+                </div>
+            @elseif ($latestProgress->status === 'DITERIMA')
+                <div class="alert alert-success d-flex align-items-center gap-2">
+                    <i class="fas fa-check-circle fa-lg"></i>
+                    <div>
+                        <strong>Data Diterima</strong><br>
+                        <small>Data Anda telah diverifikasi dan diterima oleh superadmin.</small>
+                    </div>
+                </div>
+            @elseif ($latestProgress->status === 'REVISI')
+                <div class="alert alert-warning d-flex align-items-center gap-2">
+                    <i class="fas fa-edit fa-lg"></i>
+                    <div>
+                        <strong>Data Perlu Direvisi</strong><br>
+                        @if ($latestProgress->keterangan_revisi)
+                            <small>Catatan superadmin: <em>{{ $latestProgress->keterangan_revisi }}</em></small><br>
+                        @endif
+                        <small>Silakan lakukan perbaikan dan kirim ulang melalui tombol revisi di bawah.</small>
+                    </div>
+                </div>
+            @elseif ($latestProgress->status === 'DITOLAK')
+                <div class="alert alert-danger d-flex align-items-center gap-2">
+                    <i class="fas fa-times-circle fa-lg"></i>
+                    <div>
+                        <strong>Data Ditolak</strong><br>
+                        @if ($latestProgress->keterangan_revisi)
+                            <small>Alasan: <em>{{ $latestProgress->keterangan_revisi }}</em></small>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        @endif
+
         <div class="row mt-3">
             <!-- Card Data Informasi -->
             <div class="col-md-6">
@@ -44,44 +93,32 @@
                             <strong>Nama Pendamping</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->enumerator->nama_lengkap }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Nama Pelaku Usaha</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->nama_pu }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>NIK</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->nik }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Telephone</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->telephone }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Email</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->email ?? 'Email Belum Tersedia' }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Password</strong>
                             <p class="text-muted mb-0">Halal@123 <br><strong>(Samakan semua password)</strong></p>
                         </div>
-
                         <hr>
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
@@ -90,16 +127,12 @@
                                 </div>
                             </div>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Alamat</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->alamat }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-0">
                             <strong>Status</strong>
                             <p class="mb-0 mt-2">
@@ -168,7 +201,6 @@
                                 </div>
                             </div>
                         @elseif ($entryType == 'SIHALAL')
-                            <hr>
                             <div class="form-group mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <strong>Foto KTP</strong>
@@ -216,11 +248,12 @@
                                     </div>
                                 </div>
                             </div>
+                        @endif
                     </div>
-                    @endif
                 </div>
 
-                <div class="card">
+                {{-- Card Dokumentasi File --}}
+                <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <span>Dokumentasi File</span>
                     </div>
@@ -228,7 +261,6 @@
                         @if ($entryType === 'OSS')
                             <div class="form-group mb-0">
                                 <strong>File OSS</strong>
-                                <!-- Upload Form OSS -->
                                 <div class="mt-2">
                                     <form
                                         action="{{ route('data-entry.data-lapangan.upload-file', $dataLapangan->hashed_id) }}"
@@ -244,19 +276,143 @@
                                         </div>
                                         <small class="text-muted">Format: PDF (Max: 5MB)</small>
                                     </form>
-                                    <div class="mt-2 d-flex gap-2">
-                                        <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
-                                            class="btn btn-outline-success btn-sm flex-grow-1">
-                                            <i class="fas fa-download me-2"></i> Download File OSS
-                                        </a>
-                                    </div>
+                                    @if ($dataLapangan->file_oss)
+                                        <div class="mt-2 d-flex gap-2">
+                                            <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
+                                                class="btn btn-outline-success btn-sm flex-grow-1">
+                                                <i class="fas fa-download me-2"></i> Download File OSS
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
+                            </div>
                         @endif
                     </div>
                 </div>
+
+                {{-- Card Revisi — tampil jika progress terakhir berstatus REVISI --}}
+                @if ($latestProgress && $latestProgress->status === 'REVISI')
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark d-flex align-items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Tindakan Revisi Diperlukan</span>
+                        </div>
+                        <div class="card-body">
+                            @if ($latestProgress->keterangan_revisi)
+                                <div class="mb-3">
+                                    <strong>Catatan dari Superadmin:</strong>
+                                    <p class="text-muted mt-1">{{ $latestProgress->keterangan_revisi }}</p>
+                                </div>
+                            @endif
+
+                            @if ($entryType === 'OSS')
+                                {{-- OSS: tombol buka modal resubmit --}}
+                                <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                    data-bs-target="#modalRevisiOSS">
+                                    <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                                </button>
+                            @elseif ($entryType === 'SIHALAL')
+                                {{-- SIHALAL: tombol buka modal resubmit --}}
+                                <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                    data-bs-target="#modalRevisiSIHALAL">
+                                    <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
             </div>
         </div>
     </section>
+
+    {{-- ============================================================ --}}
+    {{-- MODAL REVISI OSS                                             --}}
+    {{-- ============================================================ --}}
+    @if ($latestProgress && $latestProgress->status === 'REVISI' && $entryType === 'OSS')
+        <div class="modal fade" id="modalRevisiOSS" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Resubmit Revisi — OSS</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('data-entry.data-lapangan.resubmit', $dataLapangan->hashed_id) }}"
+                        method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <div class="modal-body">
+                            @if ($latestProgress->keterangan_revisi)
+                                <div class="alert alert-warning py-2">
+                                    <small><strong>Catatan superadmin:</strong>
+                                        {{ $latestProgress->keterangan_revisi }}</small>
+                                </div>
+                            @endif
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Keterangan Perbaikan <span
+                                        class="text-danger">*</span></label>
+                                <textarea name="keterangan_update" class="form-control" rows="4"
+                                    placeholder="Jelaskan perbaikan yang telah Anda lakukan..." required></textarea>
+                                <small class="text-muted">Jelaskan perubahan/perbaikan yang sudah dilakukan sesuai
+                                    catatan revisi.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ============================================================ --}}
+    {{-- MODAL REVISI SIHALAL                                         --}}
+    {{-- ============================================================ --}}
+    @if ($latestProgress && $latestProgress->status === 'REVISI' && $entryType === 'SIHALAL')
+        <div class="modal fade" id="modalRevisiSIHALAL" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Resubmit Revisi — SIHALAL</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('data-entry.data-lapangan.resubmit', $dataLapangan->hashed_id) }}"
+                        method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <div class="modal-body">
+                            @if ($latestProgress->keterangan_revisi)
+                                <div class="alert alert-warning py-2">
+                                    <small><strong>Catatan superadmin:</strong>
+                                        {{ $latestProgress->keterangan_revisi }}</small>
+                                </div>
+                            @endif
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Keterangan Perbaikan <span
+                                        class="text-danger">*</span></label>
+                                <textarea name="keterangan_update" class="form-control" rows="4"
+                                    placeholder="Jelaskan perbaikan yang telah Anda lakukan..." required></textarea>
+                                <small class="text-muted">Jelaskan perubahan/perbaikan yang sudah dilakukan sesuai
+                                    catatan revisi.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Include Modal Update Status -->
     @include('koordinator.data-lapangan.partials.status-modal')
@@ -420,17 +576,18 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        // Auto hide alerts after 5 seconds - KECUALI alert di dalam modal
+        // Auto hide alerts setelah 7 detik — kecuali banner REVISI/PENDING
         setTimeout(function() {
-            // Hanya ambil alert yang ada di luar modal
-            var alerts = document.querySelectorAll('.content.container-fluid > .alert');
+            var alerts = document.querySelectorAll(
+                '.content.container-fluid > .alert:not(.alert-warning):not(.alert-info):not(.alert-danger)');
             alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+                if (!alert.classList.contains('d-flex')) { // skip banner status
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
             });
-        }, 5000);
+        }, 7000);
 
-        // View full image function
         function viewFullImage(src, title) {
             document.getElementById('fullImageSrc').src = src;
             document.getElementById('fullImageTitle').textContent = title;
@@ -438,12 +595,10 @@
             modal.show();
         }
 
-        // Download single image
         function downloadSingleImage() {
             const imgSrc = document.getElementById('fullImageSrc').src;
             const imgTitle = document.getElementById('fullImageTitle').textContent;
             const fileName = imgTitle.replace(/\s+/g, '_') + '.jpg';
-
             fetch(imgSrc)
                 .then(response => response.blob())
                 .then(blob => {
@@ -456,31 +611,18 @@
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
                 })
-                .catch(err => {
-                    console.error('Error downloading image:', err);
-                    alert('Gagal mendownload gambar');
-                });
+                .catch(err => alert('Gagal mendownload gambar'));
         }
 
-        // Download collage as image
         function downloadCollage() {
             const collageContent = document.getElementById('collageContent');
             const namaPU = '{{ $dataLapangan->nama_pu }}';
-
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
+            loadingDiv.style.cssText =
+                'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999';
             document.body.appendChild(loadingDiv);
-
             html2canvas(collageContent, {
                 scale: 2,
                 useCORS: true,
@@ -499,26 +641,21 @@
                     document.body.removeChild(loadingDiv);
                 }, 'image/jpeg', 0.95);
             }).catch(err => {
-                console.error('Error creating collage:', err);
                 alert('Gagal membuat kolase gambar');
                 document.body.removeChild(loadingDiv);
             });
         }
 
-        // Print collage function
         function printCollage() {
             const printContent = document.getElementById('collageContent').innerHTML;
             const printWindow = window.open('', '', 'height=600,width=800');
             printWindow.document.write('<html><head><title>Kolase Foto</title>');
             printWindow.document.write(
                 '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">'
-            );
-            printWindow.document.write('<style>');
-            printWindow.document.write('.collage-img { height: 250px !important; object-fit: cover; }');
-            printWindow.document.write('.card { break-inside: avoid; }');
+                );
             printWindow.document.write(
-                '@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }');
-            printWindow.document.write('</style>');
+                '<style>.collage-img{height:250px!important;object-fit:cover}.card{break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>'
+                );
             printWindow.document.write('</head><body>');
             printWindow.document.write(
                 '<h3 class="text-center mb-4">Dokumentasi Foto - {{ $dataLapangan->nama_pu }}</h3>');

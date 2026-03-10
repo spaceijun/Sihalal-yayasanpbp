@@ -19,7 +19,7 @@
         </td>
         <td>
             <span class="badge bg-info">
-                {{ $progress->dataLapangan?->status ?? '-' }}
+                {{ $progress->status ?? '-' }}
             </span>
         </td>
         <td>

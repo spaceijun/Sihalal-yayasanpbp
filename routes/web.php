@@ -14,6 +14,7 @@ use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
+use App\Http\Controllers\Superadmin\DataEntryProgressController as SuperadminDataEntryProgressController;
 use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
@@ -107,7 +108,15 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('devices/status', [DeviceController::class, 'checkDeviceStatus']);
         Route::post('devices/activate', [DeviceController::class, 'activateDevice'])->name('devices.activate');
         Route::post('devices/disconnect', [DeviceController::class, 'disconnect'])->name('devices.disconnect');
-
+        // Data Entry Progress
+        Route::prefix('data-entry-progress')->name('data-entry-progress.')->group(function () {
+            Route::get('/',                                    [SuperadminDataEntryProgressController::class, 'index'])->name('index');
+            Route::get('/{progress}',                          [SuperadminDataEntryProgressController::class, 'show'])->name('show');
+            Route::patch('/{progress}/terima',                 [SuperadminDataEntryProgressController::class, 'terima'])->name('terima');
+            Route::patch('/{progress}/revisi',                 [SuperadminDataEntryProgressController::class, 'revisi'])->name('revisi');
+            Route::patch('/{progress}/tolak',                  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
+            Route::post('/bulk-terima',                        [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
+        });
         // Management Users 
         Route::resource('users', UserController::class);
 
@@ -174,20 +183,25 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
     Route::prefix('data-entry')->name('data-entry.')->group(function () {
         Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
+
+        // Data Lapangan
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
-        Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
+        Route::get('data-lapangan/{hashedId}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
+        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
         Route::put('data-lapangans/{id}/update-status', [DataEntryDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
+        Route::patch('data-lapangan/{dataLapangan}/resubmit', [DataEntryDataLapanganController::class, 'resubmit'])->name('data-lapangan.resubmit');
+
+        // Download
         Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::get('datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
         Route::get('datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
         Route::get('datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
-        Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
-        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
+
+        // Progress
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
     });
 });
-
 /**
  * 
  * ENUMERATOR ROUTES

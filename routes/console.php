@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 // Cek aktivitas enumerator setiap hari tengah malam
 Schedule::command('enumerator:check-activity')->daily();
+Schedule::command('data-lapangan:clean-locks')->everyFiveMinutes();

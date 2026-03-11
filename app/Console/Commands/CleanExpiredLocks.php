@@ -7,31 +7,19 @@ use Illuminate\Console\Command;
 
 class CleanExpiredLocks extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'data-lapangan:clean-locks';
+    protected $description = 'Bersihkan lock data lapangan yang sudah expired';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
-        DataLapangan::where('is_being_edited', true)
+        $count = DataLapangan::where('is_being_edited', true)
             ->where('edit_expires_at', '<', now())
             ->update([
                 'is_being_edited' => false,
                 'edited_by'       => null,
                 'edit_expires_at' => null,
             ]);
+
+        $this->info("Berhasil membersihkan {$count} lock yang expired.");
     }
 }

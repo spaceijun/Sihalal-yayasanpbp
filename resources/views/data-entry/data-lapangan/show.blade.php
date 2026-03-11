@@ -38,7 +38,6 @@
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>
-                        <!-- Button Update Status - Hanya muncul jika status PROGRESS OSS -->
                         @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#modalUpdateStatusHalal">
@@ -51,44 +50,32 @@
                             <strong>Nama Pendamping</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->enumerator->nama_lengkap }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Nama Pelaku Usaha</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->nama_pu }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>NIK</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->nik }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Telephone</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->telephone }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Email</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->email ?? 'Email Belum Tersedia' }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Password</strong>
                             <p class="text-muted mb-0">Halal@123 <br><strong>(Samakan semua password)</strong></p>
                         </div>
-
                         <hr>
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
@@ -97,16 +84,12 @@
                                 </div>
                             </div>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-3">
                             <strong>Alamat</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->alamat }}</p>
                         </div>
-
                         <hr>
-
                         <div class="form-group mb-0">
                             <strong>Status</strong>
                             <p class="mb-0 mt-2">
@@ -207,8 +190,8 @@
                                     </div>
                                 </div>
                             </div>
+                        @endif
                     </div>
-                    @endif
                 </div>
 
                 <div class="card">
@@ -219,7 +202,6 @@
                         @if ($entryType === 'OSS')
                             <div class="form-group mb-0">
                                 <strong>File OSS</strong>
-                                <!-- Upload Form OSS -->
                                 <div class="mt-2">
                                     @if (!$dataLapangan->file_oss)
                                         <form
@@ -414,11 +396,34 @@
         </div>
     </div>
 
+    <!-- Timer Lock Countdown -->
+    <div id="lockTimerContainer" class="position-fixed bottom-0 end-0 m-3" style="z-index: 9999;">
+        <div class="card shadow border-warning" style="min-width: 220px;">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span>🔒</span>
+                    <small class="fw-bold text-warning">Sesi Pengerjaan</small>
+                </div>
+                <div class="text-center">
+                    <span id="lockTimerDisplay" class="fs-4 fw-bold text-dark">50:00</span>
+                </div>
+                <div class="progress mt-2" style="height: 5px;">
+                    <div id="lockTimerProgress" class="progress-bar bg-success" style="width: 100%;"></div>
+                </div>
+                <small class="text-muted d-block text-center mt-1">Data akan dilepas otomatis</small>
+                <button id="btnPerpanjang" class="btn btn-warning btn-sm w-100 mt-2">
+                    <i class="fas fa-clock me-1"></i> Perpanjang Sesi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        // Auto hide alerts after 5 seconds - KECUALI alert di dalam modal
+        // ================================
+        // FUNGSI UMUM
+        // ================================
         setTimeout(function() {
-            // Hanya ambil alert yang ada di luar modal
             var alerts = document.querySelectorAll('.content.container-fluid > .alert');
             alerts.forEach(function(alert) {
                 var bsAlert = new bootstrap.Alert(alert);
@@ -426,7 +431,6 @@
             });
         }, 5000);
 
-        // View full image function
         function viewFullImage(src, title) {
             document.getElementById('fullImageSrc').src = src;
             document.getElementById('fullImageTitle').textContent = title;
@@ -434,12 +438,10 @@
             modal.show();
         }
 
-        // Download single image
         function downloadSingleImage() {
             const imgSrc = document.getElementById('fullImageSrc').src;
             const imgTitle = document.getElementById('fullImageTitle').textContent;
             const fileName = imgTitle.replace(/\s+/g, '_') + '.jpg';
-
             fetch(imgSrc)
                 .then(response => response.blob())
                 .then(blob => {
@@ -458,25 +460,15 @@
                 });
         }
 
-        // Download collage as image
         function downloadCollage() {
             const collageContent = document.getElementById('collageContent');
             const namaPU = '{{ $dataLapangan->nama_pu }}';
-
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
+            loadingDiv.style.cssText =
+                'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999;';
             document.body.appendChild(loadingDiv);
-
             html2canvas(collageContent, {
                 scale: 2,
                 useCORS: true,
@@ -501,7 +493,6 @@
             });
         }
 
-        // Print collage function
         function printCollage() {
             const printContent = document.getElementById('collageContent').innerHTML;
             const printWindow = window.open('', '', 'height=600,width=800');
@@ -527,5 +518,148 @@
                 printWindow.close();
             }, 250);
         }
+
+        // ================================
+        // LOCK TIMER — 50 menit
+        // ================================
+        (function() {
+            const LOCK_URL = '/api/data-entry/data-lapangans';
+            const LOCK_ID = sessionStorage.getItem('currentLockId');
+            const LIST_URL = '{{ route('data-entry.data-lapangan.index') }}';
+            const DURATION = 50 * 60; // 50 menit dalam detik
+
+            // Jika tidak ada lock, sembunyikan timer
+            if (!LOCK_ID) {
+                document.getElementById('lockTimerContainer').style.display = 'none';
+                return;
+            }
+
+            let timeLeft = DURATION;
+            let timerInterval = null;
+            let isExpired = false;
+
+            function getCsrfToken() {
+                return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            }
+
+            async function releaseLock() {
+                sessionStorage.removeItem('currentLockId');
+                await fetch(`${LOCK_URL}/${LOCK_ID}/lock`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+            }
+
+            async function renewLock() {
+                const res = await fetch(`${LOCK_URL}/${LOCK_ID}/lock`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+                return await res.json();
+            }
+
+            function updateDisplay() {
+                const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const seconds = (timeLeft % 60).toString().padStart(2, '0');
+                const progressBar = document.getElementById('lockTimerProgress');
+                const timerDisplay = document.getElementById('lockTimerDisplay');
+
+                timerDisplay.textContent = `${minutes}:${seconds}`;
+                progressBar.style.width = ((timeLeft / DURATION) * 100) + '%';
+
+                if (timeLeft <= 60) {
+                    progressBar.className = 'progress-bar bg-danger';
+                    timerDisplay.className = 'fs-4 fw-bold text-danger';
+                } else if (timeLeft <= 5 * 60) {
+                    progressBar.className = 'progress-bar bg-warning';
+                    timerDisplay.className = 'fs-4 fw-bold text-warning';
+                } else {
+                    progressBar.className = 'progress-bar bg-success';
+                    timerDisplay.className = 'fs-4 fw-bold text-dark';
+                }
+            }
+
+            // Tampilkan alert expired + countdown redirect
+            function showExpiredAlert() {
+                // Sembunyikan timer widget
+                document.getElementById('lockTimerContainer').style.display = 'none';
+
+                // Buat alert di atas halaman
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger fade show position-fixed top-0 start-0 end-0 m-3';
+                alertDiv.style.zIndex = '99999';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>⚠️ Waktu Sesi Habis!</strong> Data telah dilepas. Anda akan diarahkan ke list dalam
+                    <strong id="redirectCountdown">5</strong> detik...
+                `;
+                document.body.prepend(alertDiv);
+
+                let countdown = 5;
+                const countdownEl = document.getElementById('redirectCountdown');
+
+                const redirectInterval = setInterval(() => {
+                    countdown--;
+                    countdownEl.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(redirectInterval);
+                        window.location.href = LIST_URL;
+                    }
+                }, 1000);
+            }
+
+            function startTimer() {
+                timerInterval = setInterval(async function() {
+                    timeLeft--;
+                    updateDisplay();
+
+                    if (timeLeft <= 0 && !isExpired) {
+                        isExpired = true;
+                        clearInterval(timerInterval);
+                        await releaseLock();
+                        showExpiredAlert();
+                    }
+                }, 1000);
+            }
+
+            // Tombol perpanjang sesi — reset ke 50 menit
+            document.getElementById('btnPerpanjang').addEventListener('click', async function() {
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+
+                const result = await renewLock();
+
+                if (result.success) {
+                    timeLeft = DURATION;
+                    isExpired = false;
+                    updateDisplay();
+                    this.innerHTML = '<i class="fas fa-clock me-1"></i> Perpanjang Sesi';
+                    this.disabled = false;
+                } else {
+                    alert('Gagal memperpanjang sesi. Data telah dilepas.');
+                    window.location.href = LIST_URL;
+                }
+            });
+
+            // Release lock jika user tutup tab / navigasi lain
+            window.addEventListener('beforeunload', function() {
+                if (!isExpired) {
+                    navigator.sendBeacon(`${LOCK_URL}/${LOCK_ID}/unlock-beacon`);
+                    sessionStorage.removeItem('currentLockId');
+                }
+            });
+
+            // Mulai timer
+            updateDisplay();
+            startTimer();
+        })();
     </script>
 @endsection

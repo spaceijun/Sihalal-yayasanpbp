@@ -1,17 +1,9 @@
 @forelse ($dataLapangans as $dataLapangan)
-    <tr class="{{ $dataLapangan->is_being_edited && $dataLapangan->edit_expires_at > now() ? 'table-warning' : '' }}">
+    <tr>
         <td>{{ ++$i }}</td>
         <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>
-        <td>
-            {{ $dataLapangan->nama_pu }}
-            {{-- Hanya superadmin yang melihat badge ini --}}
-            @if (auth()->user()->hasRole('data_entry') && $dataLapangan->is_being_edited && $dataLapangan->edit_expires_at > now())
-                <span class="badge bg-warning text-dark ms-1">
-                    🔒 {{ $dataLapangan->editedBy->name ?? 'Seseorang' }}
-                </span>
-            @endif
-        </td>
+        <td>{{ $dataLapangan->nama_pu }}</td>
         <td>{{ $dataLapangan->nik }}</td>
         <td>
             @if ($dataLapangan->status == 'PENDING')
@@ -31,7 +23,6 @@
             @endif
         </td>
         <td>
-            {{-- Tombol Show dengan lock --}}
             <a class="btn btn-sm btn-primary btn-show-data"
                 href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
                 data-id="{{ $dataLapangan->id }}">

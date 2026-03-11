@@ -57,7 +57,7 @@ class DataEntryLapanganController extends Controller
         $data->update([
             'is_being_edited' => true,
             'edited_by'       => Auth::id(),
-            'edit_expires_at' => now()->addMinutes(15),
+            'edit_expires_at' => now()->addMinutes(50),
         ]);
 
         return $this->successResponse([], 'Data dikunci');
@@ -75,6 +75,22 @@ class DataEntryLapanganController extends Controller
     {
         DataLapangan::where('id', $id)
             ->where('edited_by', Auth::id()) // Hanya pemilik lock yang bisa unlock
+            ->update([
+                'is_being_edited' => false,
+                'edited_by'       => null,
+                'edit_expires_at' => null,
+            ]);
+
+        return $this->successResponse([], 'Data dilepas');
+    }
+
+    /**
+     * Unlock via sendBeacon (dipanggil saat browser ditutup)
+     */
+    public function unlockBeacon(int $id): JsonResponse
+    {
+        DataLapangan::where('id', $id)
+            ->where('edited_by', Auth::id())
             ->update([
                 'is_being_edited' => false,
                 'edited_by'       => null,

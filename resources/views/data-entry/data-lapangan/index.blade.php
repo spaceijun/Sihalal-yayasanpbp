@@ -80,11 +80,27 @@
 
     <script>
         // ================================
+        // FUNGSI GLOBAL — di luar DOMContentLoaded
+        // ================================
+        function getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                document.querySelector('input[name="_token"]')?.value;
+        }
+
+        // ================================
         // LOCK MECHANISM
         // ================================
-        let currentLockId = null;
         let lockRenewer = null;
         const LOCK_URL = '/api/data-entry/data-lapangans';
+
+        function getCurrentLockId() {
+            return sessionStorage.getItem('currentLockId');
+        }
+
+        function setCurrentLockId(id) {
+            if (id) sessionStorage.setItem('currentLockId', id);
+            else sessionStorage.removeItem('currentLockId');
+        }
 
         async function acquireLock(id) {
             const res = await fetch(`${LOCK_URL}/${id}/lock`, {
@@ -108,7 +124,7 @@
                 },
                 credentials: 'same-origin'
             });
-            currentLockId = null;
+            setCurrentLockId(null);
             clearInterval(lockRenewer);
         }
 
@@ -121,7 +137,6 @@
             const id = btn.dataset.id;
             const href = btn.getAttribute('href');
 
-            // Disable tombol sementara
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
@@ -134,34 +149,25 @@
                 return;
             }
 
-            currentLockId = id;
-
-            // Auto-renew lock setiap 10 menit
+            // Simpan ke sessionStorage sebelum navigasi
+            setCurrentLockId(id);
             lockRenewer = setInterval(() => acquireLock(id), 10 * 60 * 1000);
-
-            // Navigasi ke halaman show
             window.location.href = href;
-        });
-
-        // Release lock saat user kembali ke halaman ini (back button)
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted || performance.navigation?.type === 2) {
-                // User balik via back button — release lock jika ada
-                if (currentLockId) {
-                    releaseLock(currentLockId);
-                }
-                loadData(); // Refresh tabel
-            }
         });
 
         // Release lock saat tab ditutup / refresh
         window.addEventListener('beforeunload', function() {
-            if (currentLockId) {
-                navigator.sendBeacon(`${LOCK_URL}/${currentLockId}/unlock-beacon`);
+            const lockId = getCurrentLockId();
+            if (lockId) {
+                navigator.sendBeacon(`${LOCK_URL}/${lockId}/unlock-beacon`);
+                setCurrentLockId(null);
             }
         });
+
+        // ================================
+        // DOM CONTENT LOADED
+        // ================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Element references
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('search');
             const tanggalDariInput = document.getElementById('tanggal_dari');
@@ -174,25 +180,16 @@
             const API_BASE_URL = '/api/data-entry/data-lapangans';
             let searchTimeout;
 
-            function getCsrfToken() {
-                return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                    document.querySelector('input[name="_token"]')?.value;
-            }
-
             function loadData(url = null) {
-                // Show loading
                 tableWrapper.style.display = 'none';
                 tableLoading.style.display = 'block';
 
-                // Disable form inputs
                 const formInputs = searchForm.querySelectorAll('input, select');
                 formInputs.forEach(input => input.disabled = true);
 
-                // Build URL with filters
                 let fetchUrl = API_BASE_URL;
                 const params = new URLSearchParams();
 
-                // Add filters
                 if (searchInput.value.trim()) {
                     params.append('search', searchInput.value.trim());
                 }
@@ -203,19 +200,14 @@
                     params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
                 }
 
-                // Handle pagination
                 if (url) {
                     const urlObj = new URL(url, window.location.origin);
                     const page = urlObj.searchParams.get('page');
-                    if (page) {
-                        params.append('page', page);
-                    }
+                    if (page) params.append('page', page);
                 }
 
                 const queryString = params.toString();
-                if (queryString) {
-                    fetchUrl += '?' + queryString;
-                }
+                if (queryString) fetchUrl += '?' + queryString;
 
                 fetch(fetchUrl, {
                         method: 'GET',
@@ -228,9 +220,7 @@
                         credentials: 'same-origin'
                     })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         return response.json();
                     })
                     .then(data => {
@@ -254,21 +244,13 @@
                     });
             }
 
-            // Instant search with debounce
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    loadData();
-                }, 500);
+                searchTimeout = setTimeout(() => loadData(), 500);
             });
 
-            tanggalDariInput.addEventListener('change', function() {
-                loadData();
-            });
-
-            tanggalSampaiInput.addEventListener('change', function() {
-                loadData();
-            });
+            tanggalDariInput.addEventListener('change', () => loadData());
+            tanggalSampaiInput.addEventListener('change', () => loadData());
 
             function attachPaginationHandlers() {
                 const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
@@ -276,9 +258,7 @@
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = this.getAttribute('href');
-                        if (url && url !== '#') {
-                            loadData(url);
-                        }
+                        if (url && url !== '#') loadData(url);
                     });
                 });
             }
@@ -286,11 +266,15 @@
             // Initial load
             loadData();
 
-            // Auto refresh
+            // Release lock + refresh saat back button
             window.addEventListener('pageshow', function(event) {
-                if (event.persisted ||
-                    (window.performance && window.performance.navigation.type === 2)) {
-                    loadData();
+                if (event.persisted || performance.navigation?.type === 2) {
+                    const lockId = getCurrentLockId();
+                    if (lockId) {
+                        releaseLock(lockId).then(() => loadData());
+                    } else {
+                        loadData();
+                    }
                 }
             });
         });

@@ -40,9 +40,44 @@ class DataLapangan extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['enumerator_id', 'nama_pu', 'nik', 'email', 'telephone', 'nama_produk', 'alamat', 'foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk', 'status', 'verifikator', 'tanggal_verifikasi', 'status_pembayaran', 'file_oss', 'file_sihalal', 'keterangan_oss', 'keterangan_sihalal'];
+    protected $fillable = [
+        'enumerator_id',
+        'nama_pu',
+        'nik',
+        'email',
+        'telephone',
+        'nama_produk',
+        'alamat',
+        'foto_ktp',
+        'foto_rumah',
+        'foto_pendamping',
+        'foto_produk',
+        'status',
+        'verifikator',
+        'tanggal_verifikasi',
+        'status_pembayaran',
+        'file_oss',
+        'file_sihalal',
+        'keterangan_oss',
+        'keterangan_sihalal',
+        'is_being_edited',
+        'edited_by',
+        'edit_expires_at',
+    ];
 
 
+    protected $casts = [
+        'edit_expires_at' => 'datetime',
+        'is_being_edited' => 'boolean',
+    ];
+
+    public function scopeAvailable($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('is_being_edited', false)
+                ->orWhere('edit_expires_at', '<', now());
+        });
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

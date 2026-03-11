@@ -1,9 +1,18 @@
 @forelse ($dataLapangans as $dataLapangan)
-    <tr>
+    <tr
+        class="{{ $dataLapangan->is_being_edited && $dataLapangan->edit_expires_at?->isFuture() ? 'table-warning' : '' }}">
         <td>{{ ++$i }}</td>
         <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>
-        <td>{{ $dataLapangan->nama_pu }}</td>
+        <td>
+            {{ $dataLapangan->nama_pu }}
+            @if ($dataLapangan->is_being_edited && $dataLapangan->edit_expires_at?->isFuture())
+                <br>
+                <span class="badge bg-warning text-dark mt-1">
+                    🔒 Sedang diedit oleh {{ $dataLapangan->editedBy->name ?? 'Seseorang' }}
+                </span>
+            @endif
+        </td>
         <td>{{ $dataLapangan->nik }}</td>
         <td>
             @if ($dataLapangan->status == 'PENDING')
@@ -47,6 +56,7 @@
                 href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}" title="Lihat Detail">
                 <i class="las la-eye"></i>
             </a>
+
             @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
                 <form action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                     method="POST" class="d-inline">
@@ -57,10 +67,15 @@
                     </button>
                 </form>
             @endif
-            {{-- <a class="btn btn-sm btn-success"
-                    href="{{ route('superadmin.data-lapangans.edit', $dataLapangan->id) }}">
-                    <i class="las la-edit"></i> {{ __('Edit') }}
-                </a> --}}
+
+            {{-- Tombol force unlock — hanya muncul jika data sedang terkunci --}}
+            @if ($dataLapangan->is_being_edited && $dataLapangan->edit_expires_at?->isFuture())
+                <button class="btn btn-sm btn-warning btn-force-unlock" data-id="{{ $dataLapangan->id }}"
+                    title="Paksa buka kunci data ini">
+                    <i class="las la-lock-open"></i>
+                </button>
+            @endif
+
             <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}" method="POST"
                 class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
                 @csrf

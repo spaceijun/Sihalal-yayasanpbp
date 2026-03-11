@@ -321,6 +321,30 @@ class DataLapanganController extends Controller
     }
 
     /*
+|--------------------------------------------------------------------------
+| API METHODS - LOCK MANAGEMENT (Superadmin)
+|--------------------------------------------------------------------------
+*/
+
+    /**
+     * Force unlock data (hanya superadmin)
+     */
+    public function apiForceUnlock(string $id): JsonResponse
+    {
+        try {
+            DataLapangan::where('id', $id)->update([
+                'is_being_edited' => false,
+                'edited_by'       => null,
+                'edit_expires_at' => null,
+            ]);
+
+            return $this->successResponse([], 'Data berhasil di-unlock');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Gagal unlock: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /*
     |--------------------------------------------------------------------------
     | VALIDATION METHODS
     |--------------------------------------------------------------------------
@@ -401,7 +425,9 @@ class DataLapanganController extends Controller
      */
     private function getDataLapangans(Request $request)
     {
-        $query = DataLapangan::with('enumerator');
+        $query = DataLapangan::with(['enumerator', 'spotchecks', 'editedBy']);
+        // Superadmin melihat SEMUA data termasuk yang sedang dikunci
+        // Tidak perlu ->available() scope di sini
 
         $this->applySearchFilter($query, $request);
         $this->applyStatusFilter($query, $request);
@@ -411,7 +437,6 @@ class DataLapanganController extends Controller
 
         return $query->paginate($request->get('per_page', 10));
     }
-
     /**
      * Apply search filter
      */

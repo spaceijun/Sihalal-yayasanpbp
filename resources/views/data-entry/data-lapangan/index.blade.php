@@ -79,6 +79,87 @@
     </div>
 
     <script>
+        // ================================
+        // LOCK MECHANISM
+        // ================================
+        let currentLockId = null;
+        let lockRenewer = null;
+        const LOCK_URL = '/api/data-entry/data-lapangans';
+
+        async function acquireLock(id) {
+            const res = await fetch(`${LOCK_URL}/${id}/lock`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            });
+            return await res.json();
+        }
+
+        async function releaseLock(id) {
+            if (!id) return;
+            await fetch(`${LOCK_URL}/${id}/lock`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            });
+            currentLockId = null;
+            clearInterval(lockRenewer);
+        }
+
+        // Intercept klik tombol Show
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-show-data');
+            if (!btn) return;
+
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const href = btn.getAttribute('href');
+
+            // Disable tombol sementara
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            const result = await acquireLock(id);
+
+            if (!result.success) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="las la-eye"></i> Show';
+                alert('Data tidak tersedia saat ini.');
+                return;
+            }
+
+            currentLockId = id;
+
+            // Auto-renew lock setiap 10 menit
+            lockRenewer = setInterval(() => acquireLock(id), 10 * 60 * 1000);
+
+            // Navigasi ke halaman show
+            window.location.href = href;
+        });
+
+        // Release lock saat user kembali ke halaman ini (back button)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || performance.navigation?.type === 2) {
+                // User balik via back button — release lock jika ada
+                if (currentLockId) {
+                    releaseLock(currentLockId);
+                }
+                loadData(); // Refresh tabel
+            }
+        });
+
+        // Release lock saat tab ditutup / refresh
+        window.addEventListener('beforeunload', function() {
+            if (currentLockId) {
+                navigator.sendBeacon(`${LOCK_URL}/${currentLockId}/unlock-beacon`);
+            }
+        });
         document.addEventListener('DOMContentLoaded', function() {
             // Element references
             const searchForm = document.getElementById('searchForm');

@@ -190,7 +190,8 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
         Route::put('data-lapangans/{id}/update-status', [DataEntryDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
         Route::patch('data-lapangan/{dataLapangan}/resubmit', [DataEntryDataLapanganController::class, 'resubmit'])->name('data-lapangan.resubmit');
-
+        Route::post('{id}/lock', [DataEntryDataLapanganController::class, 'lockData']);
+        Route::delete('{id}/lock', [DataEntryDataLapanganController::class, 'unlockData']);
         // Download
         Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::get('datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');

@@ -44,6 +44,46 @@ class DataEntryLapanganController extends Controller
         }
     }
 
+    /**
+     * Mengunci data agar tidak dapat diedit oleh user lain.
+     *
+     * @param int $id ID data yang ingin dikunci
+     * @return JsonResponse
+     */
+    public function lockData(int $id): JsonResponse
+    {
+        $data = DataLapangan::available()->findOrFail($id);
+
+        $data->update([
+            'is_being_edited' => true,
+            'edited_by'       => Auth::id(),
+            'edit_expires_at' => now()->addMinutes(15),
+        ]);
+
+        return $this->successResponse([], 'Data dikunci');
+    }
+
+    /**
+     * Membuka lock pada data agar dapat diedit oleh user lain.
+     *
+     * Hanya pemilik lock yang bisa unlock data.
+     *
+     * @param int $id ID data yang ingin dilepas
+     * @return JsonResponse
+     */
+    public function unlockData(int $id): JsonResponse
+    {
+        DataLapangan::where('id', $id)
+            ->where('edited_by', Auth::id()) // Hanya pemilik lock yang bisa unlock
+            ->update([
+                'is_being_edited' => false,
+                'edited_by'       => null,
+                'edit_expires_at' => null,
+            ]);
+
+        return $this->successResponse([], 'Data dilepas');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | QUERY METHODS
@@ -57,7 +97,7 @@ class DataEntryLapanganController extends Controller
      */
     private function getDataLapangans(Request $request)
     {
-        $query = DataLapangan::query();
+        $query = DataLapangan::query()->available();
 
         $user = Auth::user();
 

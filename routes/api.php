@@ -87,6 +87,9 @@ Route::middleware(['auth:web', 'role:data_entry'])->group(function () {
         // Data Lapangan API
         Route::prefix('data-lapangans')->name('data-lapangans.')->group(function () {
             Route::get('/', [DataEntryLapanganController::class, 'index'])->name('index');
+            Route::post('{id}/lock', [DataEntryLapanganController::class, 'lockData']);
+            Route::delete('{id}/lock', [DataEntryLapanganController::class, 'unlockData']);
+            Route::post('{id}/unlock-beacon', [DataEntryLapanganController::class, 'unlockBeacon']);
         });
         Route::get('progress', [DataEntryProgressController::class, 'index']);
     });

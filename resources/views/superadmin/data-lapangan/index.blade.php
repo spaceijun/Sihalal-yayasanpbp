@@ -46,23 +46,21 @@
                                 <label for="status-1" class="form-label">Status</label>
                                 <select class="form-control" id="status-1" name="status">
                                     <option value="">Semua Status</option>
-                                    <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>
-                                        Pending</option>
-                                    <option value="Terverifikasi"
-                                        {{ request('status') == 'Terverifikasi' ? 'selected' : '' }}>Terverifikasi
+                                    <option value="PENDING" {{ request('status') == 'PENDING' ? 'selected' : '' }}>Pending
                                     </option>
-                                    <option value="Progress OSS"
-                                        {{ request('status') == 'Progress OSS' ? 'selected' : '' }}>Progress OSS
+                                    <option value="TERVERIFIKASI"
+                                        {{ request('status') == 'TERVERIFIKASI' ? 'selected' : '' }}>Terverifikasi</option>
+                                    <option value="PROGRESS OSS"
+                                        {{ request('status') == 'PROGRESS OSS' ? 'selected' : '' }}>Progress OSS</option>
+                                    <option value="PROGRESS SIHALAL"
+                                        {{ request('status') == 'PROGRESS SIHALAL' ? 'selected' : '' }}>Progress SIHALAL
                                     </option>
-                                    <option value="Progress SIHALAL"
-                                        {{ request('status') == 'Progress SIHALAL' ? 'selected' : '' }}>Progress SIHALAL
-                                    </option>
-                                    <option value="Terbit SH" {{ request('status') == 'Terbit SH' ? 'selected' : '' }}>
+                                    <option value="TERBIT SH" {{ request('status') == 'TERBIT SH' ? 'selected' : '' }}>
                                         Terbit SH</option>
-                                    <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>
-                                        Ditolak</option>
-                                    <option value="Revisi" {{ request('status') == 'Revisi' ? 'selected' : '' }}>
-                                        Revisi</option>
+                                    <option value="DITOLAK" {{ request('status') == 'DITOLAK' ? 'selected' : '' }}>Ditolak
+                                    </option>
+                                    <option value="REVISI" {{ request('status') == 'REVISI' ? 'selected' : '' }}>Revisi
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-md-2">

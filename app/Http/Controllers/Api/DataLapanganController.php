@@ -390,7 +390,7 @@ class DataLapanganController extends Controller
     private function validateStatusRequest(Request $request)
     {
         return Validator::make($request->all(), [
-            'status' => 'required|in:PENDING,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH,DITOLAK'
+            'status' => 'required|in:PENDING,TERVERIFIKASI,PROGRESS OSS,PROGRESS SIHALAL,TERBIT SH,DITOLAK'
         ]);
     }
 

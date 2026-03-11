@@ -78,6 +78,11 @@ class DataLapangan extends Model
                 ->orWhere('edit_expires_at', '<', now());
         });
     }
+
+    public function editedBy()
+    {
+        return $this->belongsTo(User::class, 'edited_by');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

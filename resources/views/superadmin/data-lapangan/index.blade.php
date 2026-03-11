@@ -165,6 +165,52 @@
             }
 
             /**
+             * Attach force unlock handlers
+             */
+            function attachForceUnlockHandlers() {
+                const unlockBtns = document.querySelectorAll('.btn-force-unlock');
+
+                unlockBtns.forEach(btn => {
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+
+                    newBtn.addEventListener('click', async function() {
+                        if (!confirm('Yakin ingin membuka paksa kunci data ini?')) return;
+
+                        const id = this.dataset.id;
+                        this.disabled = true;
+                        this.innerHTML =
+                            '<span class="spinner-border spinner-border-sm"></span>';
+
+                        try {
+                            const res = await fetch(`${API_BASE_URL}/${id}/force-unlock`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': getCsrfToken(),
+                                    'Accept': 'application/json',
+                                },
+                                credentials: 'same-origin'
+                            });
+
+                            const data = await res.json();
+
+                            if (data.success) {
+                                loadData(); // Refresh tabel
+                            } else {
+                                alert('Gagal unlock: ' + data.message);
+                                this.disabled = false;
+                                this.innerHTML = '<i class="las la-lock-open"></i>';
+                            }
+                        } catch (error) {
+                            console.error('Error force unlock:', error);
+                            alert('Terjadi kesalahan saat unlock');
+                            this.disabled = false;
+                            this.innerHTML = '<i class="las la-lock-open"></i>';
+                        }
+                    });
+                });
+            }
+            /**
              * Export data ke Excel dengan filter yang sama
              */
             exportBtn.addEventListener('click', function() {
@@ -280,6 +326,7 @@
                             // Re-attach event handlers to new elements
                             attachDeleteHandlers();
                             attachPaginationHandlers();
+                            attachForceUnlockHandlers();
                         } else {
                             alert(data.message || 'Terjadi kesalahan saat memuat data');
                         }
@@ -408,6 +455,7 @@
              */
             attachDeleteHandlers();
             attachPaginationHandlers();
+            attachForceUnlockHandlers();
 
             /**
              * Auto refresh when user navigates back to this page

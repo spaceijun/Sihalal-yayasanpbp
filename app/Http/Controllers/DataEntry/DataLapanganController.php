@@ -142,7 +142,7 @@ class DataLapanganController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', $message);
+        return redirect()->route('data-entry.data-lapangan.index')->with('success', $message);
     }
 
     /**

@@ -50,19 +50,36 @@ class DataEntryLapanganController extends Controller
      * @param int $id ID data yang ingin dikunci
      * @return JsonResponse
      */
+    // DataEntryLapanganController.php
+
     public function lockData(int $id): JsonResponse
     {
-        $data = DataLapangan::available()->findOrFail($id);
+        $dataLapangan = DataLapangan::findOrFail($id);
 
-        $data->update([
+        // Jika sedang dikunci orang lain dan belum expired
+        if (
+            $dataLapangan->is_being_edited &&
+            $dataLapangan->edited_by !== Auth::id() &&
+            $dataLapangan->edit_expires_at?->isFuture()
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data sedang dikerjakan oleh pengguna lain.',
+            ], 423);
+        }
+
+        // Kunci data (boleh re-lock oleh diri sendiri, atau lock expired)
+        $dataLapangan->update([
             'is_being_edited' => true,
             'edited_by'       => Auth::id(),
             'edit_expires_at' => now()->addMinutes(50),
         ]);
 
-        return $this->successResponse([], 'Data dikunci');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil dikunci.',
+        ]);
     }
-
     /**
      * Membuka lock pada data agar dapat diedit oleh user lain.
      *

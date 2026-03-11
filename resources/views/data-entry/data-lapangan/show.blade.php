@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    <section class="content container-fluid">
+    <section class="content container-fluid" data-lock-id="{{ $dataLapangan->id }}">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -410,7 +410,7 @@
                 <div class="progress mt-2" style="height: 5px;">
                     <div id="lockTimerProgress" class="progress-bar bg-success" style="width: 100%;"></div>
                 </div>
-                <small class="text-muted d-block text-center mt-1">Data akan dilepas otomatis</small>
+                <small class="text-muted d-block text-center mt-1">Data sedang dikunci.</small>
                 <button id="btnPerpanjang" class="btn btn-warning btn-sm w-100 mt-2">
                     <i class="fas fa-clock me-1"></i> Perpanjang Sesi
                 </button>
@@ -424,7 +424,7 @@
         // FUNGSI UMUM
         // ================================
         setTimeout(function() {
-            var alerts = document.querySelectorAll('.content.container-fluid > .alert');
+            var alerts = document.querySelectorAll('section.content .alert');
             alerts.forEach(function(alert) {
                 var bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
@@ -524,26 +524,143 @@
         // ================================
         (function() {
             const LOCK_URL = '/api/data-entry/data-lapangans';
-            const LOCK_ID = sessionStorage.getItem('currentLockId');
             const LIST_URL = '{{ route('data-entry.data-lapangan.index') }}';
-            const DURATION = 50 * 60; // 50 menit dalam detik
+            const DURATION = 50 * 60;
 
-            // Jika tidak ada lock, sembunyikan timer
-            if (!LOCK_ID) {
-                document.getElementById('lockTimerContainer').style.display = 'none';
-                return;
-            }
-
-            let timeLeft = DURATION;
-            let timerInterval = null;
-            let isExpired = false;
+            const sectionEl = document.querySelector('section.content[data-lock-id]');
+            const PAGE_ID = sectionEl ? sectionEl.dataset.lockId : null;
+            let LOCK_ID = sessionStorage.getItem('currentLockId');
 
             function getCsrfToken() {
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             }
 
+            function showExpiredAlert() {
+                document.getElementById('lockTimerContainer').style.display = 'none';
+
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger fade show position-fixed top-0 start-0 end-0 m-3';
+                alertDiv.style.zIndex = '99999';
+                alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>⚠️ Waktu Sesi Habis!</strong> Data telah dilepas. Anda akan diarahkan ke list dalam
+                <strong id="redirectCountdown">5</strong> detik...
+            `;
+                document.body.prepend(alertDiv);
+
+                let countdown = 5;
+                const countdownEl = document.getElementById('redirectCountdown');
+
+                const redirectInterval = setInterval(() => {
+                    countdown--;
+                    countdownEl.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(redirectInterval);
+                        window.location.href = LIST_URL;
+                    }
+                }, 1000);
+            }
+
+            // Jika sessionStorage kosong tapi ada PAGE_ID, coba acquire lock
+            if (!LOCK_ID && PAGE_ID) {
+                document.getElementById('lockTimerContainer').style.display = 'none';
+
+                // Simpan SEBELUM fetch
+                sessionStorage.setItem('isReloading', '1');
+                sessionStorage.setItem('currentLockId', PAGE_ID);
+                sessionStorage.setItem(`lockStart_${PAGE_ID}`, Date.now());
+
+                console.log('=== BEFORE FETCH ===');
+                console.log('sessionStorage setelah setItem:', JSON.stringify(sessionStorage));
+
+                fetch(`${LOCK_URL}/${PAGE_ID}/lock`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(res => {
+                        console.log('=== FETCH RESPONSE ===');
+                        console.log('HTTP status:', res.status);
+                        return res.json();
+                    })
+                    .then(result => {
+                        console.log('=== FETCH RESULT ===');
+                        console.log('result:', JSON.stringify(result));
+                        console.log('sessionStorage saat ini:', JSON.stringify(sessionStorage));
+
+                        if (result.success) {
+                            console.log('Lock berhasil, akan reload...');
+                            window.location.reload();
+                        } else {
+                            console.log('Lock GAGAL, membersihkan sessionStorage...');
+                            sessionStorage.removeItem('isReloading');
+                            sessionStorage.removeItem('currentLockId');
+                            sessionStorage.removeItem(`lockStart_${PAGE_ID}`);
+                        }
+                    })
+                    .catch(err => {
+                        console.log('=== FETCH ERROR ===');
+                        console.log('error:', err);
+                        sessionStorage.removeItem('isReloading');
+                        sessionStorage.removeItem('currentLockId');
+                        sessionStorage.removeItem(`lockStart_${PAGE_ID}`);
+                    });
+                return;
+            }
+
+            // Tambah debug juga di sini
+            console.log('=== SETELAH CEK LOCK_ID ===');
+            console.log('LOCK_ID:', LOCK_ID);
+            console.log('lockStart:', sessionStorage.getItem(`lockStart_${LOCK_ID}`));
+            console.log('elapsed:', Math.floor((Date.now() - parseInt(sessionStorage.getItem(`lockStart_${LOCK_ID}`))) /
+                1000), 'detik');
+
+            // Jika sama sekali tidak ada lock
+            if (!LOCK_ID) {
+                document.getElementById('lockTimerContainer').style.display = 'none';
+                return;
+            }
+
+            // Bersihkan flag reload
+            sessionStorage.removeItem('isReloading');
+
+            // Hitung sisa waktu berdasarkan waktu mulai
+            const lockStartKey = `lockStart_${LOCK_ID}`;
+            let lockStart = sessionStorage.getItem(lockStartKey);
+
+            if (!lockStart) {
+                lockStart = Date.now();
+                sessionStorage.setItem(lockStartKey, lockStart);
+            }
+
+            const elapsed = Math.floor((Date.now() - parseInt(lockStart)) / 1000);
+            let timeLeft = Math.max(DURATION - elapsed, 0);
+
+            // Jika sudah habis sebelum halaman dimuat
+            if (timeLeft <= 0) {
+                document.getElementById('lockTimerContainer').style.display = 'none';
+                sessionStorage.removeItem('currentLockId');
+                sessionStorage.removeItem(lockStartKey);
+                fetch(`${LOCK_URL}/${LOCK_ID}/lock`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }).then(() => showExpiredAlert());
+                return;
+            }
+
+            let timerInterval = null;
+            let isExpired = false;
+
             async function releaseLock() {
                 sessionStorage.removeItem('currentLockId');
+                sessionStorage.removeItem(lockStartKey);
                 await fetch(`${LOCK_URL}/${LOCK_ID}/lock`, {
                     method: 'DELETE',
                     headers: {
@@ -587,35 +704,6 @@
                 }
             }
 
-            // Tampilkan alert expired + countdown redirect
-            function showExpiredAlert() {
-                // Sembunyikan timer widget
-                document.getElementById('lockTimerContainer').style.display = 'none';
-
-                // Buat alert di atas halaman
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger fade show position-fixed top-0 start-0 end-0 m-3';
-                alertDiv.style.zIndex = '99999';
-                alertDiv.innerHTML = `
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>⚠️ Waktu Sesi Habis!</strong> Data telah dilepas. Anda akan diarahkan ke list dalam
-                    <strong id="redirectCountdown">5</strong> detik...
-                `;
-                document.body.prepend(alertDiv);
-
-                let countdown = 5;
-                const countdownEl = document.getElementById('redirectCountdown');
-
-                const redirectInterval = setInterval(() => {
-                    countdown--;
-                    countdownEl.textContent = countdown;
-                    if (countdown <= 0) {
-                        clearInterval(redirectInterval);
-                        window.location.href = LIST_URL;
-                    }
-                }, 1000);
-            }
-
             function startTimer() {
                 timerInterval = setInterval(async function() {
                     timeLeft--;
@@ -630,7 +718,6 @@
                 }, 1000);
             }
 
-            // Tombol perpanjang sesi — reset ke 50 menit
             document.getElementById('btnPerpanjang').addEventListener('click', async function() {
                 this.disabled = true;
                 this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
@@ -638,6 +725,7 @@
                 const result = await renewLock();
 
                 if (result.success) {
+                    sessionStorage.setItem(lockStartKey, Date.now());
                     timeLeft = DURATION;
                     isExpired = false;
                     updateDisplay();
@@ -649,11 +737,13 @@
                 }
             });
 
-            // Release lock jika user tutup tab / navigasi lain
+            // Release lock saat tutup tab — KECUALI saat reload internal
             window.addEventListener('beforeunload', function() {
-                if (!isExpired) {
+                const isReloading = sessionStorage.getItem('isReloading');
+                if (!isExpired && !isReloading) {
                     navigator.sendBeacon(`${LOCK_URL}/${LOCK_ID}/unlock-beacon`);
                     sessionStorage.removeItem('currentLockId');
+                    sessionStorage.removeItem(lockStartKey);
                 }
             });
 

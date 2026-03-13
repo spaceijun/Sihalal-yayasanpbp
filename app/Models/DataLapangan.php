@@ -53,7 +53,7 @@ class DataLapangan extends Model
         'foto_pendamping',
         'foto_produk',
         'status',
-        'verifikator',
+        'verifikator_id',
         'tanggal_verifikasi',
         'status_pembayaran',
         'file_oss',

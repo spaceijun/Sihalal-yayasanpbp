@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\DataLapanganRequest;
 use App\Models\DataEntryProgress;
 use App\Models\Enumerator;
+use App\Models\Verifikator;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -277,15 +278,15 @@ class DataLapanganController extends Controller
     public function updateEmail(Request $request, $id): RedirectResponse
     {
         $request->validate([
-            'email'            => 'required|email|max:255',
-            'verifikator'      => 'nullable|string|max:255',
+            'email'              => 'required|email|max:255',
+            'verifikator_id'     => 'nullable|exists:verifikators,id',
             'tanggal_verifikasi' => 'nullable|date',
         ]);
 
         $this->dataLapanganService->updateEmail(
             $id,
             $request->email,
-            $request->verifikator,
+            $request->verifikator_id,
             $request->tanggal_verifikasi
         );
 
@@ -442,7 +443,8 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $dataLapangan->load(['enumerator', 'spotchecks']);
 
-        // Ambil data entry berdasarkan entry_type
+        $verifikators = Verifikator::orderBy('nama_lengkap')->get(); // tambah ini
+
         $dataEntryOSS = DataEntryProgress::with('dataEntry')
             ->where('data_lapangan_id', $dataLapangan->id)
             ->whereHas('dataEntry', fn($q) => $q->where('entry_type', 'OSS'))
@@ -458,7 +460,8 @@ class DataLapanganController extends Controller
         return view('superadmin.data-lapangan.show', compact(
             'dataLapangan',
             'dataEntryOSS',
-            'dataEntrySihalal'
+            'dataEntrySihalal',
+            'verifikators'
         ));
     }
     /**

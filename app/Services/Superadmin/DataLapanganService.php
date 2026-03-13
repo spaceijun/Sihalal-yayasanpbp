@@ -109,12 +109,12 @@ class DataLapanganService
     public function updateEmail(
         $id,
         string $email,
-        ?string $verifikator,
+        ?int $verifikatorId,
         ?string $tanggalVerifikasi
     ): void {
         DataLapangan::where('id', $id)->update([
             'email'              => $email,
-            'verifikator'        => $verifikator,
+            'verifikator_id'     => $verifikatorId,
             'tanggal_verifikasi' => $tanggalVerifikasi,
             'status'             => 'TERVERIFIKASI',
         ]);

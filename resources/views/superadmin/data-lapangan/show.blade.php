@@ -59,7 +59,8 @@
                             <hr>
                             <div class="form-group mb-3">
                                 <strong>Nama Verifikator</strong>
-                                <p class="text-muted mb-0">{{ $dataLapangan->verifikator ?? 'Verifikator Kosong' }}</p>
+                                <p class="text-muted mb-0">
+                                    {{ $dataLapangan->verifikator->nama_lengkap ?? 'Verifikator Kosong' }}</p>
                             </div>
                             <hr>
                             <div class="form-group mb-3">
@@ -303,26 +304,19 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="verifikator" class="form-label fw-semibold">Verifikator</label>
-                                            <select name="verifikator"
-                                                class="form-select @error('verifikator') is-invalid @enderror"
-                                                id="verifikator" required>
+                                            <label for="verifikator_id" class="form-label fw-semibold">Verifikator</label>
+                                            <select name="verifikator_id"
+                                                class="form-select @error('verifikator_id') is-invalid @enderror"
+                                                id="verifikator_id" required>
                                                 <option value="">-- Pilih Verifikator --</option>
-                                                @php
-                                                    $verifikatorList = [
-                                                        'M. Faizun Aziz',
-                                                        'Agil Praditya Putu Yazier',
-                                                        'Ade Sofyan',
-                                                    ];
-                                                @endphp
-                                                @foreach ($verifikatorList as $v)
-                                                    <option value="{{ $v }}"
-                                                        {{ old('verifikator', $dataLapangan->verifikator) == $v ? 'selected' : '' }}>
-                                                        {{ $v }}
+                                                @foreach ($verifikators as $v)
+                                                    <option value="{{ $v->id }}"
+                                                        {{ old('verifikator_id', $dataLapangan->verifikator_id) == $v->id ? 'selected' : '' }}>
+                                                        {{ $v->nama_lengkap }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('verifikator')
+                                            @error('verifikator_id')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

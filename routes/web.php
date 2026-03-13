@@ -24,6 +24,8 @@ use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
 use App\Http\Controllers\Superadmin\UserController;
+use App\Http\Controllers\Superadmin\VerifikatorController;
+use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -93,6 +95,11 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
         Route::post('/penagihan/{penagihan}/proses', [DataEntryPenagihanController::class, 'proses'])->name('penagihan.proses');
         Route::post('/penagihan/{penagihan}/tolak', [DataEntryPenagihanController::class, 'tolak'])->name('penagihan.tolak');
+        // Verifikators 
+        Route::resource('verifikators', VerifikatorController::class);
+        Route::post('verifikators/{verifikator}/bayar', [VerifikatorController::class, 'bayar'])->name('verifikators.bayar');
+        Route::get('verifikators/{verifikator}/kalkulasi', [VerifikatorController::class, 'kalkulasi'])->name('verifikators.kalkulasi');
+        Route::resource('verifikator-payments', VerifikatorPaymentController::class);
         // Spotcheck
         Route::resource('spotchecks', SpotcheckController::class);
         // Recruitment

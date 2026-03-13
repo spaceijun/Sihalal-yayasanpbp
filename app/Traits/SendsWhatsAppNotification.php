@@ -423,4 +423,76 @@ trait SendsWhatsAppNotification
             "*TIM KAWULO HALAL* \n" .
             "+62 897-6774-482";
     }
+
+    /**
+     * Kirim notifikasi WhatsApp untuk pembayaran verifikator
+     *
+     * @param string $namaVerifikator nama verifikator
+     * @param string $telephone nomor telepon verifikator
+     * @param int $jumlahData jumlah data yang di verifikasi
+     * @param float $ratePerData tarif per data
+     * @param float $totalNominal total nominal yang harus dibayarkan
+     * @return bool true jika berhasil, false jika gagal
+     */
+    public function sendPembayaranVerifikatorNotification(
+        string $namaVerifikator,
+        string $telephone,
+        int $jumlahData,
+        float $ratePerData,
+        float $totalNominal
+    ): bool {
+        try {
+            if (!$telephone) return false;
+
+            $phoneNumber = $this->formatPhoneNumber($telephone);
+            $message     = $this->formatPembayaranVerifikatorMessage(
+                $namaVerifikator,
+                $jumlahData,
+                $ratePerData,
+                $totalNominal
+            );
+
+            $fonnteService = app(FonnteService::class);
+            $deviceToken   = env('DEVICE_TOKEN');
+
+            if (!$deviceToken) return false;
+
+            $response = $fonnteService->sendWhatsAppMessage(
+                $phoneNumber,
+                $message,
+                $deviceToken
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('Error sending pembayaran verifikator notification: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Format pesan WhatsApp untuk pembayaran verifikator
+     */
+    protected function formatPembayaranVerifikatorMessage(
+        string $namaVerifikator,
+        int $jumlahData,
+        float $ratePerData,
+        float $totalNominal
+    ): string {
+        $rateFormatted  = 'Rp ' . number_format($ratePerData, 0, ',', '.');
+        $totalFormatted = 'Rp ' . number_format($totalNominal, 0, ',', '.');
+
+        return "💰 *NOTIFIKASI PEMBAYARAN VERIFIKATOR*\n\n" .
+            "Halo *{$namaVerifikator}*!\n\n" .
+            "Pembayaran atas hasil verifikasi Anda telah diproses.\n\n" .
+            "📊 *Detail Pembayaran:*\n" .
+            "• Jumlah Data  : *{$jumlahData} data*\n" .
+            "• Rate / Data  : *{$rateFormatted}*\n" .
+            "• Total        : *{$totalFormatted}*\n\n" .
+            "✅ *Pembayaran telah dikonfirmasi.*\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*\n" .
+            "+62 897-6774-482 (CS)";
+    }
 }

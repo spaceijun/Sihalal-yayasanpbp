@@ -13,7 +13,13 @@
                         <i data-feather="home"></i>Dashboard
                     </a>
                 </li>
-                <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
+                <li class="menu-title"><span data-key="t-menu">Management</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/verifikators') }}"
+                        class="nav-link {{ $current_url == 'superadmin/verifikators' ? 'active' : '' }}">
+                        <i data-feather="check-circle"></i>Verifikator
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/koordinators') }}"
                         class="nav-link {{ $current_url == 'superadmin/koordinators' ? 'active' : '' }}">
@@ -23,38 +29,40 @@
                 <li class="nav-item">
                     <a href="{{ url('superadmin/data-entries') }}"
                         class="nav-link {{ $current_url == 'superadmin/data-entries' ? 'active' : '' }}">
-                        <i data-feather="user"></i>Data Entry
+                        <i data-feather="file-text"></i>Data Entry
                     </a>
                 </li>
+
+                <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/recruitments') }}"
                         class="nav-link {{ $current_url == 'superadmin/recruitments' ? 'active' : '' }}">
-                        <i data-feather="users"></i>Recruitment
+                        <i data-feather="user-plus"></i>Recruitment
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a href="{{ url('superadmin/enumerators') }}"
                         class="nav-link {{ $current_url == 'superadmin/enumerators' ? 'active' : '' }}">
-                        <i data-feather="users"></i>Enumerator
+                        <i data-feather="list"></i>Enumerator
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/data-lapangans') }}"
                         class="nav-link {{ $current_url == 'superadmin/data-lapangans' ? 'active' : '' }}">
-                        <i data-feather="book"></i>Data Lapangan
+                        <i data-feather="map-pin"></i>Data Lapangan
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/data-entry-progress') }}"
                         class="nav-link {{ $current_url == 'superadmin/data-entry-progress' ? 'active' : '' }}">
-                        <i data-feather="book"></i>Data Entry Progress
+                        <i data-feather="trending-up"></i>Data Entry Progress
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/laporan-harian') }}"
                         class="nav-link {{ $current_url == 'superadmin/laporan-harian' ? 'active' : '' }}">
-                        <i data-feather="book"></i>Laporan Harian
+                        <i data-feather="calendar"></i>Laporan Harian
                     </a>
                 </li>
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>

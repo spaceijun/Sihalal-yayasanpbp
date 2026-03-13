@@ -123,6 +123,18 @@ class DataLapangan extends Model
     }
 
     /**
+     * Get the associated Verifikator model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     *
+     * @see \App\Models\Verifikator
+     */
+    public function verifikator()
+    {
+        return $this->belongsTo(Verifikator::class);
+    }
+
+    /**
      * Booted method to create a new cashflow when the status_pembayaran of a data_lapangan is changed to DIBAYAR.
      *
      * This method is called when a data_lapangan is updated.

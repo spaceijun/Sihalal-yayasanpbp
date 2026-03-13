@@ -152,7 +152,7 @@
             const exportBtn = document.getElementById('exportBtn');
 
             // API Base URL
-            const API_BASE_URL = '/api/data-lapangans';
+            const API_BASE_URL = '/api/superadmin/data-lapangans';
 
             let searchTimeout;
 

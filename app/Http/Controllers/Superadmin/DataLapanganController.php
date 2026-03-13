@@ -21,6 +21,7 @@ use App\Services\Superadmin\ImageService;
 use App\Services\Superadmin\ImageDownloadService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\PdfService;
+use Illuminate\Support\Facades\Log;
 
 class DataLapanganController extends Controller
 {
@@ -347,20 +348,92 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Update the status of a data lapangan to DIBAYAR.
+     * Update status pembayaran SATU data lapangan menjadi DIBAYAR.
      *
-     * @param Request $request
-     * @param DataLapangan $dataLapangan
-     * @return RedirectResponse
+     * Cashflow dan notifikasi WA terpicu otomatis via DataLapangan::booted().
+     *
+     * PATCH /superadmin/data-lapangans/{dataLapangan}/update-status-payment
      */
     public function updateStatusPayment(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
-        $dataLapangan->update([
-            'status_pembayaran' => 'DIBAYAR'
-        ]);
+        $this->processPembayaran($dataLapangan);
 
         return redirect()->back()->with('success', 'Status pembayaran berhasil diubah menjadi DIBAYAR');
     }
+
+    /**
+     * Bulk update status pembayaran sejumlah data lapangan menjadi DIBAYAR.
+     *
+     * Menggunakan loop per instance (bukan whereIn()->update()) agar
+     * model event booted() terpicu pada setiap record — sehingga cashflow
+     * dan notifikasi WA berjalan identik dengan updateStatusPayment().
+     *
+     * POST /superadmin/data-lapangans/bulk-payment
+     */
+    public function bulkUpdateStatusPayment(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'required|integer|exists:data_lapangans,id',
+        ]);
+
+        // Ambil hanya record yang benar-benar eligible
+        // (guard di sini sebagai lapisan keamanan tambahan,
+        //  meskipun checkbox di view sudah difilter)
+        $dataLapangans = DataLapangan::whereIn('id', $request->ids)
+            ->where('status', 'TERBIT SH')
+            ->where('status_pembayaran', 'PENDING')
+            ->get();
+
+        if ($dataLapangans->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang memenuhi syarat untuk diubah.',
+            ], 422);
+        }
+
+        $updated = 0;
+        $errors  = [];
+
+        foreach ($dataLapangans as $dataLapangan) {
+            try {
+                $this->processPembayaran($dataLapangan);
+                $updated++;
+            } catch (\Exception $e) {
+                // Catat error per-record agar record lain tetap diproses
+                $errors[] = "ID {$dataLapangan->id} ({$dataLapangan->nama_pu}): {$e->getMessage()}";
+                Log::error("bulkUpdateStatusPayment error on ID {$dataLapangan->id}: {$e->getMessage()}");
+            }
+        }
+
+        $message = "{$updated} data berhasil diubah menjadi DIBAYAR";
+        if (!empty($errors)) {
+            $message .= '. Beberapa data gagal: ' . implode('; ', $errors);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'updated' => $updated,
+            'errors'  => $errors,
+        ]);
+    }
+
+    /**
+     * Logika inti: update status_pembayaran ke DIBAYAR pada satu instance model.
+     *
+     * Cukup satu baris — semua side-effect (cashflow + WA) sudah
+     * didelegasikan ke DataLapangan::booted() → static::updated().
+     *
+     * Dipanggil oleh: updateStatusPayment() dan bulkUpdateStatusPayment().
+     */
+    private function processPembayaran(DataLapangan $dataLapangan): void
+    {
+        $dataLapangan->update([
+            'status_pembayaran' => 'DIBAYAR',
+        ]);
+    }
+
     /**
      * Display the specified resource.
      */

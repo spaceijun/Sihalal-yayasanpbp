@@ -1,6 +1,13 @@
 @forelse ($dataLapangans as $dataLapangan)
     <tr
         class="{{ $dataLapangan->is_being_edited && $dataLapangan->edit_expires_at?->isFuture() ? 'table-warning' : '' }}">
+
+        <td>
+            @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
+                <input type="checkbox" class="row-checkbox" value="{{ $dataLapangan->id }}"
+                    data-id="{{ $dataLapangan->id }}">
+            @endif
+        </td>
         <td>{{ ++$i }}</td>
         <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>

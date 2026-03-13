@@ -31,6 +31,18 @@
                     </div>
                 </div>
 
+                {{-- Bulk Action Bar --}}
+                <div id="bulkActionBar" class="px-3 py-2 border-bottom d-none align-items-center gap-3"
+                    style="background-color: #f0f7ff;">
+                    <span id="selectedCount" class="fw-bold text-primary">0 dipilih</span>
+                    <button id="btnBulkDibayar" class="btn btn-success btn-sm">
+                        <i class="las la-check-circle"></i> Tandai Dibayar
+                    </button>
+                    <button id="btnCancelSelect" class="btn btn-outline-secondary btn-sm">
+                        Batal
+                    </button>
+                </div>
+
                 <!-- Form Search -->
                 <div class="card-body bg-white border-bottom">
                     <form id="searchForm">
@@ -95,6 +107,38 @@
                 </div>
 
                 <div class="card-body bg-white">
+                    <!-- Modal Konfirmasi Bulk Payment -->
+                    <div id="modalBulkPayment" class="modal fade" tabindex="-1" aria-labelledby="modalBulkPaymentLabel"
+                        aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalBulkPaymentLabel">
+                                        <i class="las la-check-circle text-success me-1"></i>
+                                        Konfirmasi Tandai Dibayar
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-muted">
+                                        Anda akan menandai <strong id="modalSelectedCount">0</strong> data sebagai <span
+                                            class="badge bg-success">DIBAYAR</span>.
+                                    </p>
+                                    <p class="text-muted mb-0">Tindakan ini tidak dapat dibatalkan. Pastikan data yang
+                                        dipilih sudah benar.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                    <button type="button" id="btnConfirmBulkDibayar" class="btn btn-success">
+                                        <i class="las la-check-circle"></i> Ya, Tandai Dibayar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Modal Konfirmasi Bulk Payment -->
+
                     <!-- Loading indicator -->
                     <div id="tableLoading" class="text-center py-5" style="display: none;">
                         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
@@ -109,6 +153,9 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
+                                        <th style="width: 40px;">
+                                            <input type="checkbox" id="checkAll" title="Pilih semua">
+                                        </th>
                                         <th>No</th>
                                         <th>Created</th>
                                         <th>Pendamping</th>
@@ -136,9 +183,10 @@
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Element references
+            // ─── Element references ────────────────────────────────────────
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('search');
             const statusSelect = document.getElementById('status-1');
@@ -150,27 +198,28 @@
             const tableLoading = document.getElementById('tableLoading');
             const tableWrapper = document.getElementById('tableWrapper');
             const exportBtn = document.getElementById('exportBtn');
+            const bulkBar = document.getElementById('bulkActionBar');
+            const selectedCount = document.getElementById('selectedCount');
+            const btnBulkDibayar = document.getElementById('btnBulkDibayar');
+            const btnCancelSelect = document.getElementById('btnCancelSelect');
+            const modalBulkPayment = new bootstrap.Modal(document.getElementById('modalBulkPayment'));
+            const modalSelectedCount = document.getElementById('modalSelectedCount');
+            const btnConfirmBulkDibayar = document.getElementById('btnConfirmBulkDibayar');
 
             // API Base URL
             const API_BASE_URL = '/api/superadmin/data-lapangans';
 
             let searchTimeout;
 
-            /**
-             * Get CSRF token from meta tag or form input
-             */
+            // ─── Helper: CSRF token ────────────────────────────────────────
             function getCsrfToken() {
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
                     document.querySelector('input[name="_token"]')?.value;
             }
 
-            /**
-             * Attach force unlock handlers
-             */
+            // ─── Force Unlock ──────────────────────────────────────────────
             function attachForceUnlockHandlers() {
-                const unlockBtns = document.querySelectorAll('.btn-force-unlock');
-
-                unlockBtns.forEach(btn => {
+                document.querySelectorAll('.btn-force-unlock').forEach(btn => {
                     const newBtn = btn.cloneNode(true);
                     btn.parentNode.replaceChild(newBtn, btn);
 
@@ -195,7 +244,7 @@
                             const data = await res.json();
 
                             if (data.success) {
-                                loadData(); // Refresh tabel
+                                loadData();
                             } else {
                                 alert('Gagal unlock: ' + data.message);
                                 this.disabled = false;
@@ -210,95 +259,53 @@
                     });
                 });
             }
-            /**
-             * Export data ke Excel dengan filter yang sama
-             */
+
+            // ─── Export Excel ──────────────────────────────────────────────
             exportBtn.addEventListener('click', function() {
                 const params = new URLSearchParams();
 
-                // Add search parameters (sama seperti filter)
-                if (searchInput.value.trim()) {
-                    params.append('search', searchInput.value.trim());
-                }
+                if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
+                if (statusSelect.value.trim()) params.append('status', statusSelect.value.trim());
+                if (statusPembayaranSelect.value.trim()) params.append('status_pembayaran',
+                    statusPembayaranSelect.value.trim());
+                if (tanggalDariInput.value.trim()) params.append('tanggal_dari', tanggalDariInput.value
+                    .trim());
+                if (tanggalSampaiInput.value.trim()) params.append('tanggal_sampai', tanggalSampaiInput
+                    .value.trim());
 
-                if (statusSelect.value.trim()) {
-                    params.append('status', statusSelect.value.trim());
-                }
-
-                if (statusPembayaranSelect.value.trim()) {
-                    params.append('status_pembayaran', statusPembayaranSelect.value.trim());
-                }
-
-                if (tanggalDariInput.value.trim()) {
-                    params.append('tanggal_dari', tanggalDariInput.value.trim());
-                }
-
-                if (tanggalSampaiInput.value.trim()) {
-                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
-                }
-
-                // Build export URL
                 const exportUrl = '{{ route('superadmin.data-lapangans.export') }}' +
                     (params.toString() ? '?' + params.toString() : '');
 
-                // Download file
                 window.location.href = exportUrl;
             });
 
-            /**
-             * Main function to load data via AJAX
-             */
+            // ─── Load Data (AJAX) ──────────────────────────────────────────
             function loadData(url = null) {
-                // Show loading state - HIDE TABLE AND SHOW LOADING
                 tableWrapper.style.display = 'none';
                 tableLoading.style.display = 'block';
 
-                // Disable form inputs during loading
                 const formInputs = searchForm.querySelectorAll('input, select');
                 formInputs.forEach(input => input.disabled = true);
 
-                // Prepare fetch URL with parameters
                 let fetchUrl = API_BASE_URL;
                 const params = new URLSearchParams();
 
-                // Add search parameters
-                if (searchInput.value.trim()) {
-                    params.append('search', searchInput.value.trim());
-                }
+                if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
+                if (statusSelect.value.trim()) params.append('status', statusSelect.value.trim());
+                if (statusPembayaranSelect.value.trim()) params.append('status_pembayaran', statusPembayaranSelect
+                    .value.trim());
+                if (tanggalDariInput.value.trim()) params.append('tanggal_dari', tanggalDariInput.value.trim());
+                if (tanggalSampaiInput.value.trim()) params.append('tanggal_sampai', tanggalSampaiInput.value
+                .trim());
 
-                if (statusSelect.value.trim()) {
-                    params.append('status', statusSelect.value.trim());
-                }
-
-                if (statusPembayaranSelect.value.trim()) {
-                    params.append('status_pembayaran', statusPembayaranSelect.value.trim());
-                }
-
-                if (tanggalDariInput.value.trim()) {
-                    params.append('tanggal_dari', tanggalDariInput.value.trim());
-                }
-
-                if (tanggalSampaiInput.value.trim()) {
-                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
-                }
-
-                // Handle pagination
                 if (url) {
-                    // Extract page parameter from pagination URL
                     const urlObj = new URL(url, window.location.origin);
                     const page = urlObj.searchParams.get('page');
-                    if (page) {
-                        params.append('page', page);
-                    }
+                    if (page) params.append('page', page);
                 }
 
-                // Build final URL
-                const queryString = params.toString();
-                if (queryString) {
-                    fetchUrl += '?' + queryString;
-                }
+                if (params.toString()) fetchUrl += '?' + params.toString();
 
-                // Fetch data from API
                 fetch(fetchUrl, {
                         method: 'GET',
                         headers: {
@@ -310,23 +317,20 @@
                         credentials: 'same-origin'
                     })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         return response.json();
                     })
                     .then(data => {
                         if (data.success) {
-                            // Update table body with new HTML
                             tableBody.innerHTML = data.table;
-
-                            // Update pagination with new HTML
                             paginationWrapper.innerHTML = data.pagination;
 
-                            // Re-attach event handlers to new elements
+                            // Re-attach semua handlers ke elemen baru di tbody
                             attachDeleteHandlers();
                             attachPaginationHandlers();
                             attachForceUnlockHandlers();
+                            attachCheckboxHandlers(); // row checkboxes saja
+                            updateBulkBar(); // reset bulk bar & sinkron checkAll
                         } else {
                             alert(data.message || 'Terjadi kesalahan saat memuat data');
                         }
@@ -336,70 +340,33 @@
                         alert('Terjadi kesalahan saat memuat data: ' + error.message);
                     })
                     .finally(() => {
-                        // Hide loading state - SHOW TABLE AND HIDE LOADING
                         tableLoading.style.display = 'none';
                         tableWrapper.style.display = 'block';
-
-                        // Enable form inputs
                         formInputs.forEach(input => input.disabled = false);
                     });
             }
 
-            /**
-             * Instant search with debounce on search input
-             */
+            // ─── Search & Filter listeners ─────────────────────────────────
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    loadData();
-                }, 500); // Wait 500ms after user stops typing
+                searchTimeout = setTimeout(() => loadData(), 500);
             });
 
-            /**
-             * Instant search on status change
-             */
-            statusSelect.addEventListener('change', function() {
-                loadData();
-            });
+            statusSelect.addEventListener('change', () => loadData());
+            statusPembayaranSelect.addEventListener('change', () => loadData());
+            tanggalDariInput.addEventListener('change', () => loadData());
+            tanggalSampaiInput.addEventListener('change', () => loadData());
 
-            /**
-             * Instant search on status_pembayaran change
-             */
-            statusPembayaranSelect.addEventListener('change', function() {
-                loadData();
-            });
-
-            /**
-             * Instant search on tanggal_dari change
-             */
-            tanggalDariInput.addEventListener('change', function() {
-                loadData();
-            });
-
-            /**
-             * Instant search on tanggal_sampai change
-             */
-            tanggalSampaiInput.addEventListener('change', function() {
-                loadData();
-            });
-
-            /**
-             * Attach delete handlers to all delete forms
-             */
+            // ─── Delete ────────────────────────────────────────────────────
             function attachDeleteHandlers() {
-                const deleteForms = document.querySelectorAll('.delete-form');
-
-                deleteForms.forEach(form => {
-                    // Remove old event listeners by cloning
+                document.querySelectorAll('.delete-form').forEach(form => {
                     const newForm = form.cloneNode(true);
                     form.parentNode.replaceChild(newForm, form);
 
                     newForm.addEventListener('submit', function(e) {
                         e.preventDefault();
 
-                        if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                            return false;
-                        }
+                        if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return false;
 
                         const dataId = this.dataset.id;
 
@@ -416,10 +383,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    // Show success message
                                     alert(data.message || 'Data berhasil dihapus');
-
-                                    // Reload data after successful delete
                                     loadData();
                                 } else {
                                     alert(data.message || 'Gagal menghapus data');
@@ -433,33 +397,146 @@
                 });
             }
 
-            /**
-             * Attach pagination handlers to all pagination links
-             */
+            // ─── Pagination ────────────────────────────────────────────────
             function attachPaginationHandlers() {
-                const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
-
-                paginationLinks.forEach(link => {
+                paginationWrapper.querySelectorAll('a.page-link').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = this.getAttribute('href');
-                        if (url && url !== '#') {
-                            loadData(url);
-                        }
+                        if (url && url !== '#') loadData(url);
                     });
                 });
             }
 
+            // ─── Bulk Payment ──────────────────────────────────────────────
+
             /**
-             * Initial attachment of event handlers
+             * Update tampilan bulk bar & sinkronisasi checkAll.
+             * Dipanggil: setiap kali checkbox row berubah, dan setelah loadData().
              */
+            function updateBulkBar() {
+                const checked = document.querySelectorAll('.row-checkbox:checked');
+                const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                const checkAll = document.getElementById('checkAll');
+
+                // Tampilkan/sembunyikan bulk bar
+                if (checked.length > 0) {
+                    bulkBar.classList.remove('d-none');
+                    bulkBar.classList.add('d-flex');
+                    selectedCount.textContent = `${checked.length} dipilih`;
+                } else {
+                    bulkBar.classList.add('d-none');
+                    bulkBar.classList.remove('d-flex');
+                }
+
+                // Sinkronisasi state checkAll (di thead — tidak pernah di-replace)
+                if (checkAll) {
+                    checkAll.checked = allCheckboxes.length > 0 && checked.length === allCheckboxes.length;
+                    checkAll.indeterminate = checked.length > 0 && checked.length < allCheckboxes.length;
+                }
+            }
+
+            /**
+             * Attach listener ke .row-checkbox di tbody.
+             * Dipanggil setiap kali loadData() selesai karena tbody di-replace.
+             * Tidak perlu clone — elemen ini baru dibuat oleh innerHTML.
+             */
+            function attachCheckboxHandlers() {
+                document.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.addEventListener('change', updateBulkBar);
+                });
+            }
+
+            /**
+             * Attach listener ke #checkAll di thead.
+             * Dipanggil SEKALI saat DOMContentLoaded karena thead tidak pernah di-replace.
+             */
+            function attachCheckAllHandler() {
+                const checkAll = document.getElementById('checkAll');
+                if (!checkAll) return;
+
+                checkAll.addEventListener('change', function() {
+                    document.querySelectorAll('.row-checkbox').forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                    updateBulkBar();
+                });
+            }
+
+            /**
+             * Tombol "Tandai Dibayar" — buka modal konfirmasi
+             */
+            btnBulkDibayar.addEventListener('click', function() {
+                const checked = document.querySelectorAll('.row-checkbox:checked');
+                if (checked.length === 0) return;
+
+                // Tampilkan jumlah item di dalam modal
+                modalSelectedCount.textContent = checked.length;
+                modalBulkPayment.show();
+            });
+
+            /**
+             * Tombol konfirmasi di dalam modal — eksekusi bulk update
+             */
+            btnConfirmBulkDibayar.addEventListener('click', async function() {
+                const checked = document.querySelectorAll('.row-checkbox:checked');
+                if (checked.length === 0) return;
+
+                const ids = Array.from(checked).map(cb => cb.value);
+
+                // Tutup modal & tampilkan loading di tombol
+                modalBulkPayment.hide();
+                btnBulkDibayar.disabled = true;
+                btnBulkDibayar.innerHTML =
+                    '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+
+                try {
+                    const res = await fetch('{{ route('superadmin.data-lapangans.bulk-payment') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            ids
+                        }),
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        loadData(); // Tabel refresh → updateBulkBar() dipanggil di dalamnya
+                    } else {
+                        alert(data.message || 'Gagal memperbarui data');
+                    }
+                } catch (err) {
+                    console.error('Bulk payment error:', err);
+                    alert('Terjadi kesalahan saat memperbarui data');
+                } finally {
+                    btnBulkDibayar.disabled = false;
+                    btnBulkDibayar.innerHTML = '<i class="las la-check-circle"></i> Tandai Dibayar';
+                }
+            });
+
+            /**
+             * Tombol "Batal" — uncheck semua & sembunyikan bulk bar
+             */
+            btnCancelSelect.addEventListener('click', function() {
+                document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+                updateBulkBar();
+            });
+
+            // ─── Initial attachment ────────────────────────────────────────
             attachDeleteHandlers();
             attachPaginationHandlers();
             attachForceUnlockHandlers();
+            attachCheckAllHandler();
+            attachCheckboxHandlers();
+            updateBulkBar();
 
-            /**
-             * Auto refresh when user navigates back to this page
-             */
+            // ─── Auto refresh saat back/forward browser ────────────────────
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted ||
                     (window.performance && window.performance.navigation.type === 2)) {

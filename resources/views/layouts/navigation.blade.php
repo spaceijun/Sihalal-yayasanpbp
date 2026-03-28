@@ -100,6 +100,12 @@
                         <i data-feather="users"></i>Manajemen Pengguna
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/app-versions') }}"
+                        class="nav-link {{ $current_url == 'superadmin/app-versions' ? 'active' : '' }}">
+                        <i data-feather="smartphone"></i>App Versions
+                    </a>
+                </li>
             @elseif ($role == 'koordinator')
                 @include('layouts.navigation-koordinator')
             @elseif ($role == 'data_entry')

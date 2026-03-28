@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppVersionController;
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLa
 use App\Http\Controllers\Koordinator\DataPendampingController;
 use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruitmentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
@@ -58,7 +60,7 @@ Route::get('recruitment', [RecruitmentController::class, 'create'])->name('recru
 Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recruitment.store');
 Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
 Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
-
+Route::get('version/check', [AppVersionController::class, 'check']);
 
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
@@ -135,6 +137,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        // App Version 
+        Route::resource('app-versions', SuperadminAppVersionController::class);
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');
     // Route::get('/', function () {

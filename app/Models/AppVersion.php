@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AppVersion extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -31,5 +31,8 @@ class AppVersion extends Model
      */
     protected $fillable = ['version', 'build_number', 'changelog', 'force_update', 'download_url'];
 
-
+    protected $casts = [
+        'build_number' => 'integer',
+        'force_update' => 'boolean',
+    ];
 }

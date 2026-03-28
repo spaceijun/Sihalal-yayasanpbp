@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class DataEntryProgress extends Model
 {
-    protected $table = 'data_entry_progress';
-
     protected $fillable = [
         'user_id',
         'data_entry_id',
@@ -15,21 +13,25 @@ class DataEntryProgress extends Model
         'action',
         'old_data',
         'new_data',
-        'keterangan_revisi',
-        'keterangan_update',
         'status',
+        'keterangan_revisi',
+        'verifikator_id',
+        'tanggal_verifikasi',
+        'payment_id',
         'actioned_at',
     ];
 
     protected $casts = [
-        'old_data' => 'array',
-        'new_data' => 'array',
-        'actioned_at' => 'datetime',
+        'old_data'           => 'array',
+        'new_data'           => 'array',
+        'tanggal_verifikasi' => 'date',
+        'actioned_at'        => 'datetime',
     ];
 
-    public function user()
+
+    public function dataLapangan()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(DataLapangan::class, 'data_lapangan_id');
     }
 
     public function dataEntry()
@@ -37,18 +39,35 @@ class DataEntryProgress extends Model
         return $this->belongsTo(DataEntry::class, 'data_entry_id');
     }
 
-    public function dataLapangan()
+    public function verifikator()
     {
-        return $this->belongsTo(DataLapangan::class, 'data_lapangan_id');
+        return $this->belongsTo(Verifikator::class, 'verifikator_id');
     }
 
-    /**
-     * Get the associated penagihan details models.
+    public function payment()
+    {
+        return $this->belongsTo(VerifikatorPayment::class, 'payment_id');
+    }
+
+    /* Get the associated penagihan details models.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function penagihanDetails()
     {
         return $this->hasMany(DataEntryPenagihanDetail::class, 'data_entry_progress_id');
+    }
+
+
+    /**
+     * Scope a query to only include data that has not been paid and is in "DITERIMA" status.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeBelumDibayar($query)
+    {
+        return $query->whereNull('payment_id')
+            ->where('status', 'DITERIMA');
     }
 }

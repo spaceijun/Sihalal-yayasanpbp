@@ -115,6 +115,8 @@
                 <div class="card-body bg-white">
                     <form id="bulkForm" action="{{ route('superadmin.data-entry-progress.bulk-terima') }}" method="POST">
                         @csrf
+                        <input type="hidden" name="verifikator_id" id="bulkVerifikatorId">
+                        <input type="hidden" name="tanggal_verifikasi" id="bulkTanggalVerifikasi">
                         <div class="table-responsive">
                             <table class="table table-striped table-hover align-middle">
                                 <thead class="thead">
@@ -129,6 +131,7 @@
                                         <th>Type</th>
                                         <th>Nama PU</th>
                                         <th>Status</th>
+                                        <th>Verifikator</th>
                                         <th>Keterangan</th>
                                         <th width="160">Aksi</th>
                                     </tr>
@@ -188,6 +191,17 @@
                                                     </span>
                                                 @endif
                                             </td>
+                                            <td>
+                                                @if ($progress->verifikator)
+                                                    <span
+                                                        class="fw-semibold">{{ $progress->verifikator->nama_lengkap }}</span>
+                                                    <br>
+                                                    <small
+                                                        class="text-muted">{{ $progress->tanggal_verifikasi?->format('d/m/Y') }}</small>
+                                                @else
+                                                    <small class="text-muted">-</small>
+                                                @endif
+                                            </td>
 
                                             {{-- Kolom Keterangan --}}
                                             <td style="max-width: 200px;">
@@ -212,7 +226,8 @@
                                                     <div class="d-flex gap-1 flex-wrap">
                                                         {{-- Tombol Terima --}}
                                                         <button type="button" class="btn btn-success btn-sm"
-                                                            title="Terima" onclick="submitTerima({{ $progress->id }})">
+                                                            title="Terima"
+                                                            onclick="submitTerima({{ $progress->id }}, '{{ $progress->dataEntry?->entry_type }}')">
                                                             <i class="las la-check"></i>
                                                         </button>
 
@@ -272,8 +287,184 @@
     <form id="formTerima" method="POST" action="">
         @csrf
         @method('PATCH')
+        <input type="hidden" name="verifikator_id" id="terimaVerifikatorId">
+        <input type="hidden" name="tanggal_verifikasi" id="terimaTanggalVerifikasi">
     </form>
 
+    {{-- ============================================================ --}}
+    {{-- MODAL TERIMA — Step 1: Pertanyaan, Step 2: Pilih Verifikator  --}}
+    {{-- ============================================================ --}}
+    <div id="modalTerima" class="modal fade" tabindex="-1" aria-labelledby="modalTerimaLabel" aria-hidden="true"
+        style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTerimaLabel">
+                        <i class="las la-check-circle me-2"></i>
+                        <span id="modalTerimaTitle">Terima Progress</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    {{-- ── STEP 1: Pertanyaan ── --}}
+                    <div id="stepPertanyaan">
+                        <p class="text-muted mb-3" id="modalTerimaDesc">
+                            Sebelum melanjutkan verifikasi, harap jawab pertanyaan berikut.
+                        </p>
+
+                        {{-- OSS --}}
+                        <div id="pertanyaanOSS" style="display:none;">
+                            <div class="alert alert-warning">
+                                <i class="las la-exclamation-triangle me-1"></i>
+                                <strong>Perhatian!</strong> Pastikan Anda telah memeriksa file sebelum melanjutkan.
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    Apakah File OSS yang diajukan sudah benar?
+                                    <span class="text-muted fw-normal d-block small mt-1">
+                                        Jika Anda ragu, silahkan dicek terlebih dahulu sebelum melanjutkan verifikasi.
+                                    </span>
+                                </label>
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="ossCheck" id="ossYa"
+                                            value="ya">
+                                        <label class="form-check-label" for="ossYa">
+                                            <i class="las la-check-circle text-success me-1"></i>
+                                            Ya, saya sudah mengecek dan benar.
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="errorOSS" class="text-danger small mt-2" style="display:none;">
+                                    Anda harus mengkonfirmasi file OSS sudah benar untuk melanjutkan.
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- SIHALAL --}}
+                        <div id="pertanyaanSIHALAL" style="display:none;">
+                            <div class="alert alert-info">
+                                <i class="las la-info-circle me-1"></i>
+                                <strong>Catatan:</strong> Kedua tahap wajib sudah selesai sebelum melanjutkan verifikasi.
+                            </div>
+
+                            {{-- Pertanyaan 1 --}}
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    1. Apakah data ini sudah dicek pada Website Sihalal?
+                                </label>
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="siHalalCek"
+                                            id="siHalalCekYa" value="ya" onchange="cekSiHalalValid()">
+                                        <label class="form-check-label" for="siHalalCekYa">
+                                            <i class="las la-check-circle text-success me-1"></i>
+                                            Ya, sudah saya cek.
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="siHalalCek"
+                                            id="siHalalCekBelum" value="belum" onchange="cekSiHalalValid()">
+                                        <label class="form-check-label text-danger" for="siHalalCekBelum">
+                                            <i class="las la-times-circle me-1"></i>
+                                            Belum dicek.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Pertanyaan 2 --}}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    2. Apakah data ini sudah diverifikasi dan di-Verval pada Website Sihalal?
+                                </label>
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="siHalalVerval"
+                                            id="siHalalVervalYa" value="ya" onchange="cekSiHalalValid()">
+                                        <label class="form-check-label" for="siHalalVervalYa">
+                                            <i class="las la-check-circle text-success me-1"></i>
+                                            Ya, sudah saya verif dan Verval.
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="siHalalVerval"
+                                            id="siHalalVervalBelum" value="belum" onchange="cekSiHalalValid()">
+                                        <label class="form-check-label text-danger" for="siHalalVervalBelum">
+                                            <i class="las la-times-circle me-1"></i>
+                                            Belum diverif dan Verval.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Peringatan jika belum keduanya --}}
+                            <div id="alertSiHalalBelum" class="alert alert-danger" style="display:none;">
+                                <i class="las la-ban me-1"></i>
+                                <strong>Tidak dapat melanjutkan!</strong> Data harus sudah dicek dan di-Verval
+                                pada Website Sihalal sebelum dapat diverifikasi.
+                            </div>
+                            <div id="errorSIHALAL" class="text-danger small mt-1" style="display:none;">
+                                Harap jawab kedua pertanyaan di atas.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── STEP 2: Form Verifikator ── --}}
+                    <div id="stepVerifikator" style="display:none;">
+                        <div class="alert alert-success py-2">
+                            <i class="las la-check-circle me-1"></i>
+                            Pemeriksaan selesai. Silahkan pilih verifikator dan tanggal verifikasi.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Verifikator <span class="text-danger">*</span>
+                            </label>
+                            <select id="selectVerifikator" class="form-select" required>
+                                <option value="">-- Pilih Verifikator --</option>
+                                @foreach ($verifikators as $v)
+                                    <option value="{{ $v->id }}">
+                                        {{ $v->nama_lengkap }}
+                                        (Rp {{ number_format($v->rate_per_data, 0, ',', '.') }}/data)
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div id="errorVerifikator" class="text-danger small mt-1" style="display:none;">
+                                Verifikator wajib dipilih.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Tanggal Verifikasi <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" id="inputTanggalVerifikasi" class="form-control"
+                                value="{{ now()->toDateString() }}" required>
+                            <div id="errorTanggal" class="text-danger small mt-1" style="display:none;">
+                                Tanggal verifikasi wajib diisi.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+
+                    {{-- Tombol Lanjut (step 1 → step 2) --}}
+                    <button type="button" class="btn btn-primary" id="btnLanjutVerifikasi">
+                        <i class="las la-arrow-right me-1"></i>Lanjut ke Verifikasi
+                    </button>
+
+                    {{-- Tombol Simpan (step 2) --}}
+                    <button type="button" class="btn btn-success" id="btnKonfirmasiTerima" style="display:none;">
+                        <i class="las la-check me-1"></i>Ya, Terima
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     {{-- ============================================================ --}}
     {{-- MODAL KONFIRMASI                                              --}}
     {{-- ============================================================ --}}
@@ -409,13 +600,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
+            // ── Checkbox bulk ─────────────────────────────────────────────────────
             const checkAll = document.getElementById('checkAll');
             const btnBulkTerima = document.getElementById('btnBulkTerima');
 
             checkAll?.addEventListener('change', function() {
-                document.querySelectorAll('.row-check').forEach(cb => {
-                    cb.checked = this.checked;
-                });
+                document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
                 updateBulkButton();
             });
 
@@ -426,49 +616,189 @@
             function updateBulkButton() {
                 const checked = document.querySelectorAll('.row-check:checked').length;
                 btnBulkTerima.disabled = checked === 0;
-                btnBulkTerima.textContent = checked > 0 ?
-                    `Terima ${checked} Yang Dipilih` :
-                    'Terima Semua Dipilih';
-
-                const icon = document.createElement('i');
-                icon.className = 'las la-check-double me-1';
-                btnBulkTerima.prepend(icon);
+                btnBulkTerima.innerHTML = checked > 0 ?
+                    `<i class="las la-check-double me-1"></i>Terima ${checked} Yang Dipilih` :
+                    `<i class="las la-check-double me-1"></i>Terima Semua Dipilih`;
             }
+
+            // ── Tombol Lanjut ke Step 2 ───────────────────────────────────────────
+            document.getElementById('btnLanjutVerifikasi').addEventListener('click', function() {
+                if (!_validasiPertanyaan()) return;
+
+                // Tampilkan step 2
+                document.getElementById('stepPertanyaan').style.display = 'none';
+                document.getElementById('stepVerifikator').style.display = 'block';
+                document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+                document.getElementById('btnKonfirmasiTerima').style.display = 'inline-block';
+            });
+
+            // ── Tombol Konfirmasi Terima (step 2) ─────────────────────────────────
+            document.getElementById('btnKonfirmasiTerima').addEventListener('click', function() {
+                const verifikatorId = document.getElementById('selectVerifikator').value;
+                const tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
+
+                let valid = true;
+                if (!verifikatorId) {
+                    document.getElementById('errorVerifikator').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('errorVerifikator').style.display = 'none';
+                }
+                if (!tanggalVerifikasi) {
+                    document.getElementById('errorTanggal').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('errorTanggal').style.display = 'none';
+                }
+                if (!valid) return;
+
+                if (_terimaMode === 'single') {
+                    document.getElementById('terimaVerifikatorId').value = verifikatorId;
+                    document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
+                    const url = `/superadmin/data-entry-progress/${_terimaProgressId}/terima`;
+                    document.getElementById('formTerima').action = url;
+                    document.getElementById('formTerima').submit();
+                } else {
+                    document.getElementById('bulkVerifikatorId').value = verifikatorId;
+                    document.getElementById('bulkTanggalVerifikasi').value = tanggalVerifikasi;
+                    document.getElementById('bulkForm').submit();
+                }
+            });
         });
 
-        function submitTerima(progressId) {
-            document.getElementById('confirmTitle').textContent = 'Konfirmasi Terima';
-            document.getElementById('confirmMessage').textContent = 'Apakah Anda yakin ingin menerima progress ini?';
-            document.getElementById('confirmBtn').className = 'btn btn-success';
-            document.getElementById('confirmBtn').innerHTML = '<i class="las la-check me-1"></i>Ya, Terima';
+        // ── State ─────────────────────────────────────────────────────────────────
+        let _terimaMode = 'single';
+        let _terimaProgressId = null;
+        let _terimaEntryType = null;
 
-            document.getElementById('confirmBtn').onclick = function() {
-                const url = `/superadmin/data-entry-progress/${progressId}/terima`;
-                document.getElementById('formTerima').action = url;
-                document.getElementById('formTerima').submit();
-            };
+        // ── Buka modal single terima ──────────────────────────────────────────────
+        function submitTerima(progressId, entryType) {
+            _terimaMode = 'single';
+            _terimaProgressId = progressId;
+            _terimaEntryType = entryType;
 
-            new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();
+            document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
+            _resetModalTerima(entryType);
+            new bootstrap.Modal(document.getElementById('modalTerima')).show();
         }
 
+        // ── Buka modal bulk terima ────────────────────────────────────────────────
         function submitBulkTerima() {
             const checked = document.querySelectorAll('.row-check:checked').length;
             if (checked === 0) return;
 
-            document.getElementById('confirmTitle').textContent = 'Konfirmasi Terima Massal';
-            document.getElementById('confirmMessage').textContent =
-                `Apakah Anda yakin ingin menerima ${checked} progress yang dipilih?`;
-            document.getElementById('confirmBtn').className = 'btn btn-success';
-            document.getElementById('confirmBtn').innerHTML =
-                `<i class="las la-check-double me-1"></i>Ya, Terima ${checked}`;
+            _terimaMode = 'bulk';
+            _terimaEntryType = null; // bulk bisa campur type, tampilkan pertanyaan umum
 
-            document.getElementById('confirmBtn').onclick = function() {
-                document.getElementById('bulkForm').submit();
-            };
-
-            new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();
+            document.getElementById('modalTerimaTitle').textContent = `Terima ${checked} Progress`;
+            _resetModalTerima(null);
+            new bootstrap.Modal(document.getElementById('modalTerima')).show();
         }
 
+        // ── Reset modal ke step 1 ─────────────────────────────────────────────────
+        function _resetModalTerima(entryType) {
+            // Kembali ke step 1
+            document.getElementById('stepPertanyaan').style.display = 'block';
+            document.getElementById('stepVerifikator').style.display = 'none';
+            document.getElementById('btnLanjutVerifikasi').style.display = 'inline-block';
+            document.getElementById('btnKonfirmasiTerima').style.display = 'none';
+
+            // Reset form step 2
+            document.getElementById('selectVerifikator').value = '';
+            document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';
+            document.getElementById('errorVerifikator').style.display = 'none';
+            document.getElementById('errorTanggal').style.display = 'none';
+
+            // Sembunyikan semua blok pertanyaan
+            document.getElementById('pertanyaanOSS').style.display = 'none';
+            document.getElementById('pertanyaanSIHALAL').style.display = 'none';
+            document.getElementById('alertSiHalalBelum').style.display = 'none';
+            document.getElementById('errorOSS').style.display = 'none';
+            document.getElementById('errorSIHALAL').style.display = 'none';
+
+            // Reset radio buttons
+            document.querySelectorAll('input[name="ossCheck"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="siHalalCek"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="siHalalVerval"]').forEach(r => r.checked = false);
+
+            // Tampilkan blok pertanyaan sesuai type
+            if (entryType === 'OSS') {
+                document.getElementById('pertanyaanOSS').style.display = 'block';
+            } else if (entryType === 'SIHALAL') {
+                document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+            } else {
+                // Bulk / tidak diketahui — tampilkan keduanya
+                document.getElementById('pertanyaanOSS').style.display = 'block';
+                document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+            }
+        }
+
+        // ── Validasi pertanyaan step 1 ────────────────────────────────────────────
+        function _validasiPertanyaan() {
+            let valid = true;
+
+            if (_terimaEntryType === 'OSS' || _terimaEntryType === null) {
+                const ossCheck = document.querySelector('input[name="ossCheck"]:checked');
+                if (!ossCheck) {
+                    document.getElementById('errorOSS').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('errorOSS').style.display = 'none';
+                }
+            }
+
+            if (_terimaEntryType === 'SIHALAL' || _terimaEntryType === null) {
+                const cek = document.querySelector('input[name="siHalalCek"]:checked');
+                const verval = document.querySelector('input[name="siHalalVerval"]:checked');
+
+                if (!cek || !verval) {
+                    document.getElementById('errorSIHALAL').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('errorSIHALAL').style.display = 'none';
+
+                    // Jika keduanya "belum" → blokir
+                    if (cek.value === 'belum' && verval.value === 'belum') {
+                        document.getElementById('alertSiHalalBelum').style.display = 'block';
+                        valid = false;
+                    } else {
+                        document.getElementById('alertSiHalalBelum').style.display = 'none';
+                    }
+                }
+            }
+
+            return valid;
+        }
+
+        // ── Update alert sihalal saat radio berubah ───────────────────────────────
+        function cekSiHalalValid() {
+            const cek = document.querySelector('input[name="siHalalCek"]:checked');
+            const verval = document.querySelector('input[name="siHalalVerval"]:checked');
+
+            if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
+                document.getElementById('alertSiHalalBelum').style.display = 'block';
+            } else {
+                document.getElementById('alertSiHalalBelum').style.display = 'none';
+            }
+        }
+
+        // ── Modal Revisi ──────────────────────────────────────────────────────────
+        function bukaModalRevisi(progressId) {
+            const url = `/superadmin/data-entry-progress/${progressId}/revisi`;
+            document.getElementById('formRevisi').action = url;
+            document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
+            new bootstrap.Modal(document.getElementById('modalRevisi')).show();
+        }
+
+        // ── Modal Tolak ───────────────────────────────────────────────────────────
+        function bukaModalTolak(progressId) {
+            const url = `/superadmin/data-entry-progress/${progressId}/tolak`;
+            document.getElementById('formTolak').action = url;
+            document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
+            new bootstrap.Modal(document.getElementById('modalTolak')).show();
+        }
+
+        // ── Modal Keterangan ──────────────────────────────────────────────────────
         function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
             const revisiWrapper = document.getElementById('keteranganRevisiWrapper');
             const updateWrapper = document.getElementById('keteranganUpdateWrapper');
@@ -479,7 +809,6 @@
             } else {
                 revisiWrapper.style.display = 'none';
             }
-
             if (keteranganUpdate) {
                 document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
                 updateWrapper.style.display = 'block';
@@ -488,20 +817,6 @@
             }
 
             new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
-        }
-
-        function bukaModalRevisi(progressId) {
-            const url = `/superadmin/data-entry-progress/${progressId}/revisi`;
-            document.getElementById('formRevisi').action = url;
-            document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
-            new bootstrap.Modal(document.getElementById('modalRevisi')).show();
-        }
-
-        function bukaModalTolak(progressId) {
-            const url = `/superadmin/data-entry-progress/${progressId}/tolak`;
-            document.getElementById('formTolak').action = url;
-            document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
-            new bootstrap.Modal(document.getElementById('modalTolak')).show();
         }
     </script>
 @endsection

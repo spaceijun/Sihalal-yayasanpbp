@@ -80,14 +80,25 @@
                                                 <td>Rp {{ number_format($verifikator->rate_per_data, 0, ',', '.') }}</td>
                                                 <td class="text-center">
                                                     <span class="badge bg-warning text-dark">
-                                                        {{ $verifikator->jumlah_belum_dibayar }} Data
+                                                        {{ $verifikator->total_belum_dibayar }} Data
                                                     </span>
+                                                    @if ($verifikator->jumlah_belum_dibayar_progress > 0)
+                                                        <br>
+                                                        <small class="text-muted" style="font-size:10px;">
+                                                            {{ $verifikator->jumlah_belum_dibayar }} lapangan
+                                                            + {{ $verifikator->jumlah_belum_dibayar_progress }} progress
+                                                        </small>
+                                                    @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if ($verifikator->total_nominal > 0)
+                                                    @php
+                                                        $totalNominalGabungan =
+                                                            $verifikator->total_belum_dibayar *
+                                                            $verifikator->rate_per_data;
+                                                    @endphp
+                                                    @if ($totalNominalGabungan > 0)
                                                         <strong class="text-success">
-                                                            Rp
-                                                            {{ number_format($verifikator->total_nominal, 0, ',', '.') }}
+                                                            Rp {{ number_format($totalNominalGabungan, 0, ',', '.') }}
                                                         </strong>
                                                     @else
                                                         <span class="text-muted">Rp 0</span>
@@ -97,14 +108,14 @@
                                                     <div class="d-flex gap-1 justify-content-center flex-wrap">
 
                                                         {{-- BAYAR --}}
-                                                        @if ($verifikator->jumlah_belum_dibayar > 0)
+                                                        @if ($verifikator->total_belum_dibayar > 0)
                                                             <button type="button"
                                                                 class="btn btn-sm btn-primary btn-open-bayar"
                                                                 data-id="{{ $verifikator->id }}"
                                                                 data-nama="{{ $verifikator->nama_lengkap }}"
-                                                                data-jumlah="{{ $verifikator->jumlah_belum_dibayar }}"
+                                                                data-jumlah="{{ $verifikator->total_belum_dibayar }}"
                                                                 data-rate="Rp {{ number_format($verifikator->rate_per_data, 0, ',', '.') }}"
-                                                                data-total="Rp {{ number_format($verifikator->total_nominal, 0, ',', '.') }}"
+                                                                data-total="Rp {{ number_format($verifikator->total_belum_dibayar * $verifikator->rate_per_data, 0, ',', '.') }}"
                                                                 data-action="{{ route('superadmin.verifikators.bayar', $verifikator->id) }}">
                                                                 <i class="las la-money-bill-wave"></i> Bayar
                                                             </button>
@@ -283,7 +294,7 @@
 
                         {{-- Summary --}}
                         <div class="row g-3 mb-4">
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <div class="card border text-center h-100">
                                     <div class="card-body py-3">
                                         <p class="text-muted mb-1"
@@ -293,65 +304,80 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <div class="card border text-center h-100">
                                     <div class="card-body py-3">
                                         <p class="text-muted mb-1"
                                             style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">
-                                            Total Diverifikasi</p>
+                                            Total Lapangan</p>
                                         <p class="mb-0 fw-bold fs-5" id="kalk-total"></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
                                 <div class="card border border-warning text-center h-100"
                                     style="background:rgba(255,193,7,.08);">
                                     <div class="card-body py-3">
                                         <p class="text-muted mb-1"
                                             style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">
-                                            Belum Dibayar</p>
-                                        <p class="mb-0 fw-bold fs-5 text-warning" id="kalk-pending"></p>
+                                            Pending Lapangan</p>
+                                        <p class="mb-0 fw-bold fs-5 text-warning" id="kalk-pending-lapangan"></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-2">
+                                <div class="card border border-info text-center h-100"
+                                    style="background:rgba(13,202,240,.08);">
+                                    <div class="card-body py-3">
+                                        <p class="text-muted mb-1"
+                                            style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">
+                                            Pending Progress</p>
+                                        <p class="mb-0 fw-bold fs-5 text-info" id="kalk-pending-progress"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
                                 <div class="card border border-success text-center h-100"
                                     style="background:rgba(25,135,84,.08);">
                                     <div class="card-body py-3">
                                         <p class="text-muted mb-1"
                                             style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">
                                             Total Pending</p>
+                                        <p class="mb-0 fw-bold text-success" id="kalk-pending"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="card border border-success text-center h-100"
+                                    style="background:rgba(25,135,84,.08);">
+                                    <div class="card-body py-3">
+                                        <p class="text-muted mb-1"
+                                            style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">
+                                            Total Nominal</p>
                                         <p class="mb-0 fw-bold text-success" id="kalk-nominal"></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Rekap Bulanan --}}
-                        <p class="text-muted text-uppercase fw-bold mb-2" style="font-size:11px; letter-spacing:.06em;">
-                            <i class="las la-calendar-alt me-1"></i> Rekap Per Bulan
-                        </p>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-sm table-striped table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Bulan</th>
-                                        <th class="text-center">Total</th>
-                                        <th class="text-center">Lunas</th>
-                                        <th class="text-center">Pending</th>
-                                        <th class="text-end">Nominal Pending</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="kalk-rekap-body"></tbody>
-                            </table>
-                        </div>
+                        {{-- Tab Data Lapangan vs Progress --}}
+                        <ul class="nav nav-tabs mb-3" id="kalkTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab-lapangan-link" href="#"
+                                    onclick="switchKalkTab('lapangan'); return false;">
+                                    <i class="las la-map-marker me-1"></i>Data Lapangan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-progress-link" href="#"
+                                    onclick="switchKalkTab('progress'); return false;">
+                                    <i class="las la-tasks me-1"></i>Data Entry Progress
+                                </a>
+                            </li>
+                        </ul>
 
-                        {{-- Data Lapangan --}}
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <p class="text-muted text-uppercase fw-bold mb-0"
-                                style="font-size:11px; letter-spacing:.06em;">
-                                <i class="las la-list me-1"></i> Data Lapangan
-                            </p>
+                        {{-- Filter --}}
+                        <div class="d-flex justify-content-end mb-3">
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-secondary btn-filter-kalk active"
                                     data-filter="semua">Semua</button>
@@ -361,24 +387,98 @@
                                     Dibayar</button>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Lapangan</th>
-                                        <th>Tgl Verifikasi</th>
-                                        <th class="text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="kalk-data-body"></tbody>
-                            </table>
+
+                        {{-- Tab: Data Lapangan --}}
+                        <div id="kalkTabLapangan">
+                            <p class="text-muted text-uppercase fw-bold mb-2"
+                                style="font-size:11px; letter-spacing:.06em;">
+                                <i class="las la-calendar-alt me-1"></i>Rekap Per Bulan — Data Lapangan
+                            </p>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-sm table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Bulan</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-center">Lunas</th>
+                                            <th class="text-center">Pending</th>
+                                            <th class="text-end">Nominal Pending</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="kalk-rekap-body"></tbody>
+                                </table>
+                            </div>
+
+                            <p class="text-muted text-uppercase fw-bold mb-2"
+                                style="font-size:11px; letter-spacing:.06em;">
+                                <i class="las la-list me-1"></i>Detail Data Lapangan
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama PU</th>
+                                            <th>Tgl Verifikasi</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="kalk-data-body"></tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small id="kalk-pagination-info" class="text-muted"></small>
+                                <div id="kalk-pagination-buttons" class="d-flex gap-1"></div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small id="kalk-pagination-info" class="text-muted"></small>
-                            <div id="kalk-pagination-buttons" class="d-flex gap-1"></div>
+
+                        {{-- Tab: Data Entry Progress --}}
+                        <div id="kalkTabProgress" style="display:none;">
+                            <p class="text-muted text-uppercase fw-bold mb-2"
+                                style="font-size:11px; letter-spacing:.06em;">
+                                <i class="las la-calendar-alt me-1"></i>Rekap Per Bulan — Data Entry Progress
+                            </p>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-sm table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Bulan</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-center">Lunas</th>
+                                            <th class="text-center">Pending</th>
+                                            <th class="text-end">Nominal Pending</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="kalk-rekap-progress-body"></tbody>
+                                </table>
+                            </div>
+
+                            <p class="text-muted text-uppercase fw-bold mb-2"
+                                style="font-size:11px; letter-spacing:.06em;">
+                                <i class="las la-list me-1"></i>Detail Data Entry Progress
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama PU</th>
+                                            <th>Data Entry</th>
+                                            <th>Type</th>
+                                            <th>Tgl Verifikasi</th>
+                                            <th class="text-center">Status Bayar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="kalk-progress-body"></tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small id="kalk-pagination-progress-info" class="text-muted"></small>
+                                <div id="kalk-pagination-progress-buttons" class="d-flex gap-1"></div>
+                            </div>
                         </div>
-                    </div>
+
+                    </div>{{-- /kalkulasiContent --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">
@@ -390,9 +490,26 @@
     </div>
 
     <script>
+        // ── kalkState global agar switchKalkTab bisa akses ────────────────────────
+        const kalkState = {
+            url: '',
+            filter: 'semua',
+            pageLapangan: 1,
+            pageProgress: 1,
+            activeTab: 'lapangan',
+        };
+
+        function switchKalkTab(tab) {
+            kalkState.activeTab = tab;
+            document.getElementById('kalkTabLapangan').style.display = tab === 'lapangan' ? 'block' : 'none';
+            document.getElementById('kalkTabProgress').style.display = tab === 'progress' ? 'block' : 'none';
+            document.getElementById('tab-lapangan-link').classList.toggle('active', tab === 'lapangan');
+            document.getElementById('tab-progress-link').classList.toggle('active', tab === 'progress');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
 
-            // ── Helpers ──
+            // ── Helpers ───────────────────────────────────────────────────────────
             const rupiah = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 
             const formatTanggal = str => {
@@ -409,18 +526,14 @@
             function openModal(id) {
                 const el = document.getElementById(id);
                 if (!el) return;
-                // Coba Bootstrap 5
                 if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    const m = bootstrap.Modal.getOrCreateInstance(el);
-                    m.show();
+                    bootstrap.Modal.getOrCreateInstance(el).show();
                     return;
                 }
-                // Fallback Bootstrap 4 / jQuery
                 if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
                     $(el).modal('show');
                     return;
                 }
-                // Fallback manual
                 el.style.display = 'block';
                 el.classList.add('show');
                 document.body.classList.add('modal-open');
@@ -449,7 +562,6 @@
                 if (bd) bd.remove();
             }
 
-            // Pasang tombol close manual juga
             document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const modal = this.closest('.modal');
@@ -457,14 +569,11 @@
                 });
             });
 
-            // ── Reset search ──
             document.getElementById('resetBtn').addEventListener('click', function() {
                 document.getElementById('search').value = '';
             });
 
-            // ══════════════════════
-            // MODAL BAYAR
-            // ══════════════════════
+            // ── Modal Bayar ───────────────────────────────────────────────────────
             document.querySelectorAll('.btn-open-bayar').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.getElementById('bayar-nama').textContent = this.dataset.nama;
@@ -477,26 +586,22 @@
                 });
             });
 
-            // ══════════════════════
-            // MODAL RIWAYAT
-            // ══════════════════════
+            // ── Modal Riwayat ─────────────────────────────────────────────────────
             document.querySelectorAll('.btn-open-riwayat').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.getElementById('riwayat-nama').textContent = this.dataset.nama;
-
                     let payments = [];
                     try {
                         payments = JSON.parse(this.dataset.payments);
                     } catch (e) {}
-
                     const body = document.getElementById('riwayat-body');
 
                     if (!payments.length) {
                         body.innerHTML = `
-                            <div class="text-center py-5 text-muted">
-                                <i class="las la-inbox" style="font-size:40px; display:block;"></i>
-                                <p class="mt-2 mb-0 small">Belum ada riwayat pembayaran.</p>
-                            </div>`;
+                        <div class="text-center py-5 text-muted">
+                            <i class="las la-inbox" style="font-size:40px; display:block;"></i>
+                            <p class="mt-2 mb-0 small">Belum ada riwayat pembayaran.</p>
+                        </div>`;
                     } else {
                         let rows = '',
                             totalData = 0,
@@ -514,60 +619,49 @@
                             totalData += parseInt(p.jumlah_data) || 0;
                             totalNominal += parseFloat(p.total_nominal) || 0;
                             rows += `
-                                <tr>
-                                    <td>${idx + 1}</td>
-                                    <td>${tgl}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-success">${p.jumlah_data} data</span>
-                                    </td>
-                                    <td class="text-end fw-bold text-success">
-                                        ${rupiah(p.total_nominal)}
-                                    </td>
-                                </tr>`;
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td>${tgl}</td>
+                                <td class="text-center"><span class="badge bg-success">${p.jumlah_data} data</span></td>
+                                <td class="text-end fw-bold text-success">${rupiah(p.total_nominal)}</td>
+                            </tr>`;
                         });
                         body.innerHTML = `
-                            <div class="table-responsive">
-                                <table class="table table-sm table-striped table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Tanggal Bayar</th>
-                                            <th class="text-center">Jumlah Data</th>
-                                            <th class="text-end">Total Nominal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>${rows}</tbody>
-                                    <tfoot class="table-success">
-                                        <tr>
-                                            <td colspan="2" class="fw-bold">Total Keseluruhan</td>
-                                            <td class="text-center fw-bold">${totalData} data</td>
-                                            <td class="text-end fw-bold text-success">${rupiah(totalNominal)}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>`;
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th><th>Tanggal Bayar</th>
+                                        <th class="text-center">Jumlah Data</th>
+                                        <th class="text-end">Total Nominal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                                <tfoot class="table-success">
+                                    <tr>
+                                        <td colspan="2" class="fw-bold">Total Keseluruhan</td>
+                                        <td class="text-center fw-bold">${totalData} data</td>
+                                        <td class="text-end fw-bold text-success">${rupiah(totalNominal)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>`;
                     }
-
                     openModal('modalRiwayat');
                 });
             });
 
-            // ══════════════════════
-            // MODAL KALKULASI
-            // ══════════════════════
-            let kalkState = {
-                url: '',
-                filter: 'semua',
-                page: 1
-            };
-
+            // ── Modal Kalkulasi ───────────────────────────────────────────────────
             document.querySelectorAll('.btn-kalkulasi').forEach(btn => {
                 btn.addEventListener('click', function() {
                     kalkState.url = this.dataset.url;
                     kalkState.filter = 'semua';
-                    kalkState.page = 1;
+                    kalkState.pageLapangan = 1;
+                    kalkState.pageProgress = 1;
+                    kalkState.activeTab = 'lapangan';
                     document.getElementById('kalkulasiNama').textContent = this.dataset.nama;
                     setKalkFilter('semua');
+                    switchKalkTab('lapangan');
                     loadKalkulasi();
                     openModal('kalkulasiModal');
                 });
@@ -576,7 +670,8 @@
             document.querySelectorAll('.btn-filter-kalk').forEach(btn => {
                 btn.addEventListener('click', function() {
                     kalkState.filter = this.dataset.filter;
-                    kalkState.page = 1;
+                    kalkState.pageLapangan = 1;
+                    kalkState.pageProgress = 1;
                     setKalkFilter(this.dataset.filter);
                     loadKalkulasi();
                 });
@@ -584,8 +679,7 @@
 
             function setKalkFilter(active) {
                 document.querySelectorAll('.btn-filter-kalk').forEach(b => {
-                    b.classList.remove('active');
-                    if (b.dataset.filter === active) b.classList.add('active');
+                    b.classList.toggle('active', b.dataset.filter === active);
                 });
             }
 
@@ -593,7 +687,13 @@
                 document.getElementById('kalkulasiLoading').style.display = 'block';
                 document.getElementById('kalkulasiContent').style.display = 'none';
 
-                fetch(`${kalkState.url}?filter=${kalkState.filter}&page=${kalkState.page}`, {
+                const params = new URLSearchParams({
+                    filter: kalkState.filter,
+                    page_lapangan: kalkState.pageLapangan,
+                    page_progress: kalkState.pageProgress,
+                });
+
+                fetch(`${kalkState.url}?${params}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
@@ -604,18 +704,23 @@
                         renderKalkRekap(data.rekap);
                         renderKalkData(data.dataLapangans);
                         renderKalkPagination(data.dataLapangans);
+                        renderKalkRekapProgress(data.rekapProgress);
+                        renderKalkProgress(data.dataProgress);
+                        renderKalkProgressPagination(data.dataProgress);
                         document.getElementById('kalkulasiLoading').style.display = 'none';
                         document.getElementById('kalkulasiContent').style.display = 'block';
                     })
                     .catch(() => {
                         document.getElementById('kalkulasiLoading').innerHTML =
-                            '<p class="text-danger text-center mt-4"><i class="las la-exclamation-circle"></i> Gagal memuat data. Coba lagi.</p>';
+                            '<p class="text-danger text-center mt-4"><i class="las la-exclamation-circle"></i> Gagal memuat data.</p>';
                     });
             }
 
             function renderKalkSummary(s) {
                 document.getElementById('kalk-rate').textContent = rupiah(s.rate_per_data);
                 document.getElementById('kalk-total').textContent = s.total_data + ' data';
+                document.getElementById('kalk-pending-lapangan').textContent = s.belum_dibayar_lapangan + ' data';
+                document.getElementById('kalk-pending-progress').textContent = s.belum_dibayar_progress + ' data';
                 document.getElementById('kalk-pending').textContent = s.belum_dibayar + ' data';
                 document.getElementById('kalk-nominal').textContent = rupiah(s.total_nominal);
             }
@@ -628,13 +733,30 @@
                     return;
                 }
                 tbody.innerHTML = rekap.map(r => `
-                    <tr>
-                        <td class="fw-semibold">${r.bulan_label}</td>
-                        <td class="text-center">${r.total}</td>
-                        <td class="text-center"><span class="badge bg-success">${r.sudah_dibayar}</span></td>
-                        <td class="text-center"><span class="badge bg-warning text-dark">${r.belum_dibayar}</span></td>
-                        <td class="text-end fw-semibold text-success">${rupiah(r.nominal_pending)}</td>
-                    </tr>`).join('');
+                <tr>
+                    <td class="fw-semibold">${r.bulan_label}</td>
+                    <td class="text-center">${r.total}</td>
+                    <td class="text-center"><span class="badge bg-success">${r.sudah_dibayar}</span></td>
+                    <td class="text-center"><span class="badge bg-warning text-dark">${r.belum_dibayar}</span></td>
+                    <td class="text-end fw-semibold text-success">${rupiah(r.nominal_pending)}</td>
+                </tr>`).join('');
+            }
+
+            function renderKalkRekapProgress(rekap) {
+                const tbody = document.getElementById('kalk-rekap-progress-body');
+                if (!rekap.length) {
+                    tbody.innerHTML =
+                        `<tr><td colspan="5" class="text-center text-muted py-3">Belum ada data.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = rekap.map(r => `
+                <tr>
+                    <td class="fw-semibold">${r.bulan_label ?? '-'}</td>
+                    <td class="text-center">${r.total}</td>
+                    <td class="text-center"><span class="badge bg-success">${r.sudah_dibayar}</span></td>
+                    <td class="text-center"><span class="badge bg-warning text-dark">${r.belum_dibayar}</span></td>
+                    <td class="text-end fw-semibold text-success">${rupiah(r.nominal_pending)}</td>
+                </tr>`).join('');
             }
 
             function renderKalkData(paginator) {
@@ -646,25 +768,72 @@
                     return;
                 }
                 tbody.innerHTML = data.map((d, i) => `
-                    <tr>
-                        <td class="text-muted">${(paginator.current_page - 1) * paginator.per_page + i + 1}</td>
-                        <td>${d.nama_pu ?? '-'}</td>
-                        <td class="text-muted">${formatTanggal(d.tanggal_verifikasi)}</td>
-                        <td class="text-center">
-                            ${d.payment_id
-                                ? '<span class="badge bg-success">Sudah Dibayar</span>'
-                                : '<span class="badge bg-warning text-dark">Belum Dibayar</span>'}
-                        </td>
-                    </tr>`).join('');
+                <tr>
+                    <td class="text-muted">${(paginator.current_page - 1) * paginator.per_page + i + 1}</td>
+                    <td>${d.nama_pu ?? '-'}</td>
+                    <td class="text-muted">${formatTanggal(d.tanggal_verifikasi)}</td>
+                    <td class="text-center">
+                        ${d.payment_id
+                            ? '<span class="badge bg-success">Sudah Dibayar</span>'
+                            : '<span class="badge bg-warning text-dark">Belum Dibayar</span>'}
+                    </td>
+                </tr>`).join('');
+            }
+
+            function renderKalkProgress(paginator) {
+                const tbody = document.getElementById('kalk-progress-body');
+                const data = paginator.data;
+                if (!data.length) {
+                    tbody.innerHTML =
+                        `<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map((d, i) => {
+                    const entryType = d.data_entry?.entry_type ?? '-';
+                    const badgeType = entryType === 'OSS' ?
+                        '<span class="badge bg-info">OSS</span>' :
+                        entryType === 'SIHALAL' ?
+                        '<span class="badge bg-primary">SIHALAL</span>' :
+                        '<span class="badge bg-secondary">-</span>';
+                    return `
+                <tr>
+                    <td class="text-muted">${(paginator.current_page - 1) * paginator.per_page + i + 1}</td>
+                    <td>${d.data_lapangan?.nama_pu ?? '-'}</td>
+                    <td>${d.data_entry?.user?.name ?? '-'}</td>
+                    <td>${badgeType}</td>
+                    <td class="text-muted">${formatTanggal(d.tanggal_verifikasi)}</td>
+                    <td class="text-center">
+                        ${d.payment_id
+                            ? '<span class="badge bg-success">Sudah Dibayar</span>'
+                            : '<span class="badge bg-warning text-dark">Belum Dibayar</span>'}
+                    </td>
+                </tr>`;
+                }).join('');
             }
 
             function renderKalkPagination(paginator) {
                 document.getElementById('kalk-pagination-info').textContent =
                     `Menampilkan ${paginator.from ?? 0}–${paginator.to ?? 0} dari ${paginator.total} data`;
+                buildPaginationButtons('kalk-pagination-buttons', paginator,
+                    pg => {
+                        kalkState.pageLapangan = pg;
+                        loadKalkulasi();
+                    });
+            }
 
-                const btns = document.getElementById('kalk-pagination-buttons');
+            function renderKalkProgressPagination(paginator) {
+                document.getElementById('kalk-pagination-progress-info').textContent =
+                    `Menampilkan ${paginator.from ?? 0}–${paginator.to ?? 0} dari ${paginator.total} data`;
+                buildPaginationButtons('kalk-pagination-progress-buttons', paginator,
+                    pg => {
+                        kalkState.pageProgress = pg;
+                        loadKalkulasi();
+                    });
+            }
+
+            function buildPaginationButtons(containerId, paginator, onPageChange) {
+                const btns = document.getElementById(containerId);
                 btns.innerHTML = '';
-
                 const mkBtn = (label, disabled, active, onClick) => {
                     const b = document.createElement('button');
                     b.className = 'btn btn-sm ' + (active ? 'btn-secondary' : 'btn-outline-secondary');
@@ -673,31 +842,18 @@
                     if (!disabled) b.onclick = onClick;
                     return b;
                 };
-
                 btns.appendChild(mkBtn('&laquo;', paginator.current_page <= 1, false,
-                    () => {
-                        kalkState.page--;
-                        loadKalkulasi();
-                    }));
-
+                    () => onPageChange(paginator.current_page - 1)));
                 const cur = paginator.current_page,
                     max = paginator.last_page;
                 let start = Math.max(1, cur - 2),
                     end = Math.min(max, start + 4);
                 if (end - start < 4) start = Math.max(1, end - 4);
                 for (let p = start; p <= end; p++) {
-                    btns.appendChild(mkBtn(p, false, p === cur,
-                        ((pg) => () => {
-                            kalkState.page = pg;
-                            loadKalkulasi();
-                        })(p)));
+                    btns.appendChild(mkBtn(p, false, p === cur, () => onPageChange(p)));
                 }
-
                 btns.appendChild(mkBtn('&raquo;', paginator.current_page >= max, false,
-                    () => {
-                        kalkState.page++;
-                        loadKalkulasi();
-                    }));
+                    () => onPageChange(paginator.current_page + 1)));
             }
 
         }); // DOMContentLoaded

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
+use App\Models\Verifikator;
 use App\Services\DataEntryPenagihanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +20,6 @@ class DataEntryProgressController extends Controller
         $this->penagihanService = $penagihanService;
     }
 
-    /**
-     * Hitung jumlah progress per status — dipakai di index dan show.
-     */
     private function getStatusCounts(): array
     {
         return [
@@ -32,95 +30,88 @@ class DataEntryProgressController extends Controller
         ];
     }
 
-    /**
-     * Tampilkan daftar semua progress data entry untuk direview superadmin.
-     */
     public function index(Request $request): View
     {
         $query = DataEntryProgress::with([
             'dataLapangan',
             'dataEntry.user',
-        ])
-            ->where('action', 'created');
+            'verifikator',
+        ])->where('action', 'created');
 
-        // Filter status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         } else {
-            // Default: tampilkan PENDING dan REVISI (yang butuh perhatian)
             $query->whereIn('status', ['PENDING', 'REVISI']);
         }
 
-        // Filter entry_type (OSS / SIHALAL)
         if ($request->filled('entry_type')) {
-            $query->whereHas('dataEntry', function ($q) use ($request) {
-                $q->where('entry_type', $request->entry_type);
-            });
+            $query->whereHas(
+                'dataEntry',
+                fn($q) =>
+                $q->where('entry_type', $request->entry_type)
+            );
         }
 
-        // Filter search nama PU / nama data entry
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereHas('dataLapangan', function ($q2) use ($search) {
-                    $q2->where('nama_pu', 'like', "%{$search}%");
-                })->orWhereHas('dataEntry.user', function ($q2) use ($search) {
-                    $q2->where('name', 'like', "%{$search}%");
-                });
+                $q->whereHas(
+                    'dataLapangan',
+                    fn($q2) =>
+                    $q2->where('nama_pu', 'like', "%{$search}%")
+                )->orWhereHas(
+                    'dataEntry.user',
+                    fn($q2) =>
+                    $q2->where('name', 'like', "%{$search}%")
+                );
             });
         }
 
-        $progresses = $query->latest('actioned_at')->paginate(20)->withQueryString();
+        $progresses   = $query->latest('actioned_at')->paginate(20)->withQueryString();
+        $verifikators = Verifikator::orderBy('nama_lengkap')->get();
 
         return view('superadmin.data-entry.progress.index', array_merge(
-            compact('progresses'),
+            compact('progresses', 'verifikators'),
             $this->getStatusCounts()
         ));
     }
 
-    /**
-     * Detail satu progress — superadmin bisa melihat data lapangan & file terkait.
-     */
     public function show(DataEntryProgress $progress): View
     {
-        $progress->load(['dataLapangan.enumerator', 'dataEntry.user']);
+        $progress->load(['dataLapangan.enumerator', 'dataEntry.user', 'verifikator']);
 
-        // Ambil semua progress milik data_entry yang sama, untuk tabel di show view
-        $progresses = DataEntryProgress::with(['dataLapangan', 'dataEntry.user'])
+        $progresses = DataEntryProgress::with(['dataLapangan', 'dataEntry.user', 'verifikator'])
             ->where('action', 'created')
             ->where('data_entry_id', $progress->data_entry_id)
             ->latest('actioned_at')
             ->paginate(20);
 
-        $countPending  = DataEntryProgress::where('action', 'created')->where('status', 'PENDING')->count();
-        $countRevisi   = DataEntryProgress::where('action', 'created')->where('status', 'REVISI')->count();
-        $countDiterima = DataEntryProgress::where('action', 'created')->where('status', 'DITERIMA')->count();
-        $countDitolak  = DataEntryProgress::where('action', 'created')->where('status', 'DITOLAK')->count();
+        $verifikators = Verifikator::orderBy('nama_lengkap')->get();
 
-        return view('superadmin.data-entry.progress.show', compact(
-            'progress',
-            'progresses',       
-            'countPending',
-            'countRevisi',
-            'countDiterima',
-            'countDitolak'
+        return view('superadmin.data-entry.progress.show', array_merge(
+            compact('progress', 'progresses', 'verifikators'),
+            $this->getStatusCounts()
         ));
     }
-    /**
-     * Terima progress — status jadi DITERIMA, lalu cek penagihan.
-     */
-    public function terima(DataEntryProgress $progress): RedirectResponse
+
+    public function terima(Request $request, DataEntryProgress $progress): RedirectResponse
     {
+        $request->validate([
+            'verifikator_id'     => 'required|exists:verifikators,id',
+            'tanggal_verifikasi' => 'required|date',
+        ]);
+
         if ($progress->status !== 'PENDING') {
             return redirect()->back()->with('error', 'Hanya progress berstatus PENDING yang dapat diterima.');
         }
 
         $progress->update([
-            'status'      => 'DITERIMA',
-            'actioned_at' => now(),
+            'status'             => 'DITERIMA',
+            'verifikator_id'     => $request->verifikator_id,
+            'tanggal_verifikasi' => $request->tanggal_verifikasi,
+            'actioned_at'        => now(),
         ]);
 
-        // Cek dan buat tagihan jika sudah memenuhi 15 data DITERIMA
         $dataEntry = $progress->dataEntry;
         if ($dataEntry) {
             $this->penagihanService->cekDanBuatTagihan($dataEntry);
@@ -129,9 +120,6 @@ class DataEntryProgressController extends Controller
         return redirect()->back()->with('success', 'Progress berhasil diterima.');
     }
 
-    /**
-     * Revisi progress — superadmin memberi catatan, status jadi REVISI.
-     */
     public function revisi(Request $request, DataEntryProgress $progress): RedirectResponse
     {
         $request->validate([
@@ -143,17 +131,14 @@ class DataEntryProgressController extends Controller
         }
 
         $progress->update([
-            'status'             => 'REVISI',
-            'keterangan_revisi'  => $request->keterangan_revisi,
-            'actioned_at'        => now(),
+            'status'            => 'REVISI',
+            'keterangan_revisi' => $request->keterangan_revisi,
+            'actioned_at'       => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Progress ditandai perlu revisi. Data entry akan diberitahu.');
+        return redirect()->back()->with('success', 'Progress ditandai perlu revisi.');
     }
 
-    /**
-     * Tolak progress — status jadi DITOLAK dengan keterangan.
-     */
     public function tolak(Request $request, DataEntryProgress $progress): RedirectResponse
     {
         $request->validate([
@@ -165,22 +150,21 @@ class DataEntryProgressController extends Controller
         }
 
         $progress->update([
-            'status'             => 'DITOLAK',
-            'keterangan_revisi'  => $request->keterangan_revisi,
-            'actioned_at'        => now(),
+            'status'            => 'DITOLAK',
+            'keterangan_revisi' => $request->keterangan_revisi,
+            'actioned_at'       => now(),
         ]);
 
         return redirect()->back()->with('success', 'Progress berhasil ditolak.');
     }
 
-    /**
-     * Bulk terima — terima banyak progress sekaligus.
-     */
     public function bulkTerima(Request $request): RedirectResponse
     {
         $request->validate([
-            'progress_ids'   => 'required|array|min:1',
-            'progress_ids.*' => 'exists:data_entry_progress,id',
+            'progress_ids'       => 'required|array|min:1',
+            'progress_ids.*'     => 'exists:data_entry_progress,id',
+            'verifikator_id'     => 'required|exists:verifikators,id',
+            'tanggal_verifikasi' => 'required|date',
         ]);
 
         $progresses = DataEntryProgress::whereIn('id', $request->progress_ids)
@@ -195,15 +179,17 @@ class DataEntryProgressController extends Controller
 
         foreach ($progresses as $progress) {
             $progress->update([
-                'status'      => 'DITERIMA',
-                'actioned_at' => now(),
+                'status'             => 'DITERIMA',
+                'verifikator_id'     => $request->verifikator_id,
+                'tanggal_verifikasi' => $request->tanggal_verifikasi,
+                'actioned_at'        => now(),
             ]);
+
             if ($progress->data_entry_id) {
                 $dataEntryIds[] = $progress->data_entry_id;
             }
         }
 
-        // Cek penagihan untuk setiap data entry yang terlibat
         foreach (array_unique($dataEntryIds) as $dataEntryId) {
             $dataEntry = DataEntry::find($dataEntryId);
             if ($dataEntry) {

@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\VerifikatorRequest;
 use App\Models\Cashflow;
+use App\Models\DataEntryProgress;
 use App\Models\VerifikatorPayment;
 use App\Traits\SendsWhatsAppNotification;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +29,24 @@ class VerifikatorController extends Controller
     {
         $verifikators = Verifikator::with('verifikatorPayments')
             ->withCount([
-                'dataLapangans as jumlah_belum_dibayar' => fn($q) => $q->whereNull('payment_id')
+                'dataLapangans as jumlah_belum_dibayar' => fn($q) => $q->whereNull('payment_id'),
             ])
             ->paginate(10);
+
+        // Tambahkan hitungan progress per verifikator
+        $progressCounts = DataEntryProgress::where('action', 'created')
+            ->where('status', 'DITERIMA')
+            ->whereNull('payment_id')
+            ->whereIn('verifikator_id', $verifikators->pluck('id'))
+            ->selectRaw('verifikator_id, COUNT(*) as jumlah')
+            ->groupBy('verifikator_id')
+            ->pluck('jumlah', 'verifikator_id');
+
+        // Inject ke masing-masing verifikator sebagai attribute tambahan
+        $verifikators->each(function ($v) use ($progressCounts) {
+            $v->jumlah_belum_dibayar_progress = $progressCounts->get($v->id, 0);
+            $v->total_belum_dibayar = $v->jumlah_belum_dibayar + $v->jumlah_belum_dibayar_progress;
+        });
 
         $i = ($verifikators->currentPage() - 1) * $verifikators->perPage();
 
@@ -41,39 +57,89 @@ class VerifikatorController extends Controller
         $payment = null;
 
         DB::transaction(function () use ($verifikator, &$payment) {
+
+            // Data Lapangan
             $dataBelumDibayar = $verifikator->dataLapangans()->whereNull('payment_id');
 
             $stats = $dataBelumDibayar
                 ->selectRaw('COUNT(*) as jumlah, MIN(created_at) as dari, MAX(created_at) as sampai')
                 ->first();
 
-            if (!$stats || $stats->jumlah === 0) return;
+            // Progress Data entry
+            $progressBelumDibayar = DataEntryProgress::where('verifikator_id', $verifikator->id)
+                ->where('status', 'DITERIMA')
+                ->whereNull('payment_id')
+                ->where('action', 'created');
 
+            $statsProgress = $progressBelumDibayar
+                ->selectRaw('COUNT(*) as jumlah, MIN(actioned_at) as dari, MAX(actioned_at) as sampai')
+                ->first();
+
+            // Gabungkan jumlah dari keduanya
+            $totalJumlah = ($stats->jumlah ?? 0) + ($statsProgress->jumlah ?? 0);
+
+            if ($totalJumlah === 0) return;
+
+            // Tentukan rentang periode (ambil min & max dari keduanya)
+            $allDates = array_filter([
+                $stats->dari         ?? null,
+                $stats->sampai       ?? null,
+                $statsProgress->dari ?? null,
+                $statsProgress->sampai ?? null,
+            ]);
+
+            $periodeDari   = min($allDates);
+            $periodeSampai = max($allDates);
+
+            // satu verifikator, 2 data (data lapangan & data progress)
             $payment = VerifikatorPayment::create([
                 'verifikator_id' => $verifikator->id,
-                'jumlah_data'    => $stats->jumlah,
-                'total_nominal'  => $stats->jumlah * $verifikator->rate_per_data,
-                'periode_dari'   => $stats->dari,
-                'periode_sampai' => $stats->sampai,
+                'jumlah_data'    => $totalJumlah,
+                'total_nominal'  => $totalJumlah * $verifikator->rate_per_data,
+                'periode_dari'   => $periodeDari,
+                'periode_sampai' => $periodeSampai,
                 'paid_at'        => now(),
             ]);
 
-            $verifikator->dataLapangans()
-                ->whereNull('payment_id')
-                ->update(['payment_id' => $payment->id]);
+            // Penanda pembayaran data lapangan
+            if (($stats->jumlah ?? 0) > 0) {
+                $verifikator->dataLapangans()
+                    ->whereNull('payment_id')
+                    ->update(['payment_id' => $payment->id]);
+            }
+
+            // Penanda pembayaran dataentryprogress
+            if (($statsProgress->jumlah ?? 0) > 0) {
+                DataEntryProgress::where('verifikator_id', $verifikator->id)
+                    ->where('status', 'DITERIMA')
+                    ->whereNull('payment_id')
+                    ->where('action', 'created')
+                    ->update(['payment_id' => $payment->id]);
+            }
+
+            // Catat Cashflow
+            $keteranganParts = [];
+
+            if (($stats->jumlah ?? 0) > 0) {
+                $keteranganParts[] = $stats->jumlah . ' data lapangan';
+            }
+
+            if (($statsProgress->jumlah ?? 0) > 0) {
+                $keteranganParts[] = $statsProgress->jumlah . ' progress data entry';
+            }
 
             Cashflow::create([
                 'data_lapangan_id' => null,
                 'tipe'             => 'Pengeluaran',
                 'jumlah'           => $payment->total_nominal,
                 'keterangan'       => 'Pembayaran verifikator ' . $verifikator->nama_lengkap
-                    . ' sebanyak ' . $stats->jumlah . ' data'
+                    . ' (' . implode(' + ', $keteranganParts) . ')'
                     . ' @ Rp ' . number_format($verifikator->rate_per_data, 0, ',', '.'),
                 'tanggal'          => now()->toDateString(),
             ]);
         });
 
-        // Kirim notifikasi WA setelah transaksi berhasil
+        // Notifikasi Wa
         if ($payment && $verifikator->telephone) {
             $this->sendPembayaranVerifikatorNotification(
                 $verifikator->nama_lengkap,
@@ -87,18 +153,28 @@ class VerifikatorController extends Controller
         return redirect()->route('superadmin.verifikators.index')
             ->with('success', 'Pembayaran berhasil diproses.');
     }
+    /**
+     * Kalkulasi Verifikator
+     *
+     * @param Request $request
+     * @param Verifikator $verifikator
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @description Kalkulasi Verifikator berdasarkan filter (semua, pending, lunas)
+     * dan mengembalikan response berupa JSON yang berisi tentang summary
+     * dan detail data lapangan dan data entry progress.
+     */
     public function kalkulasi(Request $request, Verifikator $verifikator)
     {
         $filter = $request->get('filter', 'semua');
 
-        // Query data lapangan
-        $query = $verifikator->dataLapangans()->latest();
-        if ($filter === 'pending') $query->whereNull('payment_id');
-        if ($filter === 'lunas')   $query->whereNotNull('payment_id');
+        // ── Data Lapangan ─────────────────────────────────────────────────────────
+        $queryLapangan = $verifikator->dataLapangans()->latest();
+        if ($filter === 'pending') $queryLapangan->whereNull('payment_id');
+        if ($filter === 'lunas')   $queryLapangan->whereNotNull('payment_id');
+        $dataLapangans = $queryLapangan->paginate(15, ['*'], 'page_lapangan');
 
-        $dataLapangans = $query->paginate(15);
-
-        // Rekap per bulan
         $rekap = $verifikator->dataLapangans()
             ->selectRaw("
             DATE_FORMAT(created_at, '%Y-%m') as bulan,
@@ -115,17 +191,56 @@ class VerifikatorController extends Controller
                 'nominal_pending' => $r->belum_dibayar * $verifikator->rate_per_data,
             ]);
 
-        $belumDibayar = $verifikator->dataLapangans()->whereNull('payment_id')->count();
+        // ── Data Entry Progress ───────────────────────────────────────────────────
+        $queryProgress = \App\Models\DataEntryProgress::with(['dataLapangan', 'dataEntry.user'])
+            ->where('verifikator_id', $verifikator->id)
+            ->where('action', 'created')
+            ->where('status', 'DITERIMA')
+            ->latest('tanggal_verifikasi');
+
+        if ($filter === 'pending') $queryProgress->whereNull('payment_id');
+        if ($filter === 'lunas')   $queryProgress->whereNotNull('payment_id');
+
+        $dataProgress = $queryProgress->paginate(15, ['*'], 'page_progress');
+
+        $rekapProgress = \App\Models\DataEntryProgress::where('verifikator_id', $verifikator->id)
+            ->where('action', 'created')
+            ->where('status', 'DITERIMA')
+            ->selectRaw("
+            DATE_FORMAT(tanggal_verifikasi, '%Y-%m') as bulan,
+            DATE_FORMAT(tanggal_verifikasi, '%M %Y') as bulan_label,
+            COUNT(*) as total,
+            SUM(CASE WHEN payment_id IS NOT NULL THEN 1 ELSE 0 END) as sudah_dibayar,
+            SUM(CASE WHEN payment_id IS NULL THEN 1 ELSE 0 END) as belum_dibayar
+        ")
+            ->groupBy('bulan', 'bulan_label')
+            ->orderByDesc('bulan')
+            ->get()
+            ->map(fn($r) => [
+                ...$r->toArray(),
+                'nominal_pending' => $r->belum_dibayar * $verifikator->rate_per_data,
+            ]);
+
+        $belumDibayarLapangan = $verifikator->dataLapangans()->whereNull('payment_id')->count();
+        $belumDibayarProgress = \App\Models\DataEntryProgress::where('verifikator_id', $verifikator->id)
+            ->where('action', 'created')
+            ->where('status', 'DITERIMA')
+            ->whereNull('payment_id')
+            ->count();
 
         return response()->json([
             'summary' => [
-                'rate_per_data' => $verifikator->rate_per_data,
-                'total_data'    => $verifikator->dataLapangans()->count(),
-                'belum_dibayar' => $belumDibayar,
-                'total_nominal' => $belumDibayar * $verifikator->rate_per_data,
+                'rate_per_data'          => $verifikator->rate_per_data,
+                'total_data'             => $verifikator->dataLapangans()->count(),
+                'belum_dibayar_lapangan' => $belumDibayarLapangan,
+                'belum_dibayar_progress' => $belumDibayarProgress,
+                'belum_dibayar'          => $belumDibayarLapangan + $belumDibayarProgress,
+                'total_nominal'          => ($belumDibayarLapangan + $belumDibayarProgress) * $verifikator->rate_per_data,
             ],
             'rekap'         => $rekap,
             'dataLapangans' => $dataLapangans,
+            'rekapProgress' => $rekapProgress,
+            'dataProgress'  => $dataProgress,
         ]);
     }
     /**

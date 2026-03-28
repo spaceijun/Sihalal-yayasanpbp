@@ -28,6 +28,11 @@ class DataEntryProgress extends Model
         'actioned_at'        => 'datetime',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 
     public function dataLapangan()
     {

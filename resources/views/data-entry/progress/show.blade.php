@@ -258,9 +258,9 @@
                         <span>Dokumentasi File</span>
                     </div>
                     <div class="card-body">
-                        @if ($entryType === 'OSS')
-                            <div class="form-group mb-0">
-                                <strong>File OSS</strong>
+                        <div class="form-group mb-0">
+                            <strong>File OSS</strong>
+                            @if ($entryType === 'OSS')
                                 <div class="mt-2">
                                     <form
                                         action="{{ route('data-entry.data-lapangan.upload-file', $dataLapangan->hashed_id) }}"
@@ -276,53 +276,54 @@
                                         </div>
                                         <small class="text-muted">Format: PDF (Max: 5MB)</small>
                                     </form>
-                                    @if ($dataLapangan->file_oss)
-                                        <div class="mt-2 d-flex gap-2">
-                                            <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
-                                                class="btn btn-outline-success btn-sm flex-grow-1">
-                                                <i class="fas fa-download me-2"></i> Download File OSS
-                                            </a>
-                                        </div>
-                                    @endif
+                            @endif
+
+                            @if ($dataLapangan->file_oss)
+                                <div class="mt-2 d-flex gap-2">
+                                    <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
+                                        class="btn btn-outline-success btn-sm flex-grow-1">
+                                        <i class="fas fa-download me-2"></i> Download File OSS
+                                    </a>
                                 </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Card Revisi — tampil jika progress terakhir berstatus REVISI --}}
+            @if ($latestProgress && $latestProgress->status === 'REVISI')
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark d-flex align-items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Tindakan Revisi Diperlukan</span>
+                    </div>
+                    <div class="card-body">
+                        @if ($latestProgress->keterangan_revisi)
+                            <div class="mb-3">
+                                <strong>Catatan dari Superadmin:</strong>
+                                <p class="text-muted mt-1">{{ $latestProgress->keterangan_revisi }}</p>
                             </div>
+                        @endif
+
+                        @if ($entryType === 'OSS')
+                            {{-- OSS: tombol buka modal resubmit --}}
+                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                data-bs-target="#modalRevisiOSS">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                            </button>
+                        @elseif ($entryType === 'SIHALAL')
+                            {{-- SIHALAL: tombol buka modal resubmit --}}
+                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                data-bs-target="#modalRevisiSIHALAL">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                            </button>
                         @endif
                     </div>
                 </div>
+            @endif
 
-                {{-- Card Revisi — tampil jika progress terakhir berstatus REVISI --}}
-                @if ($latestProgress && $latestProgress->status === 'REVISI')
-                    <div class="card border-warning">
-                        <div class="card-header bg-warning text-dark d-flex align-items-center gap-2">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>Tindakan Revisi Diperlukan</span>
-                        </div>
-                        <div class="card-body">
-                            @if ($latestProgress->keterangan_revisi)
-                                <div class="mb-3">
-                                    <strong>Catatan dari Superadmin:</strong>
-                                    <p class="text-muted mt-1">{{ $latestProgress->keterangan_revisi }}</p>
-                                </div>
-                            @endif
-
-                            @if ($entryType === 'OSS')
-                                {{-- OSS: tombol buka modal resubmit --}}
-                                <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisiOSS">
-                                    <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
-                                </button>
-                            @elseif ($entryType === 'SIHALAL')
-                                {{-- SIHALAL: tombol buka modal resubmit --}}
-                                <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisiSIHALAL">
-                                    <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-            </div>
+        </div>
         </div>
     </section>
 
@@ -652,10 +653,10 @@
             printWindow.document.write('<html><head><title>Kolase Foto</title>');
             printWindow.document.write(
                 '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">'
-                );
+            );
             printWindow.document.write(
                 '<style>.collage-img{height:250px!important;object-fit:cover}.card{break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>'
-                );
+            );
             printWindow.document.write('</head><body>');
             printWindow.document.write(
                 '<h3 class="text-center mb-4">Dokumentasi Foto - {{ $dataLapangan->nama_pu }}</h3>');

@@ -80,7 +80,39 @@
                 </div>
             @endif
         @endif
+        <div class="card">
+            {{-- Card Revisi — tampil jika progress terakhir berstatus REVISI --}}
+            @if ($latestProgress && $latestProgress->status === 'REVISI')
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark d-flex align-items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Tindakan Revisi Diperlukan</span>
+                    </div>
+                    <div class="card-body">
+                        @if ($latestProgress->keterangan_revisi)
+                            <div class="mb-3">
+                                <strong>Catatan dari Superadmin:</strong>
+                                <p class="text-muted mt-1">{{ $latestProgress->keterangan_revisi }}</p>
+                            </div>
+                        @endif
 
+                        @if ($entryType === 'OSS')
+                            {{-- OSS: tombol buka modal resubmit --}}
+                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                data-bs-target="#modalRevisiOSS">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                            </button>
+                        @elseif ($entryType === 'SIHALAL')
+                            {{-- SIHALAL: tombol buka modal resubmit --}}
+                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                                data-bs-target="#modalRevisiSIHALAL">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
         <div class="row mt-3">
             <!-- Card Data Informasi -->
             <div class="col-md-6">
@@ -260,8 +292,8 @@
                     <div class="card-body">
                         <div class="form-group mb-0">
                             <strong>File OSS</strong>
-                            @if ($entryType === 'OSS')
-                                <div class="mt-2">
+                            <div class="mt-2">
+                                @if ($entryType === 'OSS')
                                     <form
                                         action="{{ route('data-entry.data-lapangan.upload-file', $dataLapangan->hashed_id) }}"
                                         method="POST" enctype="multipart/form-data" id="uploadOssForm">
@@ -276,54 +308,24 @@
                                         </div>
                                         <small class="text-muted">Format: PDF (Max: 5MB)</small>
                                     </form>
-                            @endif
+                                @endif
 
-                            @if ($dataLapangan->file_oss)
-                                <div class="mt-2 d-flex gap-2">
-                                    <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
-                                        class="btn btn-outline-success btn-sm flex-grow-1">
-                                        <i class="fas fa-download me-2"></i> Download File OSS
-                                    </a>
-                                </div>
-                            @endif
+                                @if ($dataLapangan->file_oss)
+                                    <div class="mt-2 d-flex gap-2">
+                                        <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
+                                            class="btn btn-outline-success btn-sm flex-grow-1">
+                                            <i class="fas fa-download me-2"></i> Download File OSS
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
-
-            {{-- Card Revisi — tampil jika progress terakhir berstatus REVISI --}}
-            @if ($latestProgress && $latestProgress->status === 'REVISI')
-                <div class="card border-warning">
-                    <div class="card-header bg-warning text-dark d-flex align-items-center gap-2">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Tindakan Revisi Diperlukan</span>
-                    </div>
-                    <div class="card-body">
-                        @if ($latestProgress->keterangan_revisi)
-                            <div class="mb-3">
-                                <strong>Catatan dari Superadmin:</strong>
-                                <p class="text-muted mt-1">{{ $latestProgress->keterangan_revisi }}</p>
-                            </div>
-                        @endif
-
-                        @if ($entryType === 'OSS')
-                            {{-- OSS: tombol buka modal resubmit --}}
-                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
-                                data-bs-target="#modalRevisiOSS">
-                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
-                            </button>
-                        @elseif ($entryType === 'SIHALAL')
-                            {{-- SIHALAL: tombol buka modal resubmit --}}
-                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
-                                data-bs-target="#modalRevisiSIHALAL">
-                                <i class="fas fa-paper-plane me-2"></i>Kirim Ulang (Resubmit)
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            @endif
-
-        </div>
         </div>
     </section>
 

@@ -154,16 +154,13 @@ class DataLapanganController extends Controller
     {
         try {
             $dataLapangan = DataLapangan::findOrFail($id);
-
             if (!in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
                 return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK');
             }
 
-            $newStatus            = 'PROGRESS SIHALAL';
-            $dataLapangan->status = $newStatus;
-            $dataLapangan->save();
+            $newStatus = 'PROGRESS SIHALAL';
 
-            // Track progress — status PENDING, belum masuk penagihan
+            // Track dulu SEBELUM status berubah — agar old_data['status'] = status lama
             $this->trackDataEntryProgress(
                 $dataLapangan,
                 'status_update',
@@ -171,12 +168,15 @@ class DataLapanganController extends Controller
                 'N/A'
             );
 
+            // Baru update status
+            $dataLapangan->status = $newStatus;
+            $dataLapangan->save();
+
             return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
         }
     }
-
     /**
      * Resubmit setelah revisi — data entry mengupdate keterangan atau file ulang
      * Dipanggil dari tombol revisi di halaman show

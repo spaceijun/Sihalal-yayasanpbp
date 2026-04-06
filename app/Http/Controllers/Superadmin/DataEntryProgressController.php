@@ -9,6 +9,7 @@ use App\Models\Verifikator;
 use App\Services\DataEntryPenagihanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class DataEntryProgressController extends Controller
@@ -155,9 +156,16 @@ class DataEntryProgressController extends Controller
             'actioned_at'       => now(),
         ]);
 
-        // Revert status data_lapangan ke status sebelum progress ini dibuat
         $dataLapangan = $progress->dataLapangan;
         $oldData      = $progress->old_data;
+
+        // DEBUG — hapus setelah fix
+        Log::info('TOLAK DEBUG', [
+            'progress_id'        => $progress->id,
+            'old_data'           => $oldData,
+            'dataLapangan_id'    => $dataLapangan?->id,
+            'dataLapangan_status' => $dataLapangan?->status,
+        ]);
 
         if ($dataLapangan && !empty($oldData['status'])) {
             $dataLapangan->update(['status' => $oldData['status']]);

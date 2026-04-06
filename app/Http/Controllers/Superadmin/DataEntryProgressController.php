@@ -155,9 +155,16 @@ class DataEntryProgressController extends Controller
             'actioned_at'       => now(),
         ]);
 
+        // Revert status data_lapangan ke status sebelum progress ini dibuat
+        $dataLapangan = $progress->dataLapangan;
+        $oldData      = $progress->old_data;
+
+        if ($dataLapangan && !empty($oldData['status'])) {
+            $dataLapangan->update(['status' => $oldData['status']]);
+        }
+
         return redirect()->back()->with('success', 'Progress berhasil ditolak.');
     }
-
     public function bulkTerima(Request $request): RedirectResponse
     {
         $request->validate([

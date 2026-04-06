@@ -78,7 +78,9 @@ class DataLapanganController extends Controller
             'data_lapangan_id' => $dataLapangan->id,
             'action'           => 'created',
             'status'           => 'PENDING',
-            'old_data'         => null,
+            'old_data'         => [
+                'status' => $dataLapangan->status,
+            ],
             'new_data'         => [
                 'file_type' => $fileType,
                 'status'    => $newStatus,

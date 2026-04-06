@@ -418,7 +418,7 @@
     @endif
 
     <!-- Include Modal Update Status -->
-    @include('koordinator.data-lapangan.partials.status-modal')
+    @include('data-entry.data-lapangan.partials.status-modal')
 
     <!-- Modal Kolase Foto -->
     <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">

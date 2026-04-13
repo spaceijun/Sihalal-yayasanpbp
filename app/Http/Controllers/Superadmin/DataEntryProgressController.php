@@ -31,6 +31,33 @@ class DataEntryProgressController extends Controller
         ];
     }
 
+    /**
+     * Resolve status data_lapangans berdasarkan new_data dari progress.
+     * OSS  → PROGRESS OSS
+     * SIHALAL / status_update → PROGRESS SIHALAL
+     */
+    private function resolveNewStatusFromProgress(DataEntryProgress $progress): ?string
+    {
+        $newData = $progress->new_data;
+
+        // Ambil langsung dari new_data['status'] jika tersedia
+        if (!empty($newData['status'])) {
+            return $newData['status'];
+        }
+
+        // Fallback: derive dari file_type
+        if (!empty($newData['file_type'])) {
+            return match ($newData['file_type']) {
+                'oss'           => 'PROGRESS OSS',
+                'sihalal'       => 'PROGRESS SIHALAL',
+                'status_update' => 'PROGRESS SIHALAL',
+                default         => null,
+            };
+        }
+
+        return null;
+    }
+
     public function index(Request $request): View
     {
         $query = DataEntryProgress::with([
@@ -95,6 +122,12 @@ class DataEntryProgressController extends Controller
         ));
     }
 
+    /**
+     * Terima satu progress.
+     * Status data_lapangans baru diubah di sini sesuai new_data['status'] / file_type.
+     * OSS  → PROGRESS OSS
+     * SIHALAL / status_update → PROGRESS SIHALAL
+     */
     public function terima(Request $request, DataEntryProgress $progress): RedirectResponse
     {
         $request->validate([
@@ -112,6 +145,15 @@ class DataEntryProgressController extends Controller
             'tanggal_verifikasi' => $request->tanggal_verifikasi,
             'actioned_at'        => now(),
         ]);
+
+        // Update status data_lapangans sekarang — setelah progress diterima superadmin
+        $dataLapangan = $progress->dataLapangan;
+        if ($dataLapangan) {
+            $newStatus = $this->resolveNewStatusFromProgress($progress);
+            if ($newStatus) {
+                $dataLapangan->update(['status' => $newStatus]);
+            }
+        }
 
         $dataEntry = $progress->dataEntry;
         if ($dataEntry) {
@@ -137,6 +179,8 @@ class DataEntryProgressController extends Controller
             'actioned_at'       => now(),
         ]);
 
+        // Status data_lapangans TIDAK berubah saat revisi
+
         return redirect()->back()->with('success', 'Progress ditandai perlu revisi.');
     }
 
@@ -161,18 +205,24 @@ class DataEntryProgressController extends Controller
 
         // DEBUG — hapus setelah fix
         Log::info('TOLAK DEBUG', [
-            'progress_id'        => $progress->id,
-            'old_data'           => $oldData,
-            'dataLapangan_id'    => $dataLapangan?->id,
+            'progress_id'         => $progress->id,
+            'old_data'            => $oldData,
+            'dataLapangan_id'     => $dataLapangan?->id,
             'dataLapangan_status' => $dataLapangan?->status,
         ]);
 
+        // Rollback status data_lapangans ke status sebelum upload/update
         if ($dataLapangan && !empty($oldData['status'])) {
             $dataLapangan->update(['status' => $oldData['status']]);
         }
 
         return redirect()->back()->with('success', 'Progress berhasil ditolak.');
     }
+
+    /**
+     * Terima banyak progress sekaligus.
+     * Status data_lapangans masing-masing baru diubah di sini.
+     */
     public function bulkTerima(Request $request): RedirectResponse
     {
         $request->validate([
@@ -199,6 +249,15 @@ class DataEntryProgressController extends Controller
                 'tanggal_verifikasi' => $request->tanggal_verifikasi,
                 'actioned_at'        => now(),
             ]);
+
+            // Update status data_lapangans sekarang — setelah progress diterima superadmin
+            $dataLapangan = $progress->dataLapangan;
+            if ($dataLapangan) {
+                $newStatus = $this->resolveNewStatusFromProgress($progress);
+                if ($newStatus) {
+                    $dataLapangan->update(['status' => $newStatus]);
+                }
+            }
 
             if ($progress->data_entry_id) {
                 $dataEntryIds[] = $progress->data_entry_id;

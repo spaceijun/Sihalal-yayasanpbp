@@ -45,8 +45,8 @@
                 <div class="alert alert-info d-flex align-items-center gap-2">
                     <i class="fas fa-hourglass-half fa-lg"></i>
                     <div>
-                        <strong>Menunggu Review Superadmin</strong><br>
-                        <small>Data Anda sedang dalam proses verifikasi. Mohon tunggu konfirmasi dari superadmin.</small>
+                        <strong>Menunggu Review Admin</strong><br>
+                        <small>Data Anda sedang dalam proses verifikasi. Mohon tunggu konfirmasi dari Admin.</small>
                     </div>
                 </div>
             @elseif ($latestProgress->status === 'DITERIMA')

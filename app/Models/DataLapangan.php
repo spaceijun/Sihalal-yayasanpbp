@@ -202,9 +202,8 @@ class DataLapangan extends Model
     }
     public function dataEntryProgress()
     {
-        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id');
+        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id', 'id');
     }
-
     public function dataEntry()
     {
         return $this->hasOneThrough(

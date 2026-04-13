@@ -13,7 +13,7 @@ class FileService
      */
     public function uploadFile(DataLapangan $dataLapangan, UploadedFile $file, string $fileType): array
     {
-        $fieldName = 'file_' . $fileType;
+        $fieldName     = 'file_' . $fileType;
         $isFirstUpload = is_null($dataLapangan->$fieldName);
 
         // Delete old file if exists
@@ -23,12 +23,15 @@ class FileService
 
         // Store new file
         $path = $file->store('files/' . $fileType, 'public');
+
+        // Simpan path ke kolom yang sesuai dan persist ke database
         $dataLapangan->$fieldName = $path;
+        $dataLapangan->save();
 
         return [
-            'path' => $path,
+            'path'           => $path,
             'is_first_upload' => $isFirstUpload,
-            'field_name' => $fieldName
+            'field_name'     => $fieldName,
         ];
     }
 
@@ -42,6 +45,7 @@ class FileService
         if ($dataLapangan->$fieldName) {
             Storage::delete($dataLapangan->$fieldName);
             $dataLapangan->$fieldName = null;
+            $dataLapangan->save();
             return true;
         }
 
@@ -58,7 +62,6 @@ class FileService
 
         // Convert type name to folder name (foto_ktp -> foto-ktp)
         $folderName = str_replace('_', '-', $type);
-
         $image->storeAs($folderName, $imageName, 'public');
 
         return $folderName . '/' . $imageName;
@@ -70,6 +73,7 @@ class FileService
     public function isAllowedType(string $type): bool
     {
         $allowedTypes = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'];
+
         return in_array($type, $allowedTypes);
     }
 }

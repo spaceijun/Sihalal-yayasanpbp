@@ -45,7 +45,9 @@
     </div>
     <div class="form-group mb-2 mb20">
         <label for="" class="form-label">{{ __('Entry Type') }}</label>
-        <select name="entry_type" class="form-control @error('entry_type') is-invalid @enderror" id="">
+        <select name="{{ isset($dataEntry) ? '_entry_type_disabled' : 'entry_type' }}"
+            class="form-control @error('entry_type') is-invalid @enderror" id=""
+            {{ isset($dataEntry) ? 'disabled' : '' }}>
             <option value="">{{ __('-- Pilih Entry Type --') }}</option>
             <option value="OSS" {{ old('entry_type', $dataEntry?->entry_type) == 'OSS' ? 'selected' : '' }}>
                 OSS
@@ -54,9 +56,14 @@
                 SIHALAL
             </option>
         </select>
+
+        {{-- Hidden input untuk tetap mengirim value saat mode edit --}}
+        @isset($dataEntry)
+            <input type="hidden" name="entry_type" value="{{ $dataEntry->entry_type }}">
+        @endisset
+
         {!! $errors->first('entry_type', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
     </div>
-
     <div class="form-group mb-2 mb20">
         <label class="form-label">{{ __('Koordinator') }}</label>
         <select name="koordinator_ids[]" class="form-control select2 @error('koordinator_ids') is-invalid @enderror"

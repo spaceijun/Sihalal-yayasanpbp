@@ -20,7 +20,7 @@
         <td>
             @php $status = $progress->status ?? '-'; @endphp
             @if ($status === 'PENDING')
-                <span class="badge bg-warning text-dark">PENDING</span>
+                <span class="badge bg-warning">REVIEW ADMIN</span>
             @elseif ($status === 'REVISI')
                 <span class="badge bg-danger">REVISI</span>
             @elseif ($status === 'DITOLAK')

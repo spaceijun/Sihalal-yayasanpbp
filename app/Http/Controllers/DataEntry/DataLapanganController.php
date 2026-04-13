@@ -31,16 +31,25 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Show the verified data entry list
+     * Tampilkan data lapangan berstatus TERVERIFIKASI yang BELUM diambil siapapun.
+     * Data dianggap "sudah diambil" jika sudah ada record di data_entry_progress
+     * untuk data_lapangan_id tersebut.
+     *
+     * Pastikan model DataLapangan memiliki relasi:
+     *   public function dataEntryProgress()
+     *   {
+     *       return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id');
+     *   }
      */
     public function index(Request $request): View
     {
-        $enumerators = DataLapangan::where('status', 'TERVERIFIKASI')->paginate();
+        $enumerators = DataLapangan::where('status', 'TERVERIFIKASI')
+            ->whereDoesntHave('dataEntryProgress')
+            ->paginate();
 
         return view('data-entry.data-lapangan.index', compact('enumerators'))
             ->with('i', ($request->input('page', 1) - 1) * $enumerators->perPage());
     }
-
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
@@ -63,6 +72,8 @@ class DataLapanganController extends Controller
     /**
      * Track progress data entry ketika upload file / update status.
      * Status default PENDING — menunggu review superadmin.
+     * Status pada table data_lapangans TIDAK berubah di sini.
+     * Perubahan status data_lapangans dilakukan oleh superadmin saat menerima progress.
      */
     private function trackDataEntryProgress(
         DataLapangan $dataLapangan,
@@ -93,7 +104,12 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Upload file OSS (entry_type = OSS)
+     * Upload file OSS atau SIHALAL (entry_type = OSS / SIHALAL).
+     *
+     * Status pada table data_lapangans TIDAK langsung berubah saat upload.
+     * Status baru berubah ketika superadmin menerima (DITERIMA) progress ini.
+     * Setelah upload, redirect ke halaman show data lapangan yang sama
+     * agar data entry bisa memantau status tanpa terlempar ke halaman lain.
      */
     public function uploadFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
@@ -107,14 +123,12 @@ class DataLapanganController extends Controller
 
         $uploadResult = $this->fileService->uploadFile($dataLapangan, $uploadedFile, $fileType);
 
-        // Update status tanpa trigger Observer agar tidak double counting
+        // Tentukan status target untuk disimpan di new_data progress,
+        // tapi JANGAN update status data_lapangans sekarang.
+        // Status akan diupdate oleh superadmin saat menerima progress.
         $newStatus = $this->statusService->determineStatusByFileType($fileType);
-        DataLapangan::withoutEvents(function () use ($dataLapangan, $newStatus) {
-            $dataLapangan->status = $newStatus;
-            $dataLapangan->save();
-        });
 
-        // Track progress — status PENDING, belum masuk penagihan
+        // Track progress — status PENDING, belum masuk penagihan.
         $this->trackDataEntryProgress(
             $dataLapangan,
             $fileType,
@@ -122,8 +136,7 @@ class DataLapanganController extends Controller
             $uploadedFile->getClientOriginalName()
         );
 
-        $statusMessage = "Status diubah menjadi {$newStatus}";
-        $message       = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
+        $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. Menunggu review superadmin.';
 
         // Handle notifications
         if ($fileType === 'oss' && $uploadResult['is_first_upload']) {
@@ -137,30 +150,41 @@ class DataLapanganController extends Controller
             $notificationSent = $this->notificationService->sendSihalalUploadNotification($dataLapangan);
             if ($notificationSent) {
                 $message .= ' Link sertifikat halal telah dikirim ke PU.';
-                return redirect()->back()->with('success', $message);
             } else {
                 $message .= ' Namun notifikasi WhatsApp gagal dikirim.';
-                return redirect()->back()->with('warning', $message);
+                return redirect()
+                    ->route('data-entry.data-lapangan.show', $dataLapangan->hashed_id)
+                    ->with('warning', $message);
             }
         }
 
-        return redirect()->route('data-entry.data-lapangan.index')->with('success', $message);
+        // Redirect eksplisit ke halaman show data lapangan yang sama,
+        // bukan redirect()->back() yang bisa terlempar ke halaman progress
+        // tergantung dari mana user datang.
+        return redirect()
+            ->route('data-entry.data-lapangan.show', $dataLapangan->hashed_id)
+            ->with('success', $message);
     }
 
     /**
-     * Update status ke PROGRESS SIHALAL (entry_type = SIHALAL)
+     * Kirim permintaan update status ke PROGRESS SIHALAL (entry_type = SIHALAL).
+     *
+     * Status pada table data_lapangans TIDAK langsung berubah.
+     * Status baru berubah ketika superadmin menerima (DITERIMA) progress ini.
      */
     public function updateStatus(Request $request, $id): RedirectResponse
     {
         try {
             $dataLapangan = DataLapangan::findOrFail($id);
+
             if (!in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
                 return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK');
             }
 
             $newStatus = 'PROGRESS SIHALAL';
 
-            // Track dulu SEBELUM status berubah — agar old_data['status'] = status lama
+            // Track progress SEBELUM status berubah — agar old_data['status'] = status lama.
+            // Status data_lapangans TIDAK diubah di sini; akan diubah oleh superadmin saat terima.
             $this->trackDataEntryProgress(
                 $dataLapangan,
                 'status_update',
@@ -168,18 +192,15 @@ class DataLapanganController extends Controller
                 'N/A'
             );
 
-            // Baru update status
-            $dataLapangan->status = $newStatus;
-            $dataLapangan->save();
-
-            return redirect()->back()->with('success', 'Status berhasil diupdate ke PROGRESS SIHALAL');
+            return redirect()->back()->with('success', 'Permintaan update ke PROGRESS SIHALAL telah dikirim. Menunggu review superadmin.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
         }
     }
+
     /**
-     * Resubmit setelah revisi — data entry mengupdate keterangan atau file ulang
-     * Dipanggil dari tombol revisi di halaman show
+     * Resubmit setelah revisi — data entry mengupdate keterangan atau file ulang.
+     * Dipanggil dari tombol revisi di halaman show.
      */
     public function resubmit(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
@@ -205,9 +226,9 @@ class DataLapanganController extends Controller
 
         // Update progress yang REVISI menjadi PENDING kembali dengan keterangan update
         $progressRevisi->update([
-            'status'             => 'PENDING',
-            'keterangan_update'  => $request->keterangan_update,
-            'actioned_at'        => now(),
+            'status'            => 'PENDING',
+            'keterangan_update' => $request->keterangan_update,
+            'actioned_at'       => now(),
         ]);
 
         return redirect()->back()->with('success', 'Resubmit berhasil. Menunggu review dari superadmin.');

@@ -23,11 +23,27 @@
             @endif
         </td>
         <td>
-            <a class="btn btn-sm btn-primary btn-show-data"
-                href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
-                data-id="{{ $dataLapangan->id }}">
-                <i class="las la-eye"></i> {{ __('Show') }}
-            </a>
+            @php
+                $progress = $dataLapangan->dataEntryProgress->first();
+                $status = $progress?->status;
+            @endphp
+
+            @if ($status === 'PENDING')
+                <span class="badge badge-warning">
+                    <i class="las la-clock"></i> {{ __('Pending') }}
+                </span>
+            @elseif($status === 'REVISI')
+                <span class="badge badge-danger">
+                    <i class="las la-edit"></i> {{ __('Revisi') }}
+                </span>
+            @else
+                {{-- Tidak ada progress, DITERIMA, atau status lain --}}
+                <a class="btn btn-sm btn-primary btn-show-data"
+                    href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
+                    data-id="{{ $dataLapangan->id }}">
+                    <i class="las la-eye"></i> {{ __('Show') }}
+                </a>
+            @endif
         </td>
     </tr>
 @empty

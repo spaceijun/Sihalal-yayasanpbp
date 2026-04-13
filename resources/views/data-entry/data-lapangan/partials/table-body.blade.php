@@ -24,17 +24,19 @@
         </td>
         <td>
             @php
-                $progress = $dataLapangan->dataEntryProgress->first();
+                $progresses = $dataLapangan->dataEntryProgress;
+                $diterima = $progresses->firstWhere('status', 'DITERIMA');
+                $progress = $diterima ?? $progresses->first();
                 $status = $progress?->status;
             @endphp
 
             @if ($status === 'PENDING')
                 <span class="badge bg-warning">
-                    <i class="las la-clock"></i> {{ __('PENDING') }}
+                    <i class="las la-clock"></i> {{ __('WAIT REVIEW ADMIN') }}
                 </span>
             @elseif($status === 'REVISI')
                 <span class="badge bg-danger">
-                    <i class="las la-edit"></i> {{ __('REVISI') }}
+                    <i class="las la-edit"></i> {{ __('WAIT REVISION ENTRYS') }}
                 </span>
             @else
                 <a class="btn btn-sm btn-primary btn-show-data"

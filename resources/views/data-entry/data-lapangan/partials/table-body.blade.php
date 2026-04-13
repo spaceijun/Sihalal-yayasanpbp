@@ -29,15 +29,14 @@
             @endphp
 
             @if ($status === 'PENDING')
-                <span class="badge badge-warning">
-                    <i class="las la-clock"></i> {{ __('Pending') }}
+                <span class="badge bg-warning">
+                    <i class="las la-clock"></i> {{ __('PENDING') }}
                 </span>
             @elseif($status === 'REVISI')
-                <span class="badge badge-danger">
-                    <i class="las la-edit"></i> {{ __('Revisi') }}
+                <span class="badge bg-danger">
+                    <i class="las la-edit"></i> {{ __('REVISI') }}
                 </span>
             @else
-                {{-- Tidak ada progress, DITERIMA, atau status lain --}}
                 <a class="btn btn-sm btn-primary btn-show-data"
                     href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
                     data-id="{{ $dataLapangan->id }}">

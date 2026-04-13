@@ -138,7 +138,9 @@ class DataEntryLapanganController extends Controller
             }
 
             // Sembunyikan data yang sudah diproses oleh siapapun
-            $query->whereDoesntHave('dataEntryProgress');
+            $query->whereDoesntHave('dataEntryProgress', function ($q) {
+                $q->whereIn('status', ['PENDING', 'REVISI']);
+            });
 
             $koordinatorIds = $dataEntry->koordinators->pluck('id');
             $query->whereHas('enumerator', function ($q) use ($koordinatorIds) {

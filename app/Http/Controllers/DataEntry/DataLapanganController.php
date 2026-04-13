@@ -50,6 +50,7 @@ class DataLapanganController extends Controller
         return view('data-entry.data-lapangan.index', compact('enumerators'))
             ->with('i', ($request->input('page', 1) - 1) * $enumerators->perPage());
     }
+
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);

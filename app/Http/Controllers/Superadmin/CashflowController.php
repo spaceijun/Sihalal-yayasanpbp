@@ -23,9 +23,20 @@ class CashflowController extends Controller
             ->with('i', ($request->input('page', 1) - 1) * $cashflows->perPage());
     }
 
-    public function getData()
+    public function getData(Request $request)
     {
-        $cashflows = Cashflow::orderBy('created_at', 'asc')->get();
+        $query = Cashflow::orderBy('created_at', 'asc');
+
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        $cashflows = $query->get();
+
         return response()->json($cashflows);
     }
 

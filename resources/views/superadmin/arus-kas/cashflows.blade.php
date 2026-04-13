@@ -3,6 +3,55 @@
     Cashflows
 @endsection
 @section('content')
+    {{-- Filter --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bx bx-filter-alt me-2"></i>Filter Cashflow</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Bulan</label>
+                            <select id="filterBulan" class="form-select">
+                                <option value="">-- Semua Bulan --</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Tahun</label>
+                            <select id="filterTahun" class="form-select">
+                                <option value="">-- Semua Tahun --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary w-100" onclick="applyFilter()">
+                                    <i class="bx bx-filter-alt me-1"></i> Terapkan
+                                </button>
+                                <button class="btn btn-outline-secondary w-100" onclick="resetFilter()">
+                                    <i class="bx bx-reset me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- Summary Cards --}}
     <div class="row">
         <div class="col-xl-3">
             <div class="card card-animate">
@@ -98,15 +147,17 @@
         </div>
     </div>
 
+    {{-- Chart --}}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <canvas id="cashflowChart" height="100"></canvas>
         </div>
     </div>
 
+    {{-- Tabel Transaksi --}}
     <div class="card shadow-sm">
         <div class="card-header bg-white">
-            <h5 class="mb-0">Transaksi Terakhir</h5>
+            <h5 class="mb-0">Transaksi</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -134,11 +185,11 @@
         </div>
     </div>
 
-    <!-- Tambahkan Chart.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fungsi format currency
+        let chartInstance = null;
+        let tahunSudahDiisi = false;
+
         function formatCurrency(amount) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -147,7 +198,6 @@
             }).format(amount);
         }
 
-        // Fungsi format tanggal
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('id-ID', {
                 day: '2-digit',
@@ -156,21 +206,76 @@
             });
         }
 
-        // Ambil data dari API Laravel
-        fetch('{{ route('superadmin.cashflows.data') }}')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Data received:', data);
-                processData(data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                document.getElementById('transactionTable').innerHTML =
-                    '<tr><td colspan="4" class="text-center text-danger">Gagal memuat data</td></tr>';
+        function populateYearOptions(cashflows) {
+            if (tahunSudahDiisi) return;
+
+            const years = [...new Set(
+                cashflows.map(item => new Date(item.created_at).getFullYear())
+            )].sort((a, b) => b - a);
+
+            const select = document.getElementById('filterTahun');
+            years.forEach(year => {
+                const opt = document.createElement('option');
+                opt.value = year;
+                opt.textContent = year;
+                select.appendChild(opt);
             });
 
+            // Set default ke tahun sekarang jika ada
+            const currentYear = new Date().getFullYear();
+            if (years.includes(currentYear)) {
+                select.value = currentYear;
+            }
+
+            tahunSudahDiisi = true;
+        }
+
+        function fetchData() {
+            const bulan = document.getElementById('filterBulan').value;
+            const tahun = document.getElementById('filterTahun').value;
+
+            const params = new URLSearchParams();
+            if (bulan) params.append('bulan', bulan);
+            if (tahun) params.append('tahun', tahun);
+
+            const url = '{{ route('superadmin.cashflows.data') }}' +
+                (params.toString() ? '?' + params.toString() : '');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Isi dropdown tahun hanya sekali dari data pertama (tanpa filter)
+                    if (!tahunSudahDiisi) {
+                        populateYearOptions(data);
+                        // Setelah dropdown tahun terisi dan default tahun di-set,
+                        // fetch ulang dengan filter tahun default
+                        const tahunDefault = document.getElementById('filterTahun').value;
+                        if (tahunDefault) {
+                            fetchData();
+                            return;
+                        }
+                    }
+
+                    processData(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('transactionTable').innerHTML =
+                        '<tr><td colspan="4" class="text-center text-danger">Gagal memuat data</td></tr>';
+                });
+        }
+
+        function applyFilter() {
+            fetchData();
+        }
+
+        function resetFilter() {
+            document.getElementById('filterBulan').value = '';
+            document.getElementById('filterTahun').value = '';
+            fetchData();
+        }
+
         function processData(cashflows) {
-            // Hitung total KESELURUHAN data untuk card dan chart
             let totalPemasukan = 0;
             let totalPengeluaran = 0;
             let totalKas = 0;
@@ -186,57 +291,44 @@
                 }
             });
 
-            // RUMUS BARU: Net Cashflow = Pemasukan - Pengeluaran + Kas
             const netCashflow = totalPemasukan - totalPengeluaran;
 
-            // Update card summary dengan total keseluruhan
+            // Update cards
             document.getElementById('totalPemasukan').textContent = formatCurrency(totalPemasukan);
             document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
             document.getElementById('totalKas').textContent = formatCurrency(totalKas);
             document.getElementById('netCashflow').textContent = formatCurrency(netCashflow);
 
-            // Update net cashflow icon color
+            // Update net cashflow icon & warna
             const netIcon = document.getElementById('netCashflowIcon');
             const netText = document.getElementById('netCashflow');
-
             if (netCashflow >= 0) {
                 netIcon.innerHTML = `
                     <span class="avatar-title bg-success-subtle rounded fs-3">
                         <i class="bx bx-trending-up text-success"></i>
-                    </span>
-                `;
+                    </span>`;
                 netText.classList.remove('text-danger');
                 netText.classList.add('text-success');
             } else {
                 netIcon.innerHTML = `
                     <span class="avatar-title bg-danger-subtle rounded fs-3">
                         <i class="bx bx-trending-down text-danger"></i>
-                    </span>
-                `;
+                    </span>`;
                 netText.classList.remove('text-success');
                 netText.classList.add('text-danger');
             }
 
-            // Render chart dengan total keseluruhan data
             renderChart(totalPemasukan, totalPengeluaran, totalKas);
-
-            // Render table hanya 10 transaksi terakhir
             renderTable(cashflows);
         }
 
         function renderChart(pemasukan, pengeluaran, kas) {
             const ctx = document.getElementById('cashflowChart');
-            if (!ctx) {
-                console.error('Canvas element not found');
-                return;
-            }
+            if (!ctx) return;
 
-            if (typeof Chart === 'undefined') {
-                console.error('Chart.js not loaded');
-                return;
-            }
+            if (chartInstance) chartInstance.destroy();
 
-            new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Pemasukan', 'Pengeluaran', 'Kas'],
@@ -262,7 +354,7 @@
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'top',
+                            position: 'top'
                         },
                         title: {
                             display: true,
@@ -274,9 +366,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    return 'Total: ' + formatCurrency(context.parsed.y);
-                                }
+                                label: ctx => 'Total: ' + formatCurrency(ctx.parsed.y)
                             }
                         }
                     },
@@ -284,9 +374,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: function(value) {
-                                    return formatCurrency(value);
-                                }
+                                callback: value => formatCurrency(value)
                             }
                         }
                     }
@@ -296,16 +384,16 @@
 
         function renderTable(cashflows) {
             const tbody = document.getElementById('transactionTable');
-            if (cashflows.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Tidak ada data</td></tr>';
+
+            if (!cashflows || cashflows.length === 0) {
+                tbody.innerHTML =
+                    '<tr><td colspan="4" class="text-center text-muted">Tidak ada data untuk filter ini</td></tr>';
                 return;
             }
 
-            const recentTransactions = cashflows.slice(-10).reverse();
-
-            tbody.innerHTML = recentTransactions.map(item => {
-                let badgeClass = '';
-                let textClass = '';
+            tbody.innerHTML = cashflows.map(item => {
+                let badgeClass = '',
+                    textClass = '';
                 if (item.tipe === 'Pemasukan') {
                     badgeClass = 'bg-success';
                     textClass = 'text-success';
@@ -327,5 +415,8 @@
                 `;
             }).join('');
         }
+
+        // Load pertama tanpa filter (untuk isi dropdown tahun)
+        fetchData();
     </script>
 @endsection

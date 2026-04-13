@@ -130,6 +130,7 @@ class DataEntryLapanganController extends Controller
 
         if ($user->hasRole('data_entry')) {
             $dataEntry = $user->dataEntry()->with('koordinators')->first();
+            $koordinatorIds = $dataEntry->koordinators->pluck('id');
 
             if ($dataEntry->entry_type === 'SIHALAL') {
                 $query->where('status', 'PROGRESS OSS');
@@ -137,12 +138,17 @@ class DataEntryLapanganController extends Controller
                 $query->where('status', 'TERVERIFIKASI');
             }
 
-            // Sembunyikan data yang sudah diproses oleh siapapun
-            $query->whereDoesntHave('dataEntryProgress', function ($q) {
-                $q->whereIn('status', ['PENDING', 'REVISI']);
+            $query->whereNotIn('id', function ($q) use ($dataEntry) {
+                $q->select('data_lapangan_id')
+                    ->from('data_entry_progress')
+                    ->whereIn('status', ['PENDING', 'REVISI'])
+                    ->whereIn('data_entry_id', function ($q2) use ($dataEntry) {
+                        $q2->select('id')
+                            ->from('data_entrys')
+                            ->where('entry_type', $dataEntry->entry_type);
+                    });
             });
 
-            $koordinatorIds = $dataEntry->koordinators->pluck('id');
             $query->whereHas('enumerator', function ($q) use ($koordinatorIds) {
                 $q->whereIn('koordinator_id', $koordinatorIds);
             });

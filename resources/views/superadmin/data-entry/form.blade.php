@@ -45,22 +45,19 @@
     </div>
     <div class="form-group mb-2 mb20">
         <label for="" class="form-label">{{ __('Entry Type') }}</label>
-        <select name="{{ isset($dataEntry) ? '_entry_type_disabled' : 'entry_type' }}"
-            class="form-control @error('entry_type') is-invalid @enderror" id=""
-            {{ isset($dataEntry) ? 'disabled' : '' }}>
-            <option value="">{{ __('-- Pilih Entry Type --') }}</option>
-            <option value="OSS" {{ old('entry_type', $dataEntry?->entry_type) == 'OSS' ? 'selected' : '' }}>
-                OSS
+        <select name="entry_type" class="form-control @error('entry_type') is-invalid @enderror"
+            {{ isset($dataEntry->id) ? 'disabled' : '' }}>
+
+            <option value="">-- Pilih Entry Type --</option>
+            <option value="OSS" {{ old('entry_type', $dataEntry?->entry_type) == 'OSS' ? 'selected' : '' }}>OSS
             </option>
             <option value="SIHALAL" {{ old('entry_type', $dataEntry?->entry_type) == 'SIHALAL' ? 'selected' : '' }}>
-                SIHALAL
-            </option>
+                SIHALAL</option>
         </select>
 
-        {{-- Hidden input untuk tetap mengirim value saat mode edit --}}
-        @isset($dataEntry)
+        @if (isset($dataEntry->id))
             <input type="hidden" name="entry_type" value="{{ $dataEntry->entry_type }}">
-        @endisset
+        @endif
 
         {!! $errors->first('entry_type', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
     </div>

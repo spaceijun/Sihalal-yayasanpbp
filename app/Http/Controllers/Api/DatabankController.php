@@ -23,8 +23,6 @@ class DatabankController extends Controller
             });
         }
 
-        $banks = $query->orderBy('name')->paginate($request->get('per_page', 15));
-
         return response()->json([
             'success' => true,
             'data'    => $query->orderBy('name')->get(),
@@ -39,10 +37,10 @@ class DatabankController extends Controller
         ]);
 
         $validated['code'] = Str::upper($validated['code']);
-
         $bank = DataBank::create($validated);
 
         return response()->json([
+            'success' => true,
             'message' => 'Data bank berhasil ditambahkan.',
             'data'    => $bank,
         ], 201);
@@ -50,7 +48,10 @@ class DatabankController extends Controller
 
     public function show(DataBank $dataBank): JsonResponse
     {
-        return response()->json($dataBank);
+        return response()->json([
+            'success' => true,
+            'data'    => $dataBank,
+        ]);
     }
 
     public function update(Request $request, DataBank $dataBank): JsonResponse
@@ -73,8 +74,9 @@ class DatabankController extends Controller
         $dataBank->update($validated);
 
         return response()->json([
+            'success' => true,
             'message' => 'Data bank berhasil diperbarui.',
-            'data'    => $dataBank,
+            'data'    => $dataBank->fresh(),
         ]);
     }
 
@@ -83,6 +85,7 @@ class DatabankController extends Controller
         $dataBank->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Data bank berhasil dihapus.',
         ]);
     }

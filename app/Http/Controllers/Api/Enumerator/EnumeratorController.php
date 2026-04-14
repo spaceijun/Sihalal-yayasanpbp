@@ -203,12 +203,15 @@ class EnumeratorController extends Controller
             ->first();
 
         if (!$enumerator) {
-            return response()->json(['success' => false, 'message' => 'Tidak ditemukan.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ditemukan.',
+            ], 404);
         }
 
-        // Kembalikan data bank sebagai array (konsisten dengan Flutter yang expects List)
         $bankData = [];
         if ($enumerator->bank_id) {
+            $enumerator->loadMissing('bank'); // ← pastikan relasi ter-load
             $bankData = [[
                 'bank_id'       => $enumerator->bank_id,
                 'no_rekening'   => $enumerator->no_rekening,

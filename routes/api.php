@@ -117,8 +117,8 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::delete('/{id}',  [EnumeratorController::class, 'destroy'])->name('destroy');
 
             // ROute Bank
-            Route::get('profile/{id}/bank', [EnumeratorController::class, 'getBank'])->name('getBank');
-            Route::post('profile/{id}/bank', [EnumeratorController::class, 'saveBank'])->name('saveBank');
+            Route::get('/{id}/bank', [EnumeratorController::class, 'getBank'])->name('getBank');
+            Route::post('/{id}/bank', [EnumeratorController::class, 'saveBank'])->name('saveBank');
         });
 
         // Data Lapangan

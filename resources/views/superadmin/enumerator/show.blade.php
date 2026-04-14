@@ -56,6 +56,27 @@
                         <hr>
 
                         <div class="form-group mb-3">
+                            <strong>No Rekening</strong>
+                            <p class="text-muted mb-0">{{ $enumerator->no_rekening }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
+                            <strong>Nama Rekening</strong>
+                            <p class="text-muted mb-0">{{ $enumerator->nama_rekening }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
+                            <strong>Nama Bank (Kode Bank)</strong>
+                            <p class="text-muted mb-0">{{ $enumerator->bank->name }} ({{ $enumerator->bank->code }})</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
                             <strong>No. Registrasi</strong>
                             <p class="text-muted mb-0">
                                 <span class="badge bg-info">{{ $enumerator->no_registrasi }}</span>

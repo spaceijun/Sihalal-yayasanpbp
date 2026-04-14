@@ -31,7 +31,7 @@ class Enumerator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id', 'koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status'];
+    protected $fillable = ['user_id', 'koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status', 'bank_id', 'no_rekening', 'nama_rekening'];
 
 
     /**
@@ -48,5 +48,13 @@ class Enumerator extends Model
     public function dataLapangans(): HasMany
     {
         return $this->hasMany(DataLapangan::class, 'enumerator_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function bank()
+    {
+        return $this->belongsTo(DataBank::class, 'bank_id', 'id');
     }
 }

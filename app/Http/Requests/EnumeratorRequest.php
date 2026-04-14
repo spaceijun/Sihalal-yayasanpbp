@@ -25,10 +25,13 @@ class EnumeratorRequest extends FormRequest
             'koordinator_id' => 'required',
             'nama_lengkap' => 'required|string',
             'telephone' => 'required|string',
-            'foto_diri' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'foto_diri' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
             // 'no_registrasi' => 'required|string|unique:enumerators,no_registrasi',
             'alamat' => 'required|string',
             'status' => 'required',
+            'bank_id'       => 'nullable|exists:data_banks,id',
+            'no_rekening'   => 'nullable|string|max:50',
+            'nama_rekening' => 'nullable|string|max:100',
         ];
     }
     /**
@@ -42,7 +45,7 @@ class EnumeratorRequest extends FormRequest
             'koordinator_id.required' => 'Koordinator wajib diisi',
             'nama_lengkap.required' => 'Nama Lengkap wajib diisi',
             'telephone.required' => 'Nomor Telepon wajib diisi',
-            'foto_diri.required' => 'Foto Diri wajib diunggah',
+            // 'foto_diri.required' => 'Foto Diri wajib diunggah',
             // 'no_registrasi.required' => 'Nomor Registrasi wajib diisi',
             // 'no_registrasi.unique' => 'Nomor Registrasi sudah digunakan',
             'alamat.required' => 'Alamat wajib diisi',

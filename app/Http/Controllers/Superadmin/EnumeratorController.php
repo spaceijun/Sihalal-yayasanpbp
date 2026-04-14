@@ -7,6 +7,7 @@ use App\Models\Enumerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\EnumeratorRequest;
+use App\Models\DataBank;
 use App\Models\Superadmin\Koordinator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -79,7 +80,7 @@ class EnumeratorController extends Controller
      */
     public function show($id)
     {
-        $enumerator = Enumerator::with('koordinator')->find($id);
+        $enumerator = Enumerator::with(['koordinator', 'bank'])->find($id);
 
         return view('superadmin.enumerator.show', compact('enumerator'));
     }
@@ -111,10 +112,9 @@ class EnumeratorController extends Controller
     {
         $enumerator   = Enumerator::find($id);
         $koordinators = Koordinator::all();
-
-        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators'));
+        $banks        = DataBank::orderBy('name')->get();
+        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators', 'banks'));
     }
-
     /**
      * Update the specified resource in storage.
      */

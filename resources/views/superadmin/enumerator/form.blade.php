@@ -58,8 +58,85 @@
             </select>
             {!! $errors->first('status', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
+        <div class="form-group mb-2 mb20">
+            <label for="bank_id" class="form-label">{{ __('Nama Bank') }}</label>
+            <select name="bank_id" class="form-control select2-bank @error('bank_id') is-invalid @enderror"
+                id="bank_id">
+                <option value="">-- Pilih Bank --</option>
+                @foreach ($banks as $bank)
+                    <option value="{{ $bank->id }}"
+                        {{ old('bank_id', $enumerator?->bank_id) == $bank->id ? 'selected' : '' }}>
+                        {{ $bank->name }}
+                    </option>
+                @endforeach
+            </select>
+            {!! $errors->first('bank_id', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+        </div>
+
+        <div class="form-group mb-2 mb20">
+            <label for="no_rekening" class="form-label">{{ __('No. Rekening') }}</label>
+            <input type="text" name="no_rekening" class="form-control @error('no_rekening') is-invalid @enderror"
+                value="{{ old('no_rekening', $enumerator?->no_rekening) }}" id="no_rekening"
+                placeholder="Nomor Rekening">
+            {!! $errors->first('no_rekening', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+        </div>
+
+        <div class="form-group mb-2 mb20">
+            <label for="nama_rekening" class="form-label">{{ __('Nama Rekening') }}</label>
+            <input type="text" name="nama_rekening" class="form-control @error('nama_rekening') is-invalid @enderror"
+                value="{{ old('nama_rekening', $enumerator?->nama_rekening) }}" id="nama_rekening"
+                placeholder="Nama Rekening">
+            {!! $errors->first(
+                'nama_rekening',
+                '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>',
+            ) !!}
+        </div>
     </div>
     <div class="col-md-12 mt20 mt-2">
         <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
     </div>
 </div>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Sesuaikan tinggi Select2 dengan Bootstrap */
+    .select2-container .select2-selection--single {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5;
+        color: #212529;
+        padding-left: 0;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + 0.75rem + 2px);
+    }
+
+    /* Error state */
+    .is-invalid+.select2-container .select2-selection--single {
+        border-color: #dc3545;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-bank').select2({
+            placeholder: '-- Cari / Pilih Bank --',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return 'Bank tidak ditemukan';
+                },
+                searching: function() {
+                    return 'Mencari...';
+                }
+            }
+        });
+    });
+</script>

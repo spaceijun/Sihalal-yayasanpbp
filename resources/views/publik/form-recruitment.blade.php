@@ -287,7 +287,7 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Template Pakta Integritas</label>
                                                 <div>
-                                                    <a href="{{ asset('assets/files/pakta-integritas.pdf') }}" download
+                                                    <a href="{{ asset('assets/files/pakta-integritas.docx') }}" download
                                                         class="btn btn-outline-info">
                                                         <i class="ri-download-2-line me-1"></i> Download Template Pakta
                                                         Integritas

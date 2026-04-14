@@ -17,7 +17,7 @@ class EnumeratorController extends Controller
      */
     public function index(): JsonResponse
     {
-        $enumerator = Enumerator::with('koordinator')
+        $enumerator = Enumerator::with(['koordinator', 'bank'])
             ->where('user_id', Auth::id())
             ->first();
 
@@ -56,6 +56,9 @@ class EnumeratorController extends Controller
             'no_registrasi'  => 'required|string|unique:enumerators,no_registrasi',
             'alamat'         => 'required|string',
             'status'         => 'required|in:Aktif,Tidak Aktif',
+            'bank_id'        => 'nullable|exists:data_banks,id',
+            'no_rekening'    => 'nullable|string|max:50',
+            'nama_rekening'  => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -80,7 +83,7 @@ class EnumeratorController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data enumerator berhasil dibuat.',
-            'data'    => $enumerator->load('koordinator'),
+            'data'    => $enumerator->load(['koordinator', 'bank']),
         ], 201);
     }
 
@@ -89,7 +92,7 @@ class EnumeratorController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $enumerator = Enumerator::with('koordinator')
+        $enumerator = Enumerator::with(['koordinator', 'bank'])
             ->where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
@@ -132,6 +135,9 @@ class EnumeratorController extends Controller
             'no_registrasi'  => 'sometimes|string|unique:enumerators,no_registrasi,' . $enumerator->id,
             'alamat'         => 'sometimes|string',
             'status'         => 'sometimes|in:Aktif,Tidak Aktif',
+            'bank_id'        => 'nullable|exists:data_banks,id',
+            'no_rekening'    => 'nullable|string|max:50',
+            'nama_rekening'  => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -158,7 +164,7 @@ class EnumeratorController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data enumerator berhasil diperbarui.',
-            'data'    => $enumerator->fresh()->load('koordinator'),
+            'data'    => $enumerator->fresh()->load(['koordinator', 'bank']),
         ]);
     }
 

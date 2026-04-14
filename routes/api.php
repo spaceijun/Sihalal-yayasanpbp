@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\DatabankController;
 use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
@@ -28,6 +29,8 @@ Route::get('data-lapangan/by-enumerator/{enumeratorId}', function ($enumeratorId
 
     return response()->json($dataLapangan);
 });
+
+Route::apiResource('data-banks', DatabankController::class);
 // =============================================
 // SUPERADMIN ROUTES
 // ============================================
@@ -112,6 +115,10 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::put('/{id}',     [EnumeratorController::class, 'update'])->name('update');
             Route::patch('/{id}',   [EnumeratorController::class, 'update'])->name('update.patch');
             Route::delete('/{id}',  [EnumeratorController::class, 'destroy'])->name('destroy');
+
+            // ROute Bank
+            Route::get('profile/{id}/bank', [EnumeratorController::class, 'getBank']);
+            Route::post('profile/{id}/bank', [EnumeratorController::class, 'saveBank']);
         });
 
         // Data Lapangan

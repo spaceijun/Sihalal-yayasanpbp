@@ -195,4 +195,61 @@ class EnumeratorController extends Controller
             'message' => 'Data enumerator berhasil dihapus.',
         ]);
     }
+
+    public function getBank(int $id): JsonResponse
+    {
+        $enumerator = Enumerator::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$enumerator) {
+            return response()->json(['success' => false, 'message' => 'Tidak ditemukan.'], 404);
+        }
+
+        // Kembalikan data bank sebagai array (konsisten dengan Flutter yang expects List)
+        $bankData = [];
+        if ($enumerator->bank_id) {
+            $bankData = [[
+                'bank_id'       => $enumerator->bank_id,
+                'no_rekening'   => $enumerator->no_rekening,
+                'nama_rekening' => $enumerator->nama_rekening,
+                'bank'          => $enumerator->bank,
+            ]];
+        }
+
+        return response()->json(['success' => true, 'data' => $bankData]);
+    }
+
+    public function saveBank(Request $request, int $id): JsonResponse
+    {
+        $enumerator = Enumerator::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$enumerator) {
+            return response()->json(['success' => false, 'message' => 'Tidak ditemukan.'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'bank_id'       => 'required|exists:data_banks,id',
+            'no_rekening'   => 'required|string|max:50',
+            'nama_rekening' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $enumerator->update($validator->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rekening berhasil disimpan.',
+            'data'    => $enumerator->fresh()->load('bank'),
+        ]);
+    }
 }

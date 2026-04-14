@@ -103,6 +103,40 @@
                                                 @enderror
                                             </div>
 
+                                            {{-- NIK --}}
+                                            <div class="mb-3">
+                                                <label for="nik" class="form-label">NIK (Nomor Induk Kependudukan)
+                                                    <span class="text-danger">*</span></label>
+                                                <input type="text" id="nik" name="nik"
+                                                    class="form-control @error('nik') is-invalid @enderror"
+                                                    value="{{ old('nik', $recruitment?->nik) }}" required
+                                                    placeholder="Masukkan 16 digit NIK" maxlength="16" inputmode="numeric">
+                                                <small class="text-muted">Sesuai KTP, 16 digit angka</small>
+                                                @error('nik')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            {{-- Jenis Kelamin --}}
+                                            <div class="mb-3">
+                                                <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span
+                                                        class="text-danger">*</span></label>
+                                                <select id="jenis_kelamin" name="jenis_kelamin"
+                                                    class="form-control @error('jenis_kelamin') is-invalid @enderror"
+                                                    required>
+                                                    <option value="">-- Pilih Jenis Kelamin --</option>
+                                                    <option value="Laki-laki"
+                                                        {{ old('jenis_kelamin', $recruitment?->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>
+                                                        Laki-laki</option>
+                                                    <option value="Perempuan"
+                                                        {{ old('jenis_kelamin', $recruitment?->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>
+                                                        Perempuan</option>
+                                                </select>
+                                                @error('jenis_kelamin')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
                                             <!-- Telephone -->
                                             <div class="mb-3">
                                                 <label for="telephone" class="form-label">No. Telepon <span
@@ -110,8 +144,8 @@
                                                 <input type="text" id="telephone" name="telephone"
                                                     class="form-control @error('telephone') is-invalid @enderror"
                                                     value="{{ old('telephone', $recruitment?->telephone) }}" required
-                                                    placeholder="Contoh: 081234567890" maxlength="15" pattern="[0-9]{10,15}"
-                                                    inputmode="numeric">
+                                                    placeholder="Contoh: 081234567890" maxlength="15"
+                                                    pattern="[0-9]{10,15}" inputmode="numeric">
                                                 <small class="text-muted">Masukkan nomor telepon yang aktif</small>
                                                 @error('telephone')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -233,6 +267,47 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+                                            </div>
+
+
+                                            {{-- Foto Ijazah --}}
+                                            <div class="mb-3">
+                                                <label for="foto_ijasah" class="form-label">Foto Ijazah <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="file" id="foto_ijasah" name="foto_ijasah"
+                                                    class="form-control @error('foto_ijasah') is-invalid @enderror"
+                                                    accept="image/*,.pdf" required>
+                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Max: 10MB</small>
+                                                @error('foto_ijasah')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            {{-- Download Pakta Integritas --}}
+                                            <div class="mb-3">
+                                                <label class="form-label">Template Pakta Integritas</label>
+                                                <div>
+                                                    <a href="{{ asset('assets/files/pakta-integritas.pdf') }}" download
+                                                        class="btn btn-outline-info">
+                                                        <i class="ri-download-2-line me-1"></i> Download Template Pakta
+                                                        Integritas
+                                                    </a>
+                                                    <small class="text-muted d-block mt-1">Unduh, tanda tangani, lalu
+                                                        upload di field di bawah.</small>
+                                                </div>
+                                            </div>
+
+                                            {{-- Pakta Integritas --}}
+                                            <div class="mb-3">
+                                                <label for="pakta_integritas" class="form-label">Pakta Integritas (sudah
+                                                    ditandatangani) <span class="text-danger">*</span></label>
+                                                <input type="file" id="pakta_integritas" name="pakta_integritas"
+                                                    class="form-control @error('pakta_integritas') is-invalid @enderror"
+                                                    accept="image/*,.pdf" required>
+                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Max: 10MB</small>
+                                                @error('pakta_integritas')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
 
                                             <!-- Hidden Status Field -->

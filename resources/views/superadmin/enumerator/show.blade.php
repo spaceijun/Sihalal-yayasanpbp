@@ -57,21 +57,22 @@
 
                         <div class="form-group mb-3">
                             <strong>No Rekening</strong>
-                            <p class="text-muted mb-0">{{ $enumerator->no_rekening }}</p>
+                            <p class="text-muted mb-0">{{ $enumerator->no_rekening ?? 'Belum Tersedia' }}</p>
                         </div>
 
                         <hr>
 
                         <div class="form-group mb-3">
                             <strong>Nama Rekening</strong>
-                            <p class="text-muted mb-0">{{ $enumerator->nama_rekening }}</p>
+                            <p class="text-muted mb-0">{{ $enumerator->nama_rekening ?? 'Belum Tersedia' }}</p>
                         </div>
 
                         <hr>
 
                         <div class="form-group mb-3">
                             <strong>Nama Bank (Kode Bank)</strong>
-                            <p class="text-muted mb-0">{{ $enumerator->bank->name }} ({{ $enumerator->bank->code }})</p>
+                            <p class="text-muted mb-0">{{ $enumerator->bank->name ?? 'Belum Tersedia' }}
+                                ({{ $enumerator->bank->code ?? 'Belum Tersedia' }})</p>
                         </div>
 
                         <hr>

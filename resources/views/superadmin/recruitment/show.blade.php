@@ -58,6 +58,20 @@
                         <hr>
 
                         <div class="form-group mb-3">
+                            <strong>Nomor Induk Kependudukan (NIK)</strong>
+                            <p class="text-muted mb-0">{{ $recruitment->nik }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
+                            <strong>Jenis Kelamin</strong>
+                            <p class="text-muted mb-0">{{ $recruitment->jenis_kelamin }}</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
                             <strong>No. Telepon</strong>
                             <p class="text-muted mb-0">
                                 <a href="tel:{{ $recruitment->telephone }}" class="text-decoration-none">
@@ -260,9 +274,36 @@
                                 </div>
                             </div>
                         </div>
+                        <hr>
+                        <!-- Foto Ijasah -->
+                        <div class="form-group mb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>File Ijasah</strong>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_ijasah']) }}"
+                                        class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- File Pakta Integritas -->
+                        <div class="form-group mb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Pakta Integritas</strong>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'pakta_integritas']) }}"
+                                        class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 

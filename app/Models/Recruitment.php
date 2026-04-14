@@ -36,7 +36,7 @@ class Recruitment extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['koordinator_id', 'nama_lengkap', 'telephone', 'alamat_lengkap', 'pengalaman', 'rekomendasi', 'pendidikan_terakhir', 'foto_diri', 'foto_ktp', 'status', 'alasan_penolakan'];
+    protected $fillable = ['koordinator_id', 'nama_lengkap', 'nik', 'jenis_kelamin', 'telephone', 'alamat_lengkap', 'pengalaman', 'rekomendasi', 'pendidikan_terakhir', 'foto_diri', 'foto_ktp', 'foto_ijasah', 'pakta_integritas', 'status', 'alasan_penolakan'];
 
 
     /**

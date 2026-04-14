@@ -72,15 +72,14 @@ class RecruitmentController extends Controller
     public function store(RecruitmentRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
-        $validated = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-        ]);
+
+        // Auto uppercase nama_lengkap
+        $validatedData['nama_lengkap'] = strtoupper($validatedData['nama_lengkap']);
+
         // Handle foto_ktp
         if ($request->hasFile('foto_ktp')) {
             $image = $request->file('foto_ktp');
-            $extension = $image->getClientOriginalExtension();
-            // Sanitasi nama file - hapus karakter spesial
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->storeAs('recruitment/foto-ktp', $imageName, 'public');
             $validatedData['foto_ktp'] = 'recruitment/foto-ktp/' . $imageName;
         }
@@ -88,20 +87,31 @@ class RecruitmentController extends Controller
         // Handle foto_diri
         if ($request->hasFile('foto_diri')) {
             $image = $request->file('foto_diri');
-            $extension = $image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . $extension;
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->storeAs('recruitment/foto-diri', $imageName, 'public');
             $validatedData['foto_diri'] = 'recruitment/foto-diri/' . $imageName;
         }
 
-        $validated['nama_lengkap'] = strtoupper($validated['nama_lengkap']);
+        // Handle foto_ijasah
+        if ($request->hasFile('foto_ijasah')) {
+            $file = $request->file('foto_ijasah');
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('recruitment/foto-ijasah', $fileName, 'public');
+            $validatedData['foto_ijasah'] = 'recruitment/foto-ijasah/' . $fileName;
+        }
 
-        Recruitment::create($validatedData);
+        // Handle pakta_integritas
+        if ($request->hasFile('pakta_integritas')) {
+            $file = $request->file('pakta_integritas');
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('recruitment/pakta-integritas', $fileName, 'public');
+            $validatedData['pakta_integritas'] = 'recruitment/pakta-integritas/' . $fileName;
+        }
 
-        return Redirect::route('recruitment.formulir')
-            ->with('success', 'Lamaran anda berhasil dikirim.');
+        $recruitment = Recruitment::create($validatedData);
+
+        return Redirect::route('recruitment.confirm', $recruitment->id);
     }
-
 
     /**
      * Update status recruitment dan create enumerator jika diterima
@@ -265,5 +275,11 @@ class RecruitmentController extends Controller
 
         return Redirect::route('superadmin.recruitments.index')
             ->with('success', 'Recruitment deleted successfully');
+    }
+
+    public function confirm($id)
+    {
+        $recruitment = Recruitment::findOrFail($id);
+        return view('publik.confirm', compact('recruitment'));
     }
 }

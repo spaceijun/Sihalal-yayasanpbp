@@ -3,54 +3,6 @@
     Cashflows
 @endsection
 @section('content')
-    {{-- Filter --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bx bx-filter-alt me-2"></i>Filter Cashflow</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label fw-medium">Bulan</label>
-                            <select id="filterBulan" class="form-select">
-                                <option value="">-- Semua Bulan --</option>
-                                <option value="1">Januari</option>
-                                <option value="2">Februari</option>
-                                <option value="3">Maret</option>
-                                <option value="4">April</option>
-                                <option value="5">Mei</option>
-                                <option value="6">Juni</option>
-                                <option value="7">Juli</option>
-                                <option value="8">Agustus</option>
-                                <option value="9">September</option>
-                                <option value="10">Oktober</option>
-                                <option value="11">November</option>
-                                <option value="12">Desember</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-medium">Tahun</label>
-                            <select id="filterTahun" class="form-select">
-                                <option value="">-- Semua Tahun --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-primary w-100" onclick="applyFilter()">
-                                    <i class="bx bx-filter-alt me-1"></i> Terapkan
-                                </button>
-                                <button class="btn btn-outline-secondary w-100" onclick="resetFilter()">
-                                    <i class="bx bx-reset me-1"></i> Reset
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     {{-- Summary Cards --}}
     <div class="row">
         <div class="col-xl-3">
@@ -147,17 +99,40 @@
         </div>
     </div>
 
-    {{-- Chart --}}
+    {{-- Chart dengan 2 Tab --}}
     <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <ul class="nav nav-tabs card-header-tabs" id="chartTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-pemasukan" data-bs-toggle="tab"
+                        data-bs-target="#panel-pemasukan" type="button" role="tab">
+                        <i class="bx bx-trending-up me-1 text-success"></i> Pemasukan
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-pengeluaran" data-bs-toggle="tab" data-bs-target="#panel-pengeluaran"
+                        type="button" role="tab">
+                        <i class="bx bx-trending-down me-1 text-danger"></i> Pengeluaran
+                    </button>
+                </li>
+            </ul>
+        </div>
         <div class="card-body">
-            <canvas id="cashflowChart" height="100"></canvas>
+            <div class="tab-content" id="chartTabContent">
+                <div class="tab-pane fade show active" id="panel-pemasukan" role="tabpanel">
+                    <canvas id="chartPemasukan" height="100"></canvas>
+                </div>
+                <div class="tab-pane fade" id="panel-pengeluaran" role="tabpanel">
+                    <canvas id="chartPengeluaran" height="100"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    {{-- Tabel Transaksi --}}
+    {{-- Tabel 10 Transaksi Terakhir --}}
     <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">Transaksi</h5>
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">10 Transaksi Terakhir</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -187,8 +162,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script>
-        let chartInstance = null;
-        let tahunSudahDiisi = false;
+        let chartPemasukanInstance = null;
+        let chartPengeluaranInstance = null;
+
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+            'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+        ];
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('id-ID', {
@@ -206,56 +185,12 @@
             });
         }
 
-        function populateYearOptions(cashflows) {
-            if (tahunSudahDiisi) return;
-
-            const years = [...new Set(
-                cashflows.map(item => new Date(item.created_at).getFullYear())
-            )].sort((a, b) => b - a);
-
-            const select = document.getElementById('filterTahun');
-            years.forEach(year => {
-                const opt = document.createElement('option');
-                opt.value = year;
-                opt.textContent = year;
-                select.appendChild(opt);
-            });
-
-            // Set default ke tahun sekarang jika ada
-            const currentYear = new Date().getFullYear();
-            if (years.includes(currentYear)) {
-                select.value = currentYear;
-            }
-
-            tahunSudahDiisi = true;
-        }
-
         function fetchData() {
-            const bulan = document.getElementById('filterBulan').value;
-            const tahun = document.getElementById('filterTahun').value;
-
-            const params = new URLSearchParams();
-            if (bulan) params.append('bulan', bulan);
-            if (tahun) params.append('tahun', tahun);
-
-            const url = '{{ route('superadmin.cashflows.data') }}' +
-                (params.toString() ? '?' + params.toString() : '');
+            const url = '{{ route('superadmin.cashflows.data') }}';
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    // Isi dropdown tahun hanya sekali dari data pertama (tanpa filter)
-                    if (!tahunSudahDiisi) {
-                        populateYearOptions(data);
-                        // Setelah dropdown tahun terisi dan default tahun di-set,
-                        // fetch ulang dengan filter tahun default
-                        const tahunDefault = document.getElementById('filterTahun').value;
-                        if (tahunDefault) {
-                            fetchData();
-                            return;
-                        }
-                    }
-
                     processData(data);
                 })
                 .catch(error => {
@@ -265,27 +200,29 @@
                 });
         }
 
-        function applyFilter() {
-            fetchData();
-        }
-
-        function resetFilter() {
-            document.getElementById('filterBulan').value = '';
-            document.getElementById('filterTahun').value = '';
-            fetchData();
-        }
-
         function processData(cashflows) {
             let totalPemasukan = 0;
             let totalPengeluaran = 0;
             let totalKas = 0;
 
+            // Data per bulan untuk chart (indeks 0 = Januari, 11 = Desember)
+            const pemasukanPerBulan = Array(12).fill(0);
+            const pengeluaranPerBulan = Array(12).fill(0);
+
+            const currentYear = new Date().getFullYear();
+
             cashflows.forEach(item => {
                 const jumlah = parseFloat(item.jumlah);
+                const date = new Date(item.created_at);
+                const bulanIndex = date.getMonth(); // 0–11
+                const tahun = date.getFullYear();
+
                 if (item.tipe === 'Pemasukan') {
                     totalPemasukan += jumlah;
+                    if (tahun === currentYear) pemasukanPerBulan[bulanIndex] += jumlah;
                 } else if (item.tipe === 'Pengeluaran') {
                     totalPengeluaran += jumlah;
+                    if (tahun === currentYear) pengeluaranPerBulan[bulanIndex] += jumlah;
                 } else if (item.tipe === 'Kas') {
                     totalKas += jumlah;
                 }
@@ -293,7 +230,7 @@
 
             const netCashflow = totalPemasukan - totalPengeluaran;
 
-            // Update cards
+            // Update summary cards
             document.getElementById('totalPemasukan').textContent = formatCurrency(totalPemasukan);
             document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
             document.getElementById('totalKas').textContent = formatCurrency(totalKas);
@@ -303,49 +240,44 @@
             const netIcon = document.getElementById('netCashflowIcon');
             const netText = document.getElementById('netCashflow');
             if (netCashflow >= 0) {
-                netIcon.innerHTML = `
-                    <span class="avatar-title bg-success-subtle rounded fs-3">
-                        <i class="bx bx-trending-up text-success"></i>
-                    </span>`;
+                netIcon.innerHTML =
+                    `<span class="avatar-title bg-success-subtle rounded fs-3"><i class="bx bx-trending-up text-success"></i></span>`;
                 netText.classList.remove('text-danger');
                 netText.classList.add('text-success');
             } else {
-                netIcon.innerHTML = `
-                    <span class="avatar-title bg-danger-subtle rounded fs-3">
-                        <i class="bx bx-trending-down text-danger"></i>
-                    </span>`;
+                netIcon.innerHTML =
+                    `<span class="avatar-title bg-danger-subtle rounded fs-3"><i class="bx bx-trending-down text-danger"></i></span>`;
                 netText.classList.remove('text-success');
                 netText.classList.add('text-danger');
             }
 
-            renderChart(totalPemasukan, totalPengeluaran, totalKas);
-            renderTable(cashflows);
+            renderChartPemasukan(pemasukanPerBulan, currentYear);
+            renderChartPengeluaran(pengeluaranPerBulan, currentYear);
+
+            // Ambil 10 transaksi terakhir berdasarkan created_at
+            const last10 = [...cashflows]
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 10);
+
+            renderTable(last10);
         }
 
-        function renderChart(pemasukan, pengeluaran, kas) {
-            const ctx = document.getElementById('cashflowChart');
+        function renderChartPemasukan(data, year) {
+            const ctx = document.getElementById('chartPemasukan');
             if (!ctx) return;
+            if (chartPemasukanInstance) chartPemasukanInstance.destroy();
 
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
+            chartPemasukanInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Pemasukan', 'Pengeluaran', 'Kas'],
+                    labels: MONTHS,
                     datasets: [{
-                        label: 'Total (Rp)',
-                        data: [pemasukan, pengeluaran, kas],
-                        backgroundColor: [
-                            'rgba(25, 135, 84, 0.8)',
-                            'rgba(220, 53, 69, 0.8)',
-                            'rgba(13, 110, 253, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(25, 135, 84, 1)',
-                            'rgba(220, 53, 69, 1)',
-                            'rgba(13, 110, 253, 1)'
-                        ],
-                        borderWidth: 2
+                        label: 'Pemasukan (Rp)',
+                        data: data,
+                        backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                        borderColor: 'rgba(25, 135, 84, 1)',
+                        borderWidth: 2,
+                        borderRadius: 4
                     }]
                 },
                 options: {
@@ -353,20 +285,70 @@
                     maintainAspectRatio: true,
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
+                            display: false
                         },
                         title: {
                             display: true,
-                            text: 'Laporan Cashflow',
+                            text: `Pemasukan per Bulan — ${year}`,
                             font: {
-                                size: 18,
+                                size: 16,
                                 weight: 'bold'
                             }
                         },
                         tooltip: {
                             callbacks: {
-                                label: ctx => 'Total: ' + formatCurrency(ctx.parsed.y)
+                                label: ctx => formatCurrency(ctx.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => formatCurrency(value)
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderChartPengeluaran(data, year) {
+            const ctx = document.getElementById('chartPengeluaran');
+            if (!ctx) return;
+            if (chartPengeluaranInstance) chartPengeluaranInstance.destroy();
+
+            chartPengeluaranInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: MONTHS,
+                    datasets: [{
+                        label: 'Pengeluaran (Rp)',
+                        data: data,
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `Pengeluaran per Bulan — ${year}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => formatCurrency(ctx.parsed.y)
                             }
                         }
                     },
@@ -387,7 +369,7 @@
 
             if (!cashflows || cashflows.length === 0) {
                 tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center text-muted">Tidak ada data untuk filter ini</td></tr>';
+                    '<tr><td colspan="4" class="text-center text-muted">Tidak ada data transaksi</td></tr>';
                 return;
             }
 
@@ -416,7 +398,6 @@
             }).join('');
         }
 
-        // Load pertama tanpa filter (untuk isi dropdown tahun)
         fetchData();
     </script>
 @endsection

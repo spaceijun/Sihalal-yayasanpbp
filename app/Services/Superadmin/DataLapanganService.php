@@ -119,4 +119,19 @@ class DataLapanganService
             'status'             => 'TERVERIFIKASI',
         ]);
     }
+
+    /**
+     * Update email sihalal of a data lapangan.
+     *
+     * @param int $id
+     * @param string $emailSihalal
+     * @return DataLapangan
+     */
+    public function updateEmailSihalal(int $id, string $emailSihalal): DataLapangan
+    {
+        $dataLapangan = DataLapangan::findOrFail($id);
+        $dataLapangan->update(['email_sihalal' => $emailSihalal]);
+
+        return $dataLapangan;
+    }
 }

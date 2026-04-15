@@ -9,21 +9,21 @@
         <!-- Alert Messages -->
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <i class="las la-check-circle me-2"></i>{{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
+                <i class="las la-exclamation-triangle me-2"></i>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -39,7 +39,7 @@
                 <!-- Card Data Informasi -->
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-user me-2"></i>Data Pelamar</span>
+                        <span><i class="las la-user me-2"></i>Data Pelamar</span>
                     </div>
                     <div class="card-body">
                         @if ($recruitment->koordinator_id)
@@ -75,7 +75,7 @@
                             <strong>No. Telepon</strong>
                             <p class="text-muted mb-0">
                                 <a href="tel:{{ $recruitment->telephone }}" class="text-decoration-none">
-                                    <i class="fas fa-phone me-2"></i>{{ $recruitment->telephone }}
+                                    <i class="las la-phone me-2"></i>{{ $recruitment->telephone }}
                                 </a>
                             </p>
                         </div>
@@ -136,7 +136,7 @@
                         <div class="form-group mb-0">
                             <strong>Tanggal Melamar</strong>
                             <p class="text-muted mb-0">
-                                <i class="fas fa-calendar me-2"></i>
+                                <i class="las la-calendar me-2"></i>
                                 {{ $recruitment->created_at->format('d M Y, H:i') }}
                             </p>
                         </div>
@@ -149,7 +149,7 @@
                 <!-- Card Edit Status -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-edit me-2"></i>Edit Status Lamaran</span>
+                        <span><i class="las la-edit me-2"></i>Edit Status Lamaran</span>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('superadmin.recruitments.update-status', $recruitment->id) }}"
@@ -177,7 +177,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <button type="submit" class="btn btn-success w-100">
-                                            <i class="fas fa-save me-2"></i>Update
+                                            <i class="las la-save me-2"></i>Update
                                         </button>
                                     </div>
                                 </div>
@@ -199,7 +199,7 @@
                                     @endforeach
                                 </select>
                                 <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
+                                    <i class="las la-info-circle me-1"></i>
                                     Wajib diisi jika status diterima
                                 </small>
                             </div>
@@ -213,7 +213,7 @@
                                 <textarea name="alasan_penolakan" id="alasan_penolakan" class="form-control" rows="3"
                                     placeholder="Masukkan alasan penolakan...">{{ old('alasan_penolakan', $recruitment->alasan_penolakan ?? '') }}</textarea>
                                 <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
+                                    <i class="las la-info-circle me-1"></i>
                                     Wajib diisi jika status ditolak
                                 </small>
                             </div>
@@ -222,7 +222,7 @@
                         @if ($recruitment->alasan_penolakan && $recruitment->status == 'Ditolak')
                             <hr class="my-3">
                             <div class="alert alert-danger mb-0">
-                                <strong><i class="fas fa-exclamation-triangle me-2"></i>Alasan Penolakan:</strong>
+                                <strong><i class="las la-exclamation-triangle me-2"></i>Alasan Penolakan:</strong>
                                 <p class="mb-0 mt-2">{{ $recruitment->alasan_penolakan }}</p>
                             </div>
                         @endif
@@ -232,10 +232,10 @@
                 <!-- Section Foto -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-images me-2"></i>Dokumentasi Foto</span>
+                        <span><i class="las la-images me-2"></i>Dokumentasi Foto</span>
                         <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
                             data-bs-target="#modalKolaseFoto">
-                            <i class="fas fa-th me-2"></i>Lihat Kolase
+                            <i class="las la-th me-2"></i>Lihat Kolase
                         </button>
                     </div>
                     <div class="card-body">
@@ -246,11 +246,11 @@
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#modalFotoDiri">
-                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                        <i class="las la-eye me-2"></i>Lihat Foto
                                     </button>
                                     <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_diri']) }}"
                                         class="btn btn-success btn-sm">
-                                        <i class="fas fa-download me-2"></i>Download
+                                        <i class="las la-download me-2"></i>Download
                                     </a>
                                 </div>
                             </div>
@@ -265,11 +265,11 @@
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#modalFotoKTP">
-                                        <i class="fas fa-eye me-2"></i>Lihat Foto
+                                        <i class="las la-eye me-2"></i>Lihat Foto
                                     </button>
                                     <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_ktp']) }}"
                                         class="btn btn-success btn-sm">
-                                        <i class="fas fa-download me-2"></i>Download
+                                        <i class="las la-download me-2"></i>Download
                                     </a>
                                 </div>
                             </div>
@@ -282,7 +282,7 @@
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_ijasah']) }}"
                                         class="btn btn-success btn-sm">
-                                        <i class="fas fa-download me-2"></i>Download
+                                        <i class="las la-download me-2"></i>Download
                                     </a>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'pakta_integritas']) }}"
                                         class="btn btn-success btn-sm">
-                                        <i class="fas fa-download me-2"></i>Download
+                                        <i class="las la-download me-2"></i>Download
                                     </a>
                                 </div>
                             </div>
@@ -346,13 +346,13 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                     <button type="button" class="btn btn-success btn-sm" onclick="downloadCollage()">
-                        <i class="fas fa-download me-2"></i>Download Kolase
+                        <i class="las la-download me-2"></i>Download Kolase
                     </button>
                     <button type="button" class="btn btn-primary btn-sm" onclick="printCollage()">
-                        <i class="fas fa-print me-2"></i>Print Kolase
+                        <i class="las la-print me-2"></i>Print Kolase
                     </button>
                 </div>
             </div>
@@ -373,10 +373,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                     <button type="button" class="btn btn-success btn-sm" onclick="downloadSingleImage()">
-                        <i class="fas fa-download me-2"></i>Download Foto
+                        <i class="las la-download me-2"></i>Download Foto
                     </button>
                 </div>
             </div>
@@ -397,7 +397,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -418,7 +418,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -501,7 +501,7 @@
             // Show loading indicator
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
-                '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';
+                '<div class="text-center"><i class="las la-spinner fa-spin me-2"></i>Memproses download...</div>';
             loadingDiv.style.position = 'fixed';
             loadingDiv.style.top = '50%';
             loadingDiv.style.left = '50%';

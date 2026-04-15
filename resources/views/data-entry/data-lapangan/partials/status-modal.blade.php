@@ -18,6 +18,21 @@
                         <strong>PROGRESS OSS</strong> menjadi <strong>PROGRESS SIHALAL</strong>
                     </div>
 
+                    {{-- Field Email SIHALAL --}}
+                    <div class="mb-3">
+                        <label for="email_sihalal" class="form-label fw-semibold">
+                            Email SIHALAL <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" class="form-control @error('email_sihalal') is-invalid @enderror"
+                            id="email_sihalal" name="email_sihalal"
+                            value="{{ old('email_sihalal', $dataLapangan->email_sihalal) }}"
+                            placeholder="Masukkan email yang didaftarkan di SIHALAL" required>
+                        @error('email_sihalal')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Email yang digunakan untuk login di website SIHALAL.</small>
+                    </div>
+
                     {{-- Pernyataan Pemohon --}}
                     <div class="border rounded p-3 bg-light">
                         <p class="text-muted small fw-semibold text-uppercase mb-2">Pernyataan Pemohon</p>
@@ -34,7 +49,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" id="btnSubmitSihalal" class="btn btn-primary" disabled>
-                        <i class="fas fa-arrow-right me-2"></i>Update ke Progress SIHALAL
+                        <i class="las la-arrow-right me-2"></i>Update ke Progress SIHALAL
                     </button>
                 </div>
             </form>

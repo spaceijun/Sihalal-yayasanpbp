@@ -9,21 +9,21 @@
         <!-- Alert Messages -->
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <i class="las la-check-circle me-2"></i>{{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
+                <i class="las la-exclamation-triangle me-2"></i>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -38,7 +38,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-user me-2"></i>Data Enumerator</span>
+                        <span><i class="las la-user me-2"></i>Data Enumerator</span>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -90,7 +90,7 @@
                             <strong>No. Telepon</strong>
                             <p class="text-muted mb-0">
                                 <a href="tel:{{ $enumerator->telephone }}" class="text-decoration-none">
-                                    <i class="fas fa-phone me-2"></i>{{ $enumerator->telephone }}
+                                    <i class="las la-phone me-2"></i>{{ $enumerator->telephone }}
                                 </a>
                             </p>
                         </div>
@@ -120,7 +120,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-user-check me-1"></i>Aktifkan Kembali
+                                            <i class="las la-user-check me-1"></i>Aktifkan Kembali
                                         </button>
                                     </form>
                                 @endif
@@ -129,7 +129,7 @@
                             {{-- Info jika Tidak Aktif --}}
                             @if ($enumerator->status == 'Tidak Aktif')
                                 <small class="text-danger mt-2 d-block">
-                                    <i class="fas fa-info-circle me-1"></i>
+                                    <i class="las la-info-circle me-1"></i>
                                     Enumerator ini dinonaktifkan karena tidak memenuhi target minimal
                                     20 data lapangan dalam 30 hari terakhir.
                                 </small>
@@ -141,7 +141,7 @@
                         <div class="form-group mb-0">
                             <strong>Tanggal Terdaftar</strong>
                             <p class="text-muted mb-0">
-                                <i class="fas fa-calendar me-2"></i>
+                                <i class="las la-calendar me-2"></i>
                                 {{ $enumerator->created_at->format('d M Y, H:i') }}
                             </p>
                         </div>
@@ -154,7 +154,7 @@
                 <!-- Card Foto -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-image me-2"></i>Foto Enumerator</span>
+                        <span><i class="las la-image me-2"></i>Foto Enumerator</span>
                     </div>
                     <div class="card-body text-center">
                         @if ($enumerator->foto_diri)
@@ -164,7 +164,7 @@
                                 data-bs-target="#modalFoto">
                         @else
                             <div class="text-muted">
-                                <i class="fas fa-user-circle" style="font-size: 150px;"></i>
+                                <i class="las la-user-circle" style="font-size: 150px;"></i>
                                 <p class="mt-2">Foto tidak tersedia</p>
                             </div>
                         @endif
@@ -174,17 +174,17 @@
                 <!-- Card Dokumen -->
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-file-alt me-2"></i>Dokumen</span>
+                        <span><i class="las la-file-alt me-2"></i>Dokumen</span>
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <button type="button" class="btn btn-success" data-bs-toggle="modal"
                                 data-bs-target="#modalSuratTugas">
-                                <i class="fas fa-file-pdf me-2"></i>Download Surat Tugas
+                                <i class="las la-file-pdf me-2"></i>Download Surat Tugas
                             </button>
 
                             <button type="button" class="btn btn-info text-white" onclick="downloadIdCard()">
-                                <i class="fas fa-id-card me-2"></i>Download ID Card
+                                <i class="las la-id-card me-2"></i>Download ID Card
                             </button>
                         </div>
                     </div>
@@ -210,7 +210,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -223,7 +223,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-file-alt me-2"></i>Preview Surat Tugas - {{ $enumerator->nama_lengkap }}
+                        <i class="las la-file-alt me-2"></i>Preview Surat Tugas - {{ $enumerator->nama_lengkap }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -234,10 +234,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                     <button type="button" class="btn btn-primary" onclick="printSuratTugas()">
-                        <i class="fas fa-print me-2"></i>Print
+                        <i class="las la-print me-2"></i>Print
                     </button>
                 </div>
             </div>
@@ -318,7 +318,7 @@
 
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
-                '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses ID Card...</div>';
+                '<div class="text-center"><i class="las la-spinner fa-spin me-2"></i>Memproses ID Card...</div>';
             loadingDiv.style.cssText =
                 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999;';
             document.body.appendChild(loadingDiv);

@@ -8,21 +8,21 @@
     <section class="content container-fluid" data-lock-id="{{ $dataLapangan->id }}">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <i class="las la-check-circle me-2"></i>{{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
+                <i class="las la-exclamation-triangle me-2"></i>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -38,11 +38,15 @@
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>
-                        @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
+                        @if (($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK') && !$hasPendingProgress)
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#modalUpdateStatusHalal">
-                                <i class="fas fa-edit me-2"></i>Update Status Halal
+                                <i class="las la-edit me-2"></i>Update Status Halal
                             </button>
+                        @elseif ($hasPendingProgress)
+                            <span class="badge badge-gradient-success">
+                                <i class="las la-clock me-1"></i>Menunggu Review Superadmin
+                            </span>
                         @endif
                     </div>
                     <div class="card-body">
@@ -122,7 +126,7 @@
                         @if ($entryType == 'SIHALAL')
                             <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#modalKolaseFoto">
-                                <i class="fas fa-th me-2"></i>Lihat Kolase
+                                <i class="las la-th me-2"></i>Lihat Kolase
                             </button>
                         @endif
                     </div>
@@ -134,7 +138,7 @@
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#modalFotoRumah">
-                                            <i class="fas fa-eye me-2"></i>Lihat Foto
+                                            <i class="las la-eye me-2"></i>Lihat Foto
                                         </button>
                                         <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">Download PDF</a>
@@ -148,11 +152,11 @@
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#modalFotoKTP">
-                                            <i class="fas fa-eye me-2"></i>Lihat Foto
+                                            <i class="las la-eye me-2"></i>Lihat Foto
                                         </button>
                                         <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-2"></i>Download KTP
+                                            <i class="las la-download me-2"></i>Download KTP
                                         </a>
                                     </div>
                                 </div>
@@ -165,11 +169,11 @@
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#modalFotoKTP">
-                                            <i class="fas fa-eye me-2"></i>Lihat Foto
+                                            <i class="las la-eye me-2"></i>Lihat Foto
                                         </button>
                                         <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-2"></i>Download KTP
+                                            <i class="las la-download me-2"></i>Download KTP
                                         </a>
                                     </div>
                                 </div>
@@ -181,11 +185,11 @@
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#modalFotoProduk">
-                                            <i class="fas fa-eye me-2"></i>Lihat Foto
+                                            <i class="las la-eye me-2"></i>Lihat Foto
                                         </button>
                                         <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
                                             class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-2"></i>Download
+                                            <i class="las la-download me-2"></i>Download
                                         </a>
                                     </div>
                                 </div>
@@ -213,7 +217,7 @@
                                                 <input type="file" class="form-control" name="file" id="file_oss"
                                                     accept=".pdf" required>
                                                 <button class="btn btn-primary" type="submit">
-                                                    <i class="fas fa-upload me-2"></i>Upload
+                                                    <i class="las la-upload me-2"></i>Upload
                                                 </button>
                                             </div>
                                             <small class="text-muted">Format: PDF (Max: 5MB)</small>
@@ -226,7 +230,7 @@
                             <div class="mt-2 d-flex gap-2">
                                 <a href="{{ asset('storage/' . $dataLapangan->file_oss) }}" target="_blank"
                                     class="btn btn-outline-success btn-sm flex-grow-1">
-                                    <i class="fas fa-download me-2"></i><strong>Lihat File NIB</strong>
+                                    <i class="las la-download me-2"></i><strong>Lihat File NIB</strong>
                                 </a>
                             </div>
                         @endif
@@ -275,13 +279,13 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                     <button type="button" class="btn btn-success btn-sm" onclick="downloadCollage()">
-                        <i class="fas fa-download me-2"></i>Download Kolase
+                        <i class="las la-download me-2"></i>Download Kolase
                     </button>
                     <button type="button" class="btn btn-primary btn-sm" onclick="printCollage()">
-                        <i class="fas fa-print me-2"></i>Print Kolase
+                        <i class="las la-print me-2"></i>Print Kolase
                     </button>
                 </div>
             </div>
@@ -302,10 +306,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                     <button type="button" class="btn btn-success btn-sm" onclick="downloadSingleImage()">
-                        <i class="fas fa-download me-2"></i>Download Foto
+                        <i class="las la-download me-2"></i>Download Foto
                     </button>
                 </div>
             </div>
@@ -326,7 +330,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -347,7 +351,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -368,7 +372,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -389,7 +393,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Tutup
+                        <i class="las la-times me-2"></i>Tutup
                     </button>
                 </div>
             </div>
@@ -412,7 +416,7 @@
                 </div>
                 <small class="text-muted d-block text-center mt-1">Data sedang dikunci.</small>
                 <button id="btnPerpanjang" class="btn btn-warning btn-sm w-100 mt-2">
-                    <i class="fas fa-clock me-1"></i> Perpanjang Sesi
+                    <i class="las la-clock me-1"></i> Perpanjang Sesi
                 </button>
             </div>
         </div>
@@ -465,7 +469,7 @@
             const namaPU = '{{ $dataLapangan->nama_pu }}';
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
-                '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Memproses download...</div>';
+                '<div class="text-center"><i class="las la-spinner fa-spin me-2"></i>Memproses download...</div>';
             loadingDiv.style.cssText =
                 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;z-index:9999;';
             document.body.appendChild(loadingDiv);
@@ -542,7 +546,7 @@
                 alertDiv.className = 'alert alert-danger fade show position-fixed top-0 start-0 end-0 m-3';
                 alertDiv.style.zIndex = '99999';
                 alertDiv.innerHTML = `
-                <i class="fas fa-exclamation-circle me-2"></i>
+                <i class="las la-exclamation-circle me-2"></i>
                 <strong>⚠️ Waktu Sesi Habis!</strong> Data telah dilepas. Anda akan diarahkan ke list dalam
                 <strong id="redirectCountdown">5</strong> detik...
             `;
@@ -729,7 +733,7 @@
                     timeLeft = DURATION;
                     isExpired = false;
                     updateDisplay();
-                    this.innerHTML = '<i class="fas fa-clock me-1"></i> Perpanjang Sesi';
+                    this.innerHTML = '<i class="las la-clock me-1"></i> Perpanjang Sesi';
                     this.disabled = false;
                 } else {
                     alert('Gagal memperpanjang sesi. Data telah dilepas.');

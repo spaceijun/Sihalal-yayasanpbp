@@ -511,4 +511,22 @@ class DataLapanganController extends Controller
         return Redirect::route('superadmin.data-lapangans.index')
             ->with('success', 'DataLapangan deleted successfully');
     }
+
+    /**
+     * Update email sihalal of a data lapangan.
+     */
+    public function updateEmailSihalal(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'email_sihalal' => 'required|email|max:255',
+        ]);
+
+        $dataLapangan = DataLapangan::findOrFail($id);
+
+        $dataLapangan->update([
+            'email_sihalal' => $request->email_sihalal,
+        ]);
+
+        return redirect()->back()->with('success', 'Email Sihalal berhasil diperbarui');
+    }
 }

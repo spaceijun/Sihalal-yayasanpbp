@@ -54,12 +54,9 @@ class DataLapanganController extends Controller
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
-
         $dataEntry = DataEntry::where('user_id', Auth::id())->first();
-
         $entryType = $dataEntry?->entry_type;
 
-        // Ambil progress terbaru milik data lapangan ini untuk user yang login
         $latestProgress = $dataEntry
             ? DataEntryProgress::where('data_entry_id', $dataEntry->id)
             ->where('data_lapangan_id', $dataLapangan->id)
@@ -67,9 +64,22 @@ class DataLapanganController extends Controller
             ->first()
             : null;
 
-        return view('data-entry.data-lapangan.show', compact('dataLapangan', 'entryType', 'latestProgress'));
-    }
+        // Cek apakah sudah ada permintaan PROGRESS SIHALAL yang belum diproses superadmin
+        $hasPendingProgress = $dataEntry
+            ? DataEntryProgress::where('data_entry_id', $dataEntry->id)
+            ->where('data_lapangan_id', $dataLapangan->id)
+            ->whereJsonContains('new_data->status', 'PROGRESS SIHALAL')
+            ->where('status', '!=', 'DITOLAK')  // jika DITOLAK, anggap belum pending
+            ->exists()
+            : false;
 
+        return view('data-entry.data-lapangan.show', compact(
+            'dataLapangan',
+            'entryType',
+            'latestProgress',
+            'hasPendingProgress'
+        ));
+    }
     /**
      * Track progress data entry ketika upload file / update status.
      * Status default PENDING — menunggu review superadmin.
@@ -176,6 +186,10 @@ class DataLapanganController extends Controller
     public function updateStatus(Request $request, $id): RedirectResponse
     {
         try {
+            $request->validate([
+                'email_sihalal' => ['required', 'email', 'max:255'],
+            ]);
+
             $dataLapangan = DataLapangan::findOrFail($id);
 
             if (!in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
@@ -184,8 +198,10 @@ class DataLapanganController extends Controller
 
             $newStatus = 'PROGRESS SIHALAL';
 
-            // Track progress SEBELUM status berubah — agar old_data['status'] = status lama.
-            // Status data_lapangans TIDAK diubah di sini; akan diubah oleh superadmin saat terima.
+            // Simpan email_sihalal ke database
+            $dataLapangan->email_sihalal = $request->email_sihalal;
+            $dataLapangan->save();
+
             $this->trackDataEntryProgress(
                 $dataLapangan,
                 'status_update',
@@ -198,7 +214,6 @@ class DataLapanganController extends Controller
             return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
         }
     }
-
     /**
      * Resubmit setelah revisi — data entry mengupdate keterangan atau file ulang.
      * Dipanggil dari tombol revisi di halaman show.

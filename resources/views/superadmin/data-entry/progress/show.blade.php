@@ -8,20 +8,20 @@
     <section class="content container-fluid">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <i class="las la-check-circle me-2"></i>{{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         <div class="mb-3">
             <a href="{{ route('superadmin.data-entry-progress.index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Kembali ke Daftar
+                <i class="las la-arrow-left me-1"></i>Kembali ke Daftar
             </a>
         </div>
 
@@ -32,7 +32,7 @@
                 {{-- Card Status Progress --}}
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
-                        <i class="fas fa-info-circle me-2"></i>Informasi Progress
+                        <i class="las la-info-circle me-2"></i>Informasi Progress
                     </div>
                     <div class="card-body">
                         <dl class="row mb-0">
@@ -83,7 +83,7 @@
                 @if ($progress->keterangan_revisi || $progress->keterangan_update)
                     <div class="card mb-3">
                         <div class="card-header bg-light">
-                            <i class="fas fa-comments me-2"></i>Riwayat Keterangan
+                            <i class="las la-comments me-2"></i>Riwayat Keterangan
                         </div>
                         <div class="card-body">
                             @if ($progress->keterangan_revisi)
@@ -102,49 +102,13 @@
                         </div>
                     </div>
                 @endif
-
-                {{-- Aksi Superadmin --}}
-                @if ($progress->status === 'PENDING')
-                    <div class="card border-primary">
-                        <div class="card-header bg-primary text-white">
-                            <i class="fas fa-gavel me-2"></i>Tindakan Review
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                {{-- Terima --}}
-                                <form action="{{ route('superadmin.data-entry-progress.terima', $progress->id) }}"
-                                    method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-success w-100"
-                                        onclick="return confirm('Terima progress ini? Data akan masuk perhitungan penagihan jika sudah mencapai 15 data.')">
-                                        <i class="fas fa-check me-2"></i>Terima
-                                    </button>
-                                </form>
-
-                                {{-- Revisi --}}
-                                <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisi">
-                                    <i class="fas fa-edit me-2"></i>Minta Revisi
-                                </button>
-
-                                {{-- Tolak --}}
-                                <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal"
-                                    data-bs-target="#modalTolak">
-                                    <i class="fas fa-times me-2"></i>Tolak
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
             </div>
 
             {{-- Kolom kanan: Data Lapangan --}}
             <div class="col-md-7">
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
-                        <i class="fas fa-user me-2"></i>Data Pelaku Usaha
+                        <i class="las la-user me-2"></i>Data Pelaku Usaha
                     </div>
                     <div class="card-body">
                         @php $dl = $progress->dataLapangan; @endphp
@@ -197,12 +161,12 @@
                 @if ($dl && $progress->dataEntry?->entry_type === 'OSS' && $dl->file_oss)
                     <div class="card">
                         <div class="card-header bg-light">
-                            <i class="fas fa-file-pdf me-2 text-danger"></i>File OSS
+                            <i class="las la-file-pdf me-2 text-danger"></i>File OSS
                         </div>
                         <div class="card-body">
                             <a href="{{ asset('storage/' . $dl->file_oss) }}" target="_blank"
                                 class="btn btn-outline-danger w-100">
-                                <i class="fas fa-external-link-alt me-2"></i>Buka / Download File OSS
+                                <i class="las la-external-link-alt me-2"></i>Buka / Download File OSS
                             </a>
                         </div>
                     </div>
@@ -211,12 +175,12 @@
                 @if ($dl && $progress->dataEntry?->entry_type === 'SIHALAL' && $dl->file_sihalal)
                     <div class="card">
                         <div class="card-header bg-light">
-                            <i class="fas fa-file-pdf me-2 text-danger"></i>File SIHALAL
+                            <i class="las la-file-pdf me-2 text-danger"></i>File SIHALAL
                         </div>
                         <div class="card-body">
                             <a href="{{ asset('storage/' . $dl->file_sihalal) }}" target="_blank"
                                 class="btn btn-outline-primary w-100">
-                                <i class="fas fa-external-link-alt me-2"></i>Buka / Download File SIHALAL
+                                <i class="las la-external-link-alt me-2"></i>Buka / Download File SIHALAL
                             </a>
                         </div>
                     </div>
@@ -230,7 +194,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Minta Revisi</h5>
+                    <h5 class="modal-title"><i class="las la-edit me-2"></i>Minta Revisi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('superadmin.data-entry-progress.revisi', $progress->id) }}" method="POST">
@@ -245,7 +209,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-warning btn-sm">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Revisi
+                            <i class="las la-paper-plane me-2"></i>Kirim Revisi
                         </button>
                     </div>
                 </form>
@@ -258,7 +222,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Tolak Progress</h5>
+                    <h5 class="modal-title"><i class="las la-times-circle me-2"></i>Tolak Progress</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('superadmin.data-entry-progress.tolak', $progress->id) }}" method="POST">
@@ -266,7 +230,7 @@
                     @method('PATCH')
                     <div class="modal-body">
                         <div class="alert alert-danger py-2">
-                            <small><i class="fas fa-exclamation-triangle me-1"></i>Data ini akan ditolak permanen.</small>
+                            <small><i class="las la-exclamation-triangle me-1"></i>Data ini akan ditolak permanen.</small>
                         </div>
                         <label class="form-label fw-bold">Alasan Penolakan <span class="text-danger">*</span></label>
                         <textarea name="keterangan_revisi" class="form-control" rows="4" placeholder="Jelaskan alasan penolakan..."
@@ -275,7 +239,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-times me-2"></i>Tolak
+                            <i class="las la-times me-2"></i>Tolak
                         </button>
                     </div>
                 </form>

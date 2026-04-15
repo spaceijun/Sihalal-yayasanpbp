@@ -45,6 +45,7 @@ class DataLapangan extends Model
         'nama_pu',
         'nik',
         'email',
+        'email_sihalal',
         'telephone',
         'nama_produk',
         'alamat',

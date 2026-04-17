@@ -22,6 +22,7 @@ class RecruitmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'recruit_type'       => 'required|in:PENDAMPING,DATA ENTRY',
             'nama_lengkap'        => 'required|string',
             'nik'                 => 'required|digits:16|unique:recruitments,nik',
             'jenis_kelamin'       => 'required|in:Laki-laki,Perempuan',
@@ -42,6 +43,8 @@ class RecruitmentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'recruit_type.required'       => 'Tipe Rekrutmen wajib dipilih.',
+            'recruit_type.in'             => 'Tipe Rekrutmen tidak valid.',
             'nama_lengkap.required'        => 'Nama Lengkap wajib diisi.',
             'nik.required'                 => 'NIK wajib diisi.',
             'nik.digits'                   => 'NIK harus 16 digit angka.',

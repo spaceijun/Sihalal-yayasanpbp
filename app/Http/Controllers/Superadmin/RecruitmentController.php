@@ -110,7 +110,7 @@ class RecruitmentController extends Controller
 
         $recruitment = Recruitment::create($validatedData);
 
-        return Redirect::route('recruitment.confirm', $recruitment->id);
+        return Redirect::route('recruitment.confirm', $recruitment->hashed_id);
     }
 
     /**
@@ -277,9 +277,9 @@ class RecruitmentController extends Controller
             ->with('success', 'Recruitment deleted successfully');
     }
 
-    public function confirm($id)
+    public function confirm($hashedId)
     {
-        $recruitment = Recruitment::findOrFail($id);
+        $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
         return view('publik.confirm', compact('recruitment'));
     }
 }

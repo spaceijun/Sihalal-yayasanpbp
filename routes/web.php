@@ -63,7 +63,7 @@ Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recru
 Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
 Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
 Route::get('version/check', [AppVersionController::class, 'check']);
-Route::get('/recruitment/confirm/{id}', [RecruitmentController::class, 'confirm'])->name('recruitment.confirm');
+Route::get('/recruitment/confirm/{hashedId}', [RecruitmentController::class, 'confirm'])->name('recruitment.confirm');
 
 
 Route::middleware('auth', 'role:superadmin')->group(function () {

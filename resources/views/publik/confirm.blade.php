@@ -27,8 +27,8 @@
                             <div class="table-responsive text-start mb-4">
                                 <table class="table table-sm table-borderless">
                                     <tr>
-                                        <td class="text-muted" width="45%">NIK</td>
-                                        <td class="fw-semibold">{{ $recruitment->nik }}</td>
+                                        <td class="text-muted" width="45%">Posisi Dilamar</td>
+                                        <td class="fw-semibold">{{ $recruitment->recruit_type }}</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">No. Telepon</td>
@@ -50,10 +50,13 @@
                                 $waNumber = '628976774482';
                                 $pesan = urlencode(
                                     "Halo, saya *{$recruitment->nama_lengkap}* ingin mengkonfirmasi pengisian Form Recruitment.\n\n" .
-                                        "*NIK:* {$recruitment->nik}\n" .
+                                        "*Posisi Dilamar:* {$recruitment->recruit_type}\n" .
                                         "*No. Telepon:* {$recruitment->telephone}\n" .
                                         "*Pendidikan:* {$recruitment->pendidikan_terakhir}\n" .
                                         "*Jenis Kelamin:* {$recruitment->jenis_kelamin}\n" .
+                                        '*Rekomendasi:* ' .
+                                        ($recruitment->rekomendasi ?? '-') .
+                                        "\n" .
                                         "*Status:* Melamar\n\n" .
                                         'Mohon informasi proses selanjutnya. Terima kasih.',
                                 );

@@ -9,7 +9,10 @@
                     <div class="col-lg-12">
                         <div class="card overflow-hidden m-0 card-bg-fill galaxy-border-none">
                             <div class="row justify-content-center g-0">
-                                <!-- Left Side - Info Section -->
+
+                                {{-- ============================================================ --}}
+                                {{-- LEFT SIDE - Info Section                                      --}}
+                                {{-- ============================================================ --}}
                                 <div class="col-lg-6">
                                     <div class="p-lg-5 p-4 auth-one-bg h-100">
                                         <div class="bg-overlay"></div>
@@ -28,8 +31,8 @@
                                                     data-bs-ride="carousel">
                                                     <div class="carousel-inner text-center text-white-50 pb-5">
                                                         <div class="carousel-item active">
-                                                            <p class="fs-15 fst-italic">" Bergabunglah dengan tim kami untuk
-                                                                membuat perubahan. "</p>
+                                                            <p class="fs-15 fst-italic">" Bergabunglah dengan tim kami
+                                                                untuk membuat perubahan. "</p>
                                                         </div>
                                                         <div class="carousel-item">
                                                             <p class="fs-15 fst-italic">" Kesempatan berkarir bersama
@@ -42,11 +45,12 @@
                                                     </div>
                                                     <div class="carousel-indicators">
                                                         <button type="button" data-bs-target="#qoutescarouselIndicators"
-                                                            data-bs-slide-to="0" class="active"></button>
+                                                            data-bs-slide-to="0" class="active" aria-current="true"
+                                                            aria-label="Slide 1"></button>
                                                         <button type="button" data-bs-target="#qoutescarouselIndicators"
-                                                            data-bs-slide-to="1"></button>
+                                                            data-bs-slide-to="1" aria-label="Slide 2"></button>
                                                         <button type="button" data-bs-target="#qoutescarouselIndicators"
-                                                            data-bs-slide-to="2"></button>
+                                                            data-bs-slide-to="2" aria-label="Slide 3"></button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -54,26 +58,29 @@
                                     </div>
                                 </div>
 
-                                <!-- Right Side - Form Section -->
+                                {{-- ============================================================ --}}
+                                {{-- RIGHT SIDE - Form Section                                     --}}
+                                {{-- ============================================================ --}}
                                 <div class="col-lg-6">
                                     <div class="p-lg-5 p-4">
-                                        <!-- SUCCESS MESSAGE -->
+
+                                        {{-- SUCCESS MESSAGE --}}
                                         @if (session('success'))
                                             <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show"
                                                 role="alert">
-                                                <i class="ri-check-double-line label-icon"></i><strong>Berhasil!</strong>
-                                                {{ session('success') }}
+                                                <i class="ri-check-double-line label-icon"></i>
+                                                <strong>Berhasil!</strong> {{ session('success') }}
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                                     aria-label="Close"></button>
                                             </div>
                                         @endif
 
-                                        <!-- ERROR MESSAGE -->
+                                        {{-- ERROR MESSAGE --}}
                                         @if (session('error'))
                                             <div class="alert alert-danger alert-dismissible alert-label-icon label-arrow fade show"
                                                 role="alert">
-                                                <i class="ri-error-warning-line label-icon"></i><strong>Gagal!</strong>
-                                                {{ session('error') }}
+                                                <i class="ri-error-warning-line label-icon"></i>
+                                                <strong>Gagal!</strong> {{ session('error') }}
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                                     aria-label="Close"></button>
                                             </div>
@@ -85,42 +92,135 @@
                                         </div>
 
                                         <form method="POST" action="{{ route('recruitment.store') }}"
-                                            enctype="multipart/form-data" class="mt-4" id="formRecruitment">
+                                            enctype="multipart/form-data" class="mt-4" id="formRecruitment" novalidate>
                                             @csrf
 
-                                            <!-- Nama Lengkap -->
+                                            {{-- ================================================ --}}
+                                            {{-- POSISI DILAMAR                                   --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="nama_lengkap" class="form-label">Nama Lengkap <span
-                                                        class="text-danger">*</span></label>
+                                                <label class="form-label">
+                                                    Posisi Dilamar <span class="text-danger">*</span>
+                                                </label>
+                                                <div class="d-flex gap-4 mt-1">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="recruit_type"
+                                                            id="type_pendamping" value="PENDAMPING"
+                                                            {{ old('recruit_type', $recruitment?->recruit_type) == 'PENDAMPING' ? 'checked' : '' }}
+                                                            required>
+                                                        <label class="form-check-label"
+                                                            for="type_pendamping">Pendamping</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="recruit_type"
+                                                            id="type_data_entry" value="DATA ENTRY"
+                                                            {{ old('recruit_type', $recruitment?->recruit_type) == 'DATA ENTRY' ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="type_data_entry">Data
+                                                            Entry</label>
+                                                    </div>
+                                                </div>
+                                                @error('recruit_type')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            {{-- ================================================ --}}
+                                            {{-- TYPE ENTRY — hanya muncul jika DATA ENTRY        --}}
+                                            {{-- d-none dikendalikan JS                           --}}
+                                            {{-- ================================================ --}}
+                                            <div class="mb-3 d-none" id="typeEntryWrapper">
+                                                <label for="type_entry" class="form-label">
+                                                    Tipe Entry <span class="text-danger">*</span>
+                                                </label>
+                                                <select id="type_entry" name="type_entry"
+                                                    class="form-control @error('type_entry') is-invalid @enderror">
+                                                    <option value="">-- Pilih Tipe Entry --</option>
+                                                    <option value="OSS"
+                                                        {{ old('type_entry', $recruitment?->type_entry) == 'OSS' ? 'selected' : '' }}>
+                                                        OSS
+                                                    </option>
+                                                    <option value="SIHALAL"
+                                                        {{ old('type_entry', $recruitment?->type_entry) == 'SIHALAL' ? 'selected' : '' }}>
+                                                        SIHALAL
+                                                    </option>
+                                                </select>
+                                                @error('type_entry')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+
+                                                {{-- Alert Fee OSS --}}
+                                                <div id="alertOSS"
+                                                    class="alert alert-info d-flex align-items-start gap-2 mt-2 mb-0 py-2 px-3 d-none">
+                                                    <i class="ri-money-dollar-circle-line fs-16 mt-1 flex-shrink-0"></i>
+                                                    <div>
+                                                        <strong>Fee OSS: Rp100.000</strong><br>
+                                                        <small>Sebagai Data Entry OSS, Anda akan mendapatkan fee
+                                                            sebesar <strong>Rp100.000</strong> per dokumen yang
+                                                            berhasil diproses. Pastikan Anda memahami alur kerja
+                                                            sistem OSS sebelum melanjutkan pendaftaran.</small>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Alert Fee SIHALAL --}}
+                                                <div id="alertSIHALAL"
+                                                    class="alert alert-warning d-flex align-items-start gap-2 mt-2 mb-0 py-2 px-3 d-none">
+                                                    <i class="ri-money-dollar-circle-line fs-16 mt-1 flex-shrink-0"></i>
+                                                    <div>
+                                                        <strong>Fee SIHALAL: Rp150.000</strong><br>
+                                                        <small>Sebagai Data Entry SIHALAL, Anda akan mendapatkan fee
+                                                            sebesar <strong>Rp150.000</strong> per dokumen yang
+                                                            berhasil diproses. Pastikan Anda memahami alur kerja
+                                                            sistem SIHALAL sebelum melanjutkan pendaftaran.</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- ================================================ --}}
+                                            {{-- NAMA LENGKAP                                     --}}
+                                            {{-- ================================================ --}}
+                                            <div class="mb-3">
+                                                <label for="nama_lengkap" class="form-label">
+                                                    Nama Lengkap <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" id="nama_lengkap" name="nama_lengkap"
                                                     class="form-control text-uppercase @error('nama_lengkap') is-invalid @enderror"
-                                                    value="{{ old('nama_lengkap', $recruitment?->nama_lengkap) }}" required
-                                                    autofocus placeholder="Masukkan nama lengkap"
+                                                    value="{{ old('nama_lengkap', $recruitment?->nama_lengkap) }}"
+                                                    required autofocus placeholder="Masukkan nama lengkap"
+                                                    autocomplete="name" maxlength="255"
                                                     style="text-transform: uppercase;">
-                                                <small class="text-muted">Nama akan otomatis diubah ke huruf besar</small>
+                                                <small class="text-muted">Nama akan otomatis diubah ke huruf
+                                                    besar</small>
                                                 @error('nama_lengkap')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            {{-- NIK --}}
+                                            {{-- ================================================ --}}
+                                            {{-- NIK                                               --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="nik" class="form-label">NIK (Nomor Induk Kependudukan)
-                                                    <span class="text-danger">*</span></label>
+                                                <label for="nik" class="form-label">
+                                                    NIK (Nomor Induk Kependudukan)
+                                                    <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" id="nik" name="nik"
                                                     class="form-control @error('nik') is-invalid @enderror"
                                                     value="{{ old('nik', $recruitment?->nik) }}" required
-                                                    placeholder="Masukkan 16 digit NIK" maxlength="16" inputmode="numeric">
+                                                    placeholder="Masukkan 16 digit NIK" maxlength="16" minlength="16"
+                                                    inputmode="numeric" pattern="\d{16}" autocomplete="off">
                                                 <small class="text-muted">Sesuai KTP, 16 digit angka</small>
                                                 @error('nik')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            {{-- Jenis Kelamin --}}
+                                            {{-- ================================================ --}}
+                                            {{-- JENIS KELAMIN                                    --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="jenis_kelamin" class="form-label">
+                                                    Jenis Kelamin <span class="text-danger">*</span>
+                                                </label>
                                                 <select id="jenis_kelamin" name="jenis_kelamin"
                                                     class="form-control @error('jenis_kelamin') is-invalid @enderror"
                                                     required>
@@ -137,36 +237,47 @@
                                                 @enderror
                                             </div>
 
-                                            <!-- Telephone -->
+                                            {{-- ================================================ --}}
+                                            {{-- NO. TELEPON                                      --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="telephone" class="form-label">No. Telepon <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="telephone" class="form-label">
+                                                    No. Telepon <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" id="telephone" name="telephone"
                                                     class="form-control @error('telephone') is-invalid @enderror"
                                                     value="{{ old('telephone', $recruitment?->telephone) }}" required
-                                                    placeholder="Contoh: 081234567890" maxlength="15"
-                                                    pattern="[0-9]{10,15}" inputmode="numeric">
-                                                <small class="text-muted">Masukkan nomor telepon yang aktif</small>
+                                                    placeholder="Contoh: 081234567890" maxlength="15" inputmode="numeric"
+                                                    autocomplete="tel">
+                                                <small class="text-muted">Masukkan nomor telepon yang aktif (10–15
+                                                    digit)</small>
                                                 @error('telephone')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- Alamat Lengkap -->
+                                            {{-- ================================================ --}}
+                                            {{-- ALAMAT LENGKAP                                   --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="alamat_lengkap" class="form-label">Alamat Lengkap <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="alamat_lengkap" class="form-label">
+                                                    Alamat Lengkap <span class="text-danger">*</span>
+                                                </label>
                                                 <textarea id="alamat_lengkap" name="alamat_lengkap" rows="3"
-                                                    class="form-control @error('alamat_lengkap') is-invalid @enderror" required placeholder="Masukkan alamat lengkap">{{ old('alamat_lengkap', $recruitment?->alamat_lengkap) }}</textarea>
+                                                    class="form-control @error('alamat_lengkap') is-invalid @enderror" required placeholder="Masukkan alamat lengkap"
+                                                    maxlength="500">{{ old('alamat_lengkap', $recruitment?->alamat_lengkap) }}</textarea>
                                                 @error('alamat_lengkap')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- Pendidikan Terakhir -->
+                                            {{-- ================================================ --}}
+                                            {{-- PENDIDIKAN TERAKHIR                              --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="pendidikan_terakhir" class="form-label">Pendidikan Terakhir
-                                                    <span class="text-danger">*</span></label>
+                                                <label for="pendidikan_terakhir" class="form-label">
+                                                    Pendidikan Terakhir <span class="text-danger">*</span>
+                                                </label>
                                                 <select id="pendidikan_terakhir" name="pendidikan_terakhir"
                                                     class="form-control @error('pendidikan_terakhir') is-invalid @enderror"
                                                     required>
@@ -196,27 +307,31 @@
                                                 @enderror
                                             </div>
 
-                                            <!-- Pengalaman -->
+                                            {{-- ================================================ --}}
+                                            {{-- PENGALAMAN                                       --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="pengalaman" class="form-label">Pengalaman <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="pengalaman" class="form-label">
+                                                    Pengalaman <span class="text-danger">*</span>
+                                                </label>
                                                 <textarea id="pengalaman" name="pengalaman" rows="3"
                                                     class="form-control @error('pengalaman') is-invalid @enderror" required
-                                                    placeholder="Jelaskan pengalaman kerja Anda">{{ old('pengalaman', $recruitment?->pengalaman) }}</textarea>
-                                                <small class="text-muted">Tuliskan pengalaman kerja yang relevan</small>
+                                                    placeholder="Jelaskan pengalaman kerja Anda" maxlength="1000">{{ old('pengalaman', $recruitment?->pengalaman) }}</textarea>
+                                                <small class="text-muted">Tuliskan pengalaman kerja yang
+                                                    relevan</small>
                                                 @error('pengalaman')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- Rekomendasi -->
+                                            {{-- ================================================ --}}
+                                            {{-- REKOMENDASI                                      --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
                                                 <label for="rekomendasi" class="form-label">Rekomendasi</label>
                                                 <select id="rekomendasi" name="rekomendasi"
                                                     class="form-control @error('rekomendasi') is-invalid @enderror">
-
                                                     <option value="">-- Pilih Rekomendasi (Opsional) --</option>
-
                                                     @if (isset($daftarRekomendasi) && $daftarRekomendasi->count())
                                                         @foreach ($daftarRekomendasi as $rekomendasi)
                                                             <option value="{{ $rekomendasi->nama_lengkap }}"
@@ -225,112 +340,127 @@
                                                             </option>
                                                         @endforeach
                                                     @else
-                                                        <option value="" disabled>Tidak ada data Rekomendasi</option>
+                                                        <option value="" disabled>Tidak ada data
+                                                            Rekomendasi</option>
                                                     @endif
-
                                                 </select>
-
                                                 <small class="text-muted">Jika tidak ada, kosongkan saja</small>
-
                                                 @error('rekomendasi')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- Upload Dokumentasi Section -->
+                                            {{-- ================================================ --}}
+                                            {{-- UPLOAD DOKUMENTASI                               --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <h6 class="text-muted mb-3">Upload Dokumentasi <span
-                                                        class="text-danger">*</span></h6>
+                                                <h6 class="text-muted mb-3">
+                                                    Upload Dokumentasi <span class="text-danger">*</span>
+                                                </h6>
 
-                                                <!-- Foto Diri -->
+                                                {{-- Foto Diri --}}
                                                 <div class="mb-3">
-                                                    <label for="foto_diri" class="form-label">Foto Diri (3x4) <span
-                                                            class="text-danger">*</span></label>
+                                                    <label for="foto_diri" class="form-label">
+                                                        Foto Diri (3x4) <span class="text-danger">*</span>
+                                                    </label>
                                                     <input type="file" id="foto_diri" name="foto_diri"
                                                         class="form-control @error('foto_diri') is-invalid @enderror"
-                                                        accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
+                                                        accept="image/jpeg,image/jpg,image/png" required>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks:
+                                                        10MB</small>
                                                     @error('foto_diri')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
 
-                                                <!-- Foto KTP -->
+                                                {{-- Foto KTP --}}
                                                 <div class="mb-3">
-                                                    <label for="foto_ktp" class="form-label">Foto KTP <span
-                                                            class="text-danger">*</span></label>
+                                                    <label for="foto_ktp" class="form-label">
+                                                        Foto KTP <span class="text-danger">*</span>
+                                                    </label>
                                                     <input type="file" id="foto_ktp" name="foto_ktp"
                                                         class="form-control @error('foto_ktp') is-invalid @enderror"
-                                                        accept="image/*" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Max: 10MB</small>
+                                                        accept="image/jpeg,image/jpg,image/png" required>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks:
+                                                        10MB</small>
                                                     @error('foto_ktp')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
 
-
                                             {{-- Foto Ijazah --}}
                                             <div class="mb-3">
-                                                <label for="foto_ijasah" class="form-label">Foto Ijazah <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="foto_ijasah" class="form-label">
+                                                    Foto Ijazah <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" id="foto_ijasah" name="foto_ijasah"
                                                     class="form-control @error('foto_ijasah') is-invalid @enderror"
-                                                    accept="image/*,.pdf" required>
-                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Max: 10MB</small>
+                                                    accept="image/jpeg,image/jpg,image/png,application/pdf" required>
+                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Maks:
+                                                    10MB</small>
                                                 @error('foto_ijasah')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            {{-- Download Pakta Integritas --}}
+                                            {{-- ================================================ --}}
+                                            {{-- DOWNLOAD PAKTA INTEGRITAS                        --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
                                                 <label class="form-label">Template Pakta Integritas</label>
-                                                <div>
-                                                    <a href="{{ asset('assets/files/pakta-integritas.docx') }}" download
-                                                        class="btn btn-outline-info">
-                                                        <i class="ri-download-2-line me-1"></i> Download Template Pakta
-                                                        Integritas
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <a href="{{ asset('assets/files/pakta-integritas-pendamping.docx') }}"
+                                                        download class="btn btn-outline-info btn-sm"
+                                                        id="btnDownloadPendamping">
+                                                        <i class="ri-download-2-line me-1"></i> Pakta Integritas
+                                                        Pendamping
                                                     </a>
-                                                    <small class="text-muted d-block mt-1">Unduh, tanda tangani, lalu
-                                                        upload di field di bawah.</small>
+                                                    <a href="{{ asset('assets/files/pakta-integritas-data-entry.docx') }}"
+                                                        download class="btn btn-outline-secondary btn-sm"
+                                                        id="btnDownloadDataEntry">
+                                                        <i class="ri-download-2-line me-1"></i> Pakta Integritas
+                                                        Data Entry
+                                                    </a>
                                                 </div>
+                                                <small class="text-muted d-block mt-1">Unduh sesuai tipe
+                                                    rekrutmen Anda, tanda tangani, lalu upload di field di
+                                                    bawah.</small>
                                             </div>
 
-                                            {{-- Pakta Integritas --}}
+                                            {{-- ================================================ --}}
+                                            {{-- PAKTA INTEGRITAS UPLOAD                          --}}
+                                            {{-- ================================================ --}}
                                             <div class="mb-3">
-                                                <label for="pakta_integritas" class="form-label">Pakta Integritas (sudah
-                                                    ditandatangani) <span class="text-danger">*</span></label>
+                                                <label for="pakta_integritas" class="form-label">
+                                                    Pakta Integritas (sudah ditandatangani)
+                                                    <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" id="pakta_integritas" name="pakta_integritas"
                                                     class="form-control @error('pakta_integritas') is-invalid @enderror"
-                                                    accept="image/*,.pdf" required>
-                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Max: 10MB</small>
+                                                    accept="image/jpeg,image/jpg,image/png,application/pdf" required>
+                                                <small class="text-muted">Format: JPG, PNG, JPEG, PDF. Maks:
+                                                    10MB</small>
                                                 @error('pakta_integritas')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
-                                            <!-- Hidden Status Field -->
+                                            {{-- Hidden Status --}}
                                             <input type="hidden" name="status" value="Melamar">
 
-                                            <!-- Submit Button -->
+                                            {{-- Submit --}}
                                             <div class="mt-4">
                                                 <button class="btn btn-success w-100" type="submit" id="submitBtn">
                                                     <i class="ri-send-plane-line me-1"></i> Kirim Lamaran
                                                 </button>
                                             </div>
-                                        </form>
 
-                                        {{-- <div class="mt-4 text-center">
-                                            <p class="mb-0">
-                                                <a href="{{ route('home') }}"
-                                                    class="fw-semibold text-primary text-decoration-underline">
-                                                    <i class="ri-arrow-left-line me-1"></i> Kembali ke Beranda
-                                                </a>
-                                            </p>
-                                        </div> --}}
+                                        </form>
                                     </div>
                                 </div>
+                                {{-- END Right Side --}}
+
                             </div>
                         </div>
                     </div>
@@ -342,155 +472,409 @@
 
 @section('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('formRecruitment');
-            const submitBtn = document.getElementById('submitBtn');
-            const namaLengkapInput = document.getElementById('nama_lengkap');
-            const telephoneInput = document.getElementById('telephone');
+        /**
+         * RecruitmentForm — Production-ready controller
+         * Handles: posisi toggle, type entry show/hide, fee alerts,
+         *          download button highlight, input sanitization,
+         *          file validation, form submission guard, toast notifications.
+         */
+        (function() {
+            'use strict';
 
-            // Check if all elements exist before proceeding
-            if (!form || !submitBtn || !namaLengkapInput || !telephoneInput) {
-                console.error('Required form elements not found');
-                return;
+            // ─── Constants ────────────────────────────────────────────────────────────
+            const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+            const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+            const ALLOWED_MIXED_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf'];
+            const ALERT_AUTO_CLOSE_MS = 5000;
+            const TOAST_DURATION_MS = 3500;
+
+            // ─── Element Registry ────────────────────────────────────────────────────
+            const el = {};
+
+            function getEl(id) {
+                const node = document.getElementById(id);
+                if (!node) console.warn(`[RecruitmentForm] Element not found: #${id}`);
+                return node;
             }
 
-            // ============================================
-            // AUTO HIDE SUCCESS/ERROR ALERTS
-            // ============================================
-            const alerts = document.querySelectorAll('.alert');
-            if (alerts.length > 0) {
-                alerts.forEach(alert => {
-                    setTimeout(() => {
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    }, 5000);
+            function initElements() {
+                el.form = getEl('formRecruitment');
+                el.submitBtn = getEl('submitBtn');
+                el.namaLengkap = getEl('nama_lengkap');
+                el.nik = getEl('nik');
+                el.telephone = getEl('telephone');
+                el.typeEntryWrapper = getEl('typeEntryWrapper');
+                el.typeEntrySelect = getEl('type_entry');
+                el.alertOSS = getEl('alertOSS');
+                el.alertSIHALAL = getEl('alertSIHALAL');
+                el.btnDownloadPendamping = getEl('btnDownloadPendamping');
+                el.btnDownloadDataEntry = getEl('btnDownloadDataEntry');
+                el.recruitTypeInputs = document.querySelectorAll('input[name="recruit_type"]');
+
+                // Validate critical elements
+                const criticalIds = ['form', 'submitBtn', 'namaLengkap', 'telephone',
+                    'typeEntryWrapper', 'typeEntrySelect'
+                ];
+                return criticalIds.every(key => {
+                    if (!el[key]) {
+                        console.error(`[RecruitmentForm] Critical element missing: ${key}`);
+                        return false;
+                    }
+                    return true;
                 });
             }
 
-            // ============================================
-            // NAMA LENGKAP - AUTO UPPERCASE
-            // ============================================
-            namaLengkapInput.addEventListener('input', function(e) {
-                this.value = this.value.toUpperCase();
-            });
-
-            namaLengkapInput.addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    this.value = this.value.toUpperCase();
-                }, 10);
-            });
-
-            // ============================================
-            // TELEPHONE VALIDATION
-            // ============================================
-            telephoneInput.addEventListener('input', function(e) {
-                // Only allow numbers
-                let value = this.value.replace(/[^0-9]/g, '');
-
-                // Enforce maximum 15 digits
-                if (value.length > 15) {
-                    value = value.slice(0, 15);
+            // ─── Utility: show / hide with Bootstrap d-none ───────────────────────────
+            function show(node) {
+                if (node) {
+                    node.classList.remove('d-none');
+                    // For flex alerts, swap d-none → d-flex
+                    if (node.classList.contains('alert')) {
+                        node.classList.add('d-flex');
+                    }
                 }
+            }
 
-                this.value = value;
-            });
-
-            telephoneInput.addEventListener('keypress', function(e) {
-                if (e.key < '0' || e.key > '9') {
-                    e.preventDefault();
+            function hide(node) {
+                if (node) {
+                    node.classList.add('d-none');
+                    node.classList.remove('d-flex');
                 }
-            });
+            }
 
-            telephoneInput.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-                const numericData = pastedData.replace(/[^0-9]/g, '').slice(0, 15);
-                this.value = numericData;
-
-                const event = new Event('input', {
-                    bubbles: true
-                });
-                this.dispatchEvent(event);
-            });
-
-            // ============================================
-            // FORM SUBMISSION
-            // ============================================
-            form.addEventListener('submit', function(e) {
-                // Validate telephone
-                const telephoneValue = telephoneInput.value;
-
-                if (telephoneValue.length < 10 || telephoneValue.length > 15) {
-                    e.preventDefault();
-                    telephoneInput.classList.add('is-invalid');
-
-                    telephoneInput.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    telephoneInput.focus();
-
-                    showToast('error', 'Nomor telepon harus antara 10-15 digit!');
-                    return false;
-                }
-
-                // Disable submit button to prevent double submission
-                submitBtn.disabled = true;
-                submitBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
-            });
-
-            // ============================================
-            // IMAGE FILE VALIDATION
-            // ============================================
-            const imageInputs = ['foto_diri', 'foto_ktp'];
-
-            imageInputs.forEach(inputId => {
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.addEventListener('change', function(e) {
-                        const file = e.target.files[0];
-                        if (file) {
-                            if (file.size > 10485760) {
-                                showToast('error',
-                                    `Ukuran file ${inputId.replace(/_/g, ' ')} maksimal 10MB!`);
-                                this.value = '';
-                                return;
-                            }
-
-                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                            if (!allowedTypes.includes(file.type)) {
-                                showToast('error',
-                                    `Format file ${inputId.replace(/_/g, ' ')} harus JPG, JPEG, atau PNG!`
-                                );
-                                this.value = '';
-                                return;
-                            }
-                        }
-                    });
-                }
-            });
-
-            // ============================================
-            // TOAST NOTIFICATION FUNCTION
-            // ============================================
+            // ─── Utility: Toast Notification ─────────────────────────────────────────
             function showToast(type, message) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: type,
-                        title: type === 'success' ? 'Berhasil!' : (type === 'warning' ? 'Peringatan!' :
-                            'Gagal!'),
+                        title: type === 'success' ? 'Berhasil!' :
+                            type === 'warning' ? 'Peringatan!' :
+                            'Gagal!',
                         text: message,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
+                        timer: TOAST_DURATION_MS,
+                        timerProgressBar: true,
                     });
                 } else {
-                    alert(message);
+                    // Fallback: native alert
+                    alert(`[${type.toUpperCase()}] ${message}`);
                 }
             }
-        });
+
+            // ─── Utility: Scroll & focus an invalid field ────────────────────────────
+            function focusInvalid(node) {
+                if (!node) return;
+                node.classList.add('is-invalid');
+                node.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                node.focus();
+            }
+
+            // ─── Auto-close Bootstrap alerts ─────────────────────────────────────────
+            function initAutoCloseAlerts() {
+                document.querySelectorAll('.alert[role="alert"]').forEach(alertEl => {
+                    setTimeout(() => {
+                        try {
+                            const bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
+                            bsAlert.close();
+                        } catch (e) {
+                            alertEl.style.display = 'none';
+                        }
+                    }, ALERT_AUTO_CLOSE_MS);
+                });
+            }
+
+            // ─── Download Button Highlight ────────────────────────────────────────────
+            function updateDownloadButtons() {
+                const selected = document.querySelector('input[name="recruit_type"]:checked');
+                if (!el.btnDownloadPendamping || !el.btnDownloadDataEntry) return;
+
+                if (!selected) {
+                    // Reset both to outline
+                    el.btnDownloadPendamping.className = 'btn btn-outline-info btn-sm';
+                    el.btnDownloadDataEntry.className = 'btn btn-outline-secondary btn-sm';
+                    return;
+                }
+
+                if (selected.value === 'PENDAMPING') {
+                    el.btnDownloadPendamping.className = 'btn btn-info btn-sm text-white';
+                    el.btnDownloadDataEntry.className = 'btn btn-outline-secondary btn-sm';
+                } else {
+                    el.btnDownloadPendamping.className = 'btn btn-outline-info btn-sm';
+                    el.btnDownloadDataEntry.className = 'btn btn-secondary btn-sm text-white';
+                }
+            }
+
+            // ─── Type Entry Wrapper: show / hide ─────────────────────────────────────
+            function updateTypeEntryVisibility() {
+                const selected = document.querySelector('input[name="recruit_type"]:checked');
+                const isDataEntry = selected && selected.value === 'DATA ENTRY';
+
+                if (isDataEntry) {
+                    show(el.typeEntryWrapper);
+                    el.typeEntrySelect.setAttribute('required', 'required');
+                } else {
+                    hide(el.typeEntryWrapper);
+                    el.typeEntrySelect.removeAttribute('required');
+                    el.typeEntrySelect.value = '';
+                    el.typeEntrySelect.classList.remove('is-invalid');
+                    hide(el.alertOSS);
+                    hide(el.alertSIHALAL);
+                }
+            }
+
+            // ─── Fee Alert: OSS / SIHALAL ─────────────────────────────────────────────
+            function updateFeeAlert() {
+                const val = el.typeEntrySelect ? el.typeEntrySelect.value : '';
+
+                if (val === 'OSS') {
+                    show(el.alertOSS);
+                    hide(el.alertSIHALAL);
+                } else if (val === 'SIHALAL') {
+                    hide(el.alertOSS);
+                    show(el.alertSIHALAL);
+                } else {
+                    hide(el.alertOSS);
+                    hide(el.alertSIHALAL);
+                }
+            }
+
+            // ─── Recruit Type: unified change handler ─────────────────────────────────
+            function onRecruitTypeChange() {
+                updateDownloadButtons();
+                updateTypeEntryVisibility();
+                // Reset fee alerts when switching type
+                updateFeeAlert();
+            }
+
+            // ─── Nama Lengkap: uppercase ──────────────────────────────────────────────
+            function initNamaLengkap() {
+                const input = el.namaLengkap;
+                if (!input) return;
+
+                function toUpper() {
+                    const pos = input.selectionStart;
+                    input.value = input.value.toUpperCase();
+                    // Preserve cursor position
+                    try {
+                        input.setSelectionRange(pos, pos);
+                    } catch (_) {}
+                }
+
+                input.addEventListener('input', toUpper);
+                input.addEventListener('paste', () => setTimeout(toUpper, 0));
+            }
+
+            // ─── NIK: numeric only, exactly 16 digits ────────────────────────────────
+            function initNIK() {
+                const input = el.nik;
+                if (!input) return;
+
+                function sanitize() {
+                    const cleaned = input.value.replace(/\D/g, '').slice(0, 16);
+                    input.value = cleaned;
+                }
+
+                input.addEventListener('input', sanitize);
+                input.addEventListener('keypress', e => {
+                    if (!/\d/.test(e.key)) e.preventDefault();
+                });
+                input.addEventListener('paste', e => {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+                    input.value = pasted.replace(/\D/g, '').slice(0, 16);
+                });
+            }
+
+            // ─── Telephone: numeric only, 10–15 digits ───────────────────────────────
+            function initTelephone() {
+                const input = el.telephone;
+                if (!input) return;
+
+                function sanitize() {
+                    const cleaned = input.value.replace(/\D/g, '').slice(0, 15);
+                    input.value = cleaned;
+                    // Remove invalid state while typing (re-validated on submit)
+                    if (cleaned.length >= 10) input.classList.remove('is-invalid');
+                }
+
+                input.addEventListener('input', sanitize);
+                input.addEventListener('keypress', e => {
+                    if (!/\d/.test(e.key)) e.preventDefault();
+                });
+                input.addEventListener('paste', e => {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+                    input.value = pasted.replace(/\D/g, '').slice(0, 15);
+                    input.dispatchEvent(new Event('input', {
+                        bubbles: true
+                    }));
+                });
+            }
+
+            // ─── File Validation ──────────────────────────────────────────────────────
+            function validateFile(file, allowedTypes, fieldLabel) {
+                if (!file) return true; // No file selected; let HTML required handle it
+
+                if (file.size > MAX_FILE_SIZE_BYTES) {
+                    showToast('error', `Ukuran file "${fieldLabel}" maksimal 10MB!`);
+                    return false;
+                }
+
+                if (!allowedTypes.includes(file.type)) {
+                    const exts = allowedTypes
+                        .map(t => t.split('/')[1].toUpperCase())
+                        .join(', ');
+                    showToast('error', `Format file "${fieldLabel}" harus: ${exts}!`);
+                    return false;
+                }
+
+                return true;
+            }
+
+            function bindFileInput(inputId, allowedTypes, label) {
+                const input = getEl(inputId);
+                if (!input) return;
+
+                input.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (!validateFile(file, allowedTypes, label)) {
+                        this.value = '';
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            function initFileInputs() {
+                bindFileInput('foto_diri', ALLOWED_IMAGE_TYPES, 'Foto Diri');
+                bindFileInput('foto_ktp', ALLOWED_IMAGE_TYPES, 'Foto KTP');
+                bindFileInput('foto_ijasah', ALLOWED_MIXED_TYPES, 'Foto Ijazah');
+                bindFileInput('pakta_integritas', ALLOWED_MIXED_TYPES, 'Pakta Integritas');
+            }
+
+            // ─── Form Submission Guard ────────────────────────────────────────────────
+            function initFormSubmission() {
+                if (!el.form) return;
+
+                el.form.addEventListener('submit', function(e) {
+                    let valid = true;
+
+                    // 1. Recruit type
+                    const selectedRecruit = document.querySelector('input[name="recruit_type"]:checked');
+                    if (!selectedRecruit) {
+                        showToast('error', 'Silakan pilih Posisi Dilamar terlebih dahulu!');
+                        valid = false;
+                    }
+
+                    // 2. Type entry (only if DATA ENTRY)
+                    if (valid && selectedRecruit?.value === 'DATA ENTRY' && !el.typeEntrySelect.value) {
+                        focusInvalid(el.typeEntrySelect);
+                        showToast('error', 'Silakan pilih Tipe Entry terlebih dahulu!');
+                        valid = false;
+                    }
+
+                    // 3. NIK — must be exactly 16 digits
+                    if (valid && el.nik) {
+                        const nikVal = el.nik.value.trim();
+                        if (!/^\d{16}$/.test(nikVal)) {
+                            focusInvalid(el.nik);
+                            showToast('error', 'NIK harus tepat 16 digit angka!');
+                            valid = false;
+                        }
+                    }
+
+                    // 4. Telephone — 10–15 digits
+                    if (valid) {
+                        const tel = el.telephone.value;
+                        if (tel.length < 10 || tel.length > 15) {
+                            focusInvalid(el.telephone);
+                            showToast('error', 'Nomor telepon harus antara 10–15 digit!');
+                            valid = false;
+                        }
+                    }
+
+                    if (!valid) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // All good — disable button to prevent double submission
+                    el.submitBtn.disabled = true;
+                    el.submitBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Mengirim...';
+                });
+            }
+
+            // ─── Bootstrap invalid-feedback: remove on input ──────────────────────────
+            function initLiveValidationReset() {
+                el.form?.querySelectorAll('.form-control, .form-check-input').forEach(input => {
+                    input.addEventListener('input', function() {
+                        if (this.classList.contains('is-invalid') && this.value) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                    input.addEventListener('change', function() {
+                        if (this.classList.contains('is-invalid') && this.value) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                });
+            }
+
+            // ─── Bootstrap: re-enable submit on browser back navigation ──────────────
+            function initPageShowReset() {
+                window.addEventListener('pageshow', function(e) {
+                    if (e.persisted && el.submitBtn) {
+                        el.submitBtn.disabled = false;
+                        el.submitBtn.innerHTML =
+                            '<i class="ri-send-plane-line me-1"></i> Kirim Lamaran';
+                    }
+                });
+            }
+
+            // ─── Init ────────────────────────────────────────────────────────────────
+            function init() {
+                if (!initElements()) return; // Bail if critical DOM not found
+
+                // Bind recruit type change (unified handler)
+                el.recruitTypeInputs.forEach(input => {
+                    input.addEventListener('change', onRecruitTypeChange);
+                });
+
+                // Bind type entry select
+                el.typeEntrySelect.addEventListener('change', updateFeeAlert);
+
+                // Run initial state (handles old() / edit mode repopulation)
+                updateDownloadButtons();
+                updateTypeEntryVisibility();
+                updateFeeAlert();
+
+                // Input features
+                initNamaLengkap();
+                initNIK();
+                initTelephone();
+                initFileInputs();
+
+                // Form-level
+                initFormSubmission();
+                initLiveValidationReset();
+                initPageShowReset();
+                initAutoCloseAlerts();
+            }
+
+            // ─── Kick off after DOM ready ─────────────────────────────────────────────
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init(); // DOM already parsed
+            }
+
+        })();
     </script>
 @endsection

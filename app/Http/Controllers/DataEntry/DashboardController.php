@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\DataEntry;
 use App\Models\DataEntryPenagihan;
 use App\Models\DataEntryProgress;
+use App\Models\Pengumuman;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -59,6 +61,15 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+        // Cek pengumuman terbaru sesuai entry_type
+        $pengumuman = Pengumuman::where('jenis', $dataEntry->entry_type)
+            ->latest()
+            ->first();
+
+        // Tampilkan modal jika ada pengumuman baru yang belum dibaca
+        $showPengumuman = $pengumuman &&
+            $pengumuman->id !== $dataEntry->last_read_pengumuman_id;
+
         return view('data-entry.dashboard', compact(
             'dataEntry',
             'totalDientry',
@@ -71,7 +82,19 @@ class DashboardController extends Controller
             'sisaData',
             'kelipatanPer',
             'tarifPer15',
-            'penagihans'
+            'penagihans',
+            'pengumuman',
+            'showPengumuman'
         ));
+    }
+
+    public function markPengumumanRead(Request $request)
+    {
+        $request->validate(['pengumuman_id' => 'required|exists:pengumumans,id']);
+
+        $dataEntry = DataEntry::where('user_id', Auth::id())->firstOrFail();
+        $dataEntry->update(['last_read_pengumuman_id' => $request->pengumuman_id]);
+
+        return response()->json(['success' => true]);
     }
 }

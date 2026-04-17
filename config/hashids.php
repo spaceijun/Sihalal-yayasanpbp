@@ -29,13 +29,13 @@ return [
     'connections' => [
         'main' => [
             'salt' => 'xK9mP2qL5vN8wB3cF6hJ1dG4kM7nR0tSyU7iO4pL1m',
-            'length' => 15,
+            'length' => 50,
             'alphabet' => 'abcdefghijklmnopqrstuvwxyz0123456789'
         ],
         'alternative' => [
-            'salt' => 'aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1uV',
-            'length' => 20,
-            'alphabet' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+            'salt' => 'xK9mP2qL5vN8wB3cF6hJ1dG4kM7nR0tSyU7iO4pL1m',
+            'length' => 50,
+            'alphabet' => 'abcdefghijklmnopqrstuvwxyz0123456789'
         ],
     ],
 

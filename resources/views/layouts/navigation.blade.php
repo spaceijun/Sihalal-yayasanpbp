@@ -26,12 +26,26 @@
                         <i data-feather="user"></i>Koordinator
                     </a>
                 </li>
+                <li class="menu-title"><span data-key="t-menu">Data Entry</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/data-entries') }}"
                         class="nav-link {{ $current_url == 'superadmin/data-entries' ? 'active' : '' }}">
                         <i data-feather="file-text"></i>Data Entry
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/data-entry-progress') }}"
+                        class="nav-link {{ $current_url == 'superadmin/data-entry-progress' ? 'active' : '' }}">
+                        <i data-feather="trending-up"></i>Data Entry Progress
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/pengumumen') }}"
+                        class="nav-link {{ $current_url == 'superadmin/pengumumen' ? 'active' : '' }}">
+                        <i data-feather="align-justify"></i>Pengumuman Data Entry
+                    </a>
+                </li>
+
 
                 <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
                 <li class="nav-item">
@@ -51,12 +65,6 @@
                     <a href="{{ url('superadmin/data-lapangans') }}"
                         class="nav-link {{ $current_url == 'superadmin/data-lapangans' ? 'active' : '' }}">
                         <i data-feather="map-pin"></i>Data Lapangan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('superadmin/data-entry-progress') }}"
-                        class="nav-link {{ $current_url == 'superadmin/data-entry-progress' ? 'active' : '' }}">
-                        <i data-feather="trending-up"></i>Data Entry Progress
                     </a>
                 </li>
                 <li class="nav-item">

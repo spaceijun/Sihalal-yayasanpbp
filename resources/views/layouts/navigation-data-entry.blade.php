@@ -20,8 +20,8 @@
 </li>
 
 <li class="nav-item">
-    <a href="javascript:void(0)" class="nav-link disabled"
-        style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">
-        <i data-feather="activity"></i> Cashflow
+    <a href="{{ url('data-entry/pengumumen') }}"
+        class="nav-link {{ $current_url == 'data-entry/pengumumen' ? 'active' : '' }}">
+        <i data-feather="file-text"></i>Pengumuman
     </a>
 </li>

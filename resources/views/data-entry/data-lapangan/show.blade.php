@@ -400,6 +400,66 @@
         </div>
     </div>
 
+    <!-- Modal Keterangan Peraturan -->
+    <div class="modal fade" id="modalPeraturan" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-warning">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="las la-exclamation-triangle me-2"></i>Peraturan Sesi Pengerjaan
+                    </h5>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">Harap baca dan pahami peraturan berikut sebelum memulai pengerjaan:</p>
+                    <ol class="list-group list-group-numbered mb-0">
+                        <li class="list-group-item d-flex gap-3 align-items-start border-0 px-0 py-2">
+                            <span>
+                                <i class="las la-clock text-warning me-1"></i>
+                                <strong>Waktu pengerjaan adalah 50 menit.</strong> Timer akan berjalan otomatis sejak
+                                halaman ini dibuka dan tidak dapat dijeda.
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex gap-3 align-items-start border-0 px-0 py-2">
+                            <span>
+                                <i class="las la-lock text-danger me-1"></i>
+                                <strong>Jangan keluar atau menutup halaman ini.</strong> Jika Anda menutup tab, berpindah
+                                halaman, atau me-refresh secara manual, sesi akan berakhir dan data akan dilepas secara
+                                otomatis.
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex gap-3 align-items-start border-0 px-0 py-2">
+                            <span>
+                                <i class="las la-user-lock text-primary me-1"></i>
+                                <strong>Data dikunci secara eksklusif untuk Anda.</strong> Selama sesi berlangsung, pengguna
+                                lain tidak dapat mengakses atau mengedit data yang sedang Anda kerjakan.
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex gap-3 align-items-start border-0 px-0 py-2">
+                            <span>
+                                <i class="las la-redo-alt text-success me-1"></i>
+                                <strong>Perpanjang sesi sebelum waktu habis.</strong> Gunakan tombol <em>"Perpanjang
+                                    Sesi"</em> di pojok kanan bawah apabila Anda membutuhkan tambahan waktu pengerjaan.
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex gap-3 align-items-start border-0 px-0 py-2">
+                            <span>
+                                <i class="las la-exclamation-circle text-danger me-1"></i>
+                                <strong>Sesi yang habis tidak dapat dipulihkan.</strong> Jika waktu pengerjaan habis, data
+                                akan dilepas otomatis dan Anda akan diarahkan kembali ke halaman daftar.
+                            </span>
+                        </li>
+                    </ol>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-warning px-4" id="btnMengerti">
+                        <i class="las la-check me-2"></i>Saya Mengerti, Mulai Pengerjaan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Timer Lock Countdown -->
     <div id="lockTimerContainer" class="position-fixed bottom-0 end-0 m-3" style="z-index: 9999;">
         <div class="card shadow border-warning" style="min-width: 220px;">
@@ -524,6 +584,21 @@
         }
 
         // ================================
+        // MODAL PERATURAN — tampil saat halaman dimuat
+        // ================================
+        (function() {
+            // Hapus flag isReloading segera agar tidak menghalangi modal
+            sessionStorage.removeItem('isReloading');
+
+            const modalPeraturan = new bootstrap.Modal(document.getElementById('modalPeraturan'));
+            modalPeraturan.show();
+
+            document.getElementById('btnMengerti').addEventListener('click', function() {
+                bootstrap.Modal.getInstance(document.getElementById('modalPeraturan')).hide();
+            });
+        })();
+
+        // ================================
         // LOCK TIMER — 50 menit
         // ================================
         (function() {
@@ -574,9 +649,6 @@
                 sessionStorage.setItem('currentLockId', PAGE_ID);
                 sessionStorage.setItem(`lockStart_${PAGE_ID}`, Date.now());
 
-                console.log('=== BEFORE FETCH ===');
-                console.log('sessionStorage setelah setItem:', JSON.stringify(sessionStorage));
-
                 fetch(`${LOCK_URL}/${PAGE_ID}/lock`, {
                         method: 'POST',
                         headers: {
@@ -585,29 +657,18 @@
                         },
                         credentials: 'same-origin'
                     })
-                    .then(res => {
-                        console.log('=== FETCH RESPONSE ===');
-                        console.log('HTTP status:', res.status);
-                        return res.json();
-                    })
+                    .then(res => res.json())
                     .then(result => {
-                        console.log('=== FETCH RESULT ===');
-                        console.log('result:', JSON.stringify(result));
-                        console.log('sessionStorage saat ini:', JSON.stringify(sessionStorage));
-
                         if (result.success) {
-                            console.log('Lock berhasil, akan reload...');
                             window.location.reload();
                         } else {
-                            console.log('Lock GAGAL, membersihkan sessionStorage...');
                             sessionStorage.removeItem('isReloading');
                             sessionStorage.removeItem('currentLockId');
                             sessionStorage.removeItem(`lockStart_${PAGE_ID}`);
                         }
                     })
                     .catch(err => {
-                        console.log('=== FETCH ERROR ===');
-                        console.log('error:', err);
+                        console.error('Lock error:', err);
                         sessionStorage.removeItem('isReloading');
                         sessionStorage.removeItem('currentLockId');
                         sessionStorage.removeItem(`lockStart_${PAGE_ID}`);
@@ -615,21 +676,11 @@
                 return;
             }
 
-            // Tambah debug juga di sini
-            console.log('=== SETELAH CEK LOCK_ID ===');
-            console.log('LOCK_ID:', LOCK_ID);
-            console.log('lockStart:', sessionStorage.getItem(`lockStart_${LOCK_ID}`));
-            console.log('elapsed:', Math.floor((Date.now() - parseInt(sessionStorage.getItem(`lockStart_${LOCK_ID}`))) /
-                1000), 'detik');
-
             // Jika sama sekali tidak ada lock
             if (!LOCK_ID) {
                 document.getElementById('lockTimerContainer').style.display = 'none';
                 return;
             }
-
-            // Bersihkan flag reload
-            sessionStorage.removeItem('isReloading');
 
             // Hitung sisa waktu berdasarkan waktu mulai
             const lockStartKey = `lockStart_${LOCK_ID}`;
@@ -741,10 +792,9 @@
                 }
             });
 
-            // Release lock saat tutup tab — KECUALI saat reload internal
+            // Release lock saat tutup tab
             window.addEventListener('beforeunload', function() {
-                const isReloading = sessionStorage.getItem('isReloading');
-                if (!isExpired && !isReloading) {
+                if (!isExpired) {
                     navigator.sendBeacon(`${LOCK_URL}/${LOCK_ID}/unlock-beacon`);
                     sessionStorage.removeItem('currentLockId');
                     sessionStorage.removeItem(lockStartKey);

@@ -8,12 +8,27 @@ trait HasHashedId
 {
     public function getHashedIdAttribute()
     {
-        return Hashids::encode($this->id);
+        $hash = Hashids::encode($this->id);
+
+        // tambahkan random jika kurang dari 50 karakter
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        while (strlen($hash) < 50) {
+            $hash .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        // 50 karakter
+        $hash = substr($hash, 0, 50);
+
+        // format  XXXXX-XXXXX-XXXXX
+        return implode('-', str_split($hash, 10));
     }
 
     public static function findByHashedId($hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        // hapus strip dulu
+        $cleanHash = str_replace('-', '', $hashedId);
+
+        $decoded = Hashids::decode($cleanHash);
 
         if (empty($decoded)) {
             return null;
@@ -24,7 +39,9 @@ trait HasHashedId
 
     public static function findByHashedIdOrFail($hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $cleanHash = str_replace('-', '', $hashedId);
+
+        $decoded = Hashids::decode($cleanHash);
 
         if (empty($decoded)) {
             abort(404);

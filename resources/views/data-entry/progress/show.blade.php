@@ -42,33 +42,80 @@
         {{-- Banner status progress (PENDING / REVISI / DITERIMA / DITOLAK) --}}
         @if ($latestProgress)
             @if ($latestProgress->status === 'PENDING')
-                <div class="alert alert-info d-flex align-items-center gap-2">
-                    <i class="las la-hourglass-half fa-lg"></i>
-                    <div>
-                        <strong>Menunggu Review Admin</strong><br>
-                        <small>Data Anda sedang dalam proses verifikasi. Mohon tunggu konfirmasi dari Admin.</small>
+                <div class="alert alert-warning alert-dismissible alert-additional fade show mb-0 material-shadow"
+                    role="alert">
+                    <div class="alert-body">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-alert-line fs-16 align-middle"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="alert-heading">REVIEW ADMIN</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-content">
+                        <p class="mb-0">Progress anda sedang menunggu untuk direview oleh admin.</p>
                     </div>
                 </div>
             @elseif ($latestProgress->status === 'DITERIMA')
-                <div class="alert alert-success d-flex align-items-center gap-2">
-                    <i class="las la-check-circle fa-lg"></i>
-                    <div>
-                        <strong>Data Diterima</strong><br>
-                        <small>Data Anda telah diverifikasi dan diterima oleh superadmin.</small>
+                <div class="alert alert-success alert-dismissible alert-additional fade show material-shadow"
+                    role="alert">
+                    <div class="alert-body">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-notification-off-line fs-16 align-middle"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="alert-heading">DATA DITERIMA!</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-content">
+                        <p class="mb-0">Data anda telah diverifikasi dan diterima oleh admin.</p>
                     </div>
                 </div>
             @elseif ($latestProgress->status === 'REVISI')
-                <div class="alert alert-warning d-flex align-items-center gap-2">
-                    <i class="las la-edit fa-lg"></i>
-                    <div>
-                        <strong>Data Perlu Direvisi</strong><br>
-                        @if ($latestProgress->keterangan_revisi)
-                            <small>Catatan superadmin: <em>{{ $latestProgress->keterangan_revisi }}</em></small><br>
-                        @endif
-                        <small>Silakan lakukan perbaikan dan kirim ulang melalui tombol revisi di bawah.</small>
+                <!-- Danger Alert -->
+                <div class="alert alert-danger alert-dismissible alert-additional fade show material-shadow" role="alert">
+                    <div class="alert-body">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-error-warning-line fs-16 align-middle"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="alert-heading">REVISI!</h5>
+                                <p class="mb-0">Data anda perlu direvisi, silakan perbaiki dan kirim ulang. </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-content">
+                        <p class="mb-0">Catatan : <em>{{ $latestProgress->keterangan_revisi }}</em></p>
                     </div>
                 </div>
             @elseif ($latestProgress->status === 'DITOLAK')
+                <div class="dark dark-danger dark-dismissible dark-additional fade show material-shadow" role="dark">
+                    <div class="alert-body">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-error-dark-line fs-16 align-middle"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="alert-heading">DITOLAK!</h5>
+                                <p class="mb-0">Data anda telah ditolak. </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-content">
+                        <p class="mb-0">
+                            @if ($latestProgress->keterangan_revisi)
+                                <small>Alasan: <em>{{ $latestProgress->keterangan_revisi }}</em></small>
+                            @endif
+                            </em>
+                        </p>
+                    </div>
+                </div>
+
                 <div class="alert alert-danger d-flex align-items-center gap-2">
                     <i class="las la-times-circle fa-lg"></i>
                     <div>

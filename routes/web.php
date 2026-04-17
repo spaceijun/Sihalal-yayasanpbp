@@ -4,6 +4,7 @@ use App\Http\Controllers\AppVersionController;
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
+use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
+use App\Http\Controllers\Superadmin\PengumumanController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
@@ -129,6 +131,14 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::patch('/{progress}/tolak',                  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
             Route::post('/bulk-terima',                        [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
         });
+        // Pengumuman
+        Route::get('pengumumen', [PengumumanController::class, 'index'])->name('pengumumen.index');
+        Route::get('pengumumen/create', [PengumumanController::class, 'create'])->name('pengumumen.create');
+        Route::post('pengumumen', [PengumumanController::class, 'store'])->name('pengumumen.store');
+        Route::get('pengumumen/{hashedId}', [PengumumanController::class, 'show'])->name('pengumumen.show');
+        Route::get('pengumumen/{hashedId}/edit', [PengumumanController::class, 'edit'])->name('pengumumen.edit');
+        Route::put('pengumumen/{pengumuman}', [PengumumanController::class, 'update'])->name('pengumumen.update');
+        Route::delete('pengumumen/{id}', [PengumumanController::class, 'destroy'])->name('pengumumen.destroy');
         // Management Users 
         Route::resource('users', UserController::class);
 
@@ -197,6 +207,8 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
     Route::prefix('data-entry')->name('data-entry.')->group(function () {
         Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
+        Route::post('dashboard/mark-pengumuman-read', [DataEntryDashboardController::class, 'markPengumumanRead'])
+            ->name('markPengumumanRead');
 
         // Data Lapangan
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
@@ -211,6 +223,9 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
         Route::get('datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
         Route::get('datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+        // Pengumuman
+        Route::get('pengumumen', [PengumumanDataEntryController::class, 'index'])->name('pengumumen.index');
+        Route::get('pengumumen/{hashedId}', [PengumumanDataEntryController::class, 'show'])->name('pengumumen.show');
 
         // Progress
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');

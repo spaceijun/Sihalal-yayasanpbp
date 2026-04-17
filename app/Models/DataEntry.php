@@ -33,7 +33,7 @@ class DataEntry extends Model
      * @var array<int, string>
      */
     protected $table = 'data_entrys';
-    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type'];
+    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type', 'last_read_pengumuman_id',];
 
 
     /**
@@ -41,7 +41,7 @@ class DataEntry extends Model
      */
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**
@@ -62,5 +62,15 @@ class DataEntry extends Model
     public function koordinators()
     {
         return $this->belongsToMany(Koordinator::class, 'data_entry_koordinator', 'data_entry_id', 'koordinator_id');
+    }
+
+    /**
+     * Get the associated last read pengumuman models.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lastReadPengumuman()
+    {
+        return $this->belongsTo(\App\Models\Pengumuman::class, 'last_read_pengumuman_id');
     }
 }

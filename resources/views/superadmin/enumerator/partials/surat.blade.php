@@ -255,9 +255,9 @@
     <!-- Halaman 1: Surat Pemberitahuan -->
     <div class="page">
         <div class="header">
-            <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" alt="Logo Yayasan"
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Yayasan"
                 class="logo-left" />
-            <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" alt="Logo Halal"
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal"
                 class="logo-right" />
             <div class="header-text">
                 <h3>Yayasan Permata Bakti Pertiwi</h3>
@@ -268,7 +268,7 @@
                 <p>
                     Noble House, Kuningan, Jakarta Selatan 12950 | CS: 0897 6774 482
                 </p>
-                <p>www.sihalal.yayasanpermatabakti.com</p>
+                <p>www.kawulohalal.id</p>
             </div>
         </div>
 
@@ -349,9 +349,9 @@
         <div class="signature-wrapper clearfix">
             <div class="signature-date">Jakarta, {{ now()->locale('id')->translatedFormat('d F Y') }}</div>
             <div class="signature-stack">
-                <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" class="img-stamp"
+                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp"
                     alt="Stempel" />
-                <img src="https://sihalal.yayasanpermatabakti.com/assets/images/signature.png" class="img-sign"
+                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign"
                     alt="Tanda Tangan" />
             </div>
             <div class="signature-name">Mohammad Faizun Aziz</div>
@@ -362,9 +362,9 @@
     <!-- Halaman 2: Surat Tugas -->
     <div class="page">
         <div class="header">
-            <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" alt="Logo Yayasan"
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Yayasan"
                 class="logo-left" />
-            <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" alt="Logo Halal"
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal"
                 class="logo-right" />
             <div class="header-text">
                 <h3>Yayasan Permata Bakti Pertiwi</h3>
@@ -375,7 +375,7 @@
                 <p>
                     Noble House, Kuningan, Jakarta Selatan 12950 | CS: 0857 7258 5049
                 </p>
-                <p>www.sihalal.yayasanpermatabakti.com</p>
+                <p>www.kawulohalal.id</p>
             </div>
         </div>
 
@@ -458,9 +458,9 @@
         <div class="signature-wrapper clearfix">
             <div class="signature-date">Jakarta, {{ now()->locale('id')->translatedFormat('d F Y') }}</div>
             <div class="signature-stack">
-                <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png" class="img-stamp"
+                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp"
                     alt="Stempel" />
-                <img src="https://sihalal.yayasanpermatabakti.com/assets/images/signature.png" class="img-sign"
+                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign"
                     alt="Tanda Tangan" />
             </div>
             <div class="signature-name">Mohammad Faizun Aziz</div>

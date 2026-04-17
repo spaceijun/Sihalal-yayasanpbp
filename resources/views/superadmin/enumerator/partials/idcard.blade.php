@@ -171,7 +171,7 @@
 <body>
     <div class="id-card">
         <div class="header">
-            <img src="{{ $settingWebsite->favicon }}" alt="Logo" class="header-logo" />
+            <img src="https://kawulohalal.id/storage/settings/rddejZHSr2yhZXM1cIy2hKSZxzyJkmt36hiJTDlM.png" alt="Logo" class="header-logo" />
 
             <div class="header-text">
                 LEMBAGA PENDAMPING<br />
@@ -188,7 +188,9 @@
 
         <div class="info-section">
             <div class="name-text">{{ $enumerator->nama_lengkap }}</div>
-            <div class="id-number">No Registrasi <br />{{ $enumerator->no_registrasi }}/KH-YPBP/12/2025</div>
+            <div class="id-number">No Registrasi
+                <br />{{ $enumerator->created_at }}/KH-YPBP/{{ \Carbon\Carbon::parse($enumerator->created_at)->format('m') }}/{{ \Carbon\Carbon::parse($enumerator->created_at)->year }}
+            </div>
         </div>
 
         <div class="footer-wave">

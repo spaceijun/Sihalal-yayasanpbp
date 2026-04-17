@@ -171,7 +171,7 @@
 <body>
     <div class="id-card">
         <div class="header">
-            <img src="https://kawulohalal.id/storage/settings/rddejZHSr2yhZXM1cIy2hKSZxzyJkmt36hiJTDlM.png" alt="Logo" class="header-logo" />
+            <img src="{{ asset('storage/' . $settingWebsite->favicon ?? '') }}" alt="Logo" class="header-logo" />
 
             <div class="header-text">
                 LEMBAGA PENDAMPING<br />

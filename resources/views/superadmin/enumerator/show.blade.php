@@ -248,7 +248,7 @@
     <div id="idCardContainer" style="position: absolute; left: -9999px;">
         <div style="width: 590px; height: 1004px; background: white; position: relative; overflow: hidden;">
             <div style="padding: 50px 40px 0; display: flex; gap: 20px; align-items: flex-start;">
-                <img src="https://sihalal.yayasanpermatabakti.com/assets/images/stample.png"
+                <img src="{{ asset('storage/' . $settingWebsite->favicon ?? '') }}"
                     style="width: 100px; height: auto;">
                 <div
                     style="color: #2e0d6e; font-family: Arial, sans-serif; font-weight: 700; font-size: 24px; line-height: 1.2; text-transform: uppercase; letter-spacing: 1px;">
@@ -274,7 +274,7 @@
                     {{ strtoupper($enumerator->nama_lengkap) }}
                 </div>
                 <div style="font-size: 28px; font-weight: 500; color: black; letter-spacing: 2px;">
-                    No Registrasi<br>{{ $enumerator->no_registrasi }}/KH-YPBP/12/2025
+                    No Registrasi<br>{{ $enumerator->no_registrasi }}/KH-YPBP/{{ \Carbon\Carbon::parse($enumerator->created_at)->format('m') }}/{{ \Carbon\Carbon::parse($enumerator->created_at)->year }}
                 </div>
             </div>
 

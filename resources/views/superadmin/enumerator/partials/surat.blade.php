@@ -255,7 +255,7 @@
     <!-- Halaman 1: Surat Pemberitahuan -->
     <div class="page">
         <div class="header">
-            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Yayasan"
+            <img src="https://kawulohalal.id/assets/images/logo-pbp.png" alt="Logo Yayasan"
                 class="logo-left" />
             <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal"
                 class="logo-right" />

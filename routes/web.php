@@ -45,8 +45,8 @@ Route::get('/', function () {
         // Redirect berdasarkan role
         if ($user->role === 'superadmin') {
             return redirect('/superadmin');
-        } elseif ($user->role === 'koordinator') {
-            return redirect('/koordinator');
+        } elseif ($user->role === 'data-entry') {
+            return redirect('/data-entry');
         }
 
         // Default redirect jika role lain

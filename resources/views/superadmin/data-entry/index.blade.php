@@ -52,9 +52,14 @@
                                             <td>{{ $dataEntry->telephone }}</td>
                                             <td>{{ $dataEntry->status }}</td>
                                             <td><span class="badge bg-primary">{{ $dataEntry->entry_type }}</span></td>
-                                            <td>{{ $dataEntry->bank->name }}, {{ $dataEntry->no_rekening }} an.
-                                                {{ $dataEntry->nama_rekening }}</td>
-
+                                            <td>
+                                                @if ($dataEntry->bank && $dataEntry->no_rekening && $dataEntry->nama_rekening)
+                                                    {{ $dataEntry->bank->name }}, {{ $dataEntry->no_rekening }} an.
+                                                    {{ $dataEntry->nama_rekening }}
+                                                @else
+                                                    No data
+                                                @endif
+                                            </td>
                                             <td>
                                                 <form
                                                     action="{{ route('superadmin.data-entries.destroy', $dataEntry->id) }}"

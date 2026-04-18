@@ -41,17 +41,24 @@ class DataLapanganObserver
     {
         if (!$this->isDataEntry()) return;
 
+        // Skip jika hanya update field lock/unlock (is_being_edited, edited_by, edit_expires_at)
+        $lockFields = ['is_being_edited', 'edited_by', 'edit_expires_at', 'updated_at'];
+        $changedKeys = array_keys($dataLapangan->getChanges());
+
+        if (empty(array_diff($changedKeys, $lockFields))) {
+            return;
+        }
+
         DataEntryProgress::create([
             'user_id'          => Auth::id(),
             'data_entry_id'    => $this->getDataEntryId(),
             'data_lapangan_id' => $dataLapangan->id,
             'action'           => 'updated',
-            'old_data'         => $dataLapangan->getOriginal(), // data lama
-            'new_data'         => $dataLapangan->getChanges(),  // data baru
+            'old_data'         => $dataLapangan->getOriginal(),
+            'new_data'         => $dataLapangan->getChanges(),
             'actioned_at'      => now(),
         ]);
     }
-
     public function deleted(DataLapangan $dataLapangan): void
     {
         if (!$this->isDataEntry()) return;

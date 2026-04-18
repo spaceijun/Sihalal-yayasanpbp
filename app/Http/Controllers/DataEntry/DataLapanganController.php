@@ -51,14 +51,13 @@ class DataLapanganController extends Controller
      */
     private function hasPendingProgress(int $dataEntryId, int $dataLapanganId): bool
     {
-        $latestProgress = DataEntryProgress::where('data_entry_id', $dataEntryId)
-            ->where('data_lapangan_id', $dataLapanganId)
-            ->latest('actioned_at')
+        $latestProgress = DataEntryProgress::where('data_lapangan_id', $dataLapanganId)
+            ->where('action', 'created')
+            ->latest('id')
             ->first();
 
         return $latestProgress?->status === 'PENDING';
     }
-
     /**
      * Track progress data entry ketika upload file / update status.
      * Status default PENDING — menunggu review superadmin.
@@ -117,13 +116,12 @@ class DataLapanganController extends Controller
         $dataEntry    = DataEntry::where('user_id', Auth::id())->first();
         $entryType    = $dataEntry?->entry_type;
 
-        $latestProgress = $dataEntry
-            ? DataEntryProgress::where('data_entry_id', $dataEntry->id)
-            ->where('data_lapangan_id', $dataLapangan->id)
-            ->latest()
-            ->first()
-            : null;
+        $latestProgress = DataEntryProgress::where('data_lapangan_id', $dataLapangan->id)
+            ->where('action', 'created')
+            ->latest('id')
+            ->first();
 
+        $hasPendingProgress = $latestProgress?->status === 'PENDING';
         // Cek apakah ada progress PENDING — cukup cek dari status progress,
         // tidak perlu cek new_data->status agar lebih akurat dan tidak meleset.
         $hasPendingProgress = $dataEntry

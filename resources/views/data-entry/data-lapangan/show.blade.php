@@ -38,6 +38,9 @@
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <span>Data Informasi</span>
+                        @php
+                            $hasPendingProgress = $latestProgress?->status === 'PENDING';
+                        @endphp
                         @if (($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK') && !$hasPendingProgress)
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#modalUpdateStatusHalal">

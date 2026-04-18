@@ -70,7 +70,7 @@
                     <div class="d-flex">
                         <!-- LOGO -->
                         <div class="navbar-brand-box horizontal-logo">
-                            <a href="index.html" class="logo logo-dark">
+                            <a href="#" class="logo logo-dark">
                                 <span class="logo-sm">
                                     <span
                                         style="font-size: 14px; font-weight: bold; color: #ffffff;">{{ $settingWebsite->title }}</span>
@@ -81,7 +81,7 @@
                                 </span>
                             </a>
 
-                            <a href="index.html" class="logo logo-light">
+                            <a href="#" class="logo logo-light">
                                 <span class="logo-sm">
                                     <span
                                         style="font-size: 14px; font-weight: bold; color: #ffffff;">{{ $settingWebsite->title }}</span>

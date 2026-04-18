@@ -125,6 +125,10 @@
 
                                 <dt class="col-sm-4">Email</dt>
                                 <dd class="col-sm-8">{{ $dl->email ?? '-' }}</dd>
+                                @if ($dl->status === 'PROGRESS SIHALAL')
+                                    <dt class="col-sm-4">Email Sihalal</dt>
+                                    <dd class="col-sm-8">{{ $dl->email_sihalal ?? '-' }}</dd>
+                                @endif
 
                                 <dt class="col-sm-4">Nama Produk</dt>
                                 <dd class="col-sm-8">{{ $dl->nama_produk ?? '-' }}</dd>

@@ -5,6 +5,7 @@ use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardCont
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
+use App\Http\Controllers\DataEntry\SettingAkunController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
@@ -230,6 +231,10 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         // Progress
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
+
+        // settings
+        Route::get('manajemen-akun', [SettingAkunController::class, 'index'])->name('manajemen-akun.index');
+        Route::post('manajemen-akun/update', [SettingAkunController::class, 'update'])->name('manajemen-akun.update');
     });
 });
 /**

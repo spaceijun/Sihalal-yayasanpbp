@@ -33,7 +33,7 @@ class DataEntry extends Model
      * @var array<int, string>
      */
     protected $table = 'data_entrys';
-    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type', 'last_read_pengumuman_id',];
+    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type', 'bank_id', 'no_rekening', 'nama_rekening', 'last_read_pengumuman_id',];
 
 
     /**
@@ -72,5 +72,15 @@ class DataEntry extends Model
     public function lastReadPengumuman()
     {
         return $this->belongsTo(\App\Models\Pengumuman::class, 'last_read_pengumuman_id');
+    }
+
+    /**
+     * Get the associated bank models.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function bank()
+    {
+        return $this->belongsTo(DataBank::class, 'bank_id');
     }
 }

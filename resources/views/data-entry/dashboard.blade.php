@@ -5,27 +5,53 @@
 @endsection
 
 @section('content')
+
     {{-- ============================================================ --}}
-    {{-- WELCOME ALERT                                                --}}
+    {{-- HERO BANNER: Welcome + Entry Type + Tarif                    --}}
     {{-- ============================================================ --}}
-    <div class="alert alert-dismissible fade show mb-4" role="alert"
-        style="background: var(--vz-info-bg-subtle); border: 1px solid var(--vz-info-border-subtle); border-radius: 12px; padding: 14px 18px;">
-        <div class="d-flex align-items-center gap-2">
-            <i class="ri-admin-line fs-18 text-info"></i>
-            <div class="flex-grow-1">
-                <strong>Selamat datang, {{ $dataEntry->user->name }}!</strong>
-                <span class="text-muted ms-1">— Entry type:</span>
-                <span
-                    class="badge {{ $dataEntry->entry_type === 'SIHALAL' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info' }} ms-1">
-                    {{ $dataEntry->entry_type }}
-                </span>
-                <span class="text-muted ms-2">Tarif:</span>
-                <strong class="ms-1">Rp {{ number_format($tarifPer15, 0, ',', '.') }}</strong>
-                <span class="text-muted">/ {{ $kelipatanPer }} data</span>
+    <div class="db-hero mb-4">
+        <div class="db-hero__left">
+            <div class="db-hero__greeting">Selamat datang,</div>
+            <div class="db-hero__name">{{ $dataEntry->user->name }}</div>
+            <div class="db-hero__meta">
+                <div class="db-type-pill db-type-pill--{{ strtolower($dataEntry->entry_type) }}">
+                    <span class="db-type-pill__dot"></span>
+                    DATA ENTRY - {{ $dataEntry->entry_type }}
+                </div>
+                <div class="db-hero__sep"></div>
+                <span class="db-hero__tarif-label">Tarif per paket</span>
+                <span class="db-hero__tarif-value">Rp {{ number_format($tarifPer15, 0, ',', '.') }}</span>
+                <span class="db-hero__tarif-unit">/ {{ $kelipatanPer }} data</span>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="db-hero__right">
+            <div class="db-hero__stat">
+                <div class="db-hero__stat-num">{{ $kelipatan }}x</div>
+                <div class="db-hero__stat-lbl">Paket terpenuhi</div>
+            </div>
+            <div class="db-hero__stat-divider"></div>
+            <div class="db-hero__stat">
+                <div class="db-hero__stat-num">Rp {{ number_format($totalPenghasilan, 0, ',', '.') }}</div>
+                <div class="db-hero__stat-lbl">Total penghasilan</div>
+            </div>
         </div>
     </div>
+
+    {{-- Alert rekening --}}
+    @if (empty($dataEntry->bank_id) || empty($dataEntry->no_rekening) || empty($dataEntry->nama_rekening))
+        <div class="db-alert db-alert--warning mb-4" id="alertRekening">
+            <div class="db-alert__icon">
+                <i class="ri-error-warning-line"></i>
+            </div>
+            <div class="db-alert__body">
+                <strong>Rekening belum lengkap</strong> — Harap lengkapi informasi bank dan rekening agar proses pembayaran
+                dapat berjalan lancar.
+                <a href="{{ route('data-entry.manajemen-akun.index') }}" class="db-alert__link">Lengkapi sekarang →</a>
+            </div>
+        </div>
+    @endif
+
+
 
     {{-- ============================================================ --}}
     {{-- ROW 1: Summary Cards                                         --}}
@@ -499,6 +525,200 @@
             </div>
         </div>
     @endif
+    <style>
+        /* ---- Hero Banner ---- */
+        .db-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding: 1.5rem 1.75rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2a4a7f 50%, #1a3560 100%);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .db-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .db-hero__left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .db-hero__greeting {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: .7;
+            letter-spacing: .04em;
+            margin-bottom: 2px;
+        }
+
+        .db-hero__name {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -.3px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .db-hero__meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .db-hero__sep {
+            width: 1px;
+            height: 14px;
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .db-hero__tarif-label {
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        .db-hero__tarif-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .db-hero__tarif-unit {
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        .db-hero__right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+        }
+
+        .db-hero__stat-divider {
+            width: 1px;
+            height: 36px;
+            background: rgba(255, 255, 255, .2);
+        }
+
+        .db-hero__stat-num {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .db-hero__stat-lbl {
+            font-size: 11px;
+            opacity: .65;
+        }
+
+        /* ---- Type Pills ---- */
+        .db-type-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .db-type-pill--oss {
+            background: rgba(13, 202, 240, .15);
+            color: #0dcaf0;
+            border: 1px solid rgba(13, 202, 240, .3);
+        }
+
+        .db-type-pill--sihalal {
+            background: rgba(99, 102, 241, .2);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, .3);
+        }
+
+        .db-type-pill__dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* ---- Alert ---- */
+        .db-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .db-alert--warning {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .db-alert__icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .db-alert__body {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .db-alert__link {
+            margin-left: 8px;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .db-alert__close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: .6;
+            font-size: 16px;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .db-alert__close:hover {
+            opacity: 1;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 768px) {
+            .db-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .db-hero__right {
+                width: 100%;
+            }
+        }
+    </style>
     @if ($showPengumuman && $pengumuman)
         <script>
             document.addEventListener('DOMContentLoaded', function() {

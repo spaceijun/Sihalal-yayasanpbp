@@ -294,6 +294,44 @@
             animation: cardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
         }
 
+        /* ── PROGRESS BAR ── */
+        .rc-progress-wrap {
+            margin-bottom: 1.5rem;
+        }
+
+        .rc-progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .rc-progress-label {
+            font-size: 12px;
+            color: #8A99B3;
+        }
+
+        .rc-progress-pct {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A5FC8;
+        }
+
+        .rc-progress-bar {
+            height: 4px;
+            background: #EDF0F7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .rc-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1A5FC8, #1D9E75);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
         .rc-form-header {
             margin-bottom: 1.5rem;
         }
@@ -493,11 +531,41 @@
             box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.1);
         }
 
+        /* Validation states */
         .rc-input.is-invalid,
         .rc-select.is-invalid,
         .rc-textarea.is-invalid {
-            border-color: #FCA5A5;
-            background: #FEF2F2;
+            border-color: #FCA5A5 !important;
+            background: #FEF2F2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+        }
+
+        .rc-input.is-valid,
+        .rc-select.is-valid,
+        .rc-textarea.is-valid {
+            border-color: #6EE7B7 !important;
+            background: #F0FDF9 !important;
+        }
+
+        /* Error message inline */
+        .rc-error-msg {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #EF4444;
+            margin-top: 5px;
+            animation: slideDown 0.2s ease;
+        }
+
+        .rc-error-msg.show {
+            display: flex;
+        }
+
+        .rc-error-msg svg {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
         }
 
         .rc-hint {
@@ -507,17 +575,31 @@
             display: block;
         }
 
-        .rc-error {
-            font-size: 12px;
-            color: #EF4444;
+        /* Char counter */
+        .rc-field-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 4px;
-            display: block;
+        }
+
+        .rc-char-count {
+            font-size: 11px;
+            color: #B0BCCE;
+        }
+
+        .rc-char-count.warn {
+            color: #F59E0B;
+        }
+
+        .rc-char-count.over {
+            color: #EF4444;
         }
 
         /* Radio group */
         .rc-radio-group {
             display: flex;
-            gap: 1rem;
+            gap: .75rem;
             flex-wrap: wrap;
         }
 
@@ -526,6 +608,22 @@
             align-items: center;
             gap: 9px;
             cursor: pointer;
+            padding: 9px 16px;
+            border: 1px solid #E0E7F0;
+            border-radius: 10px;
+            background: #F5F7FB;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .rc-radio-option:hover {
+            border-color: #1A5FC8;
+            background: #EEF4FF;
+        }
+
+        .rc-radio-option.selected {
+            border-color: #1A5FC8;
+            background: #EEF4FF;
         }
 
         .rc-radio-option input[type="radio"] {
@@ -556,11 +654,11 @@
             transition: all 0.2s;
         }
 
-        .rc-radio-option input:checked+.rc-radio-visual {
+        .rc-radio-option.selected .rc-radio-visual {
             border-color: #1A5FC8;
         }
 
-        .rc-radio-option input:checked+.rc-radio-visual::after {
+        .rc-radio-option.selected .rc-radio-visual::after {
             opacity: 1;
             transform: scale(1);
         }
@@ -571,34 +669,74 @@
             font-weight: 500;
         }
 
+        .rc-radio-option.selected .rc-radio-label {
+            color: #1A5FC8;
+            font-weight: 600;
+        }
+
         /* File input */
-        .rc-file-input {
+        .rc-file-zone {
             width: 100%;
             background: #F5F7FB;
             border: 1.5px dashed #C8D3E8;
             border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 13.5px;
-            color: #6B7A99;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            padding: 14px;
+            text-align: center;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
+            transition: all 0.2s;
+            position: relative;
         }
 
-        .rc-file-input:hover {
+        .rc-file-zone:hover,
+        .rc-file-zone.drag-over {
             border-color: #1A5FC8;
             background: #EEF4FF;
         }
 
-        .rc-file-input:focus {
-            outline: none;
-            border-color: #1A5FC8;
-            box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.1);
+        .rc-file-zone.has-file {
+            border-color: #6EE7B7;
+            border-style: solid;
+            background: #F0FDF9;
         }
 
-        .rc-file-input.is-invalid {
+        .rc-file-zone.is-invalid {
             border-color: #FCA5A5;
             background: #FEF2F2;
+        }
+
+        .rc-file-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .rc-file-label {
+            font-size: 13px;
+            color: #6B7A99;
+            pointer-events: none;
+        }
+
+        .rc-file-label strong {
+            display: block;
+            color: #0F1F40;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .rc-file-label small {
+            font-size: 11.5px;
+            color: #B0BCCE;
+        }
+
+        .rc-file-zone.has-file .rc-file-label {
+            color: #0F6E56;
+        }
+
+        .rc-file-zone.has-file .rc-file-label strong {
+            color: #065F46;
         }
 
         /* Fee info box */
@@ -680,12 +818,7 @@
             border-color: #C0D4F5;
         }
 
-        .rc-dl-btn.pendamping:hover {
-            background: #1A5FC8;
-            color: #fff;
-            border-color: #1A5FC8;
-        }
-
+        .rc-dl-btn.pendamping:hover,
         .rc-dl-btn.pendamping.active {
             background: #1A5FC8;
             color: #fff;
@@ -698,12 +831,7 @@
             border-color: #E0E7F0;
         }
 
-        .rc-dl-btn.dataentry:hover {
-            background: #3A4A6B;
-            color: #fff;
-            border-color: #3A4A6B;
-        }
-
+        .rc-dl-btn.dataentry:hover,
         .rc-dl-btn.dataentry.active {
             background: #3A4A6B;
             color: #fff;
@@ -777,12 +905,20 @@
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
+            display: none;
         }
 
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
+        }
+
+        /* Row 2 col */
+        .rc-row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
         /* Footer */
@@ -806,6 +942,10 @@
 
             .rc-steps {
                 display: none;
+            }
+
+            .rc-row2 {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -877,6 +1017,17 @@
             {{-- ── RIGHT PANEL ── --}}
             <div class="rc-right">
 
+                {{-- Progress Bar --}}
+                <div class="rc-progress-wrap">
+                    <div class="rc-progress-header">
+                        <span class="rc-progress-label">Kelengkapan formulir</span>
+                        <span class="rc-progress-pct" id="rcProgressPct">0%</span>
+                    </div>
+                    <div class="rc-progress-bar">
+                        <div class="rc-progress-fill" id="rcProgressFill"></div>
+                    </div>
+                </div>
+
                 <div class="rc-form-header">
                     <h2>Formulir Pendaftaran</h2>
                     <p>Lengkapi semua data diri Anda dengan benar dan teliti</p>
@@ -912,32 +1063,40 @@
                     id="formRecruitment" novalidate>
                     @csrf
 
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     {{-- SECTION 1: POSISI --}}
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     <div class="rc-section-title">Posisi Dilamar</div>
 
                     <div class="rc-field">
                         <label class="rc-label">Pilih Posisi <span class="req">*</span></label>
-                        <div class="rc-radio-group">
-                            <label class="rc-radio-option">
+                        <div class="rc-radio-group" id="radioGroup">
+                            <label class="rc-radio-option" id="lblPendamping">
                                 <input type="radio" name="recruit_type" id="type_pendamping" value="PENDAMPING" required>
                                 <span class="rc-radio-visual"></span>
                                 <span class="rc-radio-label">Pendamping</span>
                             </label>
-                            <label class="rc-radio-option">
+                            <label class="rc-radio-option" id="lblDataEntry">
                                 <input type="radio" name="recruit_type" id="type_data_entry" value="DATA ENTRY">
                                 <span class="rc-radio-visual"></span>
                                 <span class="rc-radio-label">Data Entry</span>
                             </label>
                         </div>
+                        <div class="rc-error-msg" id="errPosisi">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Pilih posisi yang Anda lamar
+                        </div>
                         @error('recruit_type')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
                     {{-- Tipe Entry (conditional) --}}
-                    <div class="rc-field d-none" id="typeEntryWrapper">
+                    <div class="rc-field" id="typeEntryWrapper" style="display:none;">
                         <label class="rc-label" for="type_entry">Tipe Entry <span class="req">*</span></label>
                         <select id="type_entry" name="type_entry"
                             class="rc-select @error('type_entry') is-invalid @enderror">
@@ -945,183 +1104,320 @@
                             <option value="OSS">OSS</option>
                             <option value="SIHALAL">SIHALAL</option>
                         </select>
+                        <div class="rc-error-msg" id="errTypeEntry">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Pilih tipe entry terlebih dahulu
+                        </div>
                         @error('type_entry')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
 
-                        <div id="alertOSS" class="rc-fee-box oss d-none">
+                        <div id="alertOSS" class="rc-fee-box oss" style="display:none;">
                             <svg viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="8" x2="12" y2="12" />
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
-                            <div><strong>Fee OSS: Rp100.000</strong><br>
+                            <div><strong>Fee OSS: Rp100.000</strong>
                                 <small>Per 15 data yang berhasil diproses. Pahami alur kerja OSS sebelum mendaftar.</small>
                             </div>
                         </div>
-                        <div id="alertSIHALAL" class="rc-fee-box sihalal d-none">
+                        <div id="alertSIHALAL" class="rc-fee-box sihalal" style="display:none;">
                             <svg viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="8" x2="12" y2="12" />
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
-                            <div><strong>Fee SIHALAL: Rp150.000</strong><br>
+                            <div><strong>Fee SIHALAL: Rp150.000</strong>
                                 <small>Per 15 data yang berhasil diproses. Pahami alur kerja SIHALAL sebelum
                                     mendaftar.</small>
                             </div>
                         </div>
                     </div>
 
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     {{-- SECTION 2: DATA DIRI --}}
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     <div class="rc-section-title" style="margin-top:1.5rem;">Data Diri</div>
 
                     <div class="rc-field">
                         <label class="rc-label" for="nama_lengkap">Nama Lengkap <span class="req">*</span></label>
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
-                            class="rc-input @error('nama_lengkap') is-invalid @enderror" required autofocus
-                            placeholder="Masukkan nama lengkap" autocomplete="name" maxlength="255"
+                            class="rc-input @error('nama_lengkap') is-invalid @enderror" value="{{ old('nama_lengkap') }}"
+                            required autofocus placeholder="Masukkan nama lengkap" autocomplete="name" maxlength="255"
                             style="text-transform:uppercase;">
                         <span class="rc-hint">Nama akan otomatis diubah ke huruf besar</span>
+                        <div class="rc-error-msg" id="errNama">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Nama lengkap wajib diisi (minimal 3 karakter)
+                        </div>
                         @error('nama_lengkap')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="nik">NIK <span class="req">*</span></label>
-                        <input type="text" id="nik" name="nik"
-                            class="rc-input @error('nik') is-invalid @enderror" required
-                            placeholder="Masukkan 16 digit NIK" maxlength="16" minlength="16" inputmode="numeric"
-                            pattern="\d{16}" autocomplete="off">
-                        <span class="rc-hint">Sesuai KTP, 16 digit angka</span>
-                        @error('nik')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <div class="rc-row2">
+                        <div class="rc-field">
+                            <label class="rc-label" for="nik">NIK <span class="req">*</span></label>
+                            <input type="text" id="nik" name="nik"
+                                class="rc-input @error('nik') is-invalid @enderror" value="{{ old('nik') }}" required
+                                placeholder="16 digit NIK" maxlength="16" minlength="16" inputmode="numeric"
+                                pattern="\d{16}" autocomplete="off">
+                            <span class="rc-hint">Sesuai KTP — 16 digit angka</span>
+                            <div class="rc-error-msg" id="errNik">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                NIK harus tepat 16 digit angka
+                            </div>
+                            @error('nik')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="jenis_kelamin">Jenis Kelamin <span class="req">*</span></label>
-                        <select id="jenis_kelamin" name="jenis_kelamin"
-                            class="rc-select @error('jenis_kelamin') is-invalid @enderror" required>
-                            <option value="">-- Pilih Jenis Kelamin --</option>
-                            <option value="Laki-laki">Laki-laki</option>
-                            <option value="Perempuan">Perempuan</option>
-                        </select>
-                        @error('jenis_kelamin')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
+                        <div class="rc-field">
+                            <label class="rc-label" for="jenis_kelamin">Jenis Kelamin <span
+                                    class="req">*</span></label>
+                            <select id="jenis_kelamin" name="jenis_kelamin"
+                                class="rc-select @error('jenis_kelamin') is-invalid @enderror" required>
+                                <option value="">-- Pilih --</option>
+                                <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>
+                                    Laki-laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                    Perempuan</option>
+                            </select>
+                            <div class="rc-error-msg" id="errJK">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                Pilih jenis kelamin
+                            </div>
+                            @error('jenis_kelamin')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="rc-field">
                         <label class="rc-label" for="telephone">No. Telepon <span class="req">*</span></label>
                         <input type="text" id="telephone" name="telephone"
-                            class="rc-input @error('telephone') is-invalid @enderror" required
-                            placeholder="Contoh: 081234567890" maxlength="15" inputmode="numeric" autocomplete="tel">
+                            class="rc-input @error('telephone') is-invalid @enderror" value="{{ old('telephone') }}"
+                            required placeholder="Contoh: 081234567890" maxlength="15" inputmode="numeric"
+                            autocomplete="tel">
                         <span class="rc-hint">Nomor telepon aktif (10–15 digit)</span>
+                        <div class="rc-error-msg" id="errTelp">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Nomor telepon harus 10–15 digit angka
+                        </div>
                         @error('telephone')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="rc-field">
                         <label class="rc-label" for="alamat_lengkap">Alamat Lengkap <span class="req">*</span></label>
                         <textarea id="alamat_lengkap" name="alamat_lengkap" class="rc-textarea @error('alamat_lengkap') is-invalid @enderror"
-                            required placeholder="Masukkan alamat lengkap" maxlength="500"></textarea>
+                            required placeholder="Masukkan alamat lengkap sesuai KTP" maxlength="500">{{ old('alamat_lengkap') }}</textarea>
+                        <div class="rc-field-footer">
+                            <span class="rc-hint" style="margin-top:0;">Minimal 10 karakter</span>
+                            <span class="rc-char-count" id="ccAlamat">0/500</span>
+                        </div>
+                        <div class="rc-error-msg" id="errAlamat">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Alamat lengkap wajib diisi (minimal 10 karakter)
+                        </div>
                         @error('alamat_lengkap')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="pendidikan_terakhir">Pendidikan Terakhir <span
-                                class="req">*</span></label>
-                        <select id="pendidikan_terakhir" name="pendidikan_terakhir"
-                            class="rc-select @error('pendidikan_terakhir') is-invalid @enderror" required>
-                            <option value="">-- Pilih Pendidikan Terakhir --</option>
-                            @php $pendidikanList = ['SD / Paket A / Sederajat','SMP / Paket B / Sederajat','SMA / SMK / Paket C / Sederajat','D1','D2','D3','S1','S2','S3']; @endphp
-                            @foreach ($pendidikanList as $pendidikan)
-                                <option value="{{ $pendidikan }}">{{ $pendidikan }}</option>
-                            @endforeach
-                        </select>
-                        @error('pendidikan_terakhir')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
+                    <div class="rc-row2">
+                        <div class="rc-field">
+                            <label class="rc-label" for="pendidikan_terakhir">Pendidikan Terakhir <span
+                                    class="req">*</span></label>
+                            <select id="pendidikan_terakhir" name="pendidikan_terakhir"
+                                class="rc-select @error('pendidikan_terakhir') is-invalid @enderror" required>
+                                <option value="">-- Pilih --</option>
+                                @php
+                                    $pendidikanList = [
+                                        'SD / Paket A / Sederajat',
+                                        'SMP / Paket B / Sederajat',
+                                        'SMA / SMK / Paket C / Sederajat',
+                                        'D1',
+                                        'D2',
+                                        'D3',
+                                        'S1',
+                                        'S2',
+                                        'S3',
+                                    ];
+                                @endphp
+                                @foreach ($pendidikanList as $pendidikan)
+                                    <option value="{{ $pendidikan }}"
+                                        {{ old('pendidikan_terakhir') == $pendidikan ? 'selected' : '' }}>
+                                        {{ $pendidikan }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="rc-error-msg" id="errPendidikan">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                Pilih pendidikan terakhir
+                            </div>
+                            @error('pendidikan_terakhir')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="rc-field">
+                            <label class="rc-label" for="rekomendasi">
+                                Rekomendasi
+                                <span
+                                    style="color:#B0BCCE;font-weight:400;text-transform:none;letter-spacing:0;">(opsional)</span>
+                            </label>
+                            <select id="rekomendasi" name="rekomendasi"
+                                class="rc-select @error('rekomendasi') is-invalid @enderror">
+                                <option value="">-- Tidak ada --</option>
+                                @if (isset($daftarRekomendasi) && $daftarRekomendasi->count())
+                                    @foreach ($daftarRekomendasi as $rec)
+                                        <option value="{{ $rec->nama_lengkap }}"
+                                            {{ old('rekomendasi') == $rec->nama_lengkap ? 'selected' : '' }}>
+                                            {{ $rec->nama_lengkap }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="" disabled>Tidak ada data rekomendasi</option>
+                                @endif
+                            </select>
+                            <span class="rc-hint">Jika tidak ada, kosongkan saja</span>
+                            @error('rekomendasi')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="rc-field">
                         <label class="rc-label" for="pengalaman">Pengalaman Kerja <span class="req">*</span></label>
                         <textarea id="pengalaman" name="pengalaman" class="rc-textarea @error('pengalaman') is-invalid @enderror" required
-                            placeholder="Jelaskan pengalaman kerja Anda yang relevan" maxlength="1000"></textarea>
-                        <span class="rc-hint">Tuliskan pengalaman kerja yang relevan dengan posisi yang dilamar</span>
+                            placeholder="Jelaskan pengalaman kerja Anda yang relevan" maxlength="1000" style="min-height:100px;">{{ old('pengalaman') }}</textarea>
+                        <div class="rc-field-footer">
+                            <span class="rc-hint" style="margin-top:0;">Minimal 20 karakter</span>
+                            <span class="rc-char-count" id="ccPengalaman">0/1000</span>
+                        </div>
+                        <div class="rc-error-msg" id="errPengalaman">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Pengalaman kerja wajib diisi (minimal 20 karakter)
+                        </div>
                         @error('pengalaman')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="rekomendasi">Rekomendasi <span
-                                style="color:#B0BCCE;font-weight:400;text-transform:none;letter-spacing:0;">(opsional)</span></label>
-                        <select id="rekomendasi" name="rekomendasi"
-                            class="rc-select @error('rekomendasi') is-invalid @enderror">
-                            <option value="">-- Pilih Rekomendasi (Opsional) --</option>
-                            @if (isset($daftarRekomendasi) && $daftarRekomendasi->count())
-                                @foreach ($daftarRekomendasi as $rekomendasi)
-                                    <option value="{{ $rekomendasi->nama_lengkap }}">{{ $rekomendasi->nama_lengkap }}
-                                    </option>
-                                @endforeach
-                            @else
-                                <option value="" disabled>Tidak ada data rekomendasi</option>
-                            @endif
-                        </select>
-                        <span class="rc-hint">Jika tidak ada, kosongkan saja</span>
-                        @error('rekomendasi')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     {{-- SECTION 3: DOKUMEN --}}
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     <div class="rc-section-title" style="margin-top:1.5rem;">Upload Dokumen</div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="foto_diri">Foto Diri (3×4) <span class="req">*</span></label>
-                        <input type="file" id="foto_diri" name="foto_diri"
-                            class="rc-file-input @error('foto_diri') is-invalid @enderror"
-                            accept="image/jpeg,image/jpg,image/png" required>
-                        <span class="rc-hint">Format: JPG, PNG, JPEG. Maks: 10MB</span>
-                        @error('foto_diri')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <div class="rc-row2">
+                        <div class="rc-field">
+                            <label class="rc-label" for="foto_diri">Foto Diri (3×4) <span class="req">*</span></label>
+                            <div class="rc-file-zone @error('foto_diri') is-invalid @enderror" id="zoneFotoDiri">
+                                <input type="file" id="foto_diri" name="foto_diri"
+                                    accept="image/jpeg,image/jpg,image/png" required>
+                                <div class="rc-file-label" id="lblFotoDiri">
+                                    <strong>Klik atau seret file</strong>
+                                    <small>JPG, PNG · maks 10MB</small>
+                                </div>
+                            </div>
+                            <div class="rc-error-msg" id="errFotoDiri">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                <span id="msgFotoDiri">Foto diri wajib diupload</span>
+                            </div>
+                            @error('foto_diri')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <div class="rc-field">
-                        <label class="rc-label" for="foto_ktp">Foto KTP <span class="req">*</span></label>
-                        <input type="file" id="foto_ktp" name="foto_ktp"
-                            class="rc-file-input @error('foto_ktp') is-invalid @enderror"
-                            accept="image/jpeg,image/jpg,image/png" required>
-                        <span class="rc-hint">Format: JPG, PNG, JPEG. Maks: 10MB</span>
-                        @error('foto_ktp')
-                            <span class="rc-error">{{ $message }}</span>
-                        @enderror
+                        <div class="rc-field">
+                            <label class="rc-label" for="foto_ktp">Foto KTP <span class="req">*</span></label>
+                            <div class="rc-file-zone @error('foto_ktp') is-invalid @enderror" id="zoneFotoKTP">
+                                <input type="file" id="foto_ktp" name="foto_ktp"
+                                    accept="image/jpeg,image/jpg,image/png" required>
+                                <div class="rc-file-label" id="lblFotoKTP">
+                                    <strong>Klik atau seret file</strong>
+                                    <small>JPG, PNG · maks 10MB</small>
+                                </div>
+                            </div>
+                            <div class="rc-error-msg" id="errFotoKTP">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                <span id="msgFotoKTP">Foto KTP wajib diupload</span>
+                            </div>
+                            @error('foto_ktp')
+                                <span class="rc-error-msg show">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="rc-field">
                         <label class="rc-label" for="foto_ijasah">Foto Ijazah <span class="req">*</span></label>
-                        <input type="file" id="foto_ijasah" name="foto_ijasah"
-                            class="rc-file-input @error('foto_ijasah') is-invalid @enderror"
-                            accept="image/jpeg,image/jpg,image/png,application/pdf" required>
-                        <span class="rc-hint">Format: JPG, PNG, JPEG, PDF. Maks: 10MB</span>
+                        <div class="rc-file-zone @error('foto_ijasah') is-invalid @enderror" id="zoneFotoIjazah">
+                            <input type="file" id="foto_ijasah" name="foto_ijasah"
+                                accept="image/jpeg,image/jpg,image/png,application/pdf" required>
+                            <div class="rc-file-label" id="lblFotoIjazah">
+                                <strong>Klik atau seret file</strong>
+                                <small>JPG, PNG, PDF · maks 10MB</small>
+                            </div>
+                        </div>
+                        <div class="rc-error-msg" id="errFotoIjazah">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <span id="msgFotoIjazah">Foto ijazah wajib diupload</span>
+                        </div>
                         @error('foto_ijasah')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     {{-- SECTION 4: PAKTA INTEGRITAS --}}
-                    {{-- ──────────────────────────────────────── --}}
+                    {{-- ───────────────────────────── --}}
                     <div class="rc-section-title" style="margin-top:1.5rem;">Pakta Integritas</div>
 
                     <div class="rc-field">
@@ -1146,18 +1442,31 @@
                                 Pakta — Data Entry
                             </a>
                         </div>
-                        <span class="rc-hint">Unduh sesuai tipe rekrutmen, tanda tangani, lalu upload di bawah</span>
+                        <span class="rc-hint">Unduh sesuai posisi, tanda tangani, lalu upload di bawah</span>
                     </div>
 
                     <div class="rc-field">
-                        <label class="rc-label" for="pakta_integritas">Upload Pakta Integritas (sudah ditandatangani)
-                            <span class="req">*</span></label>
-                        <input type="file" id="pakta_integritas" name="pakta_integritas"
-                            class="rc-file-input @error('pakta_integritas') is-invalid @enderror"
-                            accept="image/jpeg,image/jpg,image/png,application/pdf" required>
-                        <span class="rc-hint">Format: JPG, PNG, JPEG, PDF. Maks: 10MB</span>
+                        <label class="rc-label" for="pakta_integritas">
+                            Upload Pakta Integritas (sudah ditandatangani) <span class="req">*</span>
+                        </label>
+                        <div class="rc-file-zone @error('pakta_integritas') is-invalid @enderror" id="zonePakta">
+                            <input type="file" id="pakta_integritas" name="pakta_integritas"
+                                accept="image/jpeg,image/jpg,image/png,application/pdf" required>
+                            <div class="rc-file-label" id="lblPakta">
+                                <strong>Klik atau seret file</strong>
+                                <small>JPG, PNG, PDF · maks 10MB</small>
+                            </div>
+                        </div>
+                        <div class="rc-error-msg" id="errPakta">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <span id="msgPakta">Pakta integritas wajib diupload</span>
+                        </div>
                         @error('pakta_integritas')
-                            <span class="rc-error">{{ $message }}</span>
+                            <span class="rc-error-msg show">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -1166,11 +1475,12 @@
                     {{-- Submit --}}
                     <div style="margin-top:2rem;">
                         <button class="rc-submit" type="submit" id="submitBtn">
-                            <svg viewBox="0 0 24 24">
+                            <div class="rc-spinner" id="rcSpinner"></div>
+                            <svg id="submitIcon" viewBox="0 0 24 24">
                                 <line x1="22" y1="2" x2="11" y2="13" />
                                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
                             </svg>
-                            Kirim Lamaran
+                            <span id="submitLabel">Kirim Lamaran</span>
                         </button>
                     </div>
 
@@ -1199,29 +1509,58 @@
                 return document.getElementById(id);
             }
 
-            const el = {
-                form: $('formRecruitment'),
-                submitBtn: $('submitBtn'),
-                namaLengkap: $('nama_lengkap'),
-                nik: $('nik'),
-                telephone: $('telephone'),
-                typeEntryWrapper: $('typeEntryWrapper'),
-                typeEntrySelect: $('type_entry'),
-                alertOSS: $('alertOSS'),
-                alertSIHALAL: $('alertSIHALAL'),
-                btnPendamping: $('btnDownloadPendamping'),
-                btnDataEntry: $('btnDownloadDataEntry'),
-                recruitTypeInputs: document.querySelectorAll('input[name="recruit_type"]'),
+            /* ── Track uploaded files ── */
+            const uploadedFiles = {
+                foto_diri: null,
+                foto_ktp: null,
+                foto_ijasah: null,
+                pakta_integritas: null,
             };
 
-            function show(node) {
-                if (node) node.classList.remove('d-none');
+            /* ── Progress tracking ── */
+            const TOTAL_FIELDS =
+            12; // recruit_type, nama, nik, jk, telp, alamat, pendidikan, pengalaman, foto_diri, foto_ktp, ijazah, pakta
+
+            function calcProgress() {
+                let done = 0;
+                if (document.querySelector('input[name="recruit_type"]:checked')) done++;
+                if ($('nama_lengkap')?.value.trim().length >= 3) done++;
+                if (/^\d{16}$/.test($('nik')?.value || '')) done++;
+                if ($('jenis_kelamin')?.value) done++;
+                const t = $('telephone')?.value || '';
+                if (t.length >= 10 && t.length <= 15) done++;
+                if ($('alamat_lengkap')?.value.trim().length >= 10) done++;
+                if ($('pendidikan_terakhir')?.value) done++;
+                if ($('pengalaman')?.value.trim().length >= 20) done++;
+                if (uploadedFiles.foto_diri) done++;
+                if (uploadedFiles.foto_ktp) done++;
+                if (uploadedFiles.foto_ijasah) done++;
+                if (uploadedFiles.pakta_integritas) done++;
+                return Math.round((done / TOTAL_FIELDS) * 100);
             }
 
-            function hide(node) {
-                if (node) node.classList.add('d-none');
+            function updateProgress() {
+                const pct = calcProgress();
+                const fill = $('rcProgressFill');
+                const label = $('rcProgressPct');
+                if (fill) fill.style.width = pct + '%';
+                if (label) label.textContent = pct + '%';
             }
 
+            /* ── Error helpers ── */
+            function showErr(errId, visible) {
+                const el = $(errId);
+                if (!el) return;
+                el.classList.toggle('show', visible);
+            }
+
+            function setFieldState(inputEl, valid) {
+                if (!inputEl) return;
+                inputEl.classList.toggle('is-valid', valid);
+                inputEl.classList.toggle('is-invalid', !valid);
+            }
+
+            /* ── Toast (SweetAlert2 if loaded, else native alert) ── */
             function toast(type, msg) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -1238,189 +1577,411 @@
                 }
             }
 
-            function focusInvalid(node) {
-                if (!node) return;
-                node.classList.add('is-invalid');
-                node.scrollIntoView({
+            function scrollToFirstErr(el) {
+                if (!el) return;
+                el.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
                 });
-                node.focus();
+                if (typeof el.focus === 'function') el.focus();
             }
 
-            /* ── Recruit type ── */
-            function updateRecruitType() {
+            /* ── Radio: Posisi ── */
+            function syncRadioStyles() {
+                document.querySelectorAll('input[name="recruit_type"]').forEach(radio => {
+                    const opt = radio.closest('.rc-radio-option');
+                    if (!opt) return;
+                    opt.classList.toggle('selected', radio.checked);
+                });
+            }
+
+            function handleRecruitTypeChange() {
+                syncRadioStyles();
                 const sel = document.querySelector('input[name="recruit_type"]:checked');
                 const isDE = sel && sel.value === 'DATA ENTRY';
-
-                if (isDE) {
-                    show(el.typeEntryWrapper);
-                    el.typeEntrySelect.setAttribute('required', '');
-                } else {
-                    hide(el.typeEntryWrapper);
-                    el.typeEntrySelect.removeAttribute('required');
-                    el.typeEntrySelect.value = '';
-                    hide(el.alertOSS);
-                    hide(el.alertSIHALAL);
+                const wrapper = $('typeEntryWrapper');
+                if (wrapper) wrapper.style.display = isDE ? 'block' : 'none';
+                if (!isDE && $('type_entry')) {
+                    $('type_entry').value = '';
+                    $('alertOSS').style.display = 'none';
+                    $('alertSIHALAL').style.display = 'none';
                 }
+                showErr('errPosisi', false);
 
-                if (el.btnPendamping && el.btnDataEntry) {
-                    if (!sel) {
-                        el.btnPendamping.className = 'rc-dl-btn pendamping';
-                        el.btnDataEntry.className = 'rc-dl-btn dataentry';
-                    } else if (sel.value === 'PENDAMPING') {
-                        el.btnPendamping.className = 'rc-dl-btn pendamping active';
-                        el.btnDataEntry.className = 'rc-dl-btn dataentry';
-                    } else {
-                        el.btnPendamping.className = 'rc-dl-btn pendamping';
-                        el.btnDataEntry.className = 'rc-dl-btn dataentry active';
+                // Highlight download buttons
+                const bp = $('btnDownloadPendamping');
+                const bd = $('btnDownloadDataEntry');
+                if (bp && bd) {
+                    bp.className = 'rc-dl-btn pendamping' + (sel?.value === 'PENDAMPING' ? ' active' : '');
+                    bd.className = 'rc-dl-btn dataentry' + (sel?.value === 'DATA ENTRY' ? ' active' : '');
+                }
+                updateProgress();
+            }
+
+            document.querySelectorAll('input[name="recruit_type"]').forEach(r =>
+                r.addEventListener('change', handleRecruitTypeChange)
+            );
+
+            /* ── Type Entry ── */
+            $('type_entry')?.addEventListener('change', function() {
+                const v = this.value;
+                $('alertOSS').style.display = v === 'OSS' ? 'flex' : 'none';
+                $('alertSIHALAL').style.display = v === 'SIHALAL' ? 'flex' : 'none';
+                setFieldState(this, !!v);
+                showErr('errTypeEntry', !v);
+                updateProgress();
+            });
+
+            /* ── Nama Lengkap: uppercase + live validation ── */
+            $('nama_lengkap')?.addEventListener('input', function() {
+                const pos = this.selectionStart;
+                this.value = this.value.toUpperCase();
+                try {
+                    this.setSelectionRange(pos, pos);
+                } catch (_) {}
+                const valid = this.value.trim().length >= 3;
+                setFieldState(this, valid);
+                showErr('errNama', !valid && this.value.length > 0);
+                updateProgress();
+            });
+
+            /* ── NIK: digits only ── */
+            $('nik')?.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 16);
+                const valid = /^\d{16}$/.test(this.value);
+                setFieldState(this, valid);
+                showErr('errNik', this.value.length > 0 && !valid);
+                updateProgress();
+            });
+            $('nik')?.addEventListener('keypress', e => {
+                if (!/\d/.test(e.key)) e.preventDefault();
+            });
+            $('nik')?.addEventListener('paste', e => {
+                e.preventDefault();
+                $('nik').value = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '')
+                    .slice(0, 16);
+                $('nik').dispatchEvent(new Event('input'));
+            });
+
+            /* ── Jenis Kelamin ── */
+            $('jenis_kelamin')?.addEventListener('change', function() {
+                setFieldState(this, !!this.value);
+                showErr('errJK', !this.value);
+                updateProgress();
+            });
+
+            /* ── Telephone: digits only ── */
+            $('telephone')?.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 15);
+                const valid = this.value.length >= 10 && this.value.length <= 15;
+                setFieldState(this, valid);
+                showErr('errTelp', this.value.length > 0 && !valid);
+                updateProgress();
+            });
+            $('telephone')?.addEventListener('keypress', e => {
+                if (!/\d/.test(e.key)) e.preventDefault();
+            });
+
+            /* ── Alamat: char counter + validation ── */
+            $('alamat_lengkap')?.addEventListener('input', function() {
+                const len = this.value.length;
+                const cc = $('ccAlamat');
+                if (cc) {
+                    cc.textContent = len + '/500';
+                    cc.className = 'rc-char-count' + (len > 450 ? ' warn' : '');
+                }
+                const valid = this.value.trim().length >= 10;
+                setFieldState(this, valid);
+                showErr('errAlamat', this.value.length > 0 && !valid);
+                updateProgress();
+            });
+
+            /* ── Pendidikan ── */
+            $('pendidikan_terakhir')?.addEventListener('change', function() {
+                setFieldState(this, !!this.value);
+                showErr('errPendidikan', !this.value);
+                updateProgress();
+            });
+
+            /* ── Pengalaman: char counter + validation ── */
+            $('pengalaman')?.addEventListener('input', function() {
+                const len = this.value.length;
+                const cc = $('ccPengalaman');
+                if (cc) {
+                    cc.textContent = len + '/1000';
+                    cc.className = 'rc-char-count' + (len > 900 ? ' warn' : '');
+                }
+                const valid = this.value.trim().length >= 20;
+                setFieldState(this, valid);
+                showErr('errPengalaman', this.value.length > 0 && !valid);
+                updateProgress();
+            });
+
+            /* ── File upload helper ── */
+            function setupFileZone(config) {
+                const {
+                    zoneId,
+                    inputId,
+                    lblId,
+                    errId,
+                    msgId,
+                    allowedTypes,
+                    label
+                } = config;
+                const zone = $(zoneId);
+                const input = $(inputId);
+                const lbl = $(lblId);
+                if (!zone || !input || !lbl) return;
+
+                function processFile(file) {
+                    if (!file) return;
+
+                    if (file.size > MAX_FILE) {
+                        $(msgId).textContent = 'Ukuran file "' + label + '" maksimal 10MB!';
+                        showErr(errId, true);
+                        zone.classList.add('is-invalid');
+                        zone.classList.remove('has-file');
+                        uploadedFiles[inputId] = null;
+                        updateProgress();
+                        toast('error', 'Ukuran file "' + label + '" maksimal 10MB!');
+                        return;
                     }
+
+                    if (!allowedTypes.includes(file.type)) {
+                        const ext = allowedTypes.includes('application/pdf') ? 'JPG, PNG, atau PDF' : 'JPG atau PNG';
+                        $(msgId).textContent = 'Format file tidak valid! "' + label + '" harus ' + ext;
+                        showErr(errId, true);
+                        zone.classList.add('is-invalid');
+                        zone.classList.remove('has-file');
+                        uploadedFiles[inputId] = null;
+                        updateProgress();
+                        toast('error', 'Format file "' + label + '" tidak valid!');
+                        return;
+                    }
+
+                    uploadedFiles[inputId] = file;
+                    zone.classList.remove('is-invalid');
+                    zone.classList.add('has-file');
+                    showErr(errId, false);
+
+                    const isPdf = file.type === 'application/pdf';
+                    const size = file.size > 1024 * 1024 ?
+                        (file.size / 1024 / 1024).toFixed(1) + ' MB' :
+                        Math.round(file.size / 1024) + ' KB';
+
+                    lbl.innerHTML =
+                        '<strong>' + file.name + '</strong>' +
+                        '<small>' + size + (isPdf ? ' · PDF' : ' · Gambar') + ' — klik untuk ganti</small>';
+
+                    updateProgress();
                 }
-            }
 
-            function updateFeeAlert() {
-                const v = el.typeEntrySelect ? el.typeEntrySelect.value : '';
-                if (v === 'OSS') {
-                    show(el.alertOSS);
-                    hide(el.alertSIHALAL);
-                } else if (v === 'SIHALAL') {
-                    hide(el.alertOSS);
-                    show(el.alertSIHALAL);
-                } else {
-                    hide(el.alertOSS);
-                    hide(el.alertSIHALAL);
-                }
-            }
-
-            el.recruitTypeInputs.forEach(i => i.addEventListener('change', updateRecruitType));
-            if (el.typeEntrySelect) el.typeEntrySelect.addEventListener('change', updateFeeAlert);
-            updateRecruitType();
-
-            /* ── Nama uppercase ── */
-            if (el.namaLengkap) {
-                el.namaLengkap.addEventListener('input', function() {
-                    const p = this.selectionStart;
-                    this.value = this.value.toUpperCase();
-                    try {
-                        this.setSelectionRange(p, p);
-                    } catch (_) {}
+                input.addEventListener('change', function() {
+                    processFile(this.files[0]);
                 });
-            }
 
-            /* ── NIK digits only ── */
-            if (el.nik) {
-                el.nik.addEventListener('input', function() {
-                    this.value = this.value.replace(/\D/g, '').slice(0, 16);
-                });
-                el.nik.addEventListener('keypress', e => {
-                    if (!/\d/.test(e.key)) e.preventDefault();
-                });
-                el.nik.addEventListener('paste', e => {
+                // Drag & drop
+                zone.addEventListener('dragover', e => {
                     e.preventDefault();
-                    el.nik.value = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '')
-                        .slice(0, 16);
+                    zone.classList.add('drag-over');
+                });
+                zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    processFile(e.dataTransfer.files[0]);
                 });
             }
 
-            /* ── Telephone digits only ── */
-            if (el.telephone) {
-                el.telephone.addEventListener('input', function() {
-                    this.value = this.value.replace(/\D/g, '').slice(0, 15);
-                });
-                el.telephone.addEventListener('keypress', e => {
-                    if (!/\d/.test(e.key)) e.preventDefault();
-                });
-            }
-
-            /* ── File validation ── */
-            function bindFile(id, types, label) {
-                const inp = $(id);
-                if (!inp) return;
-                inp.addEventListener('change', function() {
-                    const f = this.files[0];
-                    if (!f) return;
-                    if (f.size > MAX_FILE) {
-                        toast('error', `Ukuran file "${label}" maksimal 10MB!`);
-                        this.value = '';
-                        this.classList.add('is-invalid');
-                        return;
-                    }
-                    if (!types.includes(f.type)) {
-                        toast('error', `Format file "${label}" tidak valid!`);
-                        this.value = '';
-                        this.classList.add('is-invalid');
-                        return;
-                    }
-                    this.classList.remove('is-invalid');
-                });
-            }
-            bindFile('foto_diri', IMG_TYPES, 'Foto Diri');
-            bindFile('foto_ktp', IMG_TYPES, 'Foto KTP');
-            bindFile('foto_ijasah', MIX_TYPES, 'Foto Ijazah');
-            bindFile('pakta_integritas', MIX_TYPES, 'Pakta Integritas');
-
-            /* ── Live validation reset ── */
-            el.form?.querySelectorAll('.rc-input,.rc-select,.rc-textarea,.rc-file-input').forEach(inp => {
-                inp.addEventListener('input', function() {
-                    if (this.value) this.classList.remove('is-invalid');
-                });
-                inp.addEventListener('change', function() {
-                    if (this.value) this.classList.remove('is-invalid');
-                });
+            setupFileZone({
+                zoneId: 'zoneFotoDiri',
+                inputId: 'foto_diri',
+                lblId: 'lblFotoDiri',
+                errId: 'errFotoDiri',
+                msgId: 'msgFotoDiri',
+                allowedTypes: IMG_TYPES,
+                label: 'Foto Diri'
+            });
+            setupFileZone({
+                zoneId: 'zoneFotoKTP',
+                inputId: 'foto_ktp',
+                lblId: 'lblFotoKTP',
+                errId: 'errFotoKTP',
+                msgId: 'msgFotoKTP',
+                allowedTypes: IMG_TYPES,
+                label: 'Foto KTP'
+            });
+            setupFileZone({
+                zoneId: 'zoneFotoIjazah',
+                inputId: 'foto_ijasah',
+                lblId: 'lblFotoIjazah',
+                errId: 'errFotoIjazah',
+                msgId: 'msgFotoIjazah',
+                allowedTypes: MIX_TYPES,
+                label: 'Foto Ijazah'
+            });
+            setupFileZone({
+                zoneId: 'zonePakta',
+                inputId: 'pakta_integritas',
+                lblId: 'lblPakta',
+                errId: 'errPakta',
+                msgId: 'msgPakta',
+                allowedTypes: MIX_TYPES,
+                label: 'Pakta Integritas'
             });
 
             /* ── Form submit ── */
-            if (el.form) {
-                el.form.addEventListener('submit', function(e) {
-                    const selRec = document.querySelector('input[name="recruit_type"]:checked');
-                    if (!selRec) {
-                        toast('error', 'Silakan pilih Posisi Dilamar!');
-                        e.preventDefault();
-                        return;
-                    }
-                    if (selRec.value === 'DATA ENTRY' && !el.typeEntrySelect.value) {
-                        focusInvalid(el.typeEntrySelect);
-                        toast('error', 'Silakan pilih Tipe Entry!');
-                        e.preventDefault();
-                        return;
-                    }
-                    const nikVal = el.nik ? el.nik.value.trim() : '';
-                    if (!/^\d{16}$/.test(nikVal)) {
-                        focusInvalid(el.nik);
-                        toast('error', 'NIK harus tepat 16 digit angka!');
-                        e.preventDefault();
-                        return;
-                    }
-                    const tel = el.telephone ? el.telephone.value : '';
-                    if (tel.length < 10 || tel.length > 15) {
-                        focusInvalid(el.telephone);
-                        toast('error', 'Nomor telepon harus antara 10–15 digit!');
-                        e.preventDefault();
-                        return;
-                    }
+            $('formRecruitment')?.addEventListener('submit', function(e) {
+                let valid = true;
+                let firstErr = null;
 
-                    el.submitBtn.disabled = true;
-                    el.submitBtn.innerHTML = '<div class="rc-spinner"></div> Mengirim...';
-                });
-            }
-
-            /* ── Page cache reset ── */
-            window.addEventListener('pageshow', function(e) {
-                if (e.persisted && el.submitBtn) {
-                    el.submitBtn.disabled = false;
-                    el.submitBtn.innerHTML =
-                        '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim Lamaran';
+                function fail(fieldId, errId, focusEl) {
+                    showErr(errId, true);
+                    const fieldEl = $(fieldId);
+                    if (fieldEl) setFieldState(fieldEl, false);
+                    if (!firstErr) firstErr = focusEl || fieldEl;
+                    valid = false;
                 }
+
+                // Posisi
+                const selRec = document.querySelector('input[name="recruit_type"]:checked');
+                if (!selRec) {
+                    showErr('errPosisi', true);
+                    if (!firstErr) firstErr = $('lblPendamping');
+                    valid = false;
+                }
+
+                // Tipe entry (only if DATA ENTRY)
+                if (selRec?.value === 'DATA ENTRY' && !$('type_entry').value) {
+                    fail('type_entry', 'errTypeEntry');
+                }
+
+                // Nama
+                if (!$('nama_lengkap').value.trim() || $('nama_lengkap').value.trim().length < 3) {
+                    fail('nama_lengkap', 'errNama');
+                }
+
+                // NIK
+                if (!/^\d{16}$/.test($('nik').value)) {
+                    fail('nik', 'errNik');
+                }
+
+                // Jenis kelamin
+                if (!$('jenis_kelamin').value) {
+                    fail('jenis_kelamin', 'errJK');
+                }
+
+                // Telephone
+                const tel = $('telephone').value;
+                if (tel.length < 10 || tel.length > 15) {
+                    fail('telephone', 'errTelp');
+                }
+
+                // Alamat
+                if ($('alamat_lengkap').value.trim().length < 10) {
+                    fail('alamat_lengkap', 'errAlamat');
+                }
+
+                // Pendidikan
+                if (!$('pendidikan_terakhir').value) {
+                    fail('pendidikan_terakhir', 'errPendidikan');
+                }
+
+                // Pengalaman
+                if ($('pengalaman').value.trim().length < 20) {
+                    fail('pengalaman', 'errPengalaman');
+                }
+
+                // Files
+                const fileChecks = [{
+                        key: 'foto_diri',
+                        errId: 'errFotoDiri',
+                        msgId: 'msgFotoDiri',
+                        zoneId: 'zoneFotoDiri',
+                        label: 'Foto diri'
+                    },
+                    {
+                        key: 'foto_ktp',
+                        errId: 'errFotoKTP',
+                        msgId: 'msgFotoKTP',
+                        zoneId: 'zoneFotoKTP',
+                        label: 'Foto KTP'
+                    },
+                    {
+                        key: 'foto_ijasah',
+                        errId: 'errFotoIjazah',
+                        msgId: 'msgFotoIjazah',
+                        zoneId: 'zoneFotoIjazah',
+                        label: 'Foto ijazah'
+                    },
+                    {
+                        key: 'pakta_integritas',
+                        errId: 'errPakta',
+                        msgId: 'msgPakta',
+                        zoneId: 'zonePakta',
+                        label: 'Pakta integritas'
+                    },
+                ];
+
+                fileChecks.forEach(fc => {
+                    if (!uploadedFiles[fc.key]) {
+                        $(fc.msgId).textContent = fc.label + ' wajib diupload';
+                        showErr(fc.errId, true);
+                        $(fc.zoneId).classList.add('is-invalid');
+                        if (!firstErr) firstErr = $(fc.zoneId);
+                        valid = false;
+                    }
+                });
+
+                if (!valid) {
+                    e.preventDefault();
+                    scrollToFirstErr(firstErr);
+                    toast('error', 'Mohon lengkapi semua data yang diperlukan!');
+                    return;
+                }
+
+                // All valid — show loading state
+                const btn = $('submitBtn');
+                btn.disabled = true;
+                $('rcSpinner').style.display = 'block';
+                $('submitIcon').style.display = 'none';
+                $('submitLabel').textContent = 'Mengirim...';
             });
 
-            /* ── Auto close alerts ── */
+            /* ── Restore button on back-navigation (bfcache) ── */
+            window.addEventListener('pageshow', function(e) {
+                if (!e.persisted) return;
+                const btn = $('submitBtn');
+                if (!btn) return;
+                btn.disabled = false;
+                $('rcSpinner').style.display = 'none';
+                $('submitIcon').style.display = '';
+                $('submitLabel').textContent = 'Kirim Lamaran';
+            });
+
+            /* ── Auto close session alerts after 5s ── */
             setTimeout(() => {
                 [$('alertSuccess'), $('alertError')].forEach(el => {
-                    if (el) el.style.transition = 'opacity 0.4s';
-                    if (el) el.style.opacity = '0';
-                    setTimeout(() => el?.remove(), 400);
+                    if (!el) return;
+                    el.style.transition = 'opacity 0.4s';
+                    el.style.opacity = '0';
+                    setTimeout(() => el.remove(), 400);
                 });
             }, 5000);
+
+            /* ── Init: populate char counters & progress from old() values ── */
+            (function init() {
+                const alamat = $('alamat_lengkap');
+                if (alamat?.value) {
+                    $('ccAlamat').textContent = alamat.value.length + '/500';
+                }
+                const pengalaman = $('pengalaman');
+                if (pengalaman?.value) {
+                    $('ccPengalaman').textContent = pengalaman.value.length + '/1000';
+                }
+                syncRadioStyles();
+                updateProgress();
+            })();
 
         })();
     </script>

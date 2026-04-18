@@ -45,9 +45,11 @@
                     <i class="las la-eye"></i> {{ __('Show') }}
                 </a>
             @else
-                <span class="badge bg-secondary">
-                    <i class="las la-minus-circle"></i> {{ __('Belum Diproses') }}
-                </span>
+                <a class="btn btn-sm btn-primary btn-show-data"
+                    href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
+                    data-id="{{ $dataLapangan->id }}">
+                    <i class="las la-eye"></i> {{ __('Show') }}
+                </a>
             @endif
         </td>
     </tr>

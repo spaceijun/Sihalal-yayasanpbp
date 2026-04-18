@@ -23,6 +23,7 @@ class RecruitmentRequest extends FormRequest
     {
         return [
             'recruit_type'       => 'required|in:PENDAMPING,DATA ENTRY',
+            'type_entry'         => 'required_if:recruit_type,DATA ENTRY|nullable|string',
             'nama_lengkap'        => 'required|string',
             'nik'                 => 'required|digits:16|unique:recruitments,nik',
             'jenis_kelamin'       => 'required|in:Laki-laki,Perempuan',
@@ -45,6 +46,7 @@ class RecruitmentRequest extends FormRequest
         return [
             'recruit_type.required'       => 'Tipe Rekrutmen wajib dipilih.',
             'recruit_type.in'             => 'Tipe Rekrutmen tidak valid.',
+            'type_entry.required_if'      => 'Tipe Rekrutmen DATA ENTRY wajib dipilih.',
             'nama_lengkap.required'        => 'Nama Lengkap wajib diisi.',
             'nik.required'                 => 'NIK wajib diisi.',
             'nik.digits'                   => 'NIK harus 16 digit angka.',

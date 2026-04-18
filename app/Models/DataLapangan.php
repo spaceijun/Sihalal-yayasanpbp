@@ -201,9 +201,23 @@ class DataLapangan extends Model
             }
         });
     }
+    /**
+     * Get the associated data entry progress models.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
     public function dataEntryProgress()
     {
-        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id', 'id');
+        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id')
+            ->whereNotNull('data_entry_id');
+    }
+
+    // Relasi khusus verifikator (untuk VerifikatorController)
+    public function verifikatorProgress()
+    {
+        return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id')
+            ->whereNotNull('verifikator_id');  // ✅ hanya milik verifikator
     }
     public function dataEntry()
     {

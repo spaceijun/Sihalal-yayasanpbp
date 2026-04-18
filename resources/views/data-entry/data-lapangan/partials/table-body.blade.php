@@ -34,16 +34,20 @@
                 <span class="badge bg-warning">
                     <i class="las la-clock"></i> {{ __('WAIT REVIEW ADMIN') }}
                 </span>
-            @elseif($status === 'REVISI')
+            @elseif ($status === 'REVISI')
                 <span class="badge bg-danger">
                     <i class="las la-edit"></i> {{ __('WAIT REVISION ENTRYS') }}
                 </span>
-            @else
+            @elseif ($status === 'DITERIMA')
                 <a class="btn btn-sm btn-primary btn-show-data"
                     href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
                     data-id="{{ $dataLapangan->id }}">
                     <i class="las la-eye"></i> {{ __('Show') }}
                 </a>
+            @else
+                <span class="badge bg-secondary">
+                    <i class="las la-minus-circle"></i> {{ __('Belum Diproses') }}
+                </span>
             @endif
         </td>
     </tr>

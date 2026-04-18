@@ -157,7 +157,7 @@ class DataEntryLapanganController extends Controller
         }
 
         // Load relationships
-        $query->with(['enumerator', 'spotchecks', 'koordinator']);
+        $query->with(['enumerator', 'spotchecks', 'koordinator', 'dataEntryProgress']);
 
         // Apply search and filters
         $this->applySearchFilter($query, $request);

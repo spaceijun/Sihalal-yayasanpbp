@@ -105,16 +105,13 @@
                                                 <div class="d-flex gap-4 mt-1">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="recruit_type"
-                                                            id="type_pendamping" value="PENDAMPING"
-                                                            {{ old('recruit_type', $recruitment?->recruit_type) == 'PENDAMPING' ? 'checked' : '' }}
-                                                            required>
+                                                            id="type_pendamping" value="PENDAMPING" required>
                                                         <label class="form-check-label"
                                                             for="type_pendamping">Pendamping</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="recruit_type"
-                                                            id="type_data_entry" value="DATA ENTRY"
-                                                            {{ old('recruit_type', $recruitment?->recruit_type) == 'DATA ENTRY' ? 'checked' : '' }}>
+                                                            id="type_data_entry" value="DATA ENTRY">
                                                         <label class="form-check-label" for="type_data_entry">Data
                                                             Entry</label>
                                                     </div>
@@ -126,7 +123,6 @@
 
                                             {{-- ================================================ --}}
                                             {{-- TYPE ENTRY — hanya muncul jika DATA ENTRY        --}}
-                                            {{-- d-none dikendalikan JS                           --}}
                                             {{-- ================================================ --}}
                                             <div class="mb-3 d-none" id="typeEntryWrapper">
                                                 <label for="type_entry" class="form-label">
@@ -135,14 +131,8 @@
                                                 <select id="type_entry" name="type_entry"
                                                     class="form-control @error('type_entry') is-invalid @enderror">
                                                     <option value="">-- Pilih Tipe Entry --</option>
-                                                    <option value="OSS"
-                                                        {{ old('type_entry', $recruitment?->type_entry) == 'OSS' ? 'selected' : '' }}>
-                                                        OSS
-                                                    </option>
-                                                    <option value="SIHALAL"
-                                                        {{ old('type_entry', $recruitment?->type_entry) == 'SIHALAL' ? 'selected' : '' }}>
-                                                        SIHALAL
-                                                    </option>
+                                                    <option value="OSS">OSS</option>
+                                                    <option value="SIHALAL">SIHALAL</option>
                                                 </select>
                                                 @error('type_entry')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -155,7 +145,7 @@
                                                     <div>
                                                         <strong>Fee OSS: Rp100.000</strong><br>
                                                         <small>Sebagai Data Entry OSS, Anda akan mendapatkan fee
-                                                            sebesar <strong>Rp100.000</strong> per dokumen yang
+                                                            sebesar <strong>Rp100.000</strong> per 15 Data yang
                                                             berhasil diproses. Pastikan Anda memahami alur kerja
                                                             sistem OSS sebelum melanjutkan pendaftaran.</small>
                                                     </div>
@@ -168,7 +158,7 @@
                                                     <div>
                                                         <strong>Fee SIHALAL: Rp150.000</strong><br>
                                                         <small>Sebagai Data Entry SIHALAL, Anda akan mendapatkan fee
-                                                            sebesar <strong>Rp150.000</strong> per dokumen yang
+                                                            sebesar <strong>Rp150.000</strong> per 15 Data yang
                                                             berhasil diproses. Pastikan Anda memahami alur kerja
                                                             sistem SIHALAL sebelum melanjutkan pendaftaran.</small>
                                                     </div>
@@ -184,7 +174,6 @@
                                                 </label>
                                                 <input type="text" id="nama_lengkap" name="nama_lengkap"
                                                     class="form-control text-uppercase @error('nama_lengkap') is-invalid @enderror"
-                                                    value="{{ old('nama_lengkap', $recruitment?->nama_lengkap) }}"
                                                     required autofocus placeholder="Masukkan nama lengkap"
                                                     autocomplete="name" maxlength="255"
                                                     style="text-transform: uppercase;">
@@ -204,8 +193,7 @@
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" id="nik" name="nik"
-                                                    class="form-control @error('nik') is-invalid @enderror"
-                                                    value="{{ old('nik', $recruitment?->nik) }}" required
+                                                    class="form-control @error('nik') is-invalid @enderror" required
                                                     placeholder="Masukkan 16 digit NIK" maxlength="16" minlength="16"
                                                     inputmode="numeric" pattern="\d{16}" autocomplete="off">
                                                 <small class="text-muted">Sesuai KTP, 16 digit angka</small>
@@ -225,12 +213,8 @@
                                                     class="form-control @error('jenis_kelamin') is-invalid @enderror"
                                                     required>
                                                     <option value="">-- Pilih Jenis Kelamin --</option>
-                                                    <option value="Laki-laki"
-                                                        {{ old('jenis_kelamin', $recruitment?->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>
-                                                        Laki-laki</option>
-                                                    <option value="Perempuan"
-                                                        {{ old('jenis_kelamin', $recruitment?->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>
-                                                        Perempuan</option>
+                                                    <option value="Laki-laki">Laki-laki</option>
+                                                    <option value="Perempuan">Perempuan</option>
                                                 </select>
                                                 @error('jenis_kelamin')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -245,8 +229,7 @@
                                                     No. Telepon <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" id="telephone" name="telephone"
-                                                    class="form-control @error('telephone') is-invalid @enderror"
-                                                    value="{{ old('telephone', $recruitment?->telephone) }}" required
+                                                    class="form-control @error('telephone') is-invalid @enderror" required
                                                     placeholder="Contoh: 081234567890" maxlength="15" inputmode="numeric"
                                                     autocomplete="tel">
                                                 <small class="text-muted">Masukkan nomor telepon yang aktif (10–15
@@ -265,7 +248,7 @@
                                                 </label>
                                                 <textarea id="alamat_lengkap" name="alamat_lengkap" rows="3"
                                                     class="form-control @error('alamat_lengkap') is-invalid @enderror" required placeholder="Masukkan alamat lengkap"
-                                                    maxlength="500">{{ old('alamat_lengkap', $recruitment?->alamat_lengkap) }}</textarea>
+                                                    maxlength="500"></textarea>
                                                 @error('alamat_lengkap')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
@@ -296,10 +279,7 @@
                                                         ];
                                                     @endphp
                                                     @foreach ($pendidikanList as $pendidikan)
-                                                        <option value="{{ $pendidikan }}"
-                                                            {{ old('pendidikan_terakhir', $recruitment?->pendidikan_terakhir) == $pendidikan ? 'selected' : '' }}>
-                                                            {{ $pendidikan }}
-                                                        </option>
+                                                        <option value="{{ $pendidikan }}">{{ $pendidikan }}</option>
                                                     @endforeach
                                                 </select>
                                                 @error('pendidikan_terakhir')
@@ -316,7 +296,7 @@
                                                 </label>
                                                 <textarea id="pengalaman" name="pengalaman" rows="3"
                                                     class="form-control @error('pengalaman') is-invalid @enderror" required
-                                                    placeholder="Jelaskan pengalaman kerja Anda" maxlength="1000">{{ old('pengalaman', $recruitment?->pengalaman) }}</textarea>
+                                                    placeholder="Jelaskan pengalaman kerja Anda" maxlength="1000"></textarea>
                                                 <small class="text-muted">Tuliskan pengalaman kerja yang
                                                     relevan</small>
                                                 @error('pengalaman')
@@ -334,14 +314,12 @@
                                                     <option value="">-- Pilih Rekomendasi (Opsional) --</option>
                                                     @if (isset($daftarRekomendasi) && $daftarRekomendasi->count())
                                                         @foreach ($daftarRekomendasi as $rekomendasi)
-                                                            <option value="{{ $rekomendasi->nama_lengkap }}"
-                                                                {{ old('rekomendasi', $recruitment?->rekomendasi) == $rekomendasi->nama_lengkap ? 'selected' : '' }}>
+                                                            <option value="{{ $rekomendasi->nama_lengkap }}">
                                                                 {{ $rekomendasi->nama_lengkap }}
                                                             </option>
                                                         @endforeach
                                                     @else
-                                                        <option value="" disabled>Tidak ada data
-                                                            Rekomendasi</option>
+                                                        <option value="" disabled>Tidak ada data Rekomendasi</option>
                                                     @endif
                                                 </select>
                                                 <small class="text-muted">Jika tidak ada, kosongkan saja</small>
@@ -366,8 +344,7 @@
                                                     <input type="file" id="foto_diri" name="foto_diri"
                                                         class="form-control @error('foto_diri') is-invalid @enderror"
                                                         accept="image/jpeg,image/jpg,image/png" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks:
-                                                        10MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks: 10MB</small>
                                                     @error('foto_diri')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -381,8 +358,7 @@
                                                     <input type="file" id="foto_ktp" name="foto_ktp"
                                                         class="form-control @error('foto_ktp') is-invalid @enderror"
                                                         accept="image/jpeg,image/jpg,image/png" required>
-                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks:
-                                                        10MB</small>
+                                                    <small class="text-muted">Format: JPG, PNG, JPEG. Maks: 10MB</small>
                                                     @error('foto_ktp')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -423,9 +399,8 @@
                                                         Data Entry
                                                     </a>
                                                 </div>
-                                                <small class="text-muted d-block mt-1">Unduh sesuai tipe
-                                                    rekrutmen Anda, tanda tangani, lalu upload di field di
-                                                    bawah.</small>
+                                                <small class="text-muted d-block mt-1">Unduh sesuai tipe rekrutmen
+                                                    Anda, tanda tangani, lalu upload di field di bawah.</small>
                                             </div>
 
                                             {{-- ================================================ --}}
@@ -468,27 +443,17 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
     <script>
-        /**
-         * RecruitmentForm — Production-ready controller
-         * Handles: posisi toggle, type entry show/hide, fee alerts,
-         *          download button highlight, input sanitization,
-         *          file validation, form submission guard, toast notifications.
-         */
         (function() {
             'use strict';
 
-            // ─── Constants ────────────────────────────────────────────────────────────
-            const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+            const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
             const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
             const ALLOWED_MIXED_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf'];
             const ALERT_AUTO_CLOSE_MS = 5000;
             const TOAST_DURATION_MS = 3500;
 
-            // ─── Element Registry ────────────────────────────────────────────────────
             const el = {};
 
             function getEl(id) {
@@ -511,7 +476,6 @@
                 el.btnDownloadDataEntry = getEl('btnDownloadDataEntry');
                 el.recruitTypeInputs = document.querySelectorAll('input[name="recruit_type"]');
 
-                // Validate critical elements
                 const criticalIds = ['form', 'submitBtn', 'namaLengkap', 'telephone',
                     'typeEntryWrapper', 'typeEntrySelect'
                 ];
@@ -524,14 +488,10 @@
                 });
             }
 
-            // ─── Utility: show / hide with Bootstrap d-none ───────────────────────────
             function show(node) {
                 if (node) {
                     node.classList.remove('d-none');
-                    // For flex alerts, swap d-none → d-flex
-                    if (node.classList.contains('alert')) {
-                        node.classList.add('d-flex');
-                    }
+                    if (node.classList.contains('alert')) node.classList.add('d-flex');
                 }
             }
 
@@ -542,14 +502,11 @@
                 }
             }
 
-            // ─── Utility: Toast Notification ─────────────────────────────────────────
             function showToast(type, message) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: type,
-                        title: type === 'success' ? 'Berhasil!' :
-                            type === 'warning' ? 'Peringatan!' :
-                            'Gagal!',
+                        title: type === 'success' ? 'Berhasil!' : type === 'warning' ? 'Peringatan!' : 'Gagal!',
                         text: message,
                         toast: true,
                         position: 'top-end',
@@ -558,12 +515,10 @@
                         timerProgressBar: true,
                     });
                 } else {
-                    // Fallback: native alert
                     alert(`[${type.toUpperCase()}] ${message}`);
                 }
             }
 
-            // ─── Utility: Scroll & focus an invalid field ────────────────────────────
             function focusInvalid(node) {
                 if (!node) return;
                 node.classList.add('is-invalid');
@@ -574,7 +529,6 @@
                 node.focus();
             }
 
-            // ─── Auto-close Bootstrap alerts ─────────────────────────────────────────
             function initAutoCloseAlerts() {
                 document.querySelectorAll('.alert[role="alert"]').forEach(alertEl => {
                     setTimeout(() => {
@@ -588,13 +542,11 @@
                 });
             }
 
-            // ─── Download Button Highlight ────────────────────────────────────────────
             function updateDownloadButtons() {
                 const selected = document.querySelector('input[name="recruit_type"]:checked');
                 if (!el.btnDownloadPendamping || !el.btnDownloadDataEntry) return;
 
                 if (!selected) {
-                    // Reset both to outline
                     el.btnDownloadPendamping.className = 'btn btn-outline-info btn-sm';
                     el.btnDownloadDataEntry.className = 'btn btn-outline-secondary btn-sm';
                     return;
@@ -609,7 +561,6 @@
                 }
             }
 
-            // ─── Type Entry Wrapper: show / hide ─────────────────────────────────────
             function updateTypeEntryVisibility() {
                 const selected = document.querySelector('input[name="recruit_type"]:checked');
                 const isDataEntry = selected && selected.value === 'DATA ENTRY';
@@ -627,7 +578,6 @@
                 }
             }
 
-            // ─── Fee Alert: OSS / SIHALAL ─────────────────────────────────────────────
             function updateFeeAlert() {
                 const val = el.typeEntrySelect ? el.typeEntrySelect.value : '';
 
@@ -643,15 +593,12 @@
                 }
             }
 
-            // ─── Recruit Type: unified change handler ─────────────────────────────────
             function onRecruitTypeChange() {
                 updateDownloadButtons();
                 updateTypeEntryVisibility();
-                // Reset fee alerts when switching type
                 updateFeeAlert();
             }
 
-            // ─── Nama Lengkap: uppercase ──────────────────────────────────────────────
             function initNamaLengkap() {
                 const input = el.namaLengkap;
                 if (!input) return;
@@ -659,7 +606,6 @@
                 function toUpper() {
                     const pos = input.selectionStart;
                     input.value = input.value.toUpperCase();
-                    // Preserve cursor position
                     try {
                         input.setSelectionRange(pos, pos);
                     } catch (_) {}
@@ -669,14 +615,12 @@
                 input.addEventListener('paste', () => setTimeout(toUpper, 0));
             }
 
-            // ─── NIK: numeric only, exactly 16 digits ────────────────────────────────
             function initNIK() {
                 const input = el.nik;
                 if (!input) return;
 
                 function sanitize() {
-                    const cleaned = input.value.replace(/\D/g, '').slice(0, 16);
-                    input.value = cleaned;
+                    input.value = input.value.replace(/\D/g, '').slice(0, 16);
                 }
 
                 input.addEventListener('input', sanitize);
@@ -690,7 +634,6 @@
                 });
             }
 
-            // ─── Telephone: numeric only, 10–15 digits ───────────────────────────────
             function initTelephone() {
                 const input = el.telephone;
                 if (!input) return;
@@ -698,7 +641,6 @@
                 function sanitize() {
                     const cleaned = input.value.replace(/\D/g, '').slice(0, 15);
                     input.value = cleaned;
-                    // Remove invalid state while typing (re-validated on submit)
                     if (cleaned.length >= 10) input.classList.remove('is-invalid');
                 }
 
@@ -716,9 +658,8 @@
                 });
             }
 
-            // ─── File Validation ──────────────────────────────────────────────────────
             function validateFile(file, allowedTypes, fieldLabel) {
-                if (!file) return true; // No file selected; let HTML required handle it
+                if (!file) return true;
 
                 if (file.size > MAX_FILE_SIZE_BYTES) {
                     showToast('error', `Ukuran file "${fieldLabel}" maksimal 10MB!`);
@@ -726,9 +667,7 @@
                 }
 
                 if (!allowedTypes.includes(file.type)) {
-                    const exts = allowedTypes
-                        .map(t => t.split('/')[1].toUpperCase())
-                        .join(', ');
+                    const exts = allowedTypes.map(t => t.split('/')[1].toUpperCase()).join(', ');
                     showToast('error', `Format file "${fieldLabel}" harus: ${exts}!`);
                     return false;
                 }
@@ -758,28 +697,24 @@
                 bindFileInput('pakta_integritas', ALLOWED_MIXED_TYPES, 'Pakta Integritas');
             }
 
-            // ─── Form Submission Guard ────────────────────────────────────────────────
             function initFormSubmission() {
                 if (!el.form) return;
 
                 el.form.addEventListener('submit', function(e) {
                     let valid = true;
 
-                    // 1. Recruit type
                     const selectedRecruit = document.querySelector('input[name="recruit_type"]:checked');
                     if (!selectedRecruit) {
                         showToast('error', 'Silakan pilih Posisi Dilamar terlebih dahulu!');
                         valid = false;
                     }
 
-                    // 2. Type entry (only if DATA ENTRY)
                     if (valid && selectedRecruit?.value === 'DATA ENTRY' && !el.typeEntrySelect.value) {
                         focusInvalid(el.typeEntrySelect);
                         showToast('error', 'Silakan pilih Tipe Entry terlebih dahulu!');
                         valid = false;
                     }
 
-                    // 3. NIK — must be exactly 16 digits
                     if (valid && el.nik) {
                         const nikVal = el.nik.value.trim();
                         if (!/^\d{16}$/.test(nikVal)) {
@@ -789,7 +724,6 @@
                         }
                     }
 
-                    // 4. Telephone — 10–15 digits
                     if (valid) {
                         const tel = el.telephone.value;
                         if (tel.length < 10 || tel.length > 15) {
@@ -804,75 +738,62 @@
                         return false;
                     }
 
-                    // All good — disable button to prevent double submission
                     el.submitBtn.disabled = true;
                     el.submitBtn.innerHTML =
                         '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Mengirim...';
                 });
             }
 
-            // ─── Bootstrap invalid-feedback: remove on input ──────────────────────────
             function initLiveValidationReset() {
                 el.form?.querySelectorAll('.form-control, .form-check-input').forEach(input => {
                     input.addEventListener('input', function() {
-                        if (this.classList.contains('is-invalid') && this.value) {
+                        if (this.classList.contains('is-invalid') && this.value)
                             this.classList.remove('is-invalid');
-                        }
                     });
                     input.addEventListener('change', function() {
-                        if (this.classList.contains('is-invalid') && this.value) {
+                        if (this.classList.contains('is-invalid') && this.value)
                             this.classList.remove('is-invalid');
-                        }
                     });
                 });
             }
 
-            // ─── Bootstrap: re-enable submit on browser back navigation ──────────────
             function initPageShowReset() {
                 window.addEventListener('pageshow', function(e) {
                     if (e.persisted && el.submitBtn) {
                         el.submitBtn.disabled = false;
-                        el.submitBtn.innerHTML =
-                            '<i class="ri-send-plane-line me-1"></i> Kirim Lamaran';
+                        el.submitBtn.innerHTML = '<i class="ri-send-plane-line me-1"></i> Kirim Lamaran';
                     }
                 });
             }
 
-            // ─── Init ────────────────────────────────────────────────────────────────
             function init() {
-                if (!initElements()) return; // Bail if critical DOM not found
+                if (!initElements()) return;
 
-                // Bind recruit type change (unified handler)
                 el.recruitTypeInputs.forEach(input => {
                     input.addEventListener('change', onRecruitTypeChange);
                 });
 
-                // Bind type entry select
                 el.typeEntrySelect.addEventListener('change', updateFeeAlert);
 
-                // Run initial state (handles old() / edit mode repopulation)
+                // Inisialisasi awal — tidak ada nilai default karena ini form create
                 updateDownloadButtons();
                 updateTypeEntryVisibility();
                 updateFeeAlert();
 
-                // Input features
                 initNamaLengkap();
                 initNIK();
                 initTelephone();
                 initFileInputs();
-
-                // Form-level
                 initFormSubmission();
                 initLiveValidationReset();
                 initPageShowReset();
                 initAutoCloseAlerts();
             }
 
-            // ─── Kick off after DOM ready ─────────────────────────────────────────────
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
-                init(); // DOM already parsed
+                init();
             }
 
         })();

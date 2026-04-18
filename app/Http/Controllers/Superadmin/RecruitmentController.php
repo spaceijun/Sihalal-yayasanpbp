@@ -113,118 +113,135 @@ class RecruitmentController extends Controller
         return Redirect::route('recruitment.confirm', $recruitment->hashed_id);
     }
 
-    /**
-     * Update status recruitment dan create enumerator jika diterima
-     */
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:Melamar,Diterima,Ditolak',
-            'koordinator_id' => 'required_if:status,Diterima|nullable|exists:koordinators,id',
-            'alasan_penolakan' => 'required_if:status,Ditolak|nullable',
-        ], [
-            'koordinator_id.required_if' => 'Koordinator wajib dipilih jika status diterima',
-            'koordinator_id.exists' => 'Koordinator yang dipilih tidak valid',
-            'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak',
-        ]);
+        $recruitment = Recruitment::findOrFail($id);
+        $recruitType = $recruitment->recruit_type; // PENDAMPING atau DATA ENTRY
+
+        // Validasi dinamis berdasarkan recruit_type
+        if ($recruitType == 'PENDAMPING') {
+            $request->validate([
+                'status' => 'required|in:Melamar,Diterima,Ditolak',
+                'koordinator_id' => 'required_if:status,Diterima|nullable|exists:koordinators,id',
+                'alasan_penolakan' => 'required_if:status,Ditolak|nullable',
+            ], [
+                'koordinator_id.required_if' => 'Koordinator wajib dipilih jika status diterima',
+                'koordinator_id.exists' => 'Koordinator yang dipilih tidak valid',
+                'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak',
+            ]);
+        } else {
+            // DATA ENTRY — hanya bisa Diterima/Ditolak/Melamar, tanpa koordinator
+            $request->validate([
+                'status' => 'required|in:Melamar,Diterima,Ditolak',
+                'alasan_penolakan' => 'required_if:status,Ditolak|nullable',
+            ], [
+                'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak',
+            ]);
+        }
 
         DB::beginTransaction();
 
         try {
-            $recruitment = Recruitment::findOrFail($id);
             $previousStatus = $recruitment->status;
-
             $recruitment->status = $request->status;
 
             if ($request->status == 'Diterima') {
-                $recruitment->koordinator_id = $request->koordinator_id;
+
                 $recruitment->alasan_penolakan = null;
 
-                // Cek apakah recruitment ini sudah pernah membuat enumerator
-                $existingEnumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
+                if ($recruitType == 'PENDAMPING') {
+                    // ── PENDAMPING: butuh koordinator, buat/update Enumerator ──
+                    $recruitment->koordinator_id = $request->koordinator_id;
 
-                if (!$existingEnumerator) {
+                    $existingEnumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
 
-                    DB::transaction(function () use ($request, $recruitment) {
+                    if (!$existingEnumerator) {
+                        DB::transaction(function () use ($request, $recruitment) {
+                            $lastNo = Enumerator::lockForUpdate()
+                                ->orderBy('no_registrasi', 'desc')
+                                ->value('no_registrasi');
 
-                        // Ambil no_registrasi terakhir (lock supaya tidak bentrok)
-                        $lastNo = Enumerator::lockForUpdate()
-                            ->orderBy('no_registrasi', 'desc')
-                            ->value('no_registrasi');
+                            $nextNo = $lastNo ? ((int) $lastNo + 1) : 1;
 
-                        // Tentukan nomor berikutnya
-                        $nextNo = $lastNo ? ((int) $lastNo + 1) : 1;
+                            if ($nextNo > 999) {
+                                throw new \Exception('No registrasi sudah penuh');
+                            }
 
-                        if ($nextNo > 999) {
-                            throw new \Exception('No registrasi sudah penuh');
-                        }
+                            $noRegistrasi = str_pad($nextNo, 3, '0', STR_PAD_LEFT);
 
-                        $noRegistrasi = str_pad($nextNo, 3, '0', STR_PAD_LEFT);
-                        Enumerator::create([
+                            Enumerator::create([
+                                'koordinator_id' => $request->koordinator_id,
+                                'nama_lengkap'   => $recruitment->nama_lengkap,
+                                'telephone'      => $recruitment->telephone,
+                                'foto_diri'      => $recruitment->foto_diri,
+                                'no_registrasi'  => $noRegistrasi,
+                                'alamat'         => $recruitment->alamat_lengkap,
+                                'status'         => 'Aktif',
+                            ]);
+                        });
+
+                        $message = 'Status lamaran berhasil diperbarui dan data enumerator telah dibuat!';
+                    } else {
+                        $existingEnumerator->update([
                             'koordinator_id' => $request->koordinator_id,
                             'nama_lengkap'   => $recruitment->nama_lengkap,
-                            'telephone'      => $recruitment->telephone,
-                            'foto_diri'      => $recruitment->foto_diri,
-                            'no_registrasi'  => $noRegistrasi,
                             'alamat'         => $recruitment->alamat_lengkap,
                             'status'         => 'Aktif',
                         ]);
-                    });
 
-                    $message = 'Status lamaran berhasil diperbarui dan data enumerator telah dibuat!';
+                        $message = 'Status lamaran berhasil diperbarui dan data enumerator telah diupdate!';
+                    }
                 } else {
-                    // Jika sudah ada, update data enumerator
-                    $existingEnumerator->update([
-                        'koordinator_id' => $request->koordinator_id,
-                        'nama_lengkap' => $recruitment->nama_lengkap,
-                        'alamat' => $recruitment->alamat_lengkap,
-                        'status' => 'Aktif',
-                    ]);
-
-                    $message = 'Status lamaran berhasil diperbarui dan data enumerator telah diupdate!';
+                    // ── DATA ENTRY: tidak butuh koordinator, tidak buat Enumerator ──
+                    $recruitment->koordinator_id = null;
+                    $message = 'Status lamaran DATA ENTRY berhasil diperbarui menjadi diterima!';
                 }
             } elseif ($request->status == 'Ditolak') {
+
                 $recruitment->alasan_penolakan = $request->alasan_penolakan;
-                $recruitment->koordinator_id = null;
+                $recruitment->koordinator_id   = null;
 
-                // Jika ada enumerator dengan telephone yang sama, hapus data enumerator
-                $enumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
+                if ($recruitType == 'PENDAMPING') {
+                    $enumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
 
-                if ($enumerator) {
-                    // Hapus data enumerator karena lamaran ditolak
-                    $enumerator->delete();
-                    $message = 'Status lamaran berhasil diperbarui menjadi ditolak dan data enumerator telah dihapus!';
+                    if ($enumerator) {
+                        $enumerator->delete();
+                        $message = 'Status lamaran berhasil diperbarui menjadi ditolak dan data enumerator telah dihapus!';
+                    } else {
+                        $message = 'Status lamaran berhasil diperbarui menjadi ditolak!';
+                    }
                 } else {
-                    // Jika tidak ada enumerator (belum pernah diterima)
-                    $message = 'Status lamaran berhasil diperbarui menjadi ditolak!';
+                    // DATA ENTRY tidak punya enumerator
+                    $message = 'Status lamaran DATA ENTRY berhasil diperbarui menjadi ditolak!';
                 }
             } else {
-                // Status Melamar
-                $recruitment->koordinator_id = null;
+                // Status: Melamar
+                $recruitment->koordinator_id   = null;
                 $recruitment->alasan_penolakan = null;
 
-                // Jika status kembali ke Melamar dan sebelumnya ada enumerator, hapus data enumerator
-                $enumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
-                if ($enumerator) {
-                    $enumerator->delete();
-                    $message = 'Status lamaran berhasil diperbarui dan data enumerator telah dihapus!';
+                if ($recruitType == 'PENDAMPING') {
+                    $enumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
+
+                    if ($enumerator) {
+                        $enumerator->delete();
+                        $message = 'Status lamaran berhasil diperbarui dan data enumerator telah dihapus!';
+                    } else {
+                        $message = 'Status lamaran berhasil diperbarui!';
+                    }
                 } else {
                     $message = 'Status lamaran berhasil diperbarui!';
                 }
             }
 
             $recruitment->save();
-
             DB::commit();
 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
-
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
     public function downloadFoto($id, $type)
     {
         $recruitment = Recruitment::findOrFail($id);

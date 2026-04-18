@@ -42,6 +42,18 @@
                         <span><i class="las la-user me-2"></i>Data Pelamar</span>
                     </div>
                     <div class="card-body">
+                        <div class="form-group mb-3">
+                            <strong>Posisi Dilamar</strong>
+                            <p class="text-muted mb-0">{{ $recruitment->recruit_type }}</p>
+                        </div>
+                        <hr>
+                        @if ($recruitment->recruit_type === 'DATA ENTRY')
+                            <div class="form-group mb-3">
+                                <strong>Tipe Entry</strong>
+                                <p class="text-muted mb-0">{{ $recruitment->type_entry }}</p>
+                            </div>
+                            <hr>
+                        @endif
                         @if ($recruitment->koordinator_id)
                             <div class="form-group mb-3">
                                 <strong>Nama Koordinator</strong>
@@ -146,7 +158,6 @@
 
             <!-- Card 2: Edit Status & Dokumentasi Foto (Kanan) -->
             <div class="col-md-6">
-                <!-- Card Edit Status -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <span><i class="las la-edit me-2"></i>Edit Status Lamaran</span>
@@ -183,28 +194,30 @@
                                 </div>
                             </div>
 
-                            <!-- Dropdown Koordinator (Muncul jika status Diterima) -->
-                            <div class="form-group mb-3" id="koordinatorWrapper"
-                                style="display: {{ $recruitment->status == 'Diterima' ? 'block' : 'none' }};">
-                                <label for="koordinator_id" class="form-label">
-                                    <strong>Pilih Koordinator</strong>
-                                </label>
-                                <select name="koordinator_id" id="koordinator_id" class="form-select">
-                                    <option value="">-- Pilih Koordinator --</option>
-                                    @foreach ($koordinators as $koordinator)
-                                        <option value="{{ $koordinator->id }}"
-                                            {{ $recruitment->koordinator_id == $koordinator->id ? 'selected' : '' }}>
-                                            {{ $koordinator->nama_lengkap }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">
-                                    <i class="las la-info-circle me-1"></i>
-                                    Wajib diisi jika status diterima
-                                </small>
-                            </div>
+                            {{-- Dropdown Koordinator: HANYA untuk PENDAMPING --}}
+                            @if ($recruitment->recruit_type == 'PENDAMPING')
+                                <div class="form-group mb-3" id="koordinatorWrapper"
+                                    style="display: {{ $recruitment->status == 'Diterima' ? 'block' : 'none' }};">
+                                    <label for="koordinator_id" class="form-label">
+                                        <strong>Pilih Koordinator</strong>
+                                    </label>
+                                    <select name="koordinator_id" id="koordinator_id" class="form-select">
+                                        <option value="">-- Pilih Koordinator --</option>
+                                        @foreach ($koordinators as $koordinator)
+                                            <option value="{{ $koordinator->id }}"
+                                                {{ $recruitment->koordinator_id == $koordinator->id ? 'selected' : '' }}>
+                                                {{ $koordinator->nama_lengkap }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">
+                                        <i class="las la-info-circle me-1"></i>
+                                        Wajib diisi jika status diterima
+                                    </small>
+                                </div>
+                            @endif
 
-                            <!-- Alasan Penolakan (Muncul jika status Ditolak) -->
+                            {{-- Alasan Penolakan: muncul untuk semua recruit_type --}}
                             <div class="form-group mb-0" id="alasanPenolakanWrapper"
                                 style="display: {{ $recruitment->status == 'Ditolak' ? 'block' : 'none' }};">
                                 <label for="alasan_penolakan" class="form-label">
@@ -438,24 +451,29 @@
 
         // Show/Hide Koordinator dan Alasan Penolakan based on Status
         document.getElementById('status-1').addEventListener('change', function() {
-            const koordinatorWrapper = document.getElementById('koordinatorWrapper');
+            const recruitType = '{{ $recruitment->recruit_type }}';
             const alasanWrapper = document.getElementById('alasanPenolakanWrapper');
-            const koordinatorSelect = document.getElementById('koordinator_id');
             const alasanTextarea = document.getElementById('alasan_penolakan');
 
-            if (this.value === 'Diterima') {
-                koordinatorWrapper.style.display = 'block';
-                koordinatorSelect.required = true;
-                alasanWrapper.style.display = 'none';
-                alasanTextarea.required = false;
-            } else if (this.value === 'Ditolak') {
+            // Koordinator hanya untuk PENDAMPING
+            if (recruitType === 'PENDAMPING') {
+                const koordinatorWrapper = document.getElementById('koordinatorWrapper');
+                const koordinatorSelect = document.getElementById('koordinator_id');
+
+                if (this.value === 'Diterima') {
+                    koordinatorWrapper.style.display = 'block';
+                    koordinatorSelect.required = true;
+                } else {
+                    koordinatorWrapper.style.display = 'none';
+                    koordinatorSelect.required = false;
+                }
+            }
+
+            // Alasan penolakan berlaku untuk semua recruit_type
+            if (this.value === 'Ditolak') {
                 alasanWrapper.style.display = 'block';
                 alasanTextarea.required = true;
-                koordinatorWrapper.style.display = 'none';
-                koordinatorSelect.required = false;
             } else {
-                koordinatorWrapper.style.display = 'none';
-                koordinatorSelect.required = false;
                 alasanWrapper.style.display = 'none';
                 alasanTextarea.required = false;
             }
@@ -498,7 +516,6 @@
             const collageContent = document.getElementById('collageContent');
             const namaLengkap = '{{ $recruitment->nama_lengkap }}';
 
-            // Show loading indicator
             const loadingDiv = document.createElement('div');
             loadingDiv.innerHTML =
                 '<div class="text-center"><i class="las la-spinner fa-spin me-2"></i>Memproses download...</div>';

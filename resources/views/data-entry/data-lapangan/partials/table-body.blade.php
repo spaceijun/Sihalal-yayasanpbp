@@ -24,8 +24,10 @@
         </td>
         <td>
             @php
-                $latestProgress = $dataLapangan->dataEntryProgress()->latest('actioned_at')->first();
-                $status = $latestProgress?->status;
+                $progresses = $dataLapangan->dataEntryProgress;
+                $diterima = $progresses->firstWhere('status', 'DITERIMA');
+                $progress = $diterima ?? $progresses->first();
+                $status = $progress?->status;
             @endphp
 
             @if ($status === 'PENDING')

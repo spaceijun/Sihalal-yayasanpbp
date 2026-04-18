@@ -203,13 +203,13 @@ class DataEntryProgressController extends Controller
         $dataLapangan = $progress->dataLapangan;
         $oldData      = $progress->old_data;
 
-        // DEBUG — hapus setelah fix
-        Log::info('TOLAK DEBUG', [
-            'progress_id'         => $progress->id,
-            'old_data'            => $oldData,
-            'dataLapangan_id'     => $dataLapangan?->id,
-            'dataLapangan_status' => $dataLapangan?->status,
-        ]);
+        // // DEBUG — hapus setelah fix
+        // Log::info('TOLAK DEBUG', [
+        //     'progress_id'         => $progress->id,
+        //     'old_data'            => $oldData,
+        //     'dataLapangan_id'     => $dataLapangan?->id,
+        //     'dataLapangan_status' => $dataLapangan?->status,
+        // ]);
 
         // Rollback status data_lapangans ke status sebelum upload/update
         if ($dataLapangan && !empty($oldData['status'])) {

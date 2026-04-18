@@ -51,10 +51,12 @@ class DataLapanganController extends Controller
      */
     private function hasPendingProgress(int $dataEntryId, int $dataLapanganId): bool
     {
-        return DataEntryProgress::where('data_entry_id', $dataEntryId)
+        $latestProgress = DataEntryProgress::where('data_entry_id', $dataEntryId)
             ->where('data_lapangan_id', $dataLapanganId)
-            ->where('status', 'PENDING')
-            ->exists();
+            ->latest('actioned_at')
+            ->first();
+
+        return $latestProgress?->status === 'PENDING';
     }
 
     /**

@@ -35,9 +35,9 @@
                                         <th>Nama Lengkap</th>
                                         <th>Email</th>
                                         <th>Telephone</th>
-                                        <th>Alamat</th>
                                         <th>Status</th>
                                         <th>Entry Type</th>
+                                        <th>Rekening</th>
 
                                         <th></th>
                                     </tr>
@@ -50,9 +50,10 @@
                                             <td>{{ $dataEntry->nama_lengkap }}</td>
                                             <td>{{ $dataEntry->email }}</td>
                                             <td>{{ $dataEntry->telephone }}</td>
-                                            <td>{{ $dataEntry->alamat }}</td>
                                             <td>{{ $dataEntry->status }}</td>
                                             <td><span class="badge bg-primary">{{ $dataEntry->entry_type }}</span></td>
+                                            <td>{{ $dataEntry->bank->name }}, {{ $dataEntry->no_rekening }} an.
+                                                {{ $dataEntry->nama_rekening }}</td>
 
                                             <td>
                                                 <form

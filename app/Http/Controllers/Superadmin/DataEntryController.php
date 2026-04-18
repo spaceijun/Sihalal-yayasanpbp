@@ -19,7 +19,7 @@ class DataEntryController extends Controller
      */
     public function index(Request $request): View
     {
-        $dataEntries = DataEntry::with('koordinators')->paginate();
+        $dataEntries = DataEntry::with('koordinators', 'bank')->paginate();
         return view('superadmin.data-entry.index', compact('dataEntries'))
             ->with('i', ($request->input('page', 1) - 1) * $dataEntries->perPage());
     }

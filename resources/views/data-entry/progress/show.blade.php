@@ -176,6 +176,11 @@
                                         ['NIK', $dataLapangan->nik, 'mono'],
                                         ['Telepon', $dataLapangan->telephone ?? 'Tidak ada data', null],
                                         ['Email', $dataLapangan->email ?? 'Email belum tersedia', null],
+                                        [
+                                            'Email Sihalal',
+                                            $dataLapangan->email_sihalal ?? 'Email Sihalal belum tersedia',
+                                            null,
+                                        ],
                                         ['Nama Produk', $dataLapangan->nama_produk ?? 'Tidak ada data', null],
                                         ['Alamat', $dataLapangan->alamat, null],
                                     ];

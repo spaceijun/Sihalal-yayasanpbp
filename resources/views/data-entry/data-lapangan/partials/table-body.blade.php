@@ -26,7 +26,8 @@
             @php
                 $progresses = $dataLapangan->dataEntryProgress;
                 $diterima = $progresses->firstWhere('status', 'DITERIMA');
-                $progress = $diterima ?? $progresses->first();
+                // Jika ada DITERIMA, prioritaskan. Jika tidak, ambil yang terbaru.
+                $progress = $diterima ?? $progresses->sortByDesc('created_at')->first();
                 $status = $progress?->status;
             @endphp
 
@@ -38,13 +39,8 @@
                 <span class="badge bg-danger">
                     <i class="las la-edit"></i> {{ __('WAIT REVISION ENTRYS') }}
                 </span>
-            @elseif ($status === 'DITERIMA')
-                <a class="btn btn-sm btn-primary btn-show-data"
-                    href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
-                    data-id="{{ $dataLapangan->id }}">
-                    <i class="las la-eye"></i> {{ __('Show') }}
-                </a>
             @else
+                {{-- DITERIMA, DITOLAK, atau tidak ada data → tampilkan Show --}}
                 <a class="btn btn-sm btn-primary btn-show-data"
                     href="{{ route('data-entry.data-lapangan.show', $dataLapangan->hashed_id) }}"
                     data-id="{{ $dataLapangan->id }}">

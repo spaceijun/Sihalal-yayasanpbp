@@ -1,10 +1,9 @@
 @forelse ($dataLapangans as $dataLapangan)
     <tr>
         <td>{{ ++$i }}</td>
-        <td>{{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}</td>
         <td>{{ $dataLapangan->enumerator->nama_lengkap ?? 'N/A' }}</td>
         <td>{{ $dataLapangan->nama_pu }}</td>
-        <td>{{ $dataLapangan->nik }}</td>
+        <td>{{ $dataLapangan->nama_produk }}</td>
         <td>
             @if ($dataLapangan->status == 'PENDING')
                 <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>

@@ -55,10 +55,9 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-                                        <th>Created</th>
                                         <th>Pendamping</th>
                                         <th>Nama PU</th>
-                                        <th>NIK</th>
+                                        <th>Nama Produk</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>

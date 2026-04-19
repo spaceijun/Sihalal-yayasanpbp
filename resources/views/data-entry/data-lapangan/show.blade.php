@@ -59,14 +59,17 @@
                 @endphp
                 <span class="badge {{ $statusClass }} px-3 py-2 fs-6">{{ $dataLapangan->status }}</span>
 
-                @if (($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK') && !$hasPendingProgress)
+                @if (
+                    ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK') &&
+                        !$hasPendingProgress &&
+                        !$dataLapangan->email_sihalal)
                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                         data-bs-target="#modalUpdateStatusHalal">
                         <i class="las la-edit me-1"></i>Update Status Halal
                     </button>
-                @elseif ($hasPendingProgress)
+                @elseif ($hasPendingProgress || $dataLapangan->email_sihalal)
                     <span class="badge bg-warning text-dark px-3 py-2">
-                        <i class="las la-clock me-1"></i>Menunggu Review Superadmin
+                        <i class="las la-clock me-1"></i>Menunggu Review Admin
                     </span>
                 @endif
 

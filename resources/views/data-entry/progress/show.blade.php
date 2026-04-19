@@ -147,7 +147,7 @@
                     };
                 @endphp
                 <span class="badge {{ $statusClass }} px-3 py-2 fs-6">{{ $dataLapangan->status }}</span>
-                <a href="{{ route('koordinator.data-lapangan.index') }}" class="btn btn-light btn-sm">
+                <a href="{{ route('data-entry.data-lapangan.index') }}" class="btn btn-light btn-sm">
                     <i class="las la-arrow-left me-1"></i>Kembali
                 </a>
             </div>

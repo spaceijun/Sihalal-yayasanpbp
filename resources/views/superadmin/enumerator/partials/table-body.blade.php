@@ -3,7 +3,6 @@
         <td>KH-{{ $enumerator->no_registrasi }}</td>
         <td>{{ $enumerator->koordinator->nama_lengkap ?? '-' }}</td>
         <td>{{ $enumerator->nama_lengkap }}</td>
-        <td>{{ $enumerator->telephone }}</td>
         <td>
             @if ($enumerator->bank && $enumerator->no_rekening && $enumerator->nama_rekening)
                 {{ $enumerator->bank->name }}, {{ $enumerator->no_rekening }} an.
@@ -11,6 +10,11 @@
             @else
                 No data
             @endif
+        </td>
+        <td>
+            <span class="badge bg-{{ $enumerator->status == 'Aktif' ? 'success' : 'danger' }}">
+                {{ $enumerator->status }}
+            </span>
         </td>
         <td>
             @if (!$enumerator->user_id)

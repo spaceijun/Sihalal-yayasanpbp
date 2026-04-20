@@ -1,14 +1,16 @@
 @forelse ($enumerators as $enumerator)
     <tr>
-        <td>{{ ++$i }}</td>
+        <td>KH-{{ $enumerator->no_registrasi }}</td>
         <td>{{ $enumerator->koordinator->nama_lengkap ?? '-' }}</td>
         <td>{{ $enumerator->nama_lengkap }}</td>
         <td>{{ $enumerator->telephone }}</td>
-        <td>REG-{{ $enumerator->no_registrasi }}</td>
         <td>
-            <span class="badge bg-{{ $enumerator->status == 'Aktif' ? 'success' : 'danger' }}">
-                {{ $enumerator->status }}
-            </span>
+            @if ($enumerator->bank && $enumerator->no_rekening && $enumerator->nama_rekening)
+                {{ $enumerator->bank->name }}, {{ $enumerator->no_rekening }} an.
+                {{ $enumerator->nama_rekening }}
+            @else
+                No data
+            @endif
         </td>
         <td>
             @if (!$enumerator->user_id)

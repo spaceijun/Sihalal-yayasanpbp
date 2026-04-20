@@ -20,7 +20,7 @@ class EnumeratorController extends Controller
      */
     public function index(Request $request): View
     {
-        $enumerators = Enumerator::with('koordinator')->paginate();
+        $enumerators = Enumerator::with('koordinator', 'bank')->paginate();
 
         return view('superadmin.enumerator.index', compact('enumerators'))
             ->with('i', ($request->input('page', 1) - 1) * $enumerators->perPage());

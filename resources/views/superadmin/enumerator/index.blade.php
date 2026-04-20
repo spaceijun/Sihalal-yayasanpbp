@@ -72,11 +72,10 @@
                                 <table class="table table-striped table-hover">
                                     <thead class="thead">
                                         <tr>
-                                            <th>No</th>
+                                            <th>No Regis</th>
                                             <th>Koordinator</th>
                                             <th>Nama Lengkap</th>
-                                            <th>Telephone</th>
-                                            <th>No Reg</th>
+                                            <th>Rekening</th>
                                             <th>Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>

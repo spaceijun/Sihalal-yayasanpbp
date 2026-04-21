@@ -12,6 +12,7 @@ use App\Models\Superadmin\Koordinator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EnumeratorController extends Controller
 {
@@ -83,6 +84,86 @@ class EnumeratorController extends Controller
         $enumerator = Enumerator::with(['koordinator', 'bank'])->find($id);
 
         return view('superadmin.enumerator.show', compact('enumerator'));
+    }
+
+    /**
+     * Tampilkan galeri foto per enumerator (foto_pendamping & foto_produk)
+     */
+    public function gallery($id): View
+    {
+        $enumerator = Enumerator::with(['koordinator', 'dataLapangans'])->findOrFail($id);
+
+        return view('superadmin.enumerator.gallery', compact('enumerator'));
+    }
+
+    /**
+     * Download foto dari data lapangan milik enumerator
+     */
+    public function downloadFoto($id, $type): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $enumerator = Enumerator::with('dataLapangans')->findOrFail($id);
+
+        $allowed = ['foto_pendamping', 'foto_produk'];
+
+        if (!in_array($type, $allowed)) {
+            abort(403, 'Tipe foto tidak diizinkan.');
+        }
+
+        $data = $enumerator->dataLapangans
+            ->whereNotNull($type)
+            ->first();
+
+        if (!$data || !$data->$type) {
+            abort(404, 'Foto tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $data->$type);
+
+        if (!file_exists($path)) {
+            abort(404, 'File tidak ditemukan di storage.');
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $filename  = $type . '_' . $enumerator->no_registrasi . '_' . $data->id . '.' . $extension;
+
+        return response()->streamDownload(function () use ($path) {
+            readfile($path);
+        }, $filename);
+    }
+
+
+    /**
+     * Download foto per entri data lapangan
+     * Route: /enumerators/{id}/download-foto/{dataId}/{type}
+     */
+    public function downloadFotoByEntry($id, $dataId, $type): StreamedResponse
+    {
+        $enumerator = Enumerator::findOrFail($id);
+
+        $allowed = ['foto_pendamping', 'foto_produk'];
+
+        if (!in_array($type, $allowed)) {
+            abort(403, 'Tipe foto tidak diizinkan.');
+        }
+
+        $data = $enumerator->dataLapangans()->findOrFail($dataId);
+
+        if (!$data->$type) {
+            abort(404, 'Foto tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $data->$type);
+
+        if (!file_exists($path)) {
+            abort(404, 'File tidak ditemukan di storage.');
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $filename  = $type . '_' . $enumerator->no_registrasi . '_' . $data->id . '.' . $extension;
+
+        return response()->streamDownload(function () use ($path) {
+            readfile($path);
+        }, $filename);
     }
 
     /**

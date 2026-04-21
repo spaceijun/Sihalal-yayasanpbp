@@ -24,6 +24,9 @@
                     <i class="las la-user-plus"></i> Generate User
                 </button>
             @endif
+            <a class="btn btn-sm btn-info" href="{{ route('superadmin.enumerators.gallery', $enumerator->id) }}">
+                <i class="las la-images"></i>
+            </a>
             <a class="btn btn-sm btn-primary" href="{{ route('superadmin.enumerators.show', $enumerator->id) }}">
                 <i class="las la-eye"></i>
             </a>

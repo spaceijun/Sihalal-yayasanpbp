@@ -54,76 +54,107 @@
 
     {{-- ─── SECTION 2: STATUS DATA ─── --}}
     <div class="section-label">Status Data Lapangan</div>
-    <div class="row g-4 mb-4">
+    @php $total = $totalDataLapangan > 0 ? $totalDataLapangan : 1; @endphp
+    <div class="row g-3 mb-4">
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-amber">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="bx bx-time-five"></i></div>
-                <div class="card-label">Data Pending</div>
-                <div class="card-value">
+            <div class="mini-card c-amber">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="bx bx-time-five"></i></div>
+                    <div class="mc-pct">{{ number_format(($totalDataPending / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Data Pending</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataPending }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ ($totalDataPending / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-violet">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="las la-tasks"></i></div>
-                <div class="card-label">Data Terverifikasi</div>
-                <div class="card-value">
+            <div class="mini-card c-violet">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="las la-tasks"></i></div>
+                    <div class="mc-pct">{{ number_format(($totalDataTerverifikasi / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Data Terverifikasi</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataTerverifikasi }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ ($totalDataTerverifikasi / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-rose">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="bx bx-edit"></i></div>
-                <div class="card-label">Data Revisi</div>
-                <div class="card-value">
+            <div class="mini-card c-rose">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="bx bx-edit"></i></div>
+                    <div class="mc-pct">{{ number_format((($totalDataRevisi ?? 0) / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Data Revisi</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataRevisi ?? 0 }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ (($totalDataRevisi ?? 0) / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
     </div>
 
     {{-- ─── SECTION 3: PROGRESS ─── --}}
     <div class="section-label">Progress Sertifikasi</div>
-    <div class="row g-4 mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-cyan">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="bx bx-loader-circle"></i></div>
-                <div class="card-label">Progress OSS</div>
-                <div class="card-value">
+            <div class="mini-card c-cyan">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="bx bx-loader-circle"></i></div>
+                    <div class="mc-pct">{{ number_format(($totalDataProgressOSS / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Progress OSS</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataProgressOSS }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ ($totalDataProgressOSS / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-blue">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="bx bx-sync"></i></div>
-                <div class="card-label">Progress Sihalal</div>
-                <div class="card-value">
+            <div class="mini-card c-blue">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="bx bx-sync"></i></div>
+                    <div class="mc-pct">{{ number_format(($totalDataProgressSihalal / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Progress Sihalal</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataProgressSihalal }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ ($totalDataProgressSihalal / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card c-green">
-                <div class="glow"></div>
-                <div class="card-icon"><i class="bx bx-check-circle"></i></div>
-                <div class="card-label">Data Terbit SH</div>
-                <div class="card-value">
+            <div class="mini-card c-green">
+                <div class="mc-glow"></div>
+                <div class="mc-top">
+                    <div class="mc-icon"><i class="bx bx-check-circle"></i></div>
+                    <div class="mc-pct">{{ number_format(($totalDataTerbitSH / $total) * 100, 1) }}%</div>
+                </div>
+                <div class="mc-label">Data Terbit SH</div>
+                <div class="mc-value">
                     <span class="counter-value" data-target="{{ $totalDataTerbitSH }}">0</span>
                 </div>
-                <div class="card-divider"></div>
+                <div class="mc-bar-track">
+                    <div class="mc-bar-fill" data-width="{{ ($totalDataTerbitSH / $total) * 100 }}"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -889,6 +920,111 @@
             border: none !important;
             box-shadow: none !important;
         }
+
+        /* ─── MINI STAT CARD with percentage ─── */
+        .mini-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: transform .22s, box-shadow .22s, border-color .22s;
+            box-shadow: var(--shadow-card);
+            height: 100%;
+        }
+
+        .mini-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-bright);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .mini-card .mc-glow {
+            position: absolute;
+            top: -16px;
+            right: -16px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            opacity: 0.09;
+            pointer-events: none;
+        }
+
+        .mini-card .mc-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .mini-card .mc-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .mini-card .mc-pct {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        .mini-card .mc-label {
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .mini-card .mc-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .mini-card .mc-bar-track {
+            height: 4px;
+            border-radius: 4px;
+            background: var(--border);
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .mini-card .mc-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--cc);
+            transition: width 1.2s cubic-bezier(.22, 1, .36, 1);
+            width: 0%;
+        }
+
+        .mini-card .mc-icon {
+            background: color-mix(in srgb, var(--cc) 12%, transparent);
+            color: var(--cc);
+        }
+
+        .mini-card .mc-glow {
+            background: var(--cc);
+        }
+
+        .mini-card .mc-pct {
+            background: color-mix(in srgb, var(--cc) 10%, transparent);
+            color: var(--cc);
+            border: 1px solid color-mix(in srgb, var(--cc) 25%, transparent);
+        }
     </style>
 
 
@@ -915,8 +1051,14 @@
             });
 
             // ──────────────────────────────────────────
-            // Shared chart defaults
+            // Progress bar animation
             // ──────────────────────────────────────────
+            document.querySelectorAll('.mc-bar-fill[data-width]').forEach(bar => {
+                const target = parseFloat(bar.getAttribute('data-width')) || 0;
+                setTimeout(() => {
+                    bar.style.width = Math.min(target, 100) + '%';
+                }, 200);
+            });
             Chart.defaults.color = '#9aa0b8';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
             Chart.defaults.font.size = 11;

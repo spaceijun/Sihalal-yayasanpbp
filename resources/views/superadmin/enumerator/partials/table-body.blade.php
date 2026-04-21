@@ -25,13 +25,13 @@
                 </button>
             @endif
             <a class="btn btn-sm btn-primary" href="{{ route('superadmin.enumerators.show', $enumerator->id) }}">
-                <i class="las la-eye"></i> {{ __('Show') }}
+                <i class="las la-eye"></i>
             </a>
             <a class="btn btn-sm btn-success" href="{{ route('superadmin.enumerators.edit', $enumerator->id) }}">
-                <i class="las la-edit"></i> {{ __('Edit') }}
+                <i class="las la-edit"></i>
             </a>
             <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="{{ $enumerator->id }}">
-                <i class="las la-trash"></i> {{ __('Delete') }}
+                <i class="las la-trash"></i>
             </button>
         </td>
     </tr>

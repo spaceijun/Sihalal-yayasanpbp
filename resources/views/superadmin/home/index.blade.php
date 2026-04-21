@@ -2,389 +2,1117 @@
 @section('template_title')
     Dashboard
 @endsection
+
 @section('content')
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <i class="ri-admin-line"></i> <strong>Selamat datang, Superadmin!</strong>
-        Semoga Hari Kalian Selalu "BEJO".
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    {{-- WELCOME BANNER --}}
+    <div class="welcome-banner" id="welcomeBanner">
+        <div class="icon-wrap"><i class="ri-admin-line"></i></div>
+        <div class="text-wrap">
+            <strong>Selamat datang, <span class="badge-bejo">Superadmin</span>!</strong>
+            <span>Semoga Hari Kalian Selalu "BEJO" — Bekerja Keras, Jujur, dan Optimis.</span>
+        </div>
+        <button class="close-btn" onclick="document.getElementById('welcomeBanner').style.display='none'">&times;</button>
     </div>
-    <!-- Summary Cards -->
-    <div class="row">
-        <div class="col-xl-4" data-aos="fade-up">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Tim</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataKoordinator }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-primary-subtle rounded fs-3">
-                                <i class="bx bx-group text-primary"></i>
-                            </span>
-                        </div>
-                    </div>
+
+    {{-- ─── SECTION 1: TIM & DATA ─── --}}
+    <div class="section-label">Ringkasan Umum</div>
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-blue">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-group"></i></div>
+                <div class="card-label">Total Tim</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataKoordinator }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
-        <div class="col-xl-4" data-aos="fade-up">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Pendamping</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataEnumerator }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-info-subtle rounded fs-3">
-                                <i class="bx bx-user-check text-info"></i>
-                            </span>
-                        </div>
-                    </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-cyan">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-user-check"></i></div>
+                <div class="card-label">Total Pendamping</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataEnumerator }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
-        <div class="col-xl-4" data-aos="fade-up">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Data Masuk</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataLapangan }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-data text-success"></i>
-                            </span>
-                        </div>
-                    </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-green">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-data"></i></div>
+                <div class="card-label">Total Data Masuk</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataLapangan }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
     </div>
-    {{-- PROGRESS DATA LAPANGAN --}}
-    <div class="row">
-        <div class="col-xl-4" data-aos="flip-left" data-aos-delay="100">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Pending</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataPending }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-warning-subtle rounded fs-3">
-                                <i class="bx bx-time-five text-warning"></i>
-                            </span>
-                        </div>
-                    </div>
+
+    {{-- ─── SECTION 2: STATUS DATA ─── --}}
+    <div class="section-label">Status Data Lapangan</div>
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-amber">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-time-five"></i></div>
+                <div class="card-label">Data Pending</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataPending }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
-        <div class="col-xl-4" data-aos="flip-left" data-aos-delay="100">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Terverifikasi</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataTerverifikasi }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-secondary-subtle rounded fs-3">
-                                <i class="las la-tasks text-secondary"></i>
-                            </span>
-                        </div>
-                    </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-violet">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="las la-tasks"></i></div>
+                <div class="card-label">Data Terverifikasi</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataTerverifikasi }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
-        <div class="col-xl-4">
-            <div class="card card-animate" data-aos="flip-left" data-aos-delay="100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Revisi</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataRevisi ?? 0 }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-danger-subtle rounded fs-3">
-                                <i class="bx bx-edit text-danger"></i>
-                            </span>
-                        </div>
-                    </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-rose">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-edit"></i></div>
+                <div class="card-label">Data Revisi</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataRevisi ?? 0 }}">0</span>
                 </div>
+                <div class="card-divider"></div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xl-4" data-aos="flip-left" data-aos-delay="100">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Progress OSS</p>
+
+    {{-- ─── SECTION 3: PROGRESS ─── --}}
+    <div class="section-label">Progress Sertifikasi</div>
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-cyan">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-loader-circle"></i></div>
+                <div class="card-label">Progress OSS</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataProgressOSS }}">0</span>
+                </div>
+                <div class="card-divider"></div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-blue">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-sync"></i></div>
+                <div class="card-label">Progress Sihalal</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataProgressSihalal }}">0</span>
+                </div>
+                <div class="card-divider"></div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card c-green">
+                <div class="glow"></div>
+                <div class="card-icon"><i class="bx bx-check-circle"></i></div>
+                <div class="card-label">Data Terbit SH</div>
+                <div class="card-value">
+                    <span class="counter-value" data-target="{{ $totalDataTerbitSH }}">0</span>
+                </div>
+                <div class="card-divider"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── SECTION 4: PEMBAYARAN ─── --}}
+    <div class="section-label">Status Pembayaran</div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="pay-card pay-pending">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="pay-label">Pembayaran Pending</div>
+                        <div class="pay-value">
+                            <span class="counter-value" data-target="{{ $totalPembayaranPending ?? 0 }}">0</span>
                         </div>
                     </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataProgressOSS }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-info-subtle rounded fs-3">
-                                <i class="bx bx-loader-circle text-info"></i>
-                            </span>
-                        </div>
-                    </div>
+                    <div class="pay-icon"><i class="bx bx-wallet"></i></div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4" data-aos="flip-left" data-aos-delay="100">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Progress Sihalal</p>
+        <div class="col-md-6">
+            <div class="pay-card pay-paid">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="pay-label">Sudah Dibayar</div>
+                        <div class="pay-value">
+                            <span class="counter-value" data-target="{{ $totalDibayar ?? 0 }}">0</span>
                         </div>
                     </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataProgressSihalal }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-primary-subtle rounded fs-3">
-                                <i class="bx bx-sync text-primary"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4" data-aos="flip-left" data-aos-delay="100">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Data Terbit SH</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span class="counter-value" data-target="{{ $totalDataTerbitSH }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-check-circle text-success"></i>
-                            </span>
-                        </div>
-                    </div>
+                    <div class="pay-icon"><i class="bx bx-check-double"></i></div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- CARD PEMBAYARAN DENGAN GRADIENT DAN AOS --}}
-    <div class="row">
-        <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="card card-animate overflow-hidden">
-                <div class="position-absolute top-0 start-0 w-100 h-100"
-                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); opacity: 0.9;"></div>
-                <div class="card-body position-relative" style="z-index: 1;">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-semibold text-white mb-0">Pembayaran Pending</p>
-                        </div>
+    {{-- ─── SECTION 5: CHARTS ─── --}}
+    <div class="section-label">Tren Data</div>
+    <div class="row g-4 mb-4">
+        {{-- Chart: 20 Data Masuk Terakhir --}}
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">20 Data Masuk Terakhir</div>
+                        <div class="chart-subtitle">Jumlah data masuk per bulan</div>
                     </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                <span class="counter-value" data-target="{{ $totalPembayaranPending ?? 0 }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-white bg-opacity-25 rounded fs-3">
-                                <i class="bx bx-wallet text-white"></i>
-                            </span>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#4f8ef7"></div> Data Masuk
                         </div>
                     </div>
                 </div>
+                <div class="chart-body">
+                    <canvas id="chartDataMasuk" height="220"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="card card-animate overflow-hidden">
-                <div class="position-absolute top-0 start-0 w-100 h-100"
-                    style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); opacity: 0.9;"></div>
-                <div class="card-body position-relative" style="z-index: 1;">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-semibold text-white mb-0">Dibayar</p>
+        {{-- Chart: 20 Data Terbit SH Terbaru --}}
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">20 Data Terbit SH Terbaru</div>
+                        <div class="chart-subtitle">Jumlah terbit SH per bulan</div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#10d98a"></div> Terbit SH
                         </div>
                     </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                <span class="counter-value" data-target="{{ $totalDibayar ?? 0 }}">0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-white bg-opacity-25 rounded fs-3">
-                                <i class="bx bx-check-double text-white"></i>
-                            </span>
-                        </div>
-                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartTerbitSH" height="220"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 20 Data Terakhir Hari Ini -->
-    <div class="row">
+    {{-- ─── SECTION 6: TABLES ─── --}}
+    <div class="row g-4">
+        {{-- Table: 20 Data Terakhir Masuk --}}
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">20 Data Terakhir Masuk</h5>
+            <div class="data-table-wrap">
+                <div class="dt-header">
+                    <h5><i class="bx bx-import me-2" style="color:var(--accent-indigo)"></i>20 Data Terakhir Masuk</h5>
+                    <span class="dt-badge">Realtime</span>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle mb-0">
-                            <thead class="table-light">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Pendamping</th>
+                                <th>Nama PU</th>
+                                <th>Status</th>
+                                <th>Tanggal Input</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($latestDataToday as $index => $data)
                                 <tr>
-                                    <th>No</th>
-                                    <th>Pendamping</th>
-                                    <th>Nama PU</th>
-                                    <th>Status</th>
-                                    <th>Tanggal Input</th>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>
+                                    <td>{{ $data->nama_pu }}</td>
+                                    <td>
+                                        @if ($data->status == 'PENDING')
+                                            <span class="status-badge badge-pending">PENDING</span>
+                                        @elseif($data->status == 'TERVERIFIKASI')
+                                            <span class="status-badge badge-verified">TERVERIFIKASI</span>
+                                        @elseif($data->status == 'DITOLAK')
+                                            <span class="status-badge badge-ditolak">DITOLAK</span>
+                                        @elseif($data->status == 'PROGRESS OSS')
+                                            <span class="status-badge badge-oss">PROGRESS OSS</span>
+                                        @elseif($data->status == 'PROGRESS SIHALAL')
+                                            <span class="status-badge badge-sihalal">PROGRESS SIHALAL</span>
+                                        @elseif($data->status == 'TERBIT SH')
+                                            <span class="status-badge badge-terbit">TERBIT SH</span>
+                                        @elseif($data->status == 'REVISI')
+                                            <span class="status-badge badge-revisi">REVISI</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($latestDataToday as $index => $data)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>
-                                        <td>{{ $data->nama_pu }}</td>
-                                        <td>
-                                            @if ($data->status == 'PENDING')
-                                                <span class="badge bg-warning">{{ $data->status }}</span>
-                                            @elseif($data->status == 'TERVERIFIKASI')
-                                                <span class="badge bg-secondary">{{ $data->status }}</span>
-                                            @elseif($data->status == 'DITOLAK')
-                                                <span class="badge bg-dark">{{ $data->status }}</span>
-                                            @elseif($data->status == 'PROGRESS OSS')
-                                                <span class="badge bg-info">{{ $data->status }}</span>
-                                            @elseif($data->status == 'PROGRESS SIHALAL')
-                                                <span class="badge bg-primary">{{ $data->status }}</span>
-                                            @elseif($data->status == 'TERBIT SH')
-                                                <span class="badge bg-success">{{ $data->status }}</span>
-                                            @elseif($data->status == 'REVISI')
-                                                <span class="badge bg-danger">{{ $data->status }}</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">Belum ada data</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">
+                                        <i class="bx bx-data" style="font-size:28px;display:block;margin-bottom:8px"></i>
+                                        Belum ada data
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 20 Data Update Terakhir -->
-    <div class="row">
+        {{-- Table: 20 Data Terbit SH Terbaru --}}
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">20 Data Terbit SH Terbaru</h5>
+            <div class="data-table-wrap">
+                <div class="dt-header">
+                    <h5><i class="bx bx-check-shield me-2" style="color:var(--accent-emerald)"></i>20 Data Terbit SH
+                        Terbaru</h5>
+                    <span class="dt-badge"
+                        style="background:rgba(16,217,138,0.1);color:var(--accent-emerald);border-color:rgba(16,217,138,0.25)">Sertifikat
+                        Halal</span>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle mb-0">
-                            <thead class="table-light">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Pendamping</th>
+                                <th>Nama PU</th>
+                                <th>Status</th>
+                                <th>Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($latestDataUpdate as $index => $data)
                                 <tr>
-                                    <th>No</th>
-                                    <th>Pendamping</th>
-                                    <th>Nama PU</th>
-                                    <th>Status</th>
-                                    <th>Update</th>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>
+                                    <td>{{ $data->nama_pu }}</td>
+                                    <td>
+                                        @if ($data->status == 'PENDING')
+                                            <span class="status-badge badge-pending">PENDING</span>
+                                        @elseif($data->status == 'DITOLAK')
+                                            <span class="status-badge badge-ditolak">DITOLAK</span>
+                                        @elseif($data->status == 'PROGRESS OSS')
+                                            <span class="status-badge badge-oss">PROGRESS OSS</span>
+                                        @elseif($data->status == 'PROGRESS SIHALAL')
+                                            <span class="status-badge badge-sihalal">PROGRESS SIHALAL</span>
+                                        @elseif($data->status == 'TERBIT SH')
+                                            <span class="status-badge badge-terbit">TERBIT SH</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($latestDataUpdate as $index => $data)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $data->enumerator->nama_lengkap ?? '-' }}</td>
-                                        <td>{{ $data->nama_pu }}</td>
-                                        <td>
-                                            @if ($data->status == 'PENDING')
-                                                <span class="badge bg-warning">{{ $data->status }}</span>
-                                            @elseif($data->status == 'DITOLAK')
-                                                <span class="badge bg-danger">{{ $data->status }}</span>
-                                            @elseif($data->status == 'PROGRESS OSS')
-                                                <span class="badge bg-info">{{ $data->status }}</span>
-                                            @elseif($data->status == 'PROGRESS SIHALAL')
-                                                <span class="badge bg-primary">{{ $data->status }}</span>
-                                            @elseif($data->status == 'TERBIT SH')
-                                                <span class="badge bg-success">{{ $data->status }}</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $data->updated_at->format('d/m/Y H:i') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">Belum ada data</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">
+                                        <i class="bx bx-check-circle"
+                                            style="font-size:28px;display:block;margin-bottom:8px"></i>
+                                        Belum ada data
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #f3f5fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fafbff;
+            --border: #e8ecf4;
+            --border-bright: #d0d7eb;
+            --text-primary: #1a2040;
+            --text-secondary: #5a6380;
+            --text-muted: #9aa0b8;
+            --accent-blue: #3b7cf4;
+            --accent-cyan: #06b6d4;
+            --accent-violet: #7c3aed;
+            --accent-emerald: #059669;
+            --accent-amber: #d97706;
+            --accent-rose: #e11d48;
+            --accent-pink: #db2777;
+            --accent-indigo: #4f46e5;
+            --shadow-card: 0 2px 12px rgba(80, 100, 160, 0.08), 0 1px 3px rgba(80, 100, 160, 0.06);
+            --shadow-hover: 0 8px 28px rgba(80, 100, 160, 0.14);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body,
+        .page-content,
+        .main-content {
+            background: var(--bg-base) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+
+        /* ─── WELCOME BANNER ─── */
+        .welcome-banner {
+            background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 60%, #f5f3ff 100%);
+            border: 1px solid #dde3f8;
+            border-radius: var(--radius);
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: 80px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .welcome-banner .icon-wrap {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .welcome-banner .text-wrap strong {
+            display: block;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .welcome-banner .text-wrap span {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .welcome-banner .badge-bejo {
+            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .welcome-banner .close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            transition: color .2s;
+        }
+
+        .welcome-banner .close-btn:hover {
+            color: var(--text-secondary);
+        }
+
+        /* ─── SECTION LABEL ─── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            margin-top: 10px;
+            padding-left: 2px;
+        }
+
+        /* ─── STAT CARDS ─── */
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform .25s, box-shadow .25s, border-color .25s;
+            box-shadow: var(--shadow-card);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-bright);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card .glow {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .stat-card .card-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card .card-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .card-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .stat-card .card-divider {
+            height: 3px;
+            border-radius: 3px;
+            margin-top: 18px;
+            opacity: 0.35;
+        }
+
+        /* Color variants */
+        .c-blue {
+            --cc: var(--accent-blue);
+        }
+
+        .c-cyan {
+            --cc: var(--accent-cyan);
+        }
+
+        .c-green {
+            --cc: var(--accent-emerald);
+        }
+
+        .c-amber {
+            --cc: var(--accent-amber);
+        }
+
+        .c-violet {
+            --cc: var(--accent-violet);
+        }
+
+        .c-rose {
+            --cc: var(--accent-rose);
+        }
+
+        .c-indigo {
+            --cc: var(--accent-indigo);
+        }
+
+        .c-pink {
+            --cc: var(--accent-pink);
+        }
+
+        .stat-card .card-icon {
+            background: color-mix(in srgb, var(--cc) 12%, transparent);
+            color: var(--cc);
+        }
+
+        .stat-card .glow {
+            background: var(--cc);
+        }
+
+        .stat-card .card-divider {
+            background: linear-gradient(90deg, var(--cc), transparent);
+        }
+
+        /* ─── PAYMENT CARDS ─── */
+        .pay-card {
+            border-radius: var(--radius);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            border: 1px solid transparent;
+            box-shadow: var(--shadow-card);
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        .pay-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .pay-card.pay-pending {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+
+        .pay-card.pay-paid {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            border-color: rgba(2, 132, 199, 0.2);
+        }
+
+        .pay-card .pay-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .pay-card .pay-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+        }
+
+        .pay-card .pay-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        /* ─── CHART CARD ─── */
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .chart-card .chart-header {
+            padding: 20px 24px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .chart-card .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .chart-card .chart-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .chart-card .chart-legend {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .chart-card .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .chart-card .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .chart-card .chart-body {
+            padding: 16px 24px 24px;
+        }
+
+        .chart-card canvas {
+            width: 100% !important;
+        }
+
+        /* ─── TABLE ─── */
+        .data-table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .data-table-wrap .dt-header {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .data-table-wrap .dt-header h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .data-table-wrap .dt-badge {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--accent-indigo);
+            border: 1px solid rgba(79, 70, 229, 0.18);
+        }
+
+        .data-table-wrap .table-responsive {
+            padding: 0 0 8px;
+        }
+
+        .data-table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .data-table-wrap thead th {
+            background: #f7f9fd;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .data-table-wrap tbody tr {
+            border-bottom: 1px solid #f1f4fb;
+            transition: background .15s;
+        }
+
+        .data-table-wrap tbody tr:hover {
+            background: #f7f9fd;
+        }
+
+        .data-table-wrap tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .data-table-wrap tbody td {
+            padding: 11px 24px;
+            vertical-align: middle;
+            color: var(--text-secondary);
+        }
+
+        .data-table-wrap tbody td:first-child {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .data-table-wrap tbody td:nth-child(3) {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ─── BADGES ─── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .badge-pending {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-verified {
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+
+        .badge-rejected {
+            background: #f9fafb;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        .badge-oss {
+            background: #ecfeff;
+            color: #0e7490;
+            border: 1px solid #a5f3fc;
+        }
+
+        .badge-sihalal {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-terbit {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge-revisi {
+            background: #fff1f2;
+            color: #be123c;
+            border: 1px solid #fecdd3;
+        }
+
+        .badge-ditolak {
+            background: #f9fafb;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* ─── COUNTER ANIMATION ─── */
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-value {
+            animation: countUp .6s ease forwards;
+        }
+
+        /* ─── COUNTER NUMBERS ─── */
+        .counter-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .pay-value .counter-value {
+            font-size: 34px;
+            color: #fff;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f4fb;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d0d7eb;
+            border-radius: 4px;
+        }
+
+        /* ─── ROW GAP FIX ─── */
+        .row {
+            --bs-gutter-x: 20px;
+            --bs-gutter-y: 20px;
+        }
+
+        /* ─── OVERRIDE Bootstrap card ─── */
+        .card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+
+
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ──────────────────────────────────────────
+            // Counter animation
+            // ──────────────────────────────────────────
+            const easeOut = t => 1 - Math.pow(1 - t, 3);
+            document.querySelectorAll('.counter-value[data-target]').forEach(el => {
+                const target = parseInt(el.getAttribute('data-target')) || 0;
+                const duration = 1400;
+                const start = performance.now();
+
+                function tick(now) {
+                    const elapsed = Math.min((now - start) / duration, 1);
+                    el.textContent = Math.floor(easeOut(elapsed) * target);
+                    if (elapsed < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            });
+
+            // ──────────────────────────────────────────
+            // Shared chart defaults
+            // ──────────────────────────────────────────
+            Chart.defaults.color = '#9aa0b8';
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            Chart.defaults.font.size = 11;
+
+            const gridColor = 'rgba(80,100,160,0.07)';
+
+            function buildGradient(ctx, color) {
+                const grad = ctx.createLinearGradient(0, 0, 0, 280);
+                grad.addColorStop(0, color.replace(')', ', 0.25)').replace('rgb', 'rgba'));
+                grad.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
+                return grad;
+            }
+
+            // ──────────────────────────────────────────
+            // Data from Laravel — group by month
+            // ──────────────────────────────────────────
+            const rawMasuk = @json($latestDataToday->map(fn($d) => \Carbon\Carbon::parse($d->created_at)->format('Y-m')));
+            const rawTerbit = @json($latestDataUpdate->map(fn($d) => \Carbon\Carbon::parse($d->created_at)->format('Y-m')));
+
+            function groupByMonth(arr) {
+                const map = {};
+                arr.forEach(ym => {
+                    map[ym] = (map[ym] || 0) + 1;
+                });
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov',
+                    'Des'
+                ];
+                return Object.keys(map).sort().map(ym => {
+                    const [y, m] = ym.split('-');
+                    return {
+                        label: monthNames[parseInt(m) - 1] + ' ' + y,
+                        value: map[ym]
+                    };
+                });
+            }
+
+            const groupedMasuk = groupByMonth(rawMasuk);
+            const groupedTerbit = groupByMonth(rawTerbit);
+
+            const labelsMasuk = groupedMasuk.map(d => d.label);
+            const valuesMasuk = groupedMasuk.map(d => d.value);
+            const labelsTerbit = groupedTerbit.map(d => d.label);
+            const valuesTerbit = groupedTerbit.map(d => d.value);
+
+            // ──────────────────────────────────────────
+            // Chart: Data Masuk
+            // ──────────────────────────────────────────
+            const ctxMasuk = document.getElementById('chartDataMasuk').getContext('2d');
+            const gradMasuk = ctxMasuk.createLinearGradient(0, 0, 0, 260);
+            gradMasuk.addColorStop(0, 'rgba(79,142,247,0.3)');
+            gradMasuk.addColorStop(1, 'rgba(79,142,247,0)');
+
+            new Chart(ctxMasuk, {
+                type: 'line',
+                data: {
+                    labels: labelsMasuk.length ? labelsMasuk : ['—'],
+                    datasets: [{
+                        label: 'Data Masuk',
+                        data: valuesMasuk.length ? valuesMasuk : [0],
+                        borderColor: '#4f8ef7',
+                        borderWidth: 2.5,
+                        backgroundColor: gradMasuk,
+                        pointBackgroundColor: '#4f8ef7',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.42,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            borderColor: '#e8ecf4',
+                            borderWidth: 1,
+                            titleColor: '#9aa0b8',
+                            bodyColor: '#1a2040',
+                            padding: 12,
+                            callbacks: {
+                                title: items => items[0].label,
+                                label: item => ` Jumlah: ${item.raw} data`,
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 30,
+                                maxTicksLimit: 10
+                            },
+                        },
+                        y: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                        }
+                    }
+                }
+            });
+
+            // ──────────────────────────────────────────
+            // Chart: Terbit SH
+            // ──────────────────────────────────────────
+            const ctxSH = document.getElementById('chartTerbitSH').getContext('2d');
+            const gradSH = ctxSH.createLinearGradient(0, 0, 0, 260);
+            gradSH.addColorStop(0, 'rgba(16,217,138,0.3)');
+            gradSH.addColorStop(1, 'rgba(16,217,138,0)');
+
+            new Chart(ctxSH, {
+                type: 'line',
+                data: {
+                    labels: labelsTerbit.length ? labelsTerbit : ['—'],
+                    datasets: [{
+                        label: 'Terbit SH',
+                        data: valuesTerbit.length ? valuesTerbit : [0],
+                        borderColor: '#10d98a',
+                        borderWidth: 2.5,
+                        backgroundColor: gradSH,
+                        pointBackgroundColor: '#10d98a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.42,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            borderColor: '#e8ecf4',
+                            borderWidth: 1,
+                            titleColor: '#9aa0b8',
+                            bodyColor: '#1a2040',
+                            padding: 12,
+                            callbacks: {
+                                title: items => items[0].label,
+                                label: item => ` Jumlah: ${item.raw} terbit`,
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 30,
+                                maxTicksLimit: 10
+                            },
+                        },
+                        y: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
 @endsection

@@ -312,39 +312,157 @@
     </div>
 
     {{-- ─── HIDDEN ID CARD ─── --}}
+    {{-- ─── HIDDEN ID CARD ─── --}}
     <div id="idCardContainer" style="position:absolute;left:-9999px">
-        <div style="width:590px;height:1004px;background:white;position:relative;overflow:hidden;">
-            <div style="padding:50px 40px 0;display:flex;gap:20px;align-items:flex-start;">
-                <img src="{{ asset('storage/' . $settingWebsite->favicon ?? '') }}" style="width:100px;height:auto;">
+        <div
+            style="width:590px;height:1004px;font-family:'Plus Jakarta Sans',Arial,sans-serif;border-radius:24px;overflow:hidden;background:#fff;position:relative">
+
+            {{-- Header --}}
+            <div
+                style="background:linear-gradient(135deg,#2e0d6e 0%,#4c1d95 55%,#6d28d9 100%);padding:38px 40px 0;position:relative;overflow:hidden">
+
+                {{-- Dekorasi lingkaran --}}
                 <div
-                    style="color:#2e0d6e;font-family:Arial,sans-serif;font-weight:700;font-size:24px;line-height:1.2;text-transform:uppercase;letter-spacing:1px;">
-                    LEMBAGA PENDAMPING<br>PROSES PRODUK HALAL<br>KAWULO HALAL
+                    style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:rgba(255,255,255,.05);border-radius:50%">
                 </div>
-            </div>
-            <div style="margin-top:80px;text-align:center;">
                 <div
-                    style="width:320px;height:340px;border:6px solid #2e0d6e;border-radius:50px;overflow:hidden;margin:0 auto;background:#ddd;">
-                    @if ($enumerator->foto_diri)
-                        <img src="{{ asset('storage/' . $enumerator->foto_diri) }}"
-                            style="width:100%;height:100%;object-fit:cover;object-position:center top;">
-                    @endif
+                    style="position:absolute;top:20px;right:40px;width:100px;height:100px;background:rgba(255,255,255,.04);border-radius:50%">
                 </div>
-            </div>
-            <div style="text-align:center;margin-top:30px;position:relative;z-index:20;">
                 <div
-                    style="font-size:48px;font-weight:900;text-transform:uppercase;color:black;margin-bottom:5px;letter-spacing:1px;">
-                    {{ strtoupper($enumerator->nama_lengkap) }}
+                    style="position:absolute;bottom:40px;left:-30px;width:140px;height:140px;background:rgba(255,255,255,.03);border-radius:50%">
                 </div>
-                <div style="font-size:28px;font-weight:500;color:black;letter-spacing:2px;">
-                    No
-                    Registrasi<br>{{ $enumerator->no_registrasi }}/KH-YPBP/{{ \Carbon\Carbon::parse($enumerator->created_at)->format('m') }}/{{ \Carbon\Carbon::parse($enumerator->created_at)->year }}
+
+                {{-- Logo + Nama Org --}}
+                <div style="display:flex;align-items:center;gap:16px;position:relative;z-index:2">
+                    <img src="{{ asset('storage/' . ($settingWebsite->favicon ?? '')) }}"
+                        style="width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.15);padding:6px;object-fit:contain">
+                    <div
+                        style="font-size:14px;font-weight:700;color:rgba(255,255,255,.92);text-transform:uppercase;letter-spacing:.8px;line-height:1.5">
+                        Lembaga Pendamping<br>Proses Produk Halal<br>
+                        <span style="color:rgba(255,255,255,.55);font-size:12px">Kawulo Halal</span>
+                    </div>
                 </div>
-            </div>
-            <div style="position:absolute;bottom:0;left:0;width:100%;height:180px;z-index:5;">
-                <svg viewBox="0 0 590 150" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">
-                    <path d="M0,100 C150,150 300,50 590,10 L590,150 L0,150 Z" fill="#2e0d6e"></path>
+
+                {{-- Badge tipe kartu --}}
+                <div
+                    style="display:inline-block;background:rgba(255,255,255,.13);color:rgba(255,255,255,.82);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 18px;border-radius:20px;margin-top:20px;position:relative;z-index:2;border:.5px solid rgba(255,255,255,.2)">
+                    Kartu Pendamping
+                </div>
+
+                {{-- Foto dengan ring gradient --}}
+                <div
+                    style="width:160px;height:160px;margin:28px auto 0;background:linear-gradient(135deg,#f59e0b,#d946ef,#6366f1);border-radius:50%;padding:4px;position:relative;z-index:2">
+                    <div
+                        style="width:100%;height:100%;background:#dde4f8;border-radius:50%;overflow:hidden;display:flex;align-items:flex-end;justify-content:center">
+                        @if ($enumerator->foto_diri)
+                            <img src="{{ asset('storage/' . $enumerator->foto_diri) }}"
+                                style="width:100%;height:100%;object-fit:cover;object-position:center top">
+                        @else
+                            <svg width="100" height="110" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+                                <ellipse cx="50" cy="38" rx="24" ry="26" fill="#6d5dcd"
+                                    opacity=".6" />
+                                <ellipse cx="50" cy="108" rx="46" ry="34" fill="#6d5dcd"
+                                    opacity=".4" />
+                            </svg>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Wave pemisah --}}
+                <svg viewBox="0 0 590 48" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+                    style="width:100%;display:block;margin-top:-1px">
+                    <path d="M0,24 C100,48 200,0 295,24 C390,48 490,0 590,24 L590,48 L0,48 Z" fill="#ffffff" />
                 </svg>
             </div>
+
+            {{-- Body --}}
+            <div style="background:#fff;padding:8px 44px 28px;text-align:center">
+
+                {{-- Nama --}}
+                <p
+                    style="font-size:28px;font-weight:800;color:#1a0e3a;text-transform:uppercase;letter-spacing:.5px;margin:0;line-height:1.15">
+                    {{ strtoupper($enumerator->nama_lengkap) }}
+                </p>
+                <p
+                    style="font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:2px;margin:6px 0 0">
+                    Pendamping Lapangan
+                </p>
+
+                {{-- Chip No. Registrasi --}}
+                <div
+                    style="display:inline-flex;align-items:center;gap:8px;background:#f0ebff;border:.5px solid #c4b5fd;border-radius:20px;padding:7px 20px;margin-top:16px;font-size:13px;font-weight:700;color:#5b21b6;letter-spacing:.6px">
+                    <span
+                        style="width:7px;height:7px;background:#7c3aed;border-radius:50%;display:inline-block;flex-shrink:0"></span>
+                    {{ $enumerator->no_registrasi }}/KH-YPBP/{{ \Carbon\Carbon::parse($enumerator->created_at)->format('m') }}/{{ \Carbon\Carbon::parse($enumerator->created_at)->year }}
+                </div>
+
+                {{-- Status aktif/nonaktif --}}
+                <div
+                    style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;font-size:11px;font-weight:700;color:{{ $enumerator->status == 'Aktif' ? '#059669' : '#dc2626' }};text-transform:uppercase;letter-spacing:1px">
+                    <span
+                        style="width:8px;height:8px;background:{{ $enumerator->status == 'Aktif' ? '#4ade80' : '#f87171' }};border-radius:50%;border:1.5px solid rgba(0,0,0,.08);display:inline-block"></span>
+                    {{ $enumerator->status }}
+                </div>
+
+                {{-- Divider --}}
+                <div style="border-top:.5px solid #ede9fe;margin:20px 0 18px"></div>
+
+                {{-- Info Grid 2 kolom --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left">
+
+                    <div style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe">
+                        <div
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            Koordinator</div>
+                        <div style="font-size:14px;font-weight:700;color:#2e1065">
+                            {{ $enumerator->koordinator->nama_lengkap ?? '-' }}</div>
+                    </div>
+
+                    <div style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe">
+                        <div
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            No. Telepon</div>
+                        <div style="font-size:14px;font-weight:700;color:#2e1065">{{ $enumerator->telephone }}</div>
+                    </div>
+
+                    <div
+                        style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe;grid-column:span 2">
+                        <div
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            Alamat</div>
+                        <div style="font-size:13px;font-weight:600;color:#2e1065;line-height:1.4">
+                            {{ $enumerator->alamat }}</div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- Footer --}}
+            <div
+                style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(135deg,#2e0d6e,#4c1d95);padding:20px 44px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between">
+                <div>
+                    <div
+                        style="font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;font-weight:700">
+                        Terdaftar Sejak</div>
+                    <div style="font-size:15px;color:rgba(255,255,255,.92);font-weight:700;margin-top:3px">
+                        {{ $enumerator->created_at->format('d M Y') }}</div>
+                </div>
+                <div style="text-align:center">
+                    <div
+                        style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.8px;text-transform:uppercase;font-weight:700">
+                        Masa Berlaku</div>
+                    <div style="font-size:15px;color:rgba(255,255,255,.92);font-weight:700;margin-top:3px">
+                        {{ \Carbon\Carbon::parse($enumerator->created_at)->addYear()->format('d M Y') }}</div>
+                </div>
+                <div style="text-align:right">
+                    <div
+                        style="font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;font-weight:700">
+                        Diterbitkan oleh</div>
+                    <div style="font-size:14px;color:rgba(255,255,255,.85);font-weight:700;margin-top:3px">kawulohalal.id
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

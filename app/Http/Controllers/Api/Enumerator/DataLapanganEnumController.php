@@ -22,6 +22,18 @@ class DataLapanganEnumController extends Controller
         'TERBIT SH',
     ];
 
+    // Mapping input field (dengan dash) → kolom database (dengan underscore)
+    const FOTO_FIELDS = [
+        'foto-ktp'        => 'foto_ktp',
+        'foto-rumah'      => 'foto_rumah',
+        'foto-pendamping' => 'foto_pendamping',
+        'foto-produk'     => 'foto_produk',
+        'foto-produk-2'   => 'foto_produk_2',
+        'foto-produk-3'   => 'foto_produk_3',
+        'foto-produk-4'   => 'foto_produk_4',
+        'foto-produk-5'   => 'foto_produk_5',
+    ];
+
     /**
      * GET /api/enumerator/data-lapangan
      */
@@ -135,6 +147,7 @@ class DataLapanganEnumController extends Controller
         // ─────────────────────────────────────────────────────────────────────────
 
         $validator = Validator::make($request->all(), [
+            // Data wajib
             'nama_pu'         => 'required|string|max:255',
             'nik'             => 'required|string|size:16',
             'telephone'       => 'required|string|max:15',
@@ -144,6 +157,18 @@ class DataLapanganEnumController extends Controller
             'foto-rumah'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'foto-pendamping' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'foto-produk'     => 'required|image|mimes:jpg,jpeg,png|max:2048',
+
+            // Produk tambahan (opsional)
+            'nama_produk_2'   => 'nullable|string|max:255',
+            'nama_produk_3'   => 'nullable|string|max:255',
+            'nama_produk_4'   => 'nullable|string|max:255',
+            'nama_produk_5'   => 'nullable|string|max:255',
+
+            // Foto produk tambahan — wajib jika nama produk yang bersangkutan diisi
+            'foto-produk-2'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_2',
+            'foto-produk-3'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_3',
+            'foto-produk-4'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_4',
+            'foto-produk-5'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_5',
         ]);
 
         if ($validator->fails()) {
@@ -154,24 +179,34 @@ class DataLapanganEnumController extends Controller
             ], 422);
         }
 
-        try {
-            $foto_ktp_path        = $request->file('foto-ktp')->store('foto-ktp', 'public');
-            $foto_rumah_path      = $request->file('foto-rumah')->store('foto-rumah', 'public');
-            $foto_pendamping_path = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
-            $foto_produk_path     = $request->file('foto-produk')->store('foto-produk', 'public');
+        $uploadedPaths = [];
 
-            $dataLapangan = $this->createData([
-                'enumerator_id'        => $enumerator->id,
-                'nama_pu'              => $request->nama_pu,
-                'nik'                  => $request->nik,
-                'telephone'            => $request->telephone,
-                'nama_produk'          => $request->nama_produk,
-                'alamat'               => $request->alamat,
-                'foto_ktp_path'        => $foto_ktp_path,
-                'foto_rumah_path'      => $foto_rumah_path,
-                'foto_pendamping_path' => $foto_pendamping_path,
-                'foto_produk_path'     => $foto_produk_path,
-            ]);
+        try {
+            // Upload foto wajib
+            $uploadedPaths['foto_ktp']        = $request->file('foto-ktp')->store('foto-ktp', 'public');
+            $uploadedPaths['foto_rumah']       = $request->file('foto-rumah')->store('foto-rumah', 'public');
+            $uploadedPaths['foto_pendamping']  = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
+            $uploadedPaths['foto_produk']      = $request->file('foto-produk')->store('foto-produk', 'public');
+
+            // Upload foto produk tambahan jika ada
+            foreach (['foto-produk-2' => 'foto_produk_2', 'foto-produk-3' => 'foto_produk_3', 'foto-produk-4' => 'foto_produk_4', 'foto-produk-5' => 'foto_produk_5'] as $inputKey => $dbColumn) {
+                if ($request->hasFile($inputKey)) {
+                    $uploadedPaths[$dbColumn] = $request->file($inputKey)->store('foto-produk', 'public');
+                }
+            }
+
+            $dataLapangan = $this->createData(array_merge([
+                'enumerator_id' => $enumerator->id,
+                'nama_pu'       => $request->nama_pu,
+                'nik'           => $request->nik,
+                'telephone'     => $request->telephone,
+                'nama_produk'   => $request->nama_produk,
+                'alamat'        => $request->alamat,
+                'nama_produk_2' => $request->nama_produk_2,
+                'nama_produk_3' => $request->nama_produk_3,
+                'nama_produk_4' => $request->nama_produk_4,
+                'nama_produk_5' => $request->nama_produk_5,
+            ], $uploadedPaths));
 
             return response()->json([
                 'status'  => true,
@@ -179,10 +214,10 @@ class DataLapanganEnumController extends Controller
                 'data'    => $this->formatData($dataLapangan),
             ], 201);
         } catch (\Exception $e) {
-            if (isset($foto_ktp_path))        Storage::disk('public')->delete($foto_ktp_path);
-            if (isset($foto_rumah_path))       Storage::disk('public')->delete($foto_rumah_path);
-            if (isset($foto_pendamping_path))  Storage::disk('public')->delete($foto_pendamping_path);
-            if (isset($foto_produk_path))      Storage::disk('public')->delete($foto_produk_path);
+            // Rollback semua file yang sudah terupload
+            foreach ($uploadedPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
 
             return response()->json([
                 'status'  => false,
@@ -198,19 +233,24 @@ class DataLapanganEnumController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
+        // Bangun rules foto secara dinamis hanya untuk file yang dikirim
         $fotoRules = [];
-        foreach (['foto-ktp', 'foto-rumah', 'foto-pendamping', 'foto-produk'] as $field) {
-            if ($request->hasFile($field)) {
-                $fotoRules[$field] = 'image|mimes:jpg,jpeg,png|max:2048';
+        foreach (self::FOTO_FIELDS as $inputKey => $dbColumn) {
+            if ($request->hasFile($inputKey)) {
+                $fotoRules[$inputKey] = 'image|mimes:jpg,jpeg,png|max:2048';
             }
         }
 
         $validator = Validator::make($request->all(), array_merge([
-            'nama_pu'     => 'sometimes|required|string|max:255',
-            'nik'         => 'sometimes|required|string|size:16',
-            'telephone'   => 'sometimes|required|string|max:15',
-            'nama_produk' => 'sometimes|required|string|max:255',
-            'alamat'      => 'sometimes|required|string',
+            'nama_pu'       => 'sometimes|required|string|max:255',
+            'nik'           => 'sometimes|required|string|size:16',
+            'telephone'     => 'sometimes|required|string|max:15',
+            'nama_produk'   => 'sometimes|required|string|max:255',
+            'alamat'        => 'sometimes|required|string',
+            'nama_produk_2' => 'nullable|string|max:255',
+            'nama_produk_3' => 'nullable|string|max:255',
+            'nama_produk_4' => 'nullable|string|max:255',
+            'nama_produk_5' => 'nullable|string|max:255',
         ], $fotoRules));
 
         if ($validator->fails()) {
@@ -220,6 +260,8 @@ class DataLapanganEnumController extends Controller
                 'errors'  => $validator->errors(),
             ], 422);
         }
+
+        $newPaths = [];
 
         try {
             $enumeratorId = Auth::user()->enumerator->id;
@@ -231,35 +273,36 @@ class DataLapanganEnumController extends Controller
             // Reset status ke PENDING setiap kali data diperbarui
             $dataToUpdate = ['status' => 'PENDING'];
 
-            if ($request->has('nama_pu'))     $dataToUpdate['nama_pu']     = strtoupper($request->nama_pu);
-            if ($request->has('nik'))         $dataToUpdate['nik']         = $request->nik;
-            if ($request->has('telephone'))   $dataToUpdate['telephone']   = $request->telephone;
-            if ($request->has('nama_produk')) $dataToUpdate['nama_produk'] = $request->nama_produk;
-            if ($request->has('alamat'))      $dataToUpdate['alamat']      = $request->alamat;
+            // Field teks
+            if ($request->has('nama_pu'))       $dataToUpdate['nama_pu']       = strtoupper($request->nama_pu);
+            if ($request->has('nik'))            $dataToUpdate['nik']           = $request->nik;
+            if ($request->has('telephone'))      $dataToUpdate['telephone']     = $request->telephone;
+            if ($request->has('nama_produk'))    $dataToUpdate['nama_produk']   = $request->nama_produk;
+            if ($request->has('alamat'))         $dataToUpdate['alamat']        = $request->alamat;
+            if ($request->has('nama_produk_2'))  $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
+            if ($request->has('nama_produk_3'))  $dataToUpdate['nama_produk_3'] = $request->nama_produk_3;
+            if ($request->has('nama_produk_4'))  $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
+            if ($request->has('nama_produk_5'))  $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
 
-            $fotoFields = [
-                'foto-ktp'        => 'foto_ktp',
-                'foto-rumah'      => 'foto_rumah',
-                'foto-pendamping' => 'foto_pendamping',
-                'foto-produk'     => 'foto_produk',
-            ];
-
-            $newPaths = [];
-            foreach ($fotoFields as $inputKey => $dbColumn) {
-                if ($request->hasFile($inputKey)) {
-                    $newPaths[$dbColumn] = $request->file($inputKey)->store($inputKey, 'public');
-                    $dataToUpdate[$dbColumn] = $newPaths[$dbColumn];
-                }
-            }
-
+            // Upload foto baru & kumpulkan path lama untuk dihapus setelah update
             $oldPaths = [];
-            foreach ($newPaths as $dbColumn => $newPath) {
-                $oldPaths[$dbColumn] = $dataLapangan->getOriginal($dbColumn);
+            foreach (self::FOTO_FIELDS as $inputKey => $dbColumn) {
+                if ($request->hasFile($inputKey)) {
+                    // Tentukan folder tujuan: semua foto-produk-* ke folder foto-produk
+                    $folder = str_starts_with($inputKey, 'foto-produk')
+                        ? 'foto-produk'
+                        : $inputKey;
+
+                    $newPaths[$dbColumn]     = $request->file($inputKey)->store($folder, 'public');
+                    $dataToUpdate[$dbColumn] = $newPaths[$dbColumn];
+                    $oldPaths[$dbColumn]     = $dataLapangan->getOriginal($dbColumn);
+                }
             }
 
             $dataLapangan->update($dataToUpdate);
 
-            foreach ($oldPaths as $dbColumn => $oldPath) {
+            // Hapus file lama setelah update berhasil
+            foreach ($oldPaths as $oldPath) {
                 if ($oldPath) Storage::disk('public')->delete($oldPath);
             }
 
@@ -271,13 +314,13 @@ class DataLapanganEnumController extends Controller
                 'data'    => $this->formatData($dataLapangan),
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            foreach ($newPaths ?? [] as $path) Storage::disk('public')->delete($path);
+            foreach ($newPaths as $path) Storage::disk('public')->delete($path);
             return response()->json([
                 'status'  => false,
                 'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
-            foreach ($newPaths ?? [] as $path) Storage::disk('public')->delete($path);
+            foreach ($newPaths as $path) Storage::disk('public')->delete($path);
             return response()->json([
                 'status'  => false,
                 'message' => 'Terjadi kesalahan saat memperbarui data',
@@ -298,7 +341,9 @@ class DataLapanganEnumController extends Controller
                 ->where('enumerator_id', $enumeratorId)
                 ->firstOrFail();
 
-            foreach (['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'] as $column) {
+            // Hapus semua file foto termasuk produk tambahan
+            $fotoColumns = array_values(self::FOTO_FIELDS);
+            foreach ($fotoColumns as $column) {
                 if ($dataLapangan->$column) {
                     Storage::disk('public')->delete($dataLapangan->$column);
                 }
@@ -326,23 +371,31 @@ class DataLapanganEnumController extends Controller
 
     // ─── Helpers ────────────────────────────────────────────────────────────────
 
-    private function createData(array $validatedData): DataLapangan
+    private function createData(array $data): DataLapangan
     {
-        if (isset($validatedData['nama_pu'])) {
-            $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
+        if (isset($data['nama_pu'])) {
+            $data['nama_pu'] = strtoupper($data['nama_pu']);
         }
 
         return DataLapangan::create([
-            'enumerator_id'   => $validatedData['enumerator_id'],
-            'nama_pu'         => $validatedData['nama_pu'],
-            'nik'             => $validatedData['nik'],
-            'telephone'       => $validatedData['telephone'],
-            'nama_produk'     => $validatedData['nama_produk'],
-            'alamat'          => $validatedData['alamat'],
-            'foto_ktp'        => $validatedData['foto_ktp_path'],
-            'foto_rumah'      => $validatedData['foto_rumah_path'],
-            'foto_pendamping' => $validatedData['foto_pendamping_path'],
-            'foto_produk'     => $validatedData['foto_produk_path'],
+            'enumerator_id'   => $data['enumerator_id'],
+            'nama_pu'         => $data['nama_pu'],
+            'nik'             => $data['nik'],
+            'telephone'       => $data['telephone'],
+            'nama_produk'     => $data['nama_produk'],
+            'nama_produk_2'   => $data['nama_produk_2'] ?? null,
+            'nama_produk_3'   => $data['nama_produk_3'] ?? null,
+            'nama_produk_4'   => $data['nama_produk_4'] ?? null,
+            'nama_produk_5'   => $data['nama_produk_5'] ?? null,
+            'alamat'          => $data['alamat'],
+            'foto_ktp'        => $data['foto_ktp'],
+            'foto_rumah'      => $data['foto_rumah'],
+            'foto_pendamping' => $data['foto_pendamping'],
+            'foto_produk'     => $data['foto_produk'],
+            'foto_produk_2'   => $data['foto_produk_2'] ?? null,
+            'foto_produk_3'   => $data['foto_produk_3'] ?? null,
+            'foto_produk_4'   => $data['foto_produk_4'] ?? null,
+            'foto_produk_5'   => $data['foto_produk_5'] ?? null,
         ]);
     }
 
@@ -356,11 +409,19 @@ class DataLapanganEnumController extends Controller
             'email'               => $item->email,
             'telephone'           => $item->telephone,
             'nama_produk'         => $item->nama_produk,
+            'nama_produk_2'       => $item->nama_produk_2,
+            'nama_produk_3'       => $item->nama_produk_3,
+            'nama_produk_4'       => $item->nama_produk_4,
+            'nama_produk_5'       => $item->nama_produk_5,
             'alamat'              => $item->alamat,
             'foto_ktp'            => $item->foto_ktp        ? Storage::url($item->foto_ktp)        : null,
             'foto_rumah'          => $item->foto_rumah      ? Storage::url($item->foto_rumah)      : null,
             'foto_pendamping'     => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
             'foto_produk'         => $item->foto_produk     ? Storage::url($item->foto_produk)     : null,
+            'foto_produk_2'       => $item->foto_produk_2   ? Storage::url($item->foto_produk_2)   : null,
+            'foto_produk_3'       => $item->foto_produk_3   ? Storage::url($item->foto_produk_3)   : null,
+            'foto_produk_4'       => $item->foto_produk_4   ? Storage::url($item->foto_produk_4)   : null,
+            'foto_produk_5'       => $item->foto_produk_5   ? Storage::url($item->foto_produk_5)   : null,
             'status'              => $item->status,
             'status_pembayaran'   => $item->status_pembayaran,
             'verifikator'         => $item->verifikator,

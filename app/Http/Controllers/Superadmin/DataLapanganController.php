@@ -42,9 +42,9 @@ class DataLapanganController extends Controller
     public function index(Request $request): View
     {
         $filters = [
-            'nama_pu' => $request->nama_pu,
+            'nama_pu'      => $request->nama_pu,
             'enumerator_id' => $request->enumerator_id,
-            'status' => $request->status,
+            'status'       => $request->status,
         ];
 
         $dataLapangans = $this->dataLapanganService->getFilteredData($filters, 20);
@@ -104,9 +104,9 @@ class DataLapanganController extends Controller
     public function export(Request $request)
     {
         $filters = [
-            'search' => $request->input('search'),
-            'status' => $request->input('status'),
-            'tanggal_dari' => $request->input('tanggal_dari'),
+            'search'         => $request->input('search'),
+            'status'         => $request->input('status'),
+            'tanggal_dari'   => $request->input('tanggal_dari'),
             'tanggal_sampai' => $request->input('tanggal_sampai'),
         ];
 
@@ -121,22 +121,22 @@ class DataLapanganController extends Controller
     public function create(): View
     {
         $dataLapangan = new DataLapangan();
-        $enumerators = Enumerator::orderBy('nama_lengkap')->get();
+        $enumerators  = Enumerator::orderBy('nama_lengkap')->get();
 
         return view('publik.form', compact('dataLapangan', 'enumerators'));
     }
 
     /**
-     * Upload a file based on the given file type
+     * Upload a file based on the given file type (OSS / SIHALAL)
      */
     public function uploadFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
         $request->validate([
-            'file' => 'required|mimes:pdf|max:5120',
+            'file'      => 'required|mimes:pdf|max:5120',
             'file_type' => 'required|in:oss,sihalal'
         ]);
 
-        $fileType = $request->file_type;
+        $fileType     = $request->file_type;
         $uploadResult = $this->fileService->uploadFile($dataLapangan, $request->file('file'), $fileType);
 
         // Update status
@@ -145,27 +145,23 @@ class DataLapanganController extends Controller
         $dataLapangan->save();
 
         $statusMessage = "Status diubah menjadi {$newStatus}";
-        $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
+        $message       = 'File ' . strtoupper($fileType) . ' berhasil diupload. ' . $statusMessage;
 
         // Handle notifications
         if ($fileType === 'oss' && $uploadResult['is_first_upload']) {
             $notificationSent = $this->notificationService->sendOSSNotification($dataLapangan);
-            if ($notificationSent) {
-                $message .= ' Notifikasi WhatsApp telah dikirim ke koordinator.';
-            } else {
-                $message .= ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
-            }
+            $message .= $notificationSent
+                ? ' Notifikasi WhatsApp telah dikirim ke koordinator.'
+                : ' Namun notifikasi WhatsApp gagal dikirim ke koordinator.';
         }
 
         if ($fileType === 'sihalal' && $uploadResult['is_first_upload']) {
             $notificationSent = $this->notificationService->sendSihalalUploadNotification($dataLapangan);
-            if ($notificationSent) {
-                $message .= ' Link sertifikat halal telah dikirim ke PU.';
-                return redirect()->back()->with('success', $message);
-            } else {
-                $message .= ' Namun notifikasi WhatsApp gagal dikirim.';
-                return redirect()->back()->with('warning', $message);
-            }
+            $message .= $notificationSent
+                ? ' Link sertifikat halal telah dikirim ke PU.'
+                : ' Namun notifikasi WhatsApp gagal dikirim.';
+
+            return redirect()->back()->with($notificationSent ? 'success' : 'warning', $message);
         }
 
         return redirect()->back()->with('success', $message);
@@ -177,8 +173,7 @@ class DataLapanganController extends Controller
     public function downloadFotoKTP($id)
     {
         $dataLapangan = DataLapangan::findOrFail($id);
-
-        $fotoPath = $this->imageService->getFotoKTPPath($dataLapangan);
+        $fotoPath     = $this->imageService->getFotoKTPPath($dataLapangan);
 
         if (!$fotoPath) {
             return back()->with('error', 'File foto KTP tidak ditemukan');
@@ -210,7 +205,7 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Download foto Produk
+     * Download foto Produk (produk utama / foto_produk)
      */
     public function downloadFotoProduk($id)
     {
@@ -230,14 +225,14 @@ class DataLapanganController extends Controller
     public function deleteFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
         $fileType = $request->file_type;
-        $deleted = $this->fileService->deleteFile($dataLapangan, $fileType);
+        $deleted  = $this->fileService->deleteFile($dataLapangan, $fileType);
 
         if (!$deleted) {
             return redirect()->back()->with('error', 'File tidak ditemukan');
         }
 
         // Update status when file is deleted
-        $statusResult = $this->statusService->determineStatusAfterDeletion($fileType, $dataLapangan);
+        $statusResult         = $this->statusService->determineStatusAfterDeletion($fileType, $dataLapangan);
         $dataLapangan->status = $statusResult['status'];
         $dataLapangan->save();
 
@@ -292,8 +287,14 @@ class DataLapanganController extends Controller
 
         return redirect()->back()->with('success', 'Email berhasil diperbarui');
     }
+
     /**
-     * Store a newly created resource in storage.
+     * Upload gambar secara sekuensial (AJAX).
+     *
+     * Mendukung: foto_ktp, foto_rumah, foto_pendamping,
+     *            foto_produk, foto_produk_2 … foto_produk_5
+     *
+     * POST /superadmin/data-lapangans/upload/{type}
      */
     public function uploadFileSequintal(Request $request, $type): JsonResponse
     {
@@ -320,7 +321,7 @@ class DataLapanganController extends Controller
 
             return response()->json([
                 'success' => true,
-                'path' => $path,
+                'path'    => $path,
                 'message' => ucwords(str_replace('_', ' ', $type)) . ' berhasil diupload'
             ]);
         } catch (\Exception $e) {
@@ -350,10 +351,6 @@ class DataLapanganController extends Controller
 
     /**
      * Update status pembayaran SATU data lapangan menjadi DIBAYAR.
-     *
-     * Cashflow dan notifikasi WA terpicu otomatis via DataLapangan::booted().
-     *
-     * PATCH /superadmin/data-lapangans/{dataLapangan}/update-status-payment
      */
     public function updateStatusPayment(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
@@ -364,12 +361,6 @@ class DataLapanganController extends Controller
 
     /**
      * Bulk update status pembayaran sejumlah data lapangan menjadi DIBAYAR.
-     *
-     * Menggunakan loop per instance (bukan whereIn()->update()) agar
-     * model event booted() terpicu pada setiap record — sehingga cashflow
-     * dan notifikasi WA berjalan identik dengan updateStatusPayment().
-     *
-     * POST /superadmin/data-lapangans/bulk-payment
      */
     public function bulkUpdateStatusPayment(Request $request): JsonResponse
     {
@@ -378,9 +369,6 @@ class DataLapanganController extends Controller
             'ids.*' => 'required|integer|exists:data_lapangans,id',
         ]);
 
-        // Ambil hanya record yang benar-benar eligible
-        // (guard di sini sebagai lapisan keamanan tambahan,
-        //  meskipun checkbox di view sudah difilter)
         $dataLapangans = DataLapangan::whereIn('id', $request->ids)
             ->where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'PENDING')
@@ -401,7 +389,6 @@ class DataLapanganController extends Controller
                 $this->processPembayaran($dataLapangan);
                 $updated++;
             } catch (\Exception $e) {
-                // Catat error per-record agar record lain tetap diproses
                 $errors[] = "ID {$dataLapangan->id} ({$dataLapangan->nama_pu}): {$e->getMessage()}";
                 Log::error("bulkUpdateStatusPayment error on ID {$dataLapangan->id}: {$e->getMessage()}");
             }
@@ -422,11 +409,6 @@ class DataLapanganController extends Controller
 
     /**
      * Logika inti: update status_pembayaran ke DIBAYAR pada satu instance model.
-     *
-     * Cukup satu baris — semua side-effect (cashflow + WA) sudah
-     * didelegasikan ke DataLapangan::booted() → static::updated().
-     *
-     * Dipanggil oleh: updateStatusPayment() dan bulkUpdateStatusPayment().
      */
     private function processPembayaran(DataLapangan $dataLapangan): void
     {
@@ -443,7 +425,7 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $dataLapangan->load(['enumerator', 'spotchecks']);
 
-        $verifikators = Verifikator::orderBy('nama_lengkap')->get(); // tambah ini
+        $verifikators = Verifikator::orderBy('nama_lengkap')->get();
 
         $dataEntryOSS = DataEntryProgress::with('dataEntry')
             ->where('data_lapangan_id', $dataLapangan->id)
@@ -464,6 +446,7 @@ class DataLapanganController extends Controller
             'verifikators'
         ));
     }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -492,8 +475,8 @@ class DataLapanganController extends Controller
     {
         try {
             $dataLapangan = DataLapangan::findOrFail($id);
-            $pdf = $this->pdfService->generateFotoRumahPdf($dataLapangan);
-            $filename = $this->pdfService->generatePdfFilename('Foto_Rumah', $dataLapangan->nama_pu);
+            $pdf          = $this->pdfService->generateFotoRumahPdf($dataLapangan);
+            $filename     = $this->pdfService->generatePdfFilename('Foto_Rumah', $dataLapangan->nama_pu);
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
@@ -522,10 +505,7 @@ class DataLapanganController extends Controller
         ]);
 
         $dataLapangan = DataLapangan::findOrFail($id);
-
-        $dataLapangan->update([
-            'email_sihalal' => $request->email_sihalal,
-        ]);
+        $dataLapangan->update(['email_sihalal' => $request->email_sihalal]);
 
         return redirect()->back()->with('success', 'Email Sihalal berhasil diperbarui');
     }

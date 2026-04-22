@@ -1,729 +1,811 @@
+/**
+ * form-halal.js
+ * Unified script — menggabungkan form-halal.js lama + inline blade script
+ * Fix: upload produk dinamis (nama_produk_2–5 & foto_produk_2–5_path)
+ */
+
 document.addEventListener("DOMContentLoaded", function () {
-    const nikInput = document.getElementById("nik");
-    const nikCounter = document.getElementById("nikCounter");
-    const nikError = document.getElementById("nikError");
+    // ============================================================
+    // ELEMENT REFERENCES
+    // ============================================================
     const form = document.getElementById("formDataLapangan");
     const submitBtn = document.getElementById("submitBtn");
+    const nikInput = document.getElementById("nik");
+    const nikCounter = document.getElementById("nikCounter");
+    const nikStatus = document.getElementById("nikStatus");
     const namaPuInput = document.getElementById("nama_pu");
     const enumeratorSearch = document.getElementById("enumerator_search");
     const enumeratorSelect = document.getElementById("enumerator_id");
     const searchResults = document.getElementById("search_results");
     const selectedEnumerator = document.getElementById("selected_enumerator");
     const selectedName = document.getElementById("selected_name");
+    const alertTidakAktif = document.getElementById("alert_tidak_aktif");
+    const namaTidakAktif = document.getElementById("nama_tidak_aktif");
+    const formFields = document.getElementById("formFields");
     const searchContainer = enumeratorSearch?.parentElement;
 
-    // Check if all elements exist before proceeding
-    if (!nikInput || !nikCounter || !form || !submitBtn || !namaPuInput) {
+    if (!nikInput || !form || !submitBtn || !namaPuInput) {
         console.error("Required form elements not found");
         return;
     }
 
-    let nikCheckTimeout;
+    // enumeratorStatusMap di-inject dari blade (tetap di blade sebagai
+    // <script>const enumeratorStatusMap = { ... };</script> sebelum tag ini)
+    // Fallback jika tidak ada
+    const statusMap =
+        typeof enumeratorStatusMap !== "undefined" ? enumeratorStatusMap : {};
 
-    // ============================================
-    // AUTO HIDE SUCCESS/ERROR ALERTS
-    // ============================================
-    const alerts = document.querySelectorAll(".alert");
-    if (alerts.length > 0) {
-        alerts.forEach((alert) => {
-            if (!alert.closest("#selected_enumerator")) {
-                setTimeout(() => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000);
-            }
-        });
-    }
-
-    // ============================================
-    // ENUMERATOR SEARCH FUNCTIONALITY
-    // ============================================
-    enumeratorSearch.addEventListener("input", function () {
-        const searchTerm = this.value.toLowerCase().trim();
-
-        if (searchTerm.length === 0) {
-            searchResults.style.display = "none";
-            searchResults.innerHTML = "";
-            return;
-        }
-
-        const options = Array.from(enumeratorSelect.options).slice(1);
-        const filtered = options.filter((option) =>
-            option.text.toLowerCase().includes(searchTerm),
+    // ============================================================
+    // CSRF TOKEN helper
+    // ============================================================
+    function getCsrfToken() {
+        return (
+            document.querySelector('meta[name="csrf-token"]')?.content ||
+            document.querySelector('input[name="_token"]')?.value ||
+            ""
         );
-
-        if (filtered.length > 0) {
-            let html = '<ul class="list-group list-group-flush">';
-            filtered.forEach((option) => {
-                html += `
-                    <li class="list-group-item list-group-item-action" 
-                        style="cursor: pointer; padding: 0.5rem 1rem;"
-                        onclick="selectEnumerator('${option.value}', '${option.text}')">
-                        <i class="ri-user-line me-2"></i>${option.text}
-                    </li>
-                `;
-            });
-            html += "</ul>";
-            searchResults.innerHTML = html;
-            searchResults.style.display = "block";
-        } else {
-            searchResults.innerHTML =
-                '<div class="p-3 text-muted text-center"><i class="ri-search-line me-2"></i>Tidak ada hasil</div>';
-            searchResults.style.display = "block";
-        }
-    });
-
-    document.addEventListener("click", function (e) {
-        if (
-            !enumeratorSearch.contains(e.target) &&
-            !searchResults.contains(e.target)
-        ) {
-            searchResults.style.display = "none";
-        }
-    });
-
-    window.selectEnumerator = function (id, name) {
-        enumeratorSelect.value = id;
-        enumeratorSearch.value = "";
-        searchResults.style.display = "none";
-        selectedName.textContent = name;
-        selectedEnumerator.style.display = "block";
-        enumeratorSelect.classList.remove("is-invalid");
-
-        if (searchContainer) {
-            searchContainer.style.display = "none";
-        }
-    };
-
-    window.clearEnumeratorSelection = function () {
-        enumeratorSelect.value = "";
-        selectedEnumerator.style.display = "none";
-        enumeratorSearch.value = "";
-
-        if (searchContainer) {
-            searchContainer.style.display = "block";
-        }
-
-        enumeratorSearch.focus();
-    };
-
-    if (enumeratorSelect.value) {
-        const selectedOption =
-            enumeratorSelect.options[enumeratorSelect.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            selectedName.textContent = selectedOption.text;
-            selectedEnumerator.style.display = "block";
-            if (searchContainer) {
-                searchContainer.style.display = "none";
-            }
-        }
     }
 
-    // ============================================
-    // NAMA PU - AUTO UPPERCASE
-    // ============================================
-    namaPuInput.addEventListener("input", function (e) {
-        const start = this.selectionStart;
-        const end = this.selectionEnd;
+    // ============================================================
+    // AUTO-HIDE ALERTS (5 detik)
+    // ============================================================
+    setTimeout(() => {
+        ["alertSuccess", "alertError"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.transition = "opacity 0.4s";
+            el.style.opacity = "0";
+            setTimeout(() => el.remove(), 400);
+        });
+    }, 5000);
+
+    // ============================================================
+    // NAMA PU — AUTO UPPERCASE
+    // ============================================================
+    namaPuInput.addEventListener("input", function () {
+        const p = this.selectionStart;
         this.value = this.value.toUpperCase();
-        this.setSelectionRange(start, end);
+        try {
+            this.setSelectionRange(p, p);
+        } catch (_) {}
     });
 
     namaPuInput.addEventListener("paste", function (e) {
         e.preventDefault();
-        const pastedText = (e.clipboardData || window.clipboardData).getData(
+        const pasted = (e.clipboardData || window.clipboardData).getData(
             "text",
         );
-        const start = this.selectionStart;
-        const end = this.selectionEnd;
-        const currentValue = this.value;
-        const newValue =
-            currentValue.substring(0, start) +
-            pastedText.toUpperCase() +
-            currentValue.substring(end);
-        this.value = newValue;
-        this.setSelectionRange(
-            start + pastedText.length,
-            start + pastedText.length,
-        );
+        const s = this.selectionStart,
+            end = this.selectionEnd;
+        this.value =
+            this.value.substring(0, s) +
+            pasted.toUpperCase() +
+            this.value.substring(end);
+        this.setSelectionRange(s + pasted.length, s + pasted.length);
     });
 
-    // ============================================
-    // NIK VALIDATION & COUNTER
-    // ============================================
+    // ============================================================
+    // TELEPHONE — digits only
+    // ============================================================
+    const telInput = document.getElementById("telephone");
+    if (telInput) {
+        telInput.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 15);
+        });
+    }
+
+    // ============================================================
+    // NIK — counter + validation + duplicate check
+    // ============================================================
+    let nikCheckTimeout;
+
     function updateNikCounter(length) {
-        if (!nikCounter) return;
-
-        const nikStatus = document.getElementById("nikStatus");
-        if (!nikStatus) return;
-
-        nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
-
+        if (!nikCounter || !nikStatus) return;
         if (length === 16) {
-            nikCounter.classList.remove(
-                "text-muted",
-                "text-danger",
-                "text-warning",
-            );
-            nikCounter.classList.add("text-success");
-            nikCounter.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${length}/16 digit`;
-            nikStatus.textContent = "✓ Lengkap";
-            nikStatus.classList.remove(
-                "text-muted",
-                "text-danger",
-                "text-warning",
-            );
-            nikStatus.classList.add("text-success");
-        } else if (length > 16) {
-            nikCounter.classList.remove(
-                "text-muted",
-                "text-success",
-                "text-warning",
-            );
-            nikCounter.classList.add("text-danger");
-            nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
-            nikStatus.textContent = "✗ Terlalu panjang!";
-            nikStatus.classList.remove(
-                "text-muted",
-                "text-success",
-                "text-warning",
-            );
-            nikStatus.classList.add("text-danger");
+            nikCounter.textContent = length + "/16 digit";
+            nikStatus.textContent = "Lengkap";
+            nikStatus.className = "fh-nik-status ok";
+            nikInput.classList.remove("is-invalid");
         } else if (length > 0) {
-            nikCounter.classList.remove(
-                "text-muted",
-                "text-success",
-                "text-danger",
-            );
-            nikCounter.classList.add("text-warning");
-            nikCounter.innerHTML = `<i class="ri-error-warning-line"></i> ${length}/16 digit`;
-            nikStatus.textContent = `Kurang ${16 - length} digit`;
-            nikStatus.classList.remove(
-                "text-muted",
-                "text-success",
-                "text-danger",
-            );
-            nikStatus.classList.add("text-warning");
-        } else {
-            nikCounter.classList.remove(
-                "text-success",
-                "text-danger",
-                "text-warning",
-            );
-            nikCounter.classList.add("text-muted");
-            nikCounter.innerHTML = `<i class="ri-information-line"></i> ${length}/16 digit`;
+            nikCounter.textContent = length + "/16 digit";
             nikStatus.textContent = "Belum lengkap";
-            nikStatus.classList.remove(
-                "text-success",
-                "text-danger",
-                "text-warning",
-            );
-            nikStatus.classList.add("text-muted");
+            nikStatus.className = "fh-nik-status err";
+        } else {
+            nikCounter.textContent = "0/16 digit";
+            nikStatus.textContent = "Belum lengkap";
+            nikStatus.className = "fh-nik-status err";
         }
     }
 
     function checkNikExists(nik) {
-        if (!nikInput) return;
+        if (nik.length !== 16) return;
 
-        if (nik.length !== 16) {
-            return;
-        }
-
-        const existingWarning = document.getElementById("nikExistsWarning");
-        if (existingWarning) {
-            existingWarning.remove();
-        }
+        const existing = document.getElementById("nikExistsWarning");
+        if (existing) existing.remove();
 
         const loadingDiv = document.createElement("div");
         loadingDiv.id = "nikExistsWarning";
         loadingDiv.className = "mt-2";
         loadingDiv.innerHTML =
-            '<small class="text-info"><i class="ri-loader-4-line"></i> Memeriksa NIK...</small>';
+            '<small class="fh-hint">Memeriksa NIK...</small>';
         nikInput.parentElement.appendChild(loadingDiv);
 
         fetch("/api/check-nik", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN":
-                    document.querySelector('meta[name="csrf-token"]')
-                        ?.content ||
-                    document.querySelector('input[name="_token"]')?.value,
+                "X-CSRF-TOKEN": getCsrfToken(),
             },
-            body: JSON.stringify({
-                nik: nik,
-            }),
+            body: JSON.stringify({ nik }),
         })
-            .then((response) => response.json())
+            .then((r) => r.json())
             .then((data) => {
                 const warningDiv = document.getElementById("nikExistsWarning");
-
                 if (data.exists) {
-                    // PERUBAHAN: Hanya tampilkan info, tidak blokir
-                    nikInput.classList.remove("is-invalid");
-                    nikInput.classList.add("is-valid");
-
                     if (warningDiv) {
                         warningDiv.innerHTML = `
-                    <div class="alert alert-danger alert-dismissible fade show p-2 mb-0" role="alert">
-                        <small><strong>NIK ini sudah pernah terdaftar. Anda Mendaftarkan kembali dan pastikan produknya berbeda.</strong>"
-                        </small>
-                    </div>
-                `;
+                        <div class="alert-danger-modern" role="alert" style="margin-top:6px;">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#EF4444" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8"  x2="12"   y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <div class="alt-text">
+                                <strong>NIK sudah terdaftar.</strong>
+                                Pastikan produk yang didaftarkan berbeda.
+                            </div>
+                        </div>`;
                     }
-
-                    showToast(
-                        "info",
-                        "NIK sudah terdaftar, namun Anda tetap bisa melanjutkan.",
-                    );
                 } else {
-                    nikInput.classList.remove("is-invalid");
-                    nikInput.classList.add("is-valid");
-
                     if (warningDiv) {
                         warningDiv.innerHTML =
-                            '<small class="text-success"><i class="ri-checkbox-circle-line me-1"></i>NIK belum terdaftar</small>';
+                            '<small class="fh-hint" style="color:#059669;">✓ NIK belum terdaftar</small>';
                     }
                 }
             })
-            .catch((error) => {
-                console.error("Error checking NIK:", error);
+            .catch(() => {
                 const warningDiv = document.getElementById("nikExistsWarning");
-                if (warningDiv) {
-                    warningDiv.remove();
-                }
+                if (warningDiv) warningDiv.remove();
             });
     }
 
-    nikInput.addEventListener("input", function (e) {
-        let value = this.value.replace(/[^0-9]/g, "");
-
-        if (value.length > 16) {
-            value = value.slice(0, 16);
-        }
-
-        this.value = value;
-        const length = value.length;
-        updateNikCounter(length);
-
+    nikInput.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "").slice(0, 16);
+        updateNikCounter(this.value.length);
         nikInput.classList.remove("is-valid", "is-invalid");
-        const existingWarning = document.getElementById("nikExistsWarning");
-        if (existingWarning) {
-            existingWarning.remove();
-        }
-
+        const w = document.getElementById("nikExistsWarning");
+        if (w) w.remove();
         clearTimeout(nikCheckTimeout);
-
-        if (length === 16) {
-            nikCheckTimeout = setTimeout(() => {
-                checkNikExists(this.value);
-            }, 500);
+        if (this.value.length === 16) {
+            nikCheckTimeout = setTimeout(() => checkNikExists(this.value), 500);
         }
     });
 
     nikInput.addEventListener("keypress", function (e) {
-        if (e.key < "0" || e.key > "9") {
-            e.preventDefault();
-        }
+        if (e.key < "0" || e.key > "9") e.preventDefault();
     });
 
     nikInput.addEventListener("paste", function (e) {
         e.preventDefault();
-        const pastedData = (e.clipboardData || window.clipboardData).getData(
-            "text",
-        );
-        const numericData = pastedData.replace(/[^0-9]/g, "").slice(0, 16);
-        this.value = numericData;
-
-        const event = new Event("input", {
-            bubbles: true,
-        });
-        this.dispatchEvent(event);
+        const num = (e.clipboardData || window.clipboardData)
+            .getData("text")
+            .replace(/\D/g, "")
+            .slice(0, 16);
+        this.value = num;
+        this.dispatchEvent(new Event("input", { bubbles: true }));
     });
 
-    // ============================================
-    // SEQUENTIAL UPLOAD WITH PROGRESS BAR
-    // ============================================
+    if (nikInput.value) updateNikCounter(nikInput.value.length);
 
-    // Create upload modal HTML
+    // ============================================================
+    // ENUMERATOR SEARCH
+    // ============================================================
+    function lockForm() {
+        if (!formFields) return;
+        formFields
+            .querySelectorAll("input, textarea, select, button[type='submit']")
+            .forEach((el) => (el.disabled = true));
+        formFields.classList.add("fh-form-locked");
+    }
+
+    function unlockForm() {
+        if (!formFields) return;
+        formFields
+            .querySelectorAll("input, textarea, select, button[type='submit']")
+            .forEach((el) => (el.disabled = false));
+        formFields.classList.remove("fh-form-locked");
+    }
+
+    function checkEnumeratorStatus(id, nama) {
+        if (!id) {
+            if (selectedEnumerator) selectedEnumerator.style.display = "none";
+            if (alertTidakAktif) alertTidakAktif.style.display = "none";
+            unlockForm();
+            return;
+        }
+        if (selectedName) selectedName.textContent = nama;
+        if (selectedEnumerator) selectedEnumerator.style.display = "block";
+
+        if (statusMap[id] === "Tidak Aktif") {
+            if (namaTidakAktif) namaTidakAktif.textContent = nama;
+            if (alertTidakAktif) alertTidakAktif.style.display = "block";
+            lockForm();
+        } else {
+            if (alertTidakAktif) alertTidakAktif.style.display = "none";
+            unlockForm();
+        }
+    }
+
+    if (enumeratorSearch) {
+        enumeratorSearch.addEventListener("input", function () {
+            const term = this.value.toLowerCase().trim();
+            if (!term) {
+                searchResults.style.display = "none";
+                return;
+            }
+
+            const opts = Array.from(enumeratorSelect.options)
+                .slice(1)
+                .filter((o) => o.text.toLowerCase().includes(term));
+
+            if (opts.length) {
+                searchResults.innerHTML = opts
+                    .map(
+                        (o) => `
+                    <div class="fh-search-item" onclick="selectEnumerator('${o.value}', '${o.text}', '${o.dataset.status || ""}')">
+                        <span class="item-name">${o.text}</span>
+                        <span class="item-badge ${o.dataset.status === "Aktif" ? "aktif" : "tidak"}">
+                            ${o.dataset.status || ""}
+                        </span>
+                    </div>`,
+                    )
+                    .join("");
+            } else {
+                searchResults.innerHTML =
+                    '<div style="padding:12px 14px;font-size:13px;color:#8A99B3;text-align:center;">Tidak ada hasil</div>';
+            }
+            searchResults.style.display = "block";
+        });
+    }
+
+    document.addEventListener("click", function (e) {
+        if (
+            !enumeratorSearch?.contains(e.target) &&
+            !searchResults?.contains(e.target)
+        ) {
+            if (searchResults) searchResults.style.display = "none";
+        }
+    });
+
+    window.selectEnumerator = function (id, nama, status) {
+        enumeratorSelect.value = id;
+        if (enumeratorSearch) enumeratorSearch.value = "";
+        if (searchResults) searchResults.style.display = "none";
+        if (searchContainer) searchContainer.style.display = "none";
+        checkEnumeratorStatus(id, nama);
+    };
+
+    window.clearEnumeratorSelection = function () {
+        enumeratorSelect.value = "";
+        if (selectedEnumerator) selectedEnumerator.style.display = "none";
+        if (alertTidakAktif) alertTidakAktif.style.display = "none";
+        if (enumeratorSearch) enumeratorSearch.value = "";
+        if (searchContainer) searchContainer.style.display = "block";
+        if (enumeratorSearch) enumeratorSearch.focus();
+        unlockForm();
+    };
+
+    // Init enumerator status on load
+    if (enumeratorSelect?.value) {
+        const opt = enumeratorSelect.options[enumeratorSelect.selectedIndex];
+        checkEnumeratorStatus(enumeratorSelect.value, opt?.text || "");
+        if (searchContainer) searchContainer.style.display = "none";
+    }
+
+    // ============================================================
+    // PRODUK TAMBAHAN (dinamis slot 2–5)
+    // ============================================================
+    const MAX_PRODUK = 5;
+    const PRODUK_SLOTS = [2, 3, 4, 5];
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const produkList = document.getElementById("produkTambahanList");
+    const btnAddProduk = document.getElementById("btnAddProduk");
+    const maxProdukNotice = document.getElementById("maxProdukNotice");
+
+    let activeSlots = [];
+
+    function getNextSlot() {
+        for (const s of PRODUK_SLOTS) {
+            if (!activeSlots.includes(s)) return s;
+        }
+        return null;
+    }
+
+    function refreshAddButton() {
+        const isFull = activeSlots.length >= MAX_PRODUK - 1;
+        if (btnAddProduk) btnAddProduk.disabled = isFull;
+        if (maxProdukNotice)
+            maxProdukNotice.style.display = isFull ? "block" : "none";
+    }
+
+    function addProdukSlot() {
+        const slot = getNextSlot();
+        if (!slot) return;
+        activeSlots.push(slot);
+
+        const item = document.createElement("div");
+        item.className = "fh-produk-item";
+        item.dataset.slot = slot;
+
+        item.innerHTML = `
+            <div class="fh-produk-item-header">
+                <div class="fh-produk-item-title">
+                    <div class="produk-num">${slot}</div>
+                    Produk Tambahan
+                </div>
+                <button type="button" class="fh-btn-remove" data-slot="${slot}">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="6"  x2="6"  y2="18"/>
+                        <line x1="6"  y1="6"  x2="18" y2="18"/>
+                    </svg>
+                    Hapus
+                </button>
+            </div>
+            <div class="fh-produk-item-grid">
+                <div class="fh-field" style="margin-bottom:0;">
+                    <label class="fh-label" for="nama_produk_${slot}">
+                        Nama Produk ${slot} <span class="req">*</span>
+                    </label>
+                    <input type="text"
+                           id="nama_produk_${slot}"
+                           name="nama_produk_${slot}"
+                           class="fh-input"
+                           placeholder="Nama produk ${slot}"
+                           required>
+                </div>
+                <div class="fh-field" style="margin-bottom:0;">
+                    <label class="fh-label" for="foto_produk_${slot}_file">
+                        Foto Produk ${slot} <span class="req">*</span>
+                    </label>
+
+                    <input type="hidden"
+                           id="foto_produk_${slot}_path"
+                           name="foto_produk_${slot}_path"
+                           value="">
+
+                    <input type="file"
+                           id="foto_produk_${slot}_file"
+                           class="fh-file-input"
+                           accept="image/jpeg,image/jpg,image/png"
+                           data-slot="${slot}">
+
+                    <span class="fh-hint" id="upload_status_${slot}">Belum diupload</span>
+                </div>
+            </div>`;
+
+        // ── Remove button ──
+        item.querySelector(".fh-btn-remove").addEventListener(
+            "click",
+            function () {
+                const s = parseInt(this.dataset.slot);
+                activeSlots = activeSlots.filter((x) => x !== s);
+                item.style.transition = "opacity 0.2s, transform 0.2s";
+                item.style.opacity = "0";
+                item.style.transform = "translateY(-8px)";
+                setTimeout(() => {
+                    item.remove();
+                    refreshAddButton();
+                }, 220);
+            },
+        );
+
+        // ── File → AJAX upload ──
+        item.querySelector(`#foto_produk_${slot}_file`).addEventListener(
+            "change",
+            function () {
+                handleDynamicFotoUpload(this, slot);
+            },
+        );
+
+        produkList.appendChild(item);
+        refreshAddButton();
+    }
+
+    /**
+     * Upload foto produk dinamis via AJAX ke uploadFileSequintal endpoint.
+     * Setelah berhasil, path disimpan ke hidden input foto_produk_{slot}_path.
+     */
+    async function handleDynamicFotoUpload(fileInput, slot) {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const statusSpan = document.getElementById(`upload_status_${slot}`);
+        const pathInput = document.getElementById(`foto_produk_${slot}_path`);
+
+        // Validasi ukuran & tipe
+        if (file.size > MAX_FILE_SIZE) {
+            fileInput.value = "";
+            fileInput.classList.add("is-invalid");
+            pathInput.value = "";
+            statusSpan.textContent = "✗ File terlalu besar (maks 10MB)";
+            statusSpan.style.color = "#EF4444";
+            showToast("error", `Ukuran foto produk ${slot} maksimal 10MB!`);
+            return;
+        }
+
+        const allowed = ["image/jpeg", "image/jpg", "image/png"];
+        if (!allowed.includes(file.type)) {
+            fileInput.value = "";
+            fileInput.classList.add("is-invalid");
+            pathInput.value = "";
+            statusSpan.textContent = "✗ Format tidak didukung (JPG/PNG)";
+            statusSpan.style.color = "#EF4444";
+            showToast(
+                "error",
+                `Format foto produk ${slot} harus JPG atau PNG!`,
+            );
+            return;
+        }
+
+        // Mulai upload
+        fileInput.classList.remove("is-invalid");
+        statusSpan.textContent = "Mengupload...";
+        statusSpan.style.color = "#1A5FC8";
+
+        const fd = new FormData();
+        fd.append(`foto_produk_${slot}`, file);
+        fd.append("_token", getCsrfToken());
+
+        try {
+            const res = await fetch(`/upload/foto_produk_${slot}`, {
+                method: "POST",
+                body: fd,
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                pathInput.value = data.path;
+                fileInput.classList.add("is-valid");
+                statusSpan.textContent = "✓ Berhasil diupload";
+                statusSpan.style.color = "#059669";
+            } else {
+                throw new Error(data.message || "Upload gagal");
+            }
+        } catch (err) {
+            pathInput.value = "";
+            fileInput.classList.add("is-invalid");
+            statusSpan.textContent = "✗ " + (err.message || "Gagal upload");
+            statusSpan.style.color = "#EF4444";
+            showToast(
+                "error",
+                `Gagal upload foto produk ${slot}: ${err.message}`,
+            );
+        }
+    }
+
+    if (btnAddProduk) btnAddProduk.addEventListener("click", addProdukSlot);
+
+    // ============================================================
+    // UPLOAD MODAL (foto utama: ktp, rumah, pendamping, produk)
+    // ============================================================
     const uploadModalHTML = `
-        <div class="modal fade" id="uploadProgressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal fade" id="uploadProgressModal"
+             data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title">
-                            <i class="ri-upload-cloud-line me-2"></i>Mengupload Data
+                <div class="modal-content" style="border-radius:16px;border:none;">
+                    <div class="modal-header border-0" style="padding:1.5rem 1.5rem 0.5rem;">
+                        <h5 class="modal-title" style="font-family:'Sora',sans-serif;font-size:16px;color:#0F1F40;">
+                            Mengupload Data
                         </h5>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="padding:1rem 1.5rem 1.5rem;">
                         <div id="uploadSteps"></div>
                         <div class="mt-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <small class="text-muted" id="currentUploadText">Mempersiapkan...</small>
-                                <small class="text-muted" id="uploadPercentage">0%</small>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                                <small style="color:#8A99B3;" id="currentUploadText">Mempersiapkan...</small>
+                                <small style="color:#8A99B3;" id="uploadPercentage">0%</small>
                             </div>
-                            <div class="progress" style="height: 25px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
-                                     id="uploadProgressBar" 
-                                     role="progressbar" 
-                                     style="width: 0%">
-                                    <span id="progressText">0%</span>
-                                </div>
+                            <div style="height:8px;background:#EDF0F7;border-radius:99px;overflow:hidden;">
+                                <div id="uploadProgressBar"
+                                     style="height:100%;width:0%;background:linear-gradient(90deg,#1A5FC8,#1040A0);
+                                            border-radius:99px;transition:width 0.3s ease;"></div>
                             </div>
                         </div>
-                        <div class="text-center mt-3">
-                            <small class="text-muted">
-                                <i class="ri-information-line"></i> Jangan tutup halaman ini
-                            </small>
+                        <div style="text-align:center;margin-top:12px;">
+                            <small style="color:#B0BCCE;">Jangan tutup halaman ini</small>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `;
+        </div>`;
 
-    // Append modal to body if not exists
     if (!document.getElementById("uploadProgressModal")) {
         document.body.insertAdjacentHTML("beforeend", uploadModalHTML);
     }
 
-    // Upload steps configuration - REMOVED foto_proses
-    const uploadSteps = [
-        { name: "foto_ktp", label: "Foto KTP", icon: "ri-bank-card-line" },
-        { name: "foto_rumah", label: "Foto Rumah", icon: "ri-home-4-line" },
-        {
-            name: "foto_pendamping",
-            label: "Foto Pendamping",
-            icon: "ri-user-3-line",
-        },
-        {
-            name: "foto_produk",
-            label: "Foto Produk",
-            icon: "ri-product-hunt-line",
-        },
+    // Foto utama yang selalu ada (urutan upload)
+    const STATIC_STEPS = [
+        { name: "foto_ktp", label: "Foto KTP" },
+        { name: "foto_rumah", label: "Foto Rumah" },
+        { name: "foto_pendamping", label: "Foto Pendamping" },
+        { name: "foto_produk", label: "Foto Produk 1" },
     ];
 
-    function createUploadStepsHTML() {
-        return uploadSteps
+    function buildUploadStepsHTML(allSteps) {
+        return allSteps
             .map(
-                (step, index) => `
-            <div class="d-flex align-items-center mb-2" id="step-${step.name}">
-                <div class="me-2" style="width: 30px;">
-                    <i class="${step.icon} fs-5 text-muted" id="icon-${step.name}"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <small class="text-muted">${step.label}</small>
-                </div>
-                <div class="ms-2" id="status-${step.name}">
-                    <i class="ri-checkbox-blank-circle-line text-muted"></i>
-                </div>
-            </div>
-        `,
+                (s) => `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;" id="step-${s.name}">
+                <div style="flex:1;font-size:13px;color:#6B7A99;">${s.label}</div>
+                <div id="status-${s.name}" style="font-size:13px;color:#B0BCCE;">○</div>
+            </div>`,
             )
             .join("");
     }
 
-    function updateStepStatus(stepName, status) {
-        const iconEl = document.getElementById(`icon-${stepName}`);
-        const statusEl = document.getElementById(`status-${stepName}`);
+    function setStepStatus(name, status) {
+        const el = document.getElementById(`status-${name}`);
+        if (!el) return;
+        if (status === "uploading")
+            el.innerHTML = '<span style="color:#1A5FC8;">↑</span>';
+        else if (status === "success")
+            el.innerHTML = '<span style="color:#059669;">✓</span>';
+        else el.innerHTML = '<span style="color:#B0BCCE;">○</span>';
+    }
 
-        if (!iconEl || !statusEl) return;
+    function setProgress(pct, text) {
+        const bar = document.getElementById("uploadProgressBar");
+        const pEl = document.getElementById("uploadPercentage");
+        const tEl = document.getElementById("currentUploadText");
+        if (bar) bar.style.width = pct + "%";
+        if (pEl) pEl.textContent = Math.round(pct) + "%";
+        if (tEl && text) tEl.textContent = text;
+    }
 
-        iconEl.classList.remove("text-muted", "text-primary", "text-success");
+    async function uploadStaticFiles(formData, steps) {
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            const fileInput = document.getElementById(step.name);
 
-        switch (status) {
-            case "uploading":
-                iconEl.classList.add("text-primary");
-                statusEl.innerHTML =
-                    '<div class="spinner-border spinner-border-sm text-primary"></div>';
-                break;
-            case "success":
-                iconEl.classList.add("text-success");
-                statusEl.innerHTML =
-                    '<i class="ri-checkbox-circle-fill text-success"></i>';
-                break;
-            case "pending":
-                iconEl.classList.add("text-muted");
-                statusEl.innerHTML =
-                    '<i class="ri-checkbox-blank-circle-line text-muted"></i>';
-                break;
+            if (!fileInput?.files[0]) continue;
+
+            setStepStatus(step.name, "uploading");
+            setProgress((i / steps.length) * 90, `Mengupload ${step.label}...`);
+
+            const fd = new FormData();
+            fd.append(step.name, fileInput.files[0]);
+            fd.append("_token", getCsrfToken());
+
+            const res = await fetch(`/upload/${step.name}`, {
+                method: "POST",
+                body: fd,
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.success)
+                throw new Error(data.message || `Gagal upload ${step.label}`);
+
+            formData.set(`${step.name}_path`, data.path);
+            setStepStatus(step.name, "success");
         }
     }
 
-    function updateProgressBar(percentage, text) {
-        const progressBar = document.getElementById("uploadProgressBar");
-        const progressText = document.getElementById("progressText");
-        const uploadPercentage = document.getElementById("uploadPercentage");
+    // ============================================================
+    // FORM SUBMIT
+    // ============================================================
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-        if (progressBar) {
-            progressBar.style.width = percentage + "%";
-            progressBar.setAttribute("aria-valuenow", percentage);
+        // ── Validasi enumerator ──
+        if (!enumeratorSelect.value) {
+            enumeratorSearch?.classList.add("is-invalid");
+            enumeratorSearch?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            showToast("error", "Silakan pilih nama pendamping!");
+            return;
         }
-        if (progressText) {
-            progressText.textContent = Math.round(percentage) + "%";
+
+        // ── Validasi NIK ──
+        if (nikInput.value.length !== 16) {
+            nikInput.classList.add("is-invalid");
+            nikInput.scrollIntoView({ behavior: "smooth", block: "center" });
+            showToast("error", "NIK harus tepat 16 digit!");
+            return;
         }
-        if (uploadPercentage) {
-            uploadPercentage.textContent = Math.round(percentage) + "%";
-        }
-        if (text) {
-            const currentUploadText =
-                document.getElementById("currentUploadText");
-            if (currentUploadText) {
-                currentUploadText.textContent = text;
+
+        // ── Validasi foto produk dinamis: semua slot harus sudah terupload ──
+        let dynamicUploadOk = true;
+        for (const slot of activeSlots) {
+            const pathInput = document.getElementById(
+                `foto_produk_${slot}_path`,
+            );
+            const namaInput = document.getElementById(`nama_produk_${slot}`);
+            const statusSpan = document.getElementById(`upload_status_${slot}`);
+
+            // Jika nama produk diisi tapi foto belum terupload → tolak submit
+            if (namaInput?.value?.trim() && !pathInput?.value) {
+                dynamicUploadOk = false;
+                const fileInput = document.getElementById(
+                    `foto_produk_${slot}_file`,
+                );
+                if (fileInput) fileInput.classList.add("is-invalid");
+                if (statusSpan) {
+                    statusSpan.textContent = "✗ Foto wajib diupload";
+                    statusSpan.style.color = "#EF4444";
+                }
             }
         }
-    }
 
-    async function uploadFileSequentially(formData, stepIndex = 0) {
-        if (stepIndex >= uploadSteps.length) {
-            // All uploads complete - submit remaining form data
-            return await submitFormData(formData);
+        if (!dynamicUploadOk) {
+            showToast(
+                "error",
+                "Semua foto produk tambahan harus selesai diupload!",
+            );
+            return;
         }
 
-        const step = uploadSteps[stepIndex];
-        const fileInput = document.getElementById(step.name);
+        // ── Disable submit ──
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="fh-spinner"></div> Menyimpan...';
 
-        if (!fileInput || !fileInput.files[0]) {
-            // Skip if no file for this step
-            return uploadFileSequentially(formData, stepIndex + 1);
+        // ── Siapkan allSteps untuk modal: statis + dinamis yang aktif ──
+        const dynamicSteps = activeSlots.map((s) => ({
+            name: `foto_produk_${s}`, // hanya untuk label modal
+            label: `Foto Produk ${s}`,
+        }));
+        const allSteps = [...STATIC_STEPS, ...dynamicSteps];
+
+        // ── Tampilkan modal ──
+        let uploadModal;
+        try {
+            uploadModal = new bootstrap.Modal(
+                document.getElementById("uploadProgressModal"),
+            );
+            document.getElementById("uploadSteps").innerHTML =
+                buildUploadStepsHTML(allSteps);
+            uploadModal.show();
+        } catch (_) {
+            /* bootstrap mungkin tidak tersedia */
         }
 
-        updateStepStatus(step.name, "uploading");
-        const baseProgress = (stepIndex / uploadSteps.length) * 100;
-        const stepProgress = 100 / uploadSteps.length;
-        updateProgressBar(baseProgress, `Mengupload ${step.label}...`);
-
-        const fileFormData = new FormData();
-        fileFormData.append(step.name, fileInput.files[0]);
-        fileFormData.append(
-            "_token",
-            document.querySelector('input[name="_token"]').value,
+        // ── Kumpulkan data teks ──
+        const formData = new FormData();
+        formData.append("_token", getCsrfToken());
+        formData.append("enumerator_id", enumeratorSelect.value);
+        formData.append("nama_pu", namaPuInput.value);
+        formData.append("nik", nikInput.value);
+        formData.append(
+            "telephone",
+            document.getElementById("telephone")?.value || "",
+        );
+        formData.append(
+            "nama_produk",
+            document.getElementById("nama_produk")?.value || "",
+        );
+        formData.append(
+            "alamat",
+            document.getElementById("alamat")?.value || "",
         );
 
-        try {
-            const response = await fetch(`/upload/${step.name}`, {
-                method: "POST",
-                body: fileFormData,
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                updateStepStatus(step.name, "success");
-                formData.append(`${step.name}_path`, result.path);
-
-                // Update progress to end of this step
-                updateProgressBar(
-                    baseProgress + stepProgress,
-                    `${step.label} berhasil diupload`,
-                );
-
-                // Continue to next file
-                return uploadFileSequentially(formData, stepIndex + 1);
-            } else {
-                throw new Error(result.message || "Upload gagal");
-            }
-        } catch (error) {
-            console.error(`Error uploading ${step.name}:`, error);
-            throw error;
+        // Nama & path produk tambahan (slot 2–5)
+        for (const slot of activeSlots) {
+            const namaVal = document
+                .getElementById(`nama_produk_${slot}`)
+                ?.value?.trim();
+            const pathVal = document.getElementById(
+                `foto_produk_${slot}_path`,
+            )?.value;
+            if (namaVal) formData.append(`nama_produk_${slot}`, namaVal);
+            if (pathVal) formData.append(`foto_produk_${slot}_path`, pathVal);
         }
-    }
-
-    async function submitFormData(formData) {
-        updateProgressBar(95, "Menyimpan data...");
 
         try {
-            // Submit form normally (not AJAX) to get redirect response
-            updateProgressBar(100, "Selesai!");
+            // Upload foto utama (statis) secara sekuensial
+            await uploadStaticFiles(formData, STATIC_STEPS);
 
-            // Create a temporary form and submit it
+            setProgress(95, "Menyimpan data...");
+
+            // Buat temp form dan submit
             const tempForm = document.createElement("form");
             tempForm.method = "POST";
             tempForm.action = form.action;
             tempForm.style.display = "none";
 
-            // Append all form data
-            for (let [key, value] of formData.entries()) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = key;
-                input.value = value;
-                tempForm.appendChild(input);
+            for (const [key, val] of formData.entries()) {
+                const inp = document.createElement("input");
+                inp.type = "hidden";
+                inp.name = key;
+                inp.value = val;
+                tempForm.appendChild(inp);
             }
 
             document.body.appendChild(tempForm);
-
-            setTimeout(() => {
-                tempForm.submit();
-            }, 500);
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            throw error;
-        }
-    }
-
-    // ============================================
-    // FORM SUBMISSION
-    // ============================================
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        // Validation checks
-        if (!enumeratorSelect.value) {
-            enumeratorSearch.classList.add("is-invalid");
-            enumeratorSearch.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-            enumeratorSearch.focus();
-            showToast("error", "Silakan pilih nama pendamping!");
-            return false;
-        }
-
-        const nikValue = nikInput.value;
-        if (nikValue.length !== 16) {
-            nikInput.classList.add("is-invalid");
-            if (nikError) nikError.style.display = "block";
-            nikInput.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
-            nikInput.focus();
-            showToast("error", "NIK harus tepat 16 digit!");
-            return false;
-        }
-
-        // Disable submit button
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML =
-                '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
-        }
-
-        // Show upload modal
-        const uploadModal = new bootstrap.Modal(
-            document.getElementById("uploadProgressModal"),
-        );
-        const uploadStepsDiv = document.getElementById("uploadSteps");
-        if (uploadStepsDiv) {
-            uploadStepsDiv.innerHTML = createUploadStepsHTML();
-        }
-        uploadModal.show();
-
-        // Prepare form data (without files) - REMOVED titik_koordinat
-        const formData = new FormData();
-        formData.append(
-            "_token",
-            document.querySelector('input[name="_token"]').value,
-        );
-        formData.append("enumerator_id", enumeratorSelect.value);
-        formData.append("nama_pu", namaPuInput.value);
-        formData.append(
-            "nama_produk",
-            document.getElementById("nama_produk").value,
-        );
-        formData.append(
-            "telephone",
-            document.getElementById("telephone").value,
-        );
-        formData.append("nik", nikValue);
-        formData.append("alamat", document.getElementById("alamat").value);
-
-        try {
-            await uploadFileSequentially(formData);
-        } catch (error) {
-            uploadModal.hide();
+            setProgress(100, "Selesai!");
+            setTimeout(() => tempForm.submit(), 400);
+        } catch (err) {
+            if (uploadModal) uploadModal.hide();
             showToast(
                 "error",
-                error.message || "Terjadi kesalahan saat mengupload",
+                err.message || "Terjadi kesalahan saat mengupload",
             );
-
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML =
-                    '<i class="ri-save-line me-1"></i> Simpan Data';
-            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                     stroke="rgba(255,255,255,0.85)" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg> Simpan Data`;
         }
     });
 
-    // ============================================
-    // IMAGE FILE VALIDATION - REMOVED foto_proses
-    // ============================================
-    const imageInputs = [
-        "foto_ktp",
-        "foto_rumah",
-        "foto_pendamping",
-        "foto_produk",
-    ];
+    // ============================================================
+    // PAGE CACHE RESET (back button)
+    // ============================================================
+    window.addEventListener("pageshow", function (e) {
+        if (!e.persisted) return;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                 stroke="rgba(255,255,255,0.85)" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg> Simpan Data`;
+    });
 
-    imageInputs.forEach((inputId) => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.addEventListener("change", function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.size > 10485760) {
-                        showToast(
-                            "error",
-                            `Ukuran file ${inputId.replace(
-                                /_/g,
-                                " ",
-                            )} maksimal 10MB!`,
-                        );
-                        this.value = "";
-                        return;
-                    }
-
-                    const allowedTypes = [
-                        "image/jpeg",
-                        "image/jpg",
-                        "image/png",
-                    ];
-                    if (!allowedTypes.includes(file.type)) {
-                        showToast(
-                            "error",
-                            `Format file ${inputId.replace(
-                                /_/g,
-                                " ",
-                            )} harus JPG, JPEG, atau PNG!`,
-                        );
-                        this.value = "";
-                        return;
-                    }
+    // ============================================================
+    // VALIDASI FILE FOTO UTAMA (statis)
+    // ============================================================
+    ["foto_ktp", "foto_rumah", "foto_pendamping", "foto_produk"].forEach(
+        (id) => {
+            const inp = document.getElementById(id);
+            if (!inp) return;
+            inp.addEventListener("change", function () {
+                const file = this.files[0];
+                if (!file) return;
+                if (file.size > MAX_FILE_SIZE) {
+                    showToast(
+                        "error",
+                        `Ukuran file ${id.replace(/_/g, " ")} maksimal 10MB!`,
+                    );
+                    this.value = "";
+                    this.classList.add("is-invalid");
+                    return;
                 }
+                const allowed = ["image/jpeg", "image/jpg", "image/png"];
+                if (!allowed.includes(file.type)) {
+                    showToast(
+                        "error",
+                        `Format file ${id.replace(/_/g, " ")} harus JPG atau PNG!`,
+                    );
+                    this.value = "";
+                    this.classList.add("is-invalid");
+                    return;
+                }
+                this.classList.remove("is-invalid");
             });
-        }
-    });
+        },
+    );
 
-    // ============================================
-    // TOAST NOTIFICATION FUNCTION
-    // ============================================
+    // ============================================================
+    // TOAST
+    // ============================================================
     function showToast(type, message) {
         if (typeof Swal !== "undefined") {
             Swal.fire({
                 icon: type,
-                title:
-                    type === "success"
-                        ? "Berhasil!"
-                        : type === "warning"
-                          ? "Peringatan!"
-                          : type === "info"
-                            ? "Informasi"
-                            : "Gagal!",
                 text: message,
                 toast: true,
                 position: "top-end",
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 3500,
                 timerProgressBar: true,
             });
         } else {
             alert(message);
         }
-    }
-
-    // Trigger counter on page load if NIK already has value
-    if (nikInput.value) {
-        updateNikCounter(nikInput.value.length);
     }
 });

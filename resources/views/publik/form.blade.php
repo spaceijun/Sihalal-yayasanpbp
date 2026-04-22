@@ -329,9 +329,7 @@
             background: #ffffff;
             border-radius: 20px;
             padding: 2.5rem 2.25rem;
-            box-shadow:
-                0 0 0 1px rgba(100, 140, 210, 0.12),
-                0 24px 60px rgba(60, 100, 180, 0.1);
+            box-shadow: 0 0 0 1px rgba(100, 140, 210, 0.12), 0 24px 60px rgba(60, 100, 180, 0.1);
             animation: cardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
         }
 
@@ -727,6 +725,151 @@
             gap: 12px;
         }
 
+        /* ── PRODUK TAMBAHAN ── */
+        .fh-produk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .fh-produk-item {
+            background: #F8FAFF;
+            border: 1px solid #E0E7F0;
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 10px;
+            position: relative;
+            animation: itemSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes itemSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fh-produk-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+        }
+
+        .fh-produk-item-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A5FC8;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .fh-produk-item-title .produk-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #1A5FC8;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .fh-produk-item-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Remove button */
+        .fh-btn-remove {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #DC2626;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .fh-btn-remove:hover {
+            background: #FEE2E2;
+            transform: scale(1.03);
+        }
+
+        .fh-btn-remove svg {
+            width: 13px;
+            height: 13px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        /* Add product button */
+        .fh-btn-add-produk {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: #fff;
+            border: 1.5px dashed #1A5FC8;
+            color: #1A5FC8;
+            border-radius: 11px;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 14px;
+            cursor: pointer;
+            transition: background 0.18s, border-color 0.18s, transform 0.15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin-bottom: 1.25rem;
+        }
+
+        .fh-btn-add-produk:hover {
+            background: #EEF4FF;
+            border-color: #1040A0;
+            transform: translateY(-1px);
+        }
+
+        .fh-btn-add-produk:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .fh-btn-add-produk svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        /* max-produk notice */
+        .fh-max-notice {
+            display: none;
+            font-size: 12px;
+            color: #8A99B3;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
         /* Form lock overlay */
         .fh-form-locked {
             opacity: 0.4;
@@ -838,7 +981,8 @@
                 display: none;
             }
 
-            .fh-photo-grid {
+            .fh-photo-grid,
+            .fh-produk-item-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -873,31 +1017,21 @@
                 <div class="fh-steps">
                     <div class="fh-step">
                         <div class="fh-step-num">1</div>
-                        <div class="fh-step-text">
-                            <strong>Pilih Pendamping</strong>
-                            Cari dan pilih nama pendamping aktif
+                        <div class="fh-step-text"><strong>Pilih Pendamping</strong>Cari dan pilih nama pendamping aktif
                         </div>
                     </div>
                     <div class="fh-step">
                         <div class="fh-step-num">2</div>
-                        <div class="fh-step-text">
-                            <strong>Data Pelaku Usaha</strong>
-                            Isi nama PU, produk, NIK & alamat
-                        </div>
+                        <div class="fh-step-text"><strong>Data Pelaku Usaha</strong>Isi nama PU, produk, NIK & alamat</div>
                     </div>
                     <div class="fh-step">
                         <div class="fh-step-num">3</div>
-                        <div class="fh-step-text">
-                            <strong>Upload Dokumentasi</strong>
-                            Foto KTP, rumah, pendamping & produk
+                        <div class="fh-step-text"><strong>Upload Dokumentasi</strong>Foto KTP, rumah, pendamping & produk
                         </div>
                     </div>
                     <div class="fh-step">
                         <div class="fh-step-num">4</div>
-                        <div class="fh-step-text">
-                            <strong>Simpan Data</strong>
-                            Tinjau kembali dan simpan data lapangan
-                        </div>
+                        <div class="fh-step-text"><strong>Simpan Data</strong>Tinjau kembali dan simpan data lapangan</div>
                     </div>
                 </div>
 
@@ -919,6 +1053,10 @@
                         <div class="fh-info-dot"></div>
                         <div class="fh-info-text">NIK harus tepat 16 digit angka</div>
                     </div>
+                    <div class="fh-info-row">
+                        <div class="fh-info-dot"></div>
+                        <div class="fh-info-text">Maksimal 5 produk per pendaftaran</div>
+                    </div>
                 </div>
 
                 <div class="fh-quote">
@@ -937,7 +1075,6 @@
                 </div>
                 <div class="fh-divider"></div>
 
-                {{-- SUCCESS --}}
                 @if (session('success'))
                     <div class="alert-success-modern" id="alertSuccess">
                         <svg viewBox="0 0 24 24">
@@ -949,7 +1086,6 @@
                     </div>
                 @endif
 
-                {{-- ERROR --}}
                 @if (session('error'))
                     <div class="alert-danger-modern" id="alertError">
                         <svg viewBox="0 0 24 24">
@@ -971,14 +1107,11 @@
 
                     <div class="fh-field">
                         <label class="fh-label">Nama Pendamping <span class="req">*</span></label>
-
                         <div class="fh-search-wrap">
                             <input type="text" id="enumerator_search" class="fh-input"
                                 placeholder="Ketik untuk mencari pendamping..." autocomplete="off">
                             <div id="search_results" class="fh-search-dropdown"></div>
                         </div>
-
-                        {{-- Hidden Select --}}
                         <select id="enumerator_id" name="enumerator_id"
                             class="fh-select @error('enumerator_id') is-invalid @enderror" required style="display:none;">
                             <option value="">-- Pilih Pendamping --</option>
@@ -990,8 +1123,6 @@
                                 </option>
                             @endforeach
                         </select>
-
-                        {{-- Selected display --}}
                         <div id="selected_enumerator" style="display:none;">
                             <div class="fh-selected-box">
                                 <svg viewBox="0 0 24 24">
@@ -1001,8 +1132,6 @@
                                 <span class="fh-selected-text">Terpilih: <span id="selected_name"></span></span>
                             </div>
                         </div>
-
-                        {{-- Alert tidak aktif --}}
                         <div id="alert_tidak_aktif" style="display:none;">
                             <div class="fh-alert-inactive">
                                 <svg viewBox="0 0 24 24">
@@ -1018,7 +1147,6 @@
                                 </div>
                             </div>
                         </div>
-
                         @error('enumerator_id')
                             <span class="fh-error">{{ $message }}</span>
                         @enderror
@@ -1037,16 +1165,6 @@
                                 style="text-transform:uppercase;">
                             <span class="fh-hint">Nama akan otomatis diubah ke huruf besar</span>
                             @error('nama_pu')
-                                <span class="fh-error">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="fh-field">
-                            <label class="fh-label" for="nama_produk">Nama Produk <span class="req">*</span></label>
-                            <input type="text" id="nama_produk" name="nama_produk"
-                                class="fh-input @error('nama_produk') is-invalid @enderror"
-                                value="{{ old('nama_produk') }}" required placeholder="Masukkan nama produk">
-                            @error('nama_produk')
                                 <span class="fh-error">{{ $message }}</span>
                             @enderror
                         </div>
@@ -1085,8 +1203,57 @@
                             @enderror
                         </div>
 
-                        {{-- SECTION 3: DOKUMENTASI --}}
-                        <div class="fh-section-title" style="margin-top:1.5rem;">Upload Dokumentasi</div>
+                        {{-- SECTION 3: PRODUK --}}
+                        <div class="fh-section-title" style="margin-top:1.5rem;">Produk</div>
+
+                        {{-- Produk Utama --}}
+                        <div class="fh-produk-item" style="border-color:#BAD7F5; background:#F0F6FF;">
+                            <div class="fh-produk-item-header">
+                                <div class="fh-produk-item-title">
+                                    <div class="produk-num">1</div>
+                                    Produk Utama
+                                </div>
+                            </div>
+                            <div class="fh-produk-item-grid">
+                                <div class="fh-field" style="margin-bottom:0;">
+                                    <label class="fh-label" for="nama_produk">Nama Produk <span
+                                            class="req">*</span></label>
+                                    <input type="text" id="nama_produk" name="nama_produk"
+                                        class="fh-input @error('nama_produk') is-invalid @enderror"
+                                        value="{{ old('nama_produk') }}" required placeholder="Nama produk utama">
+                                    @error('nama_produk')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field" style="margin-bottom:0;">
+                                    <label class="fh-label" for="foto_produk">Foto Produk <span
+                                            class="req">*</span></label>
+                                    <input type="file" id="foto_produk" name="foto_produk"
+                                        class="fh-file-input @error('foto_produk') is-invalid @enderror" accept="image/*"
+                                        required>
+                                    <span class="fh-hint">JPG/PNG. Maks 10MB</span>
+                                    @error('foto_produk')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Produk Tambahan (dinamis) --}}
+                        <div id="produkTambahanList" class="fh-produk-list"></div>
+
+                        {{-- Tombol Tambah Produk --}}
+                        <button type="button" class="fh-btn-add-produk" id="btnAddProduk">
+                            <svg viewBox="0 0 24 24">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Tambah Produk Lain
+                        </button>
+                        <p class="fh-max-notice" id="maxProdukNotice">Maksimal 5 produk telah tercapai.</p>
+
+                        {{-- SECTION 4: DOKUMENTASI --}}
+                        <div class="fh-section-title" style="margin-top:0.5rem;">Dokumentasi</div>
 
                         <div class="fh-photo-grid">
                             <div class="fh-field">
@@ -1099,7 +1266,6 @@
                                     <span class="fh-error">{{ $message }}</span>
                                 @enderror
                             </div>
-
                             <div class="fh-field">
                                 <label class="fh-label" for="foto_rumah">Foto Rumah <span class="req">*</span></label>
                                 <input type="file" id="foto_rumah" name="foto_rumah"
@@ -1110,7 +1276,6 @@
                                     <span class="fh-error">{{ $message }}</span>
                                 @enderror
                             </div>
-
                             <div class="fh-field">
                                 <label class="fh-label" for="foto_pendamping">Foto Pendamping <span
                                         class="req">*</span></label>
@@ -1122,21 +1287,9 @@
                                     <span class="fh-error">{{ $message }}</span>
                                 @enderror
                             </div>
-
-                            <div class="fh-field">
-                                <label class="fh-label" for="foto_produk">Foto Produk <span
-                                        class="req">*</span></label>
-                                <input type="file" id="foto_produk" name="foto_produk"
-                                    class="fh-file-input @error('foto_produk') is-invalid @enderror" accept="image/*"
-                                    required>
-                                <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                @error('foto_produk')
-                                    <span class="fh-error">{{ $message }}</span>
-                                @enderror
-                            </div>
                         </div>
 
-                        <div style="margin-top:2rem;">
+                        <div style="margin-top:1.5rem;">
                             <button class="fh-submit" type="submit" id="submitBtn">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
@@ -1147,8 +1300,7 @@
                             </button>
                         </div>
 
-                    </div>
-                    {{-- end #formFields --}}
+                    </div>{{-- end #formFields --}}
 
                 </form>
 
@@ -1172,195 +1324,13 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/js/form-halal.js') }}"></script>
+    {{-- Inject enumerator status map dari PHP ke JS --}}
     <script>
-        (function() {
-            'use strict';
-
-            const enumeratorStatusMap = {
-                @foreach ($enumerators as $enumerator)
-                    {{ $enumerator->id }}: "{{ $enumerator->status }}",
-                @endforeach
-            };
-
-            const selectEl = document.getElementById('enumerator_id');
-            const alertTidakAktif = document.getElementById('alert_tidak_aktif');
-            const namaTidakAktif = document.getElementById('nama_tidak_aktif');
-            const formFields = document.getElementById('formFields');
-            const selectedEnumeratorEl = document.getElementById('selected_enumerator');
-            const selectedNameEl = document.getElementById('selected_name');
-            const submitBtn = document.getElementById('submitBtn');
-
-            /* Nama uppercase */
-            const namaPU = document.getElementById('nama_pu');
-            if (namaPU) {
-                namaPU.addEventListener('input', function() {
-                    const p = this.selectionStart;
-                    this.value = this.value.toUpperCase();
-                    try {
-                        this.setSelectionRange(p, p);
-                    } catch (_) {}
-                });
-            }
-
-            /* NIK counter */
-            const nikInput = document.getElementById('nik');
-            const nikCounter = document.getElementById('nikCounter');
-            const nikStatus = document.getElementById('nikStatus');
-
-            if (nikInput) {
-                nikInput.addEventListener('input', function() {
-                    this.value = this.value.replace(/\D/g, '').slice(0, 16);
-                    const len = this.value.length;
-                    nikCounter.textContent = len + '/16 digit';
-                    if (len === 16) {
-                        nikStatus.textContent = 'Lengkap';
-                        nikStatus.className = 'fh-nik-status ok';
-                        nikInput.classList.remove('is-invalid');
-                    } else {
-                        nikStatus.textContent = 'Belum lengkap';
-                        nikStatus.className = 'fh-nik-status err';
-                    }
-                });
-            }
-
-            /* Telephone digits only */
-            const telInput = document.getElementById('telephone');
-            if (telInput) {
-                telInput.addEventListener('input', function() {
-                    this.value = this.value.replace(/\D/g, '').slice(0, 15);
-                });
-            }
-
-            /* Lock / unlock form */
-            function lockForm() {
-                formFields.querySelectorAll('input, textarea, select, button[type="submit"]')
-                    .forEach(el => el.disabled = true);
-                formFields.classList.add('fh-form-locked');
-            }
-
-            function unlockForm() {
-                formFields.querySelectorAll('input, textarea, select, button[type="submit"]')
-                    .forEach(el => el.disabled = false);
-                formFields.classList.remove('fh-form-locked');
-            }
-
-            /* Check status */
-            function checkEnumeratorStatus(enumeratorId, namaEnumerator) {
-                if (!enumeratorId) {
-                    selectedEnumeratorEl.style.display = 'none';
-                    alertTidakAktif.style.display = 'none';
-                    unlockForm();
-                    return;
-                }
-
-                selectedNameEl.textContent = namaEnumerator;
-                selectedEnumeratorEl.style.display = 'block';
-
-                const status = enumeratorStatusMap[enumeratorId];
-                if (status === 'Tidak Aktif') {
-                    namaTidakAktif.textContent = namaEnumerator;
-                    alertTidakAktif.style.display = 'block';
-                    lockForm();
-                } else {
-                    alertTidakAktif.style.display = 'none';
-                    unlockForm();
-                }
-            }
-
-            selectEl.addEventListener('change', function() {
-                const opt = this.options[this.selectedIndex];
-                checkEnumeratorStatus(this.value, opt ? opt.dataset.name : '');
-            });
-
-            /* Intercept programmatic value changes from form-halal.js */
-            const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
-            Object.defineProperty(selectEl, 'value', {
-                set(newVal) {
-                    originalDescriptor.set.call(this, newVal);
-                    const opt = this.options[this.selectedIndex];
-                    checkEnumeratorStatus(newVal, opt ? opt.dataset.name : '');
-                },
-                get() {
-                    return originalDescriptor.get.call(this);
-                }
-            });
-
-            /* Init on load */
-            document.addEventListener('DOMContentLoaded', function() {
-                if (selectEl.value) {
-                    const opt = selectEl.options[selectEl.selectedIndex];
-                    checkEnumeratorStatus(selectEl.value, opt ? opt.dataset.name : '');
-                }
-
-                /* Re-show alert tidak aktif jika auto-dismiss dari layout */
-                setTimeout(function() {
-                    if (selectEl.value && enumeratorStatusMap[selectEl.value] === 'Tidak Aktif') {
-                        alertTidakAktif.style.display = 'block';
-                    }
-                }, 6000);
-            });
-
-            /* File validation */
-            const MAX_FILE = 10 * 1024 * 1024;
-            ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'].forEach(id => {
-                const inp = document.getElementById(id);
-                if (!inp) return;
-                inp.addEventListener('change', function() {
-                    const f = this.files[0];
-                    if (!f) return;
-                    if (f.size > MAX_FILE) {
-                        this.value = '';
-                        this.classList.add('is-invalid');
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                text: 'Ukuran file maksimal 10MB!',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000
-                            });
-                        }
-                        return;
-                    }
-                    this.classList.remove('is-invalid');
-                });
-            });
-
-            /* Submit loader */
-            const form = document.getElementById('formDataLapangan');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<div class="fh-spinner"></div> Menyimpan...';
-                    }
-                });
-            }
-
-            /* Page cache reset */
-            window.addEventListener('pageshow', function(e) {
-                if (e.persisted && submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML =
-                        '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Data';
-                }
-            });
-
-            /* Auto-dismiss alerts */
-            setTimeout(() => {
-                ['alertSuccess', 'alertError'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.style.transition = 'opacity 0.4s';
-                        el.style.opacity = '0';
-                        setTimeout(() => el?.remove(), 400);
-                    }
-                });
-            }, 5000);
-
-        })();
+        const enumeratorStatusMap = {
+            @foreach ($enumerators as $enumerator)
+                {{ $enumerator->id }}: "{{ $enumerator->status }}",
+            @endforeach
+        };
     </script>
-
+    <script src="{{ asset('assets/js/form-halal.js') }}"></script>
 @endsection

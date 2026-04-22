@@ -312,14 +312,13 @@
     </div>
 
     {{-- ─── HIDDEN ID CARD ─── --}}
-    {{-- ─── HIDDEN ID CARD ─── --}}
     <div id="idCardContainer" style="position:absolute;left:-9999px">
         <div
             style="width:590px;height:1004px;font-family:'Plus Jakarta Sans',Arial,sans-serif;border-radius:24px;overflow:hidden;background:#fff;position:relative">
 
             {{-- Header --}}
             <div
-                style="background:linear-gradient(135deg,#2e0d6e 0%,#4c1d95 55%,#6d28d9 100%);padding:38px 40px 0;position:relative;overflow:hidden">
+                style="background:linear-gradient(135deg,#3a0050 0%,#6B0F8C 55%,#8A1AAF 100%);padding:38px 40px 0;position:relative;overflow:hidden">
 
                 {{-- Dekorasi lingkaran --}}
                 <div
@@ -345,24 +344,24 @@
 
                 {{-- Badge tipe kartu --}}
                 <div
-                    style="display:inline-block;background:rgba(255,255,255,.13);color:rgba(255,255,255,.82);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 18px;border-radius:20px;margin-top:20px;position:relative;z-index:2;border:.5px solid rgba(255,255,255,.2)">
+                    style="display:inline-block;background:rgba(255,255,255,.13);color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 18px;border-radius:20px;margin-top:20px;position:relative;z-index:2;border:.5px solid rgba(255,255,255,.22)">
                     Kartu Pendamping
                 </div>
 
                 {{-- Foto dengan ring gradient --}}
                 <div
-                    style="width:160px;height:160px;margin:28px auto 0;background:linear-gradient(135deg,#f59e0b,#d946ef,#6366f1);border-radius:50%;padding:4px;position:relative;z-index:2">
+                    style="width:160px;height:160px;margin:28px auto 0;background:linear-gradient(135deg,#FFD700,#cc44ff,#6B0F8C);border-radius:50%;padding:4px;position:relative;z-index:2">
                     <div
-                        style="width:100%;height:100%;background:#dde4f8;border-radius:50%;overflow:hidden;display:flex;align-items:flex-end;justify-content:center">
+                        style="width:100%;height:100%;background:#ead5f5;border-radius:50%;overflow:hidden;display:flex;align-items:flex-end;justify-content:center">
                         @if ($enumerator->foto_diri)
                             <img src="{{ asset('storage/' . $enumerator->foto_diri) }}"
                                 style="width:100%;height:100%;object-fit:cover;object-position:center top">
                         @else
                             <svg width="100" height="110" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-                                <ellipse cx="50" cy="38" rx="24" ry="26" fill="#6d5dcd"
-                                    opacity=".6" />
-                                <ellipse cx="50" cy="108" rx="46" ry="34" fill="#6d5dcd"
-                                    opacity=".4" />
+                                <ellipse cx="50" cy="38" rx="24" ry="26" fill="#6B0F8C"
+                                    opacity=".5" />
+                                <ellipse cx="50" cy="108" rx="46" ry="34" fill="#6B0F8C"
+                                    opacity=".3" />
                             </svg>
                         @endif
                     </div>
@@ -380,19 +379,19 @@
 
                 {{-- Nama --}}
                 <p
-                    style="font-size:28px;font-weight:800;color:#1a0e3a;text-transform:uppercase;letter-spacing:.5px;margin:0;line-height:1.15">
+                    style="font-size:28px;font-weight:800;color:#1e0028;text-transform:uppercase;letter-spacing:.5px;margin:0;line-height:1.15">
                     {{ strtoupper($enumerator->nama_lengkap) }}
                 </p>
                 <p
-                    style="font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:2px;margin:6px 0 0">
+                    style="font-size:13px;font-weight:700;color:#6B0F8C;text-transform:uppercase;letter-spacing:2px;margin:6px 0 0">
                     Pendamping Lapangan
                 </p>
 
                 {{-- Chip No. Registrasi --}}
                 <div
-                    style="display:inline-flex;align-items:center;gap:8px;background:#f0ebff;border:.5px solid #c4b5fd;border-radius:20px;padding:7px 20px;margin-top:16px;font-size:13px;font-weight:700;color:#5b21b6;letter-spacing:.6px">
+                    style="display:inline-flex;align-items:center;gap:8px;background:#f5eaff;border:.5px solid #d4a0f0;border-radius:20px;padding:7px 20px;margin-top:16px;font-size:13px;font-weight:700;color:#4a0a6e;letter-spacing:.6px">
                     <span
-                        style="width:7px;height:7px;background:#7c3aed;border-radius:50%;display:inline-block;flex-shrink:0"></span>
+                        style="width:7px;height:7px;background:#6B0F8C;border-radius:50%;display:inline-block;flex-shrink:0"></span>
                     {{ $enumerator->no_registrasi }}/KH-YPBP/{{ \Carbon\Carbon::parse($enumerator->created_at)->format('m') }}/{{ \Carbon\Carbon::parse($enumerator->created_at)->year }}
                 </div>
 
@@ -405,32 +404,32 @@
                 </div>
 
                 {{-- Divider --}}
-                <div style="border-top:.5px solid #ede9fe;margin:20px 0 18px"></div>
+                <div style="border-top:.5px solid #ead5ff;margin:20px 0 18px"></div>
 
                 {{-- Info Grid 2 kolom --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left">
 
-                    <div style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe">
+                    <div style="background:#faf3ff;border-radius:14px;padding:14px 16px;border:.5px solid #e8ccff">
                         <div
-                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8B1AAF;margin-bottom:4px">
                             Koordinator</div>
-                        <div style="font-size:14px;font-weight:700;color:#2e1065">
+                        <div style="font-size:14px;font-weight:700;color:#1e0028">
                             {{ $enumerator->koordinator->nama_lengkap ?? '-' }}</div>
                     </div>
 
-                    <div style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe">
+                    <div style="background:#faf3ff;border-radius:14px;padding:14px 16px;border:.5px solid #e8ccff">
                         <div
-                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8B1AAF;margin-bottom:4px">
                             No. Telepon</div>
-                        <div style="font-size:14px;font-weight:700;color:#2e1065">{{ $enumerator->telephone }}</div>
+                        <div style="font-size:14px;font-weight:700;color:#1e0028">{{ $enumerator->telephone }}</div>
                     </div>
 
                     <div
-                        style="background:#faf8ff;border-radius:14px;padding:14px 16px;border:.5px solid #ede9fe;grid-column:span 2">
+                        style="background:#faf3ff;border-radius:14px;padding:14px 16px;border:.5px solid #e8ccff;grid-column:span 2">
                         <div
-                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:4px">
+                            style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8B1AAF;margin-bottom:4px">
                             Alamat</div>
-                        <div style="font-size:13px;font-weight:600;color:#2e1065;line-height:1.4">
+                        <div style="font-size:13px;font-weight:600;color:#1e0028;line-height:1.4">
                             {{ $enumerator->alamat }}</div>
                     </div>
 
@@ -439,7 +438,7 @@
 
             {{-- Footer --}}
             <div
-                style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(135deg,#2e0d6e,#4c1d95);padding:20px 44px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between">
+                style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(135deg,#3a0050,#6B0F8C);padding:20px 44px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between">
                 <div>
                     <div
                         style="font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;font-weight:700">
@@ -465,7 +464,6 @@
 
         </div>
     </div>
-
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">

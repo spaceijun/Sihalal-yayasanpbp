@@ -29,9 +29,9 @@ class FileService
         $dataLapangan->save();
 
         return [
-            'path'           => $path,
+            'path'            => $path,
             'is_first_upload' => $isFirstUpload,
-            'field_name'     => $fieldName,
+            'field_name'      => $fieldName,
         ];
     }
 
@@ -53,26 +53,40 @@ class FileService
     }
 
     /**
-     * Upload image sequentially (foto_ktp, foto_rumah, etc)
+     * Upload image sequentially (foto_ktp, foto_rumah, foto_produk, foto_produk_2, dst.)
+     * Semua foto_produk_* disimpan dalam satu folder: foto-produk
      */
     public function uploadImageSequential(UploadedFile $image, string $type): string
     {
-        $extension = $image->getClientOriginalExtension();
-        $imageName = time() . '_' . uniqid() . '.' . $extension;
+        $extension  = $image->getClientOriginalExtension();
+        $imageName  = time() . '_' . uniqid() . '.' . $extension;
 
-        // Convert type name to folder name (foto_ktp -> foto-ktp)
-        $folderName = str_replace('_', '-', $type);
+        // Semua foto_produk_* masuk ke folder foto-produk
+        $folderName = str_starts_with($type, 'foto_produk')
+            ? 'foto-produk'
+            : str_replace('_', '-', $type);
+
         $image->storeAs($folderName, $imageName, 'public');
 
         return $folderName . '/' . $imageName;
     }
 
     /**
-     * Validate allowed file types for sequential upload
+     * Validate allowed file types for sequential upload.
+     * Mencakup foto_produk sampai foto_produk_5.
      */
     public function isAllowedType(string $type): bool
     {
-        $allowedTypes = ['foto_ktp', 'foto_rumah', 'foto_pendamping', 'foto_produk'];
+        $allowedTypes = [
+            'foto_ktp',
+            'foto_rumah',
+            'foto_pendamping',
+            'foto_produk',
+            'foto_produk_2',
+            'foto_produk_3',
+            'foto_produk_4',
+            'foto_produk_5',
+        ];
 
         return in_array($type, $allowedTypes);
     }

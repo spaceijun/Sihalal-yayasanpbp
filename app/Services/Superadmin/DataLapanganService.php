@@ -52,19 +52,25 @@ class DataLapanganService
             $validatedData['nama_pu'] = strtoupper($validatedData['nama_pu']);
         }
 
-        // Map path fields to database fields
+        // Kolom wajib
         $dataToSave = [
-            'enumerator_id' => $validatedData['enumerator_id'],
-            'nama_pu' => $validatedData['nama_pu'],
-            'nik' => $validatedData['nik'],
-            'telephone' => $validatedData['telephone'],
-            'nama_produk' => $validatedData['nama_produk'],
-            'alamat' => $validatedData['alamat'],
-            'foto_ktp' => $validatedData['foto_ktp_path'],
-            'foto_rumah' => $validatedData['foto_rumah_path'],
-            'foto_pendamping' => $validatedData['foto_pendamping_path'],
-            'foto_produk' => $validatedData['foto_produk_path'],
+            'enumerator_id'    => $validatedData['enumerator_id'],
+            'nama_pu'          => $validatedData['nama_pu'],
+            'nik'              => $validatedData['nik'],
+            'telephone'        => $validatedData['telephone'],
+            'nama_produk'      => $validatedData['nama_produk'],
+            'alamat'           => $validatedData['alamat'],
+            'foto_ktp'         => $validatedData['foto_ktp_path'],
+            'foto_rumah'       => $validatedData['foto_rumah_path'],
+            'foto_pendamping'  => $validatedData['foto_pendamping_path'],
+            'foto_produk'      => $validatedData['foto_produk_path'],
         ];
+
+        // Kolom produk tambahan (nullable)
+        foreach ([2, 3, 4, 5] as $i) {
+            $dataToSave["nama_produk_{$i}"] = $validatedData["nama_produk_{$i}"] ?? null;
+            $dataToSave["foto_produk_{$i}"] = $validatedData["foto_produk_{$i}_path"] ?? null;
+        }
 
         return DataLapangan::create($dataToSave);
     }
@@ -122,16 +128,11 @@ class DataLapanganService
 
     /**
      * Update email sihalal of a data lapangan.
-     *
-     * @param int $id
-     * @param string $emailSihalal
-     * @return DataLapangan
      */
     public function updateEmailSihalal(int $id, string $emailSihalal): DataLapangan
     {
         $dataLapangan = DataLapangan::findOrFail($id);
         $dataLapangan->update(['email_sihalal' => $emailSihalal]);
-
         return $dataLapangan;
     }
 }

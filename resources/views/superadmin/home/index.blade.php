@@ -193,13 +193,13 @@
     {{-- ─── SECTION 5: CHARTS ─── --}}
     <div class="section-label">Tren Data</div>
     <div class="row g-4 mb-4">
-        {{-- Chart: 20 Data Masuk Terakhir --}}
+        {{-- Chart: Data Masuk Per Bulan --}}
         <div class="col-xl-6">
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">20 Data Masuk Terakhir</div>
-                        <div class="chart-subtitle">Jumlah data masuk per bulan</div>
+                        <div class="chart-title">Tren Data Masuk</div>
+                        <div class="chart-subtitle">Jumlah seluruh data masuk per bulan</div>
                     </div>
                     <div class="chart-legend">
                         <div class="legend-item">
@@ -212,13 +212,13 @@
                 </div>
             </div>
         </div>
-        {{-- Chart: 20 Data Terbit SH Terbaru --}}
+        {{-- Chart: Data Terbit SH Per Bulan --}}
         <div class="col-xl-6">
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">20 Data Terbit SH Terbaru</div>
-                        <div class="chart-subtitle">Jumlah terbit SH per bulan</div>
+                        <div class="chart-title">Tren Data Terbit SH</div>
+                        <div class="chart-subtitle">Jumlah seluruh data terbit SH per bulan</div>
                     </div>
                     <div class="chart-legend">
                         <div class="legend-item">
@@ -332,7 +332,7 @@
                                             <span class="status-badge badge-terbit">TERBIT SH</span>
                                         @endif
                                     </td>
-                                    <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $data->updated_at->format('d/m/Y H:i') }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -349,6 +349,7 @@
             </div>
         </div>
     </div>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -1027,7 +1028,6 @@
         }
     </style>
 
-
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script>
@@ -1059,52 +1059,38 @@
                     bar.style.width = Math.min(target, 100) + '%';
                 }, 200);
             });
+
             Chart.defaults.color = '#9aa0b8';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
             Chart.defaults.font.size = 11;
 
             const gridColor = 'rgba(80,100,160,0.07)';
 
-            function buildGradient(ctx, color) {
-                const grad = ctx.createLinearGradient(0, 0, 0, 280);
-                grad.addColorStop(0, color.replace(')', ', 0.25)').replace('rgb', 'rgba'));
-                grad.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
-                return grad;
+            // ──────────────────────────────────────────
+            // Helper: format label bulan dari "YYYY-MM"
+            // ──────────────────────────────────────────
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+
+            function formatLabel(ym) {
+                const [y, m] = ym.split('-');
+                return monthNames[parseInt(m) - 1] + ' ' + y;
             }
 
             // ──────────────────────────────────────────
-            // Data from Laravel — group by month
+            // Data dari Laravel — sudah diagregat per bulan di controller
+            // $dataMasukPerBulan   : koleksi {bulan: "YYYY-MM", total: N}
+            // $dataTerbitSHPerBulan: koleksi {bulan: "YYYY-MM", total: N}
             // ──────────────────────────────────────────
-            const rawMasuk = @json($latestDataToday->map(fn($d) => \Carbon\Carbon::parse($d->created_at)->format('Y-m')));
-            const rawTerbit = @json($latestDataUpdate->map(fn($d) => \Carbon\Carbon::parse($d->created_at)->format('Y-m')));
+            const rawMasuk = @json($dataMasukPerBulan);
+            const rawTerbit = @json($dataTerbitSHPerBulan);
 
-            function groupByMonth(arr) {
-                const map = {};
-                arr.forEach(ym => {
-                    map[ym] = (map[ym] || 0) + 1;
-                });
-                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov',
-                    'Des'
-                ];
-                return Object.keys(map).sort().map(ym => {
-                    const [y, m] = ym.split('-');
-                    return {
-                        label: monthNames[parseInt(m) - 1] + ' ' + y,
-                        value: map[ym]
-                    };
-                });
-            }
-
-            const groupedMasuk = groupByMonth(rawMasuk);
-            const groupedTerbit = groupByMonth(rawTerbit);
-
-            const labelsMasuk = groupedMasuk.map(d => d.label);
-            const valuesMasuk = groupedMasuk.map(d => d.value);
-            const labelsTerbit = groupedTerbit.map(d => d.label);
-            const valuesTerbit = groupedTerbit.map(d => d.value);
+            const labelsMasuk = rawMasuk.map(d => formatLabel(d.bulan));
+            const valuesMasuk = rawMasuk.map(d => d.total);
+            const labelsTerbit = rawTerbit.map(d => formatLabel(d.bulan));
+            const valuesTerbit = rawTerbit.map(d => d.total);
 
             // ──────────────────────────────────────────
-            // Chart: Data Masuk
+            // Chart: Data Masuk Per Bulan
             // ──────────────────────────────────────────
             const ctxMasuk = document.getElementById('chartDataMasuk').getContext('2d');
             const gradMasuk = ctxMasuk.createLinearGradient(0, 0, 0, 260);
@@ -1162,7 +1148,7 @@
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 30,
-                                maxTicksLimit: 10
+                                maxTicksLimit: 12
                             },
                         },
                         y: {
@@ -1180,7 +1166,7 @@
             });
 
             // ──────────────────────────────────────────
-            // Chart: Terbit SH
+            // Chart: Terbit SH Per Bulan
             // ──────────────────────────────────────────
             const ctxSH = document.getElementById('chartTerbitSH').getContext('2d');
             const gradSH = ctxSH.createLinearGradient(0, 0, 0, 260);
@@ -1238,7 +1224,7 @@
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 30,
-                                maxTicksLimit: 10
+                                maxTicksLimit: 12
                             },
                         },
                         y: {

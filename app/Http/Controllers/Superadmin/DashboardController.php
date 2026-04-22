@@ -40,6 +40,36 @@ class DashboardController extends Controller
             ->take(20)
             ->get();
 
-        return view('superadmin.home.index', compact('totalDataKoordinator', 'totalDataEnumerator', 'totalDataLapangan', 'latestDataToday', 'latestDataUpdate', 'totalDataPending', 'totalDataProgressOSS', 'totalDataProgressSihalal', 'totalDataTerbitSH', 'totalPembayaranPending', 'totalPembayaranPengajuan', 'totalDibayar', 'totalDataRevisi', 'totalDataTerverifikasi'));
+        // Data masuk per bulan (semua data)
+        $dataMasukPerBulan = DataLapangan::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        // Data Terbit SH per bulan (semua data status Terbit SH)
+        $dataTerbitSHPerBulan = DataLapangan::selectRaw("DATE_FORMAT(updated_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->where('status', 'Terbit SH')
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        return view('superadmin.home.index', compact(
+            'totalDataKoordinator',
+            'totalDataEnumerator',
+            'totalDataLapangan',
+            'latestDataToday',
+            'latestDataUpdate',
+            'totalDataPending',
+            'totalDataProgressOSS',
+            'totalDataProgressSihalal',
+            'totalDataTerbitSH',
+            'totalPembayaranPending',
+            'totalPembayaranPengajuan',
+            'totalDibayar',
+            'totalDataRevisi',
+            'totalDataTerverifikasi',
+            'dataMasukPerBulan',
+            'dataTerbitSHPerBulan'
+        ));
     }
 }

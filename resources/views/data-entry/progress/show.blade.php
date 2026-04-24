@@ -264,7 +264,7 @@
                                         data-bs-target="#modalFotoRumah">
                                         <i class="las la-eye"></i>
                                     </button>
-                                    <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                                    <a href="{{ route('data-entry.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
                                         class="btn btn-outline-secondary btn-sm">
                                         <i class="las la-download me-1"></i>PDF
                                     </a>

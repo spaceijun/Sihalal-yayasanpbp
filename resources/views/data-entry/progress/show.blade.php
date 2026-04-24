@@ -284,7 +284,7 @@
                                         data-bs-target="#modalFotoKTP">
                                         <i class="las la-eye"></i>
                                     </button>
-                                    <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                    <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                         class="btn btn-primary btn-sm">
                                         <i class="las la-download me-1"></i>Download KTP
                                     </a>
@@ -305,7 +305,7 @@
                                         data-bs-target="#modalFotoKTP">
                                         <i class="las la-eye"></i>
                                     </button>
-                                    <a href="{{ route('koordinator.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                    <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
                                         class="btn btn-primary btn-sm">
                                         <i class="las la-download me-1"></i>Download KTP
                                     </a>
@@ -325,7 +325,7 @@
                                         data-bs-target="#modalFotoPendamping">
                                         <i class="las la-eye"></i>
                                     </button>
-                                    <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                    <a href="{{ route('data-entry.datalapangan.download-foto-pendamping', $dataLapangan->id) }}"
                                         class="btn btn-success btn-sm">
                                         <i class="las la-download me-1"></i>Download
                                     </a>
@@ -345,7 +345,7 @@
                                         data-bs-target="#modalFotoProduk">
                                         <i class="las la-eye"></i>
                                     </button>
-                                    <a href="{{ route('koordinator.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                    <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
                                         class="btn btn-success btn-sm">
                                         <i class="las la-download me-1"></i>Download
                                     </a>

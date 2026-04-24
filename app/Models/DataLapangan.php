@@ -153,61 +153,76 @@ class DataLapangan extends Model
      */
     protected static function booted()
     {
-        /**
-         * This method is called when a data_lapangan is updated.
-         * It checks if the status_pembayaran of the data_lapangan is changed to DIBAYAR.
-         * If it is, it checks if there is already a cashflow for the data_lapangan.
-         * If there is no existing cashflow, a new one will be created.
-         */
         static::updated(function ($dataLapangan) {
-            // Cek apakah status_pembayaran berubah menjadi DIBAYAR
             if (
                 $dataLapangan->isDirty('status_pembayaran') &&
                 $dataLapangan->status_pembayaran === 'DIBAYAR'
             ) {
+                // Hitung fee berdasarkan tanggal data dibuat
+                $fee = self::resolveFee($dataLapangan);
 
-                // Cek apakah sudah ada cashflow pemasukan untuk data lapangan ini
                 $existingCashflowPemasukan = CashflowsKoordinator::where('data_lapangan_id', $dataLapangan->id)
                     ->where('tipe', 'PEMASUKAN')
                     ->first();
 
-                // Jika belum ada, buat cashflow pemasukan baru
                 if (!$existingCashflowPemasukan) {
                     CashflowsKoordinator::create([
                         'data_lapangan_id' => $dataLapangan->id,
-                        'tipe' => 'PEMASUKAN',
-                        'nominal' => $dataLapangan->enumerator->koordinator->fee_enum,
-                        'keterangan' => 'Pembayaran untuk ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
-                        'tanggal' => now()
+                        'tipe'             => 'PEMASUKAN',
+                        'nominal'          => $fee,
+                        'keterangan'       => 'Pembayaran untuk ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
+                        'tanggal'          => now(),
                     ]);
                 }
 
-                // Cek apakah sudah ada cashflow pengeluaran untuk data lapangan ini
                 $existingCashflowPengeluaran = Cashflow::where('data_lapangan_id', $dataLapangan->id)
                     ->where('tipe', 'Pengeluaran')
                     ->first();
 
-                // Jika belum ada, buat cashflow pengeluaran baru
                 if (!$existingCashflowPengeluaran) {
                     Cashflow::create([
                         'data_lapangan_id' => $dataLapangan->id,
-                        'tipe' => 'Pengeluaran',
-                        'jumlah' => $dataLapangan->enumerator->koordinator->fee_enum,
-                        'keterangan' => 'Pembayaran untuk ' . $dataLapangan->enumerator->nama_lengkap . ' - ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
-                        'tanggal' => now()
+                        'tipe'             => 'Pengeluaran',
+                        'jumlah'           => $fee,
+                        'keterangan'       => 'Pembayaran untuk ' . $dataLapangan->enumerator->nama_lengkap . ' - ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
+                        'tanggal'          => now(),
                     ]);
 
-                    // ===== KIRIM NOTIFIKASI WHATSAPP =====
-                    // Load relasi enumerator jika belum di-load
                     $dataLapangan->load('enumerator');
 
-                    // Kirim notifikasi ke enumerator
                     if ($dataLapangan->enumerator && $dataLapangan->enumerator->telephone) {
                         $dataLapangan->sendPembayaranNotificationToEnumerator();
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Hitung fee berdasarkan tanggal data dibuat.
+     * Tambahkan entri baru di array $feeSchedule saat harga naik,
+     * tanpa perlu ubah logic apapun.
+     */
+    private static function resolveFee(self $dataLapangan): int
+    {
+        $feeSchedule = [
+            '2026-05-01' => 60000,
+            // '2027-01-01' => 75000, // ← cukup tambah baris ini saat harga naik lagi
+        ];
+
+        // Urutkan dari tanggal terbaru ke terlama
+        krsort($feeSchedule);
+
+        $createdAt = $dataLapangan->created_at->toDateString();
+
+        foreach ($feeSchedule as $date => $amount) {
+            if ($createdAt >= $date) {
+                return $amount;
+            }
+        }
+
+        // Fallback ke fee_enum koordinator untuk data sebelum semua schedule
+        return $dataLapangan->enumerator->koordinator->fee_enum;
     }
     /**
      * Get the associated data entry progress models.

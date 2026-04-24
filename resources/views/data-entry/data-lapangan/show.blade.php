@@ -312,7 +312,7 @@
                                     data-bs-toggle="modal" data-bs-target="#modalFotoRumah">
                                     <i class="las la-eye"></i>
                                 </button>
-                                <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                                <a href="{{ route('data-entry.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
                                     class="dl-btn dl-btn-ghost dl-btn-sm">
                                     <i class="las la-download"></i> PDF
                                 </a>

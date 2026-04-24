@@ -145,12 +145,13 @@
                                     data-bs-target="#modalUpdateEmail">
                                     <i class="las la-check-circle"></i> Update Email &amp; Verifikasi
                                 </button>
-                                <button type="button" class="dl-btn dl-btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisi">
-                                    <i class="las la-redo"></i> Update Revisi
-                                </button>
                             </div>
                         @endif
+
+                        <button type="button" class="dl-btn dl-btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#modalRevisi">
+                            <i class="las la-redo"></i> Update Revisi
+                        </button>
 
                         {{-- Verifikator --}}
                         @if ($dataLapangan->verifikator)

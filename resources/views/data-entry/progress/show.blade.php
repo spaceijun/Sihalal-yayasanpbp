@@ -7,6 +7,23 @@
 @section('content')
     <section class="content container-fluid">
 
+        {{-- ===== BUILD $allProducts (sama seperti show data lapangan) ===== --}}
+        @php
+            $productFields = [
+                1 => ['nama' => $dataLapangan->nama_produk, 'foto' => $dataLapangan->foto_produk],
+                2 => ['nama' => $dataLapangan->nama_produk_2, 'foto' => $dataLapangan->foto_produk_2],
+                3 => ['nama' => $dataLapangan->nama_produk_3, 'foto' => $dataLapangan->foto_produk_3],
+                4 => ['nama' => $dataLapangan->nama_produk_4, 'foto' => $dataLapangan->foto_produk_4],
+                5 => ['nama' => $dataLapangan->nama_produk_5, 'foto' => $dataLapangan->foto_produk_5],
+            ];
+            $allProducts = [];
+            foreach ($productFields as $idx => $p) {
+                if (!empty($p['nama'])) {
+                    $allProducts[$idx] = $p;
+                }
+            }
+        @endphp
+
         {{-- ===== ALERT MESSAGES ===== --}}
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mt-3" role="alert">
@@ -294,10 +311,17 @@
                             {{-- Foto KTP --}}
                             <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                        style="width:32px;height:32px;flex-shrink:0;">
-                                        <i class="las la-id-card text-muted" style="font-size:16px;"></i>
-                                    </span>
+                                    @if (!empty($dataLapangan->foto_ktp))
+                                        <img src="{{ asset('storage/' . $dataLapangan->foto_ktp) }}"
+                                            style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #dee2e6;"
+                                            alt="">
+                                    @else
+                                        <span
+                                            class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                            style="width:32px;height:32px;flex-shrink:0;">
+                                            <i class="las la-id-card text-muted" style="font-size:16px;"></i>
+                                        </span>
+                                    @endif
                                     <span class="fw-semibold" style="font-size:14px;">Foto KTP</span>
                                 </div>
                                 <div class="d-flex gap-2">
@@ -311,13 +335,21 @@
                                     </a>
                                 </div>
                             </div>
+
                             {{-- Foto Pendamping --}}
                             <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                        style="width:32px;height:32px;flex-shrink:0;">
-                                        <i class="las la-user text-muted" style="font-size:16px;"></i>
-                                    </span>
+                                    @if (!empty($dataLapangan->foto_pendamping))
+                                        <img src="{{ asset('storage/' . $dataLapangan->foto_pendamping) }}"
+                                            style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #dee2e6;"
+                                            alt="">
+                                    @else
+                                        <span
+                                            class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                            style="width:32px;height:32px;flex-shrink:0;">
+                                            <i class="las la-user text-muted" style="font-size:16px;"></i>
+                                        </span>
+                                    @endif
                                     <span class="fw-semibold" style="font-size:14px;">Foto Pendamping</span>
                                 </div>
                                 <div class="d-flex gap-2">
@@ -331,26 +363,46 @@
                                     </a>
                                 </div>
                             </div>
-                            {{-- Foto Produk --}}
-                            <div class="d-flex align-items-center justify-content-between px-4 py-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                        style="width:32px;height:32px;flex-shrink:0;">
-                                        <i class="las la-box text-muted" style="font-size:16px;"></i>
-                                    </span>
-                                    <span class="fw-semibold" style="font-size:14px;">Foto Produk</span>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalFotoProduk">
-                                        <i class="las la-eye"></i>
-                                    </button>
-                                    <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
-                                        class="btn btn-success btn-sm">
-                                        <i class="las la-download me-1"></i>Download
-                                    </a>
-                                </div>
-                            </div>
+
+                            {{-- Foto Produk — semua slot yang ada fotonya (sama seperti show data lapangan) --}}
+                            @foreach ($allProducts as $idx => $prod)
+                                @if (!empty($prod['foto']))
+                                    <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="{{ asset('storage/' . $prod['foto']) }}"
+                                                style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #dee2e6;"
+                                                alt=""
+                                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                            <span class="rounded-circle bg-light align-items-center justify-content-center"
+                                                style="width:32px;height:32px;flex-shrink:0;display:none;">
+                                                <i class="las la-box text-muted" style="font-size:16px;"></i>
+                                            </span>
+                                            <div>
+                                                <span class="fw-semibold" style="font-size:14px;">Foto Produk
+                                                    {{ $idx }}</span>
+                                                <div class="text-muted" style="font-size:11px;">{{ $prod['nama'] }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                onclick="viewFullImage('{{ asset('storage/' . $prod['foto']) }}', 'Foto Produk {{ $idx }}: {{ $prod['nama'] }}')">
+                                                <i class="las la-eye"></i>
+                                            </button>
+                                            @if ($idx === 1)
+                                                <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                                    class="btn btn-success btn-sm">
+                                                    <i class="las la-download me-1"></i>Download
+                                                </a>
+                                            @else
+                                                <a href="{{ asset('storage/' . $prod['foto']) }}" download
+                                                    class="btn btn-success btn-sm">
+                                                    <i class="las la-download me-1"></i>Download
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
                         @endif
 
                     </div>
@@ -549,17 +601,24 @@
                                     onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_pendamping) }}', 'Foto Pendamping')">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-light py-2 px-3 border-bottom">
-                                    <small class="fw-semibold">Foto Produk</small>
+                        {{-- Semua foto produk --}}
+                        @foreach ($allProducts as $idx => $prod)
+                            @if (!empty($prod['foto']))
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-light py-2 px-3 border-bottom">
+                                            <small class="fw-semibold">Foto Produk {{ $idx }}:
+                                                {{ $prod['nama'] }}</small>
+                                        </div>
+                                        <img src="{{ asset('storage/' . $prod['foto']) }}"
+                                            alt="Foto Produk {{ $idx }}"
+                                            class="card-img-bottom collage-img rounded-bottom"
+                                            style="height:250px;object-fit:cover;cursor:pointer;"
+                                            onclick="viewFullImage('{{ asset('storage/' . $prod['foto']) }}', 'Foto Produk {{ $idx }}: {{ $prod['nama'] }}')">
+                                    </div>
                                 </div>
-                                <img src="{{ asset('storage/' . $dataLapangan->foto_produk) }}" alt="Foto Produk"
-                                    class="card-img-bottom collage-img rounded-bottom"
-                                    style="height:250px;object-fit:cover;cursor:pointer;"
-                                    onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_produk) }}', 'Foto Produk')">
-                            </div>
-                        </div>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
                 <div class="modal-footer border-top">

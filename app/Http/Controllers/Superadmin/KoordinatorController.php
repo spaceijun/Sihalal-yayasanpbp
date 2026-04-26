@@ -1,4 +1,4 @@
-<?php
+?php
 
 namespace App\Http\Controllers\Superadmin;
 
@@ -69,20 +69,18 @@ class KoordinatorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $koordinator = Koordinator::find($id);
-
+        $koordinator = Koordinator::findByHashedIdOrFail($hashedId);
         return view('superadmin.koordinator.show', compact('koordinator'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $koordinator = Koordinator::find($id);
-
+        $koordinator = Koordinator::findByHashedIdOrFail($hashedId);
         return view('superadmin.koordinator.edit', compact('koordinator'));
     }
 
@@ -97,11 +95,12 @@ class KoordinatorController extends Controller
             ->with('success', 'Koordinator updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Koordinator::find($id)->delete();
+        Koordinator::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.koordinators.index')
             ->with('success', 'Koordinator deleted successfully');
     }
 }
+

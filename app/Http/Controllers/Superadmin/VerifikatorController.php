@@ -169,7 +169,7 @@ class VerifikatorController extends Controller
     {
         $filter = $request->get('filter', 'semua');
 
-        // ── Data Lapangan ─────────────────────────────────────────────────────────
+        // â”€â”€ Data Lapangan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $queryLapangan = $verifikator->dataLapangans()->latest();
         if ($filter === 'pending') $queryLapangan->whereNull('payment_id');
         if ($filter === 'lunas')   $queryLapangan->whereNotNull('payment_id');
@@ -191,7 +191,7 @@ class VerifikatorController extends Controller
                 'nominal_pending' => $r->belum_dibayar * $verifikator->rate_per_data,
             ]);
 
-        // ── Data Entry Progress ───────────────────────────────────────────────────
+        // â”€â”€ Data Entry Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $queryProgress = \App\Models\DataEntryProgress::with(['dataLapangan', 'dataEntry.user'])
             ->where('verifikator_id', $verifikator->id)
             ->where('action', 'created')
@@ -267,20 +267,18 @@ class VerifikatorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $verifikator = Verifikator::find($id);
-
+        $verifikator = Verifikator::findByHashedIdOrFail($hashedId);
         return view('superadmin.verifikator.show', compact('verifikator'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $verifikator = Verifikator::find($id);
-
+        $verifikator = Verifikator::findByHashedIdOrFail($hashedId);
         return view('superadmin.verifikator.edit', compact('verifikator'));
     }
 
@@ -295,11 +293,12 @@ class VerifikatorController extends Controller
             ->with('success', 'Verifikator updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Verifikator::find($id)->delete();
+        Verifikator::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.verifikators.index')
             ->with('success', 'Verifikator deleted successfully');
     }
 }
+

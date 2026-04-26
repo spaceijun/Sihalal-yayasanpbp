@@ -1,584 +1,384 @@
 @extends('layouts.app')
-
-@section('template_title')
-    {{ $recruitment->nama_lengkap ?? __('Show') . ' ' . __('Recruitment') }}
-@endsection
-
+@section('template_title') {{ $recruitment->nama_lengkap ?? 'Detail Recruitment' }} @endsection
 @section('content')
-    <section class="content container-fluid">
-        <!-- Alert Messages -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="las la-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+<div class="adm-page">
+    @include('layouts.messages')
 
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1>Detail Pelamar</h1>
+            <p>Informasi lengkap dan manajemen status lamaran</p>
+        </div>
+        <a href="{{ route('superadmin.recruitments.index') }}" class="adm-btn-secondary">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+        </a>
+    </div>
 
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="las la-exclamation-triangle me-2"></i>
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
 
-        <div class="row mt-3">
-            <!-- Card 1: Data Informasi (Kiri) -->
-            <div class="col-md-6">
-                <!-- Card Data Informasi -->
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <span><i class="las la-user me-2"></i>Data Pelamar</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group mb-3">
-                            <strong>Posisi Dilamar</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->recruit_type }}</p>
-                        </div>
-                        <hr>
-                        @if ($recruitment->recruit_type === 'DATA ENTRY')
-                            <div class="form-group mb-3">
-                                <strong>Tipe Entry</strong>
-                                <p class="text-muted mb-0">{{ $recruitment->type_entry }}</p>
-                            </div>
-                            <hr>
-                        @endif
-                        @if ($recruitment->koordinator_id)
-                            <div class="form-group mb-3">
-                                <strong>Nama Koordinator</strong>
-                                <p class="text-muted mb-0">{{ $recruitment->koordinator->nama_lengkap ?? '-' }}</p>
-                            </div>
-                            <hr>
-                        @endif
-
-                        <div class="form-group mb-3">
-                            <strong>Nama Lengkap</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->nama_lengkap }}</p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Nomor Induk Kependudukan (NIK)</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->nik }}</p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Jenis Kelamin</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->jenis_kelamin }}</p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>No. Telepon</strong>
-                            <p class="text-muted mb-0">
-                                <a href="tel:{{ $recruitment->telephone }}" class="text-decoration-none">
-                                    <i class="las la-phone me-2"></i>{{ $recruitment->telephone }}
-                                </a>
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Alamat Lengkap</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->alamat_lengkap }}</p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Pendidikan Terakhir</strong>
-                            <p class="text-muted mb-0">
-                                <span class="badge bg-info">{{ $recruitment->pendidikan_terakhir }}</span>
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Pengalaman</strong>
-                            <p class="text-muted mb-0">{{ $recruitment->pengalaman }}</p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-3">
-                            <strong>Rekomendasi</strong>
-                            <p class="text-muted mb-0">
-                                @if ($recruitment->rekomendasi)
-                                    <span class="badge bg-success">{{ $recruitment->rekomendasi }}</span>
-                                @else
-                                    <span class="text-muted fst-italic">Tidak ada rekomendasi</span>
-                                @endif
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-0">
-                            <strong>Status Lamaran</strong>
-                            <p class="mb-0 mt-2">
-                                @if ($recruitment->status == 'Melamar')
-                                    <span class="badge bg-warning text-dark">{{ $recruitment->status }}</span>
-                                @elseif($recruitment->status == 'Diterima')
-                                    <span class="badge bg-success">{{ $recruitment->status }}</span>
-                                @elseif($recruitment->status == 'Ditolak')
-                                    <span class="badge bg-danger">{{ $recruitment->status }}</span>
-                                @endif
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group mb-0">
-                            <strong>Tanggal Melamar</strong>
-                            <p class="text-muted mb-0">
-                                <i class="las la-calendar me-2"></i>
-                                {{ $recruitment->created_at->format('d M Y, H:i') }}
-                            </p>
-                        </div>
-                    </div>
+        {{-- ── Card 1: Data Pelamar ── --}}
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    Data Pelamar
                 </div>
             </div>
-
-            <!-- Card 2: Edit Status & Dokumentasi Foto (Kanan) -->
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <span><i class="las la-edit me-2"></i>Edit Status Lamaran</span>
+            <div style="padding:0 20px;">
+                <div class="adm-info-list">
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Posisi Dilamar</span>
+                        <span class="adm-info-val"><span class="adm-badge adm-badge-info">{{ $recruitment->recruit_type }}</span></span>
                     </div>
-                    <div class="card-body">
-                        <form action="{{ route('superadmin.recruitments.update-status', $recruitment->id) }}"
-                            method="POST">
-                            @csrf
-                            <div class="form-group mb-3">
-                                <label for="status-1" class="form-label"><strong>Status Lamaran</strong></label>
-                                <div class="row align-items-end">
-                                    <div class="col-md-8">
-                                        <select name="status" id="status-1" class="form-select" required>
-                                            <option value="">-- Pilih Status --</option>
-                                            <option value="Melamar"
-                                                {{ $recruitment->status == 'Melamar' ? 'selected' : '' }}>
-                                                Melamar
-                                            </option>
-                                            <option value="Diterima"
-                                                {{ $recruitment->status == 'Diterima' ? 'selected' : '' }}>
-                                                Diterima
-                                            </option>
-                                            <option value="Ditolak"
-                                                {{ $recruitment->status == 'Ditolak' ? 'selected' : '' }}>
-                                                Ditolak
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-success w-100">
-                                            <i class="las la-save me-2"></i>Update
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Dropdown Koordinator: HANYA untuk PENDAMPING --}}
-                            @if ($recruitment->recruit_type == 'PENDAMPING')
-                                <div class="form-group mb-3" id="koordinatorWrapper"
-                                    style="display: {{ $recruitment->status == 'Diterima' ? 'block' : 'none' }};">
-                                    <label for="koordinator_id" class="form-label">
-                                        <strong>Pilih Koordinator</strong>
-                                    </label>
-                                    <select name="koordinator_id" id="koordinator_id" class="form-select">
-                                        <option value="">-- Pilih Koordinator --</option>
-                                        @foreach ($koordinators as $koordinator)
-                                            <option value="{{ $koordinator->id }}"
-                                                {{ $recruitment->koordinator_id == $koordinator->id ? 'selected' : '' }}>
-                                                {{ $koordinator->nama_lengkap }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">
-                                        <i class="las la-info-circle me-1"></i>
-                                        Wajib diisi jika status diterima
-                                    </small>
-                                </div>
+                    @if ($recruitment->recruit_type === 'DATA ENTRY')
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Tipe Entry</span>
+                        <span class="adm-info-val">{{ $recruitment->type_entry }}</span>
+                    </div>
+                    @endif
+                    @if ($recruitment->koordinator_id)
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Koordinator</span>
+                        <span class="adm-info-val">{{ $recruitment->koordinator->nama_lengkap ?? '-' }}</span>
+                    </div>
+                    @endif
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Nama Lengkap</span>
+                        <span class="adm-info-val">{{ $recruitment->nama_lengkap }}</span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">NIK</span>
+                        <span class="adm-info-val adm-mono" style="font-size:12.5px;">{{ $recruitment->nik }}</span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Jenis Kelamin</span>
+                        <span class="adm-info-val" style="font-weight:400;">{{ $recruitment->jenis_kelamin }}</span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Telephone</span>
+                        <span class="adm-info-val adm-mono">
+                            <a href="tel:{{ $recruitment->telephone }}" style="color:var(--adm-blue);text-decoration:none;">{{ $recruitment->telephone }}</a>
+                        </span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Alamat</span>
+                        <span class="adm-info-val" style="font-weight:400;color:var(--adm-text-mid);">{{ $recruitment->alamat_lengkap }}</span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Pendidikan</span>
+                        <span class="adm-info-val"><span class="adm-badge adm-badge-info">{{ $recruitment->pendidikan_terakhir }}</span></span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Pengalaman</span>
+                        <span class="adm-info-val" style="font-weight:400;color:var(--adm-text-mid);">{{ $recruitment->pengalaman ?: '—' }}</span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Rekomendasi</span>
+                        <span class="adm-info-val">
+                            @if ($recruitment->rekomendasi)
+                                <span class="adm-badge adm-badge-success">{{ $recruitment->rekomendasi }}</span>
+                            @else
+                                <span style="color:var(--adm-text-faint);font-size:13px;">Tidak ada rekomendasi</span>
                             @endif
+                        </span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Status Lamaran</span>
+                        <span class="adm-info-val">
+                            @if ($recruitment->status === 'Melamar')
+                                <span class="adm-badge adm-badge-pending"><span class="dot"></span>Melamar</span>
+                            @elseif ($recruitment->status === 'Diterima')
+                                <span class="adm-badge adm-badge-success"><span class="dot"></span>Diterima</span>
+                            @elseif ($recruitment->status === 'Ditolak')
+                                <span class="adm-badge adm-badge-danger"><span class="dot"></span>Ditolak</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div class="adm-info-row">
+                        <span class="adm-info-key">Tanggal Melamar</span>
+                        <span class="adm-info-val adm-mono" style="font-size:12px;font-weight:400;">
+                            {{ $recruitment->created_at->format('d M Y, H:i') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            {{-- Alasan Penolakan: muncul untuk semua recruit_type --}}
-                            <div class="form-group mb-0" id="alasanPenolakanWrapper"
-                                style="display: {{ $recruitment->status == 'Ditolak' ? 'block' : 'none' }};">
-                                <label for="alasan_penolakan" class="form-label">
-                                    <strong>Alasan Penolakan</strong>
-                                </label>
-                                <textarea name="alasan_penolakan" id="alasan_penolakan" class="form-control" rows="3"
-                                    placeholder="Masukkan alasan penolakan...">{{ old('alasan_penolakan', $recruitment->alasan_penolakan ?? '') }}</textarea>
-                                <small class="text-muted">
-                                    <i class="las la-info-circle me-1"></i>
-                                    Wajib diisi jika status ditolak
-                                </small>
-                            </div>
-                        </form>
+        <div style="display:flex;flex-direction:column;gap:16px;">
 
-                        @if ($recruitment->alasan_penolakan && $recruitment->status == 'Ditolak')
-                            <hr class="my-3">
-                            <div class="alert alert-danger mb-0">
-                                <strong><i class="las la-exclamation-triangle me-2"></i>Alasan Penolakan:</strong>
-                                <p class="mb-0 mt-2">{{ $recruitment->alasan_penolakan }}</p>
+            {{-- ── Card 2: Update Status ── --}}
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div class="adm-card-title">
+                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Update Status Lamaran
+                    </div>
+                </div>
+                <div style="padding:0 20px 20px;">
+                    <form action="{{ route('superadmin.recruitments.update-status', $recruitment->hashed_id) }}" method="POST">
+                        @csrf
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-end;margin-bottom:14px;">
+                            <div class="adm-field" style="margin-bottom:0;">
+                                <label class="adm-label" for="status-1">Status Lamaran <span class="req">*</span></label>
+                                <select name="status" id="status-1" class="adm-field-select" required>
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="Melamar" {{ $recruitment->status == 'Melamar' ? 'selected' : '' }}>Melamar</option>
+                                    <option value="Diterima" {{ $recruitment->status == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                                    <option value="Ditolak" {{ $recruitment->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                </select>
                             </div>
+                            <button type="submit" class="adm-btn-primary" style="height:38px;white-space:nowrap;">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Update
+                            </button>
+                        </div>
+
+                        @if ($recruitment->recruit_type == 'PENDAMPING')
+                        <div id="koordinatorWrapper" style="display:{{ $recruitment->status == 'Diterima' ? 'block' : 'none' }};">
+                            <div class="adm-field">
+                                <label class="adm-label" for="koordinator_id">Pilih Koordinator <span class="req">*</span></label>
+                                <select name="koordinator_id" id="koordinator_id" class="adm-field-select">
+                                    <option value="">-- Pilih Koordinator --</option>
+                                    @foreach ($koordinators as $koordinator)
+                                        <option value="{{ $koordinator->id }}" {{ $recruitment->koordinator_id == $koordinator->id ? 'selected' : '' }}>
+                                            {{ $koordinator->nama_lengkap }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <span class="adm-hint">Wajib diisi jika status diterima.</span>
+                            </div>
+                        </div>
                         @endif
-                    </div>
+
+                        <div id="alasanPenolakanWrapper" style="display:{{ $recruitment->status == 'Ditolak' ? 'block' : 'none' }};">
+                            <div class="adm-field">
+                                <label class="adm-label" for="alasan_penolakan">Alasan Penolakan <span class="req">*</span></label>
+                                <textarea name="alasan_penolakan" id="alasan_penolakan" class="adm-textarea" rows="3"
+                                    placeholder="Masukkan alasan penolakan...">{{ old('alasan_penolakan', $recruitment->alasan_penolakan ?? '') }}</textarea>
+                                <span class="adm-hint">Wajib diisi jika status ditolak.</span>
+                            </div>
+                        </div>
+                    </form>
+
+                    @if ($recruitment->alasan_penolakan && $recruitment->status == 'Ditolak')
+                        <div class="adm-alert adm-alert-danger" style="margin-top:14px;">
+                            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <div><strong>Alasan Penolakan:</strong><p style="margin:4px 0 0;font-size:13px;">{{ $recruitment->alasan_penolakan }}</p></div>
+                        </div>
+                    @endif
                 </div>
+            </div>
 
-                <!-- Section Foto -->
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <span><i class="las la-images me-2"></i>Dokumentasi Foto</span>
-                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#modalKolaseFoto">
-                            <i class="las la-th me-2"></i>Lihat Kolase
-                        </button>
+            {{-- ── Card 3: Dokumentasi Foto ── --}}
+            <div class="adm-card">
+                <div class="adm-card-header">
+                    <div class="adm-card-title">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Dokumentasi Foto
                     </div>
-                    <div class="card-body">
-                        <!-- Foto Diri -->
-                        <div class="form-group mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>Foto Diri (3x4)</strong>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalFotoDiri">
-                                        <i class="las la-eye me-2"></i>Lihat Foto
-                                    </button>
-                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_diri']) }}"
-                                        class="btn btn-success btn-sm">
-                                        <i class="las la-download me-2"></i>Download
-                                    </a>
-                                </div>
-                            </div>
+                    <button type="button" class="adm-btn" data-bs-toggle="modal" data-bs-target="#modalKolaseFoto"
+                        style="font-size:12px;padding:5px 12px;">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        Lihat Kolase
+                    </button>
+                </div>
+                <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;">
+                    {{-- Foto Diri --}}
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--adm-bg-muted);border-radius:8px;">
+                        <div style="font-size:13px;font-weight:600;">Foto Diri (3×4)</div>
+                        <div style="display:flex;gap:6px;">
+                            <button type="button" class="adm-btn primary" style="font-size:11px;padding:4px 10px;" data-bs-toggle="modal" data-bs-target="#modalFotoDiri">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat
+                            </button>
+                            <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->hashed_id, 'foto_diri']) }}" class="adm-btn success" style="font-size:11px;padding:4px 10px;">
+                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                            </a>
                         </div>
-
-                        <hr>
-
-                        <!-- Foto KTP -->
-                        <div class="form-group mb-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>Foto KTP</strong>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalFotoKTP">
-                                        <i class="las la-eye me-2"></i>Lihat Foto
-                                    </button>
-                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_ktp']) }}"
-                                        class="btn btn-success btn-sm">
-                                        <i class="las la-download me-2"></i>Download
-                                    </a>
-                                </div>
-                            </div>
+                    </div>
+                    {{-- Foto KTP --}}
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--adm-bg-muted);border-radius:8px;">
+                        <div style="font-size:13px;font-weight:600;">Foto KTP</div>
+                        <div style="display:flex;gap:6px;">
+                            <button type="button" class="adm-btn primary" style="font-size:11px;padding:4px 10px;" data-bs-toggle="modal" data-bs-target="#modalFotoKTP">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat
+                            </button>
+                            <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->hashed_id, 'foto_ktp']) }}" class="adm-btn success" style="font-size:11px;padding:4px 10px;">
+                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                            </a>
                         </div>
-                        <hr>
-                        <!-- Foto Ijasah -->
-                        <div class="form-group mb-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>File Ijasah</strong>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'foto_ijasah']) }}"
-                                        class="btn btn-success btn-sm">
-                                        <i class="las la-download me-2"></i>Download
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <!-- File Pakta Integritas -->
-                        <div class="form-group mb-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>Pakta Integritas</strong>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->id, 'pakta_integritas']) }}"
-                                        class="btn btn-success btn-sm">
-                                        <i class="las la-download me-2"></i>Download
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                    {{-- Foto Ijasah --}}
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--adm-bg-muted);border-radius:8px;">
+                        <div style="font-size:13px;font-weight:600;">File Ijasah</div>
+                        <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->hashed_id, 'foto_ijasah']) }}" class="adm-btn success" style="font-size:11px;padding:4px 10px;">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                        </a>
+                    </div>
+                    {{-- Pakta Integritas --}}
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--adm-bg-muted);border-radius:8px;">
+                        <div style="font-size:13px;font-weight:600;">Pakta Integritas</div>
+                        <a href="{{ route('superadmin.recruitments.download-foto', [$recruitment->hashed_id, 'pakta_integritas']) }}" class="adm-btn success" style="font-size:11px;padding:4px 10px;">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
-    </section>
+    </div>
+</div>
 
-    <!-- Modal Kolase Foto -->
-    <div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Kolase Dokumentasi Foto - {{ $recruitment->nama_lengkap }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-3" id="collageContent">
-                    <div class="row g-3">
-                        <!-- Foto Diri -->
-                        <div class="col-md-6">
-                            <div class="card shadow-sm">
-                                <div class="card-header bg-light py-2 px-3">
-                                    <small class="fw-bold">Foto Diri (3x4)</small>
-                                </div>
-                                <img src="{{ asset('storage/' . $recruitment->foto_diri) }}" alt="Foto Diri"
-                                    class="card-img-bottom collage-img"
-                                    style="height: 400px; object-fit: cover; cursor: pointer;"
-                                    onclick="viewFullImage('{{ asset('storage/' . $recruitment->foto_diri) }}', 'Foto Diri')">
-                            </div>
+{{-- Modal Kolase --}}
+<div class="modal fade" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kolase Dokumentasi Foto – {{ $recruitment->nama_lengkap }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3" id="collageContent">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light py-2 px-3"><small class="fw-bold">Foto Diri (3x4)</small></div>
+                            <img src="{{ asset('storage/' . $recruitment->foto_diri) }}" alt="Foto Diri" class="card-img-bottom collage-img"
+                                style="height:400px;object-fit:cover;cursor:pointer;"
+                                onclick="viewFullImage('{{ asset('storage/' . $recruitment->foto_diri) }}', 'Foto Diri')">
                         </div>
-
-                        <!-- Foto KTP -->
-                        <div class="col-md-6">
-                            <div class="card shadow-sm">
-                                <div class="card-header bg-light py-2 px-3">
-                                    <small class="fw-bold">Foto KTP</small>
-                                </div>
-                                <img src="{{ asset('storage/' . $recruitment->foto_ktp) }}" alt="Foto KTP"
-                                    class="card-img-bottom collage-img"
-                                    style="height: 400px; object-fit: cover; cursor: pointer;"
-                                    onclick="viewFullImage('{{ asset('storage/' . $recruitment->foto_ktp) }}', 'Foto KTP')">
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light py-2 px-3"><small class="fw-bold">Foto KTP</small></div>
+                            <img src="{{ asset('storage/' . $recruitment->foto_ktp) }}" alt="Foto KTP" class="card-img-bottom collage-img"
+                                style="height:400px;object-fit:cover;cursor:pointer;"
+                                onclick="viewFullImage('{{ asset('storage/' . $recruitment->foto_ktp) }}', 'Foto KTP')">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="las la-times me-2"></i>Tutup
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="downloadCollage()">
-                        <i class="las la-download me-2"></i>Download Kolase
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="printCollage()">
-                        <i class="las la-print me-2"></i>Print Kolase
-                    </button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="adm-btn success" onclick="downloadCollage()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Kolase
+                </button>
+                <button type="button" class="adm-btn primary" onclick="printCollage()">
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal View Full Image -->
-    <div class="modal fade" id="modalFullImage" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="fullImageTitle">Foto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-3">
-                    <img id="fullImageSrc" src="" alt="Full Image" class="img-fluid rounded"
-                        style="max-height: 600px;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="las la-times me-2"></i>Tutup
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="downloadSingleImage()">
-                        <i class="las la-download me-2"></i>Download Foto
-                    </button>
-                </div>
+{{-- Modal Full Image --}}
+<div class="modal fade" id="modalFullImage" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fullImageTitle">Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-3">
+                <img id="fullImageSrc" src="" alt="Full Image" class="img-fluid rounded" style="max-height:600px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="adm-btn success" onclick="downloadSingleImage()">Download Foto</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Foto Diri -->
-    <div class="modal fade" id="modalFotoDiri" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Foto Diri (3x4)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-3">
-                    <img src="{{ asset('storage/' . $recruitment->foto_diri) }}" alt="Foto Diri"
-                        class="img-fluid rounded" style="max-height: 500px;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="las la-times me-2"></i>Tutup
-                    </button>
-                </div>
+{{-- Modal Foto Diri --}}
+<div class="modal fade" id="modalFotoDiri" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Foto Diri (3x4)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center p-3">
+                <img src="{{ asset('storage/' . $recruitment->foto_diri) }}" alt="Foto Diri" class="img-fluid rounded" style="max-height:500px;">
             </div>
+            <div class="modal-footer"><button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Foto KTP -->
-    <div class="modal fade" id="modalFotoKTP" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Foto KTP</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-3">
-                    <img src="{{ asset('storage/' . $recruitment->foto_ktp) }}" alt="Foto KTP" class="img-fluid rounded"
-                        style="max-height: 500px;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="las la-times me-2"></i>Tutup
-                    </button>
-                </div>
+{{-- Modal Foto KTP --}}
+<div class="modal fade" id="modalFotoKTP" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Foto KTP</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center p-3">
+                <img src="{{ asset('storage/' . $recruitment->foto_ktp) }}" alt="Foto KTP" class="img-fluid rounded" style="max-height:500px;">
             </div>
+            <div class="modal-footer"><button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script>
-        // Auto hide alerts after 5 seconds
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Show/Hide Koordinator & Alasan Penolakan
+    document.getElementById('status-1').addEventListener('change', function() {
+        const recruitType = '{{ $recruitment->recruit_type }}';
+        const alasanWrapper = document.getElementById('alasanPenolakanWrapper');
+        const alasanTextarea = document.getElementById('alasan_penolakan');
+        if (recruitType === 'PENDAMPING') {
+            const koordinatorWrapper = document.getElementById('koordinatorWrapper');
+            const koordinatorSelect = document.getElementById('koordinator_id');
+            if (this.value === 'Diterima') { koordinatorWrapper.style.display = 'block'; koordinatorSelect.required = true; }
+            else { koordinatorWrapper.style.display = 'none'; koordinatorSelect.required = false; }
+        }
+        if (this.value === 'Ditolak') { alasanWrapper.style.display = 'block'; alasanTextarea.required = true; }
+        else { alasanWrapper.style.display = 'none'; alasanTextarea.required = false; }
+    });
 
-        // Show/Hide Koordinator dan Alasan Penolakan based on Status
-        document.getElementById('status-1').addEventListener('change', function() {
-            const recruitType = '{{ $recruitment->recruit_type }}';
-            const alasanWrapper = document.getElementById('alasanPenolakanWrapper');
-            const alasanTextarea = document.getElementById('alasan_penolakan');
+    function viewFullImage(src, title) {
+        document.getElementById('fullImageSrc').src = src;
+        document.getElementById('fullImageTitle').textContent = title;
+        new bootstrap.Modal(document.getElementById('modalFullImage')).show();
+    }
 
-            // Koordinator hanya untuk PENDAMPING
-            if (recruitType === 'PENDAMPING') {
-                const koordinatorWrapper = document.getElementById('koordinatorWrapper');
-                const koordinatorSelect = document.getElementById('koordinator_id');
+    function downloadSingleImage() {
+        const imgSrc = document.getElementById('fullImageSrc').src;
+        const imgTitle = document.getElementById('fullImageTitle').textContent;
+        fetch(imgSrc).then(r => r.blob()).then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = imgTitle.replace(/\s+/g, '_') + '.jpg';
+            document.body.appendChild(a); a.click();
+            URL.revokeObjectURL(url); document.body.removeChild(a);
+        }).catch(() => alert('Gagal mendownload gambar'));
+    }
 
-                if (this.value === 'Diterima') {
-                    koordinatorWrapper.style.display = 'block';
-                    koordinatorSelect.required = true;
-                } else {
-                    koordinatorWrapper.style.display = 'none';
-                    koordinatorSelect.required = false;
-                }
-            }
-
-            // Alasan penolakan berlaku untuk semua recruit_type
-            if (this.value === 'Ditolak') {
-                alasanWrapper.style.display = 'block';
-                alasanTextarea.required = true;
-            } else {
-                alasanWrapper.style.display = 'none';
-                alasanTextarea.required = false;
-            }
+    function downloadCollage() {
+        const el = document.getElementById('collageContent');
+        const nama = '{{ $recruitment->nama_lengkap }}';
+        const loading = Object.assign(document.createElement('div'), {
+            innerHTML: 'Memproses download...',
+            style: 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:20px;border-radius:10px;z-index:9999;'
         });
+        document.body.appendChild(loading);
+        html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'Kolase_' + nama.replace(/\s+/g, '_') + '.jpg';
+                document.body.appendChild(a); a.click();
+                URL.revokeObjectURL(url); document.body.removeChild(a);
+                document.body.removeChild(loading);
+            }, 'image/jpeg', 0.95);
+        }).catch(() => { alert('Gagal membuat kolase'); document.body.removeChild(loading); });
+    }
 
-        // View full image function
-        function viewFullImage(src, title) {
-            document.getElementById('fullImageSrc').src = src;
-            document.getElementById('fullImageTitle').textContent = title;
-            const modal = new bootstrap.Modal(document.getElementById('modalFullImage'));
-            modal.show();
-        }
-
-        // Download single image
-        function downloadSingleImage() {
-            const imgSrc = document.getElementById('fullImageSrc').src;
-            const imgTitle = document.getElementById('fullImageTitle').textContent;
-            const fileName = imgTitle.replace(/\s+/g, '_') + '.jpg';
-
-            fetch(imgSrc)
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                })
-                .catch(err => {
-                    console.error('Error downloading image:', err);
-                    alert('Gagal mendownload gambar');
-                });
-        }
-
-        // Download collage as image
-        function downloadCollage() {
-            const collageContent = document.getElementById('collageContent');
-            const namaLengkap = '{{ $recruitment->nama_lengkap }}';
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.innerHTML =
-                '<div class="text-center"><i class="las la-spinner fa-spin me-2"></i>Memproses download...</div>';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.top = '50%';
-            loadingDiv.style.left = '50%';
-            loadingDiv.style.transform = 'translate(-50%, -50%)';
-            loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.padding = '20px';
-            loadingDiv.style.borderRadius = '10px';
-            loadingDiv.style.zIndex = '9999';
-            document.body.appendChild(loadingDiv);
-
-            html2canvas(collageContent, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'Kolase_Foto_' + namaLengkap.replace(/\s+/g, '_') + '.jpg';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    document.body.removeChild(loadingDiv);
-                }, 'image/jpeg', 0.95);
-            }).catch(err => {
-                console.error('Error creating collage:', err);
-                alert('Gagal membuat kolase gambar');
-                document.body.removeChild(loadingDiv);
-            });
-        }
-
-        // Print collage function
-        function printCollage() {
-            const printContent = document.getElementById('collageContent').innerHTML;
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write('<html><head><title>Kolase Foto</title>');
-            printWindow.document.write(
-                '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">'
-            );
-            printWindow.document.write('<style>');
-            printWindow.document.write('.collage-img { height: 400px !important; object-fit: cover; }');
-            printWindow.document.write('.card { break-inside: avoid; }');
-            printWindow.document.write(
-                '@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }');
-            printWindow.document.write('</style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(
-                '<h3 class="text-center mb-4">Dokumentasi Foto - {{ $recruitment->nama_lengkap }}</h3>');
-            printWindow.document.write(printContent);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 250);
-        }
-    </script>
+    function printCollage() {
+        const content = document.getElementById('collageContent').innerHTML;
+        const w = window.open('', '', 'height=600,width=800');
+        w.document.write('<html><head><title>Kolase Foto</title>');
+        w.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">');
+        w.document.write('<style>.collage-img{height:400px!important;object-fit:cover}.card{break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact}}</style>');
+        w.document.write('</head><body>');
+        w.document.write('<h3 class="text-center mb-4">Dokumentasi Foto – {{ $recruitment->nama_lengkap }}</h3>');
+        w.document.write(content);
+        w.document.write('</body></html>');
+        w.document.close(); w.focus();
+        setTimeout(() => { w.print(); w.close(); }, 250);
+    }
+</script>
 @endsection

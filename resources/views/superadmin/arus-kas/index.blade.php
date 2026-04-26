@@ -1,114 +1,137 @@
 @extends('layouts.app')
-
 @section('template_title')
-    Cashflows
+    Arus Kas
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                <!-- Alert Messages -->
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="las la-check-circle me-2"></i>{{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+    <div class="adm-page">
+        @include('layouts.messages')
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="las la-exclamation-circle me-2"></i>{{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+        {{-- ── PAGE HEADER ── --}}
+        <div class="adm-header">
+            <div class="adm-header-left">
+                <h1>Arus Kas</h1>
+                <p>Kelola data pemasukan, pengeluaran, dan kas</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ route('superadmin.cashflow.index') }}" class="adm-btn-secondary">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                    </svg>
+                    Laporan
+                </a>
+                <a href="{{ route('superadmin.arus-kas.create') }}" class="adm-btn-primary">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Tambah Transaksi
+                </a>
+            </div>
+        </div>
 
-                            <span id="card_title">
-                                {{ __('Cashflows') }}
-                            </span>
-
-                            <div class="float-right">
-                                <a href="{{ route('superadmin.arus-kas.create') }}"
-                                    class="btn btn-primary btn-sm float-right" data-placement="left">
-                                    {{ __('Create New') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body bg-white">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                    <tr>
-                                        <th>No</th>
-
-                                        <th>Tipe</th>
-                                        <th>Jumlah</th>
-                                        <th>Tanggal</th>
-                                        <th>Keterangan</th>
-
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($cashflows as $cashflow)
-                                        <tr>
-                                            <td>{{ ++$i }}</td>
-
-                                            <td>
-                                                @if ($cashflow->tipe == 'Pemasukan')
-                                                    <span class="badge bg-success">{{ ucfirst($cashflow->tipe) }}</span>
-                                                @elseif($cashflow->tipe == 'Pengeluaran')
-                                                    <span class="badge bg-danger">{{ ucfirst($cashflow->tipe) }}</span>
-                                                @elseif($cashflow->tipe == 'Kas')
-                                                    <span class="badge bg-warning">{{ ucfirst($cashflow->tipe) }}</span>
-                                                @else
-                                                    <span class="badge bg-info">{{ ucfirst($cashflow->tipe) }}</span>
-                                                @endif
-                                            </td>
-                                            <td>Rp. {{ number_format($cashflow->jumlah, 0, ',', '.') }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($cashflow->tanggal)->format('d M Y') }}</td>
-                                            <td>{!! $cashflow->keterangan !!}</td>
-
-                                            <td>
-                                                <form action="{{ route('superadmin.arus-kas.destroy', $cashflow->id) }}"
-                                                    method="POST">
-                                                    {{-- <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#showModal{{ $cashflow->id }}">
-                                                        <i class="las la-eye"></i> {{ __('Show') }}
-                                                    </button> --}}
-                                                    <a class="btn btn-sm btn-success"
-                                                        href="{{ route('superadmin.arus-kas.edit', $cashflow->id) }}"><i
-                                                            class="las la-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i
-                                                            class="las la-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        {{-- @include('superadmin.arus-kas.partials.modal-cashflow') --}}
-                                    @empty
-                                        <tr>
-                                            <td colspan="100%" class="text-center py-4">
-                                                <div class="text-muted">
-                                                    <i class="las la-inbox la-3x mb-2"></i>
-                                                    <p class="mb-0">{{ __('No data available') }}</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        @include('layouts.pagination', ['paginator' => $cashflows])
-                    </div>
+        {{-- ── TABLE CARD ── --}}
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    Daftar Transaksi
+                    <span class="adm-count-badge">{{ $cashflows->total() }}</span>
                 </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="adm-table">
+                    <thead>
+                        <tr>
+                            <th style="width:44px">#</th>
+                            <th>Tipe</th>
+                            <th class="tr">Jumlah</th>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th class="tc" style="width:120px">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($cashflows as $cashflow)
+                            <tr>
+                                <td><span class="adm-rownum">{{ ++$i }}</span></td>
+                                <td>
+                                    @if ($cashflow->tipe == 'Pemasukan')
+                                        <span class="adm-badge adm-badge-success"><span
+                                                class="dot"></span>Pemasukan</span>
+                                    @elseif($cashflow->tipe == 'Pengeluaran')
+                                        <span class="adm-badge adm-badge-danger"><span
+                                                class="dot"></span>Pengeluaran</span>
+                                    @elseif($cashflow->tipe == 'Kas')
+                                        <span class="adm-badge adm-badge-pending"><span class="dot"></span>Kas</span>
+                                    @else
+                                        <span class="adm-badge adm-badge-info">{{ $cashflow->tipe }}</span>
+                                    @endif
+                                </td>
+                                <td class="tr adm-mono" style="font-weight:600;color:var(--adm-text-dark);">
+                                    Rp {{ number_format($cashflow->jumlah, 0, ',', '.') }}
+                                </td>
+                                <td style="color:var(--adm-text-muted);font-size:12.5px;">
+                                    {{ \Carbon\Carbon::parse($cashflow->tanggal)->format('d M Y') }}
+                                </td>
+                                <td style="max-width:260px;font-size:12.5px;color:var(--adm-text-muted);">
+                                    {!! $cashflow->keterangan !!}
+                                </td>
+                                <td class="tc">
+                                    <div class="adm-actions">
+                                        <a class="adm-btn primary icon-only"
+                                            href="{{ route('superadmin.arus-kas.edit', $cashflow->hashed_id) }}" title="Edit">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                            </svg>
+                                        </a>
+                                        <form action="{{ route('superadmin.arus-kas.destroy', $cashflow->hashed_id) }}"
+                                            method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="adm-btn danger icon-only" title="Hapus"
+                                                onclick="return confirm('Yakin hapus transaksi ini?')">
+                                                <svg viewBox="0 0 24 24">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path d="M19 6l-1 14H6L5 6" />
+                                                    <path d="M10 11v6" />
+                                                    <path d="M14 11v6" />
+                                                    <path d="M9 6V4h6v2" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6">
+                                    <div class="adm-empty">
+                                        <svg viewBox="0 0 24 24">
+                                            <line x1="12" y1="1" x2="12" y2="23" />
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                        <p>Belum ada data transaksi.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="adm-card-footer">
+                <span class="adm-footer-info">
+                    Menampilkan {{ $cashflows->firstItem() ?? 0 }}–{{ $cashflows->lastItem() ?? 0 }}
+                    dari {{ $cashflows->total() }} transaksi
+                </span>
+                @include('layouts.pagination', ['paginator' => $cashflows])
             </div>
         </div>
     </div>

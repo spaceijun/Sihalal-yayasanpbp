@@ -1,4 +1,4 @@
-<?php
+?php
 
 namespace App\Http\Controllers\Superadmin;
 
@@ -170,9 +170,9 @@ class DataLapanganController extends Controller
     /**
      * Download foto KTP yang tersimpan di storage.
      */
-    public function downloadFotoKTP($id)
+    public function downloadFotoKTP($hashedId)
     {
-        $dataLapangan = DataLapangan::findOrFail($id);
+        $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $fotoPath     = $this->imageService->getFotoKTPPath($dataLapangan);
 
         if (!$fotoPath) {
@@ -192,10 +192,10 @@ class DataLapanganController extends Controller
     /**
      * Download foto Pendamping
      */
-    public function downloadFotoPendamping($id)
+    public function downloadFotoPendamping($hashedId)
     {
         try {
-            $dataLapangan = DataLapangan::findOrFail($id);
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
             $downloadData = $this->imageDownloadService->downloadFotoPendamping($dataLapangan);
 
             return response()->download($downloadData['path'], $downloadData['filename'])->deleteFileAfterSend(true);
@@ -207,10 +207,10 @@ class DataLapanganController extends Controller
     /**
      * Download foto Produk (produk utama / foto_produk)
      */
-    public function downloadFotoProduk($id)
+    public function downloadFotoProduk($hashedId)
     {
         try {
-            $dataLapangan = DataLapangan::findOrFail($id);
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
             $downloadData = $this->imageDownloadService->downloadFotoProduk($dataLapangan);
 
             return response()->download($downloadData['path'], $downloadData['filename'])->deleteFileAfterSend(true);
@@ -259,18 +259,19 @@ class DataLapanganController extends Controller
     /**
      * Update the keterangan of a data lapangan.
      */
-    public function updateKeterangan(Request $request, $id): RedirectResponse
+    public function updateKeterangan(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
             'keterangan' => 'nullable|string|max:1000'
         ]);
 
-        $this->dataLapanganService->updateKeterangan($id, $request->keterangan);
+        $dataLapanganObj = DataLapangan::findByHashedIdOrFail($hashedId);
+        $this->dataLapanganService->updateKeterangan($dataLapanganObj->id, $request->keterangan);
 
         return redirect()->back()->with('success', 'Data berhasil diperbarui');
     }
 
-    public function updateEmail(Request $request, $id): RedirectResponse
+    public function updateEmail(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
             'email'              => 'required|email|max:255',
@@ -278,8 +279,8 @@ class DataLapanganController extends Controller
             'tanggal_verifikasi' => 'nullable|date',
         ]);
 
-        $this->dataLapanganService->updateEmail(
-            $id,
+        $dlObjEmail = DataLapangan::findByHashedIdOrFail($hashedId);
+        $this->dataLapanganService->updateEmail($dlObjEmail->id,
             $request->email,
             $request->verifikator_id,
             $request->tanggal_verifikasi
@@ -292,7 +293,7 @@ class DataLapanganController extends Controller
      * Upload gambar secara sekuensial (AJAX).
      *
      * Mendukung: foto_ktp, foto_rumah, foto_pendamping,
-     *            foto_produk, foto_produk_2 … foto_produk_5
+     *            foto_produk, foto_produk_2 â€¦ foto_produk_5
      *
      * POST /superadmin/data-lapangans/upload/{type}
      */
@@ -471,10 +472,10 @@ class DataLapanganController extends Controller
     /**
      * Download foto rumah as PDF
      */
-    public function downloadFotoRumahPdf($id)
+    public function downloadFotoRumahPdf($hashedId)
     {
         try {
-            $dataLapangan = DataLapangan::findOrFail($id);
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
             $pdf          = $this->pdfService->generateFotoRumahPdf($dataLapangan);
             $filename     = $this->pdfService->generatePdfFilename('Foto_Rumah', $dataLapangan->nama_pu);
 
@@ -498,15 +499,16 @@ class DataLapanganController extends Controller
     /**
      * Update email sihalal of a data lapangan.
      */
-    public function updateEmailSihalal(Request $request, $id): RedirectResponse
+    public function updateEmailSihalal(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
             'email_sihalal' => 'required|email|max:255',
         ]);
 
-        $dataLapangan = DataLapangan::findOrFail($id);
+        $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $dataLapangan->update(['email_sihalal' => $request->email_sihalal]);
 
         return redirect()->back()->with('success', 'Email Sihalal berhasil diperbarui');
     }
 }
+

@@ -1,41 +1,50 @@
-<div class="row padding-1 p-1">
-    <div class="col-md-12">
+{{-- ── NAME ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="name">Nama Lengkap <span class="req">*</span></label>
+    <input type="text" name="name" id="name"
+        class="adm-input @error('name') is-invalid @enderror"
+        value="{{ old('name', $user?->name) }}"
+        placeholder="Nama lengkap pengguna">
+    @error('name') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
 
-        <div class="form-group mb-2 mb20">
-            <label for="name" class="form-label">{{ __('Name') }}</label>
-            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                value="{{ old('name', $user?->name) }}" id="name" placeholder="Name">
-            {!! $errors->first('name', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="email" class="form-label">{{ __('Email') }}</label>
-            <input type="text" name="email" class="form-control @error('email') is-invalid @enderror"
-                value="{{ old('email', $user?->email) }}" id="email" placeholder="Email">
-            {!! $errors->first('email', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="telephone" class="form-label">{{ __('Telephone') }}</label>
-            <input type="number" name="telephone" class="form-control @error('telephone') is-invalid @enderror"
-                value="{{ old('telephone', $user?->telephone) }}" id="telephone" placeholder="Telephone">
-            {!! $errors->first('telephone', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-            <small class="text-danger">* Minimal 11 digit Maximal 15 digit</small>
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="password" class="form-label">{{ __('Password') }}</label>
-            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
-                value="" id="password" placeholder="Masukkan password baru">
-            <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah password</small>
-            {!! $errors->first('password', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="role" class="form-label">{{ __('Role') }}</label>
-            <input type="text" name="role" class="form-control @error('role') is-invalid @enderror"
-                value="{{ old('role', $user?->role) }}" id="role" placeholder="Role">
-            {!! $errors->first('role', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
+{{-- ── EMAIL ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="email">Email <span class="req">*</span></label>
+    <input type="email" name="email" id="email"
+        class="adm-input @error('email') is-invalid @enderror"
+        value="{{ old('email', $user?->email) }}"
+        placeholder="email@example.com">
+    @error('email') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
 
-    </div>
-    <div class="col-md-12 mt20 mt-2">
-        <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
-    </div>
+{{-- ── TELEPHONE ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="telephone">Nomor Telepon</label>
+    <input type="tel" name="telephone" id="telephone"
+        class="adm-input adm-mono @error('telephone') is-invalid @enderror"
+        value="{{ old('telephone', $user?->telephone) }}"
+        placeholder="08xxxxxxxxxx">
+    <span class="adm-hint">Minimal 11 digit, maksimal 15 digit</span>
+    @error('telephone') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── ROLE ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="role">Role <span class="req">*</span></label>
+    <input type="text" name="role" id="role"
+        class="adm-input @error('role') is-invalid @enderror"
+        value="{{ old('role', $user?->role) }}"
+        placeholder="admin / superadmin / user">
+    @error('role') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── PASSWORD ── --}}
+<div class="adm-field" style="grid-column:1/-1;">
+    <label class="adm-label" for="password">Password</label>
+    <input type="password" name="password" id="password"
+        class="adm-input @error('password') is-invalid @enderror"
+        placeholder="Masukkan password baru">
+    <span class="adm-hint">Kosongkan jika tidak ingin mengubah password.</span>
+    @error('password') <span class="adm-error-msg">{{ $message }}</span> @enderror
 </div>

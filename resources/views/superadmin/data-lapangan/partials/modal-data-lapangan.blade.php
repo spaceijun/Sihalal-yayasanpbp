@@ -92,7 +92,7 @@
                             class="btn btn-sm btn-primary">
                             <i class="ri-eye-line"></i> Lihat Foto
                         </a>
-                        <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                        <a href="{{ route('superadmin.datalapangan.download-foto-rumah-pdf', $dataLapangan->hashed_id) }}"
                             class="btn btn-sm btn-success">
                             <i class="ri-download-line"></i> Download PDF
                         </a>

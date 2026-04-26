@@ -6,6 +6,7 @@ use App\Models\DataEntry;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
 use App\Models\User;
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Koordinator extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 
@@ -83,3 +85,4 @@ class Koordinator extends Model
         return $this->belongsToMany(DataEntry::class, 'data_entry_koordinator', 'koordinator_id', 'data_entry_id');
     }
 }
+

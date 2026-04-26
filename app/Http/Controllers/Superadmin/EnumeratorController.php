@@ -79,9 +79,10 @@ class EnumeratorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($hashedId)
     {
-        $enumerator = Enumerator::with(['koordinator', 'bank'])->find($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
+        $enumerator->load(['koordinator', 'bank']);
 
         return view('superadmin.enumerator.show', compact('enumerator'));
     }
@@ -89,9 +90,10 @@ class EnumeratorController extends Controller
     /**
      * Tampilkan galeri foto per enumerator (foto_pendamping & foto_produk)
      */
-    public function gallery($id): View
+    public function gallery($hashedId): View
     {
-        $enumerator = Enumerator::with(['koordinator', 'dataLapangans'])->findOrFail($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
+        $enumerator->load(['koordinator', 'dataLapangans']);
 
         return view('superadmin.enumerator.gallery', compact('enumerator'));
     }
@@ -99,9 +101,10 @@ class EnumeratorController extends Controller
     /**
      * Download foto dari data lapangan milik enumerator
      */
-    public function downloadFoto($id, $type): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadFoto($hashedId, $type): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        $enumerator = Enumerator::with('dataLapangans')->findOrFail($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
+        $enumerator->load('dataLapangans');
 
         $allowed = ['foto_pendamping', 'foto_produk'];
 
@@ -136,9 +139,9 @@ class EnumeratorController extends Controller
      * Download foto per entri data lapangan
      * Route: /enumerators/{id}/download-foto/{dataId}/{type}
      */
-    public function downloadFotoByEntry($id, $dataId, $type): StreamedResponse
+    public function downloadFotoByEntry($hashedId, $dataId, $type): StreamedResponse
     {
-        $enumerator = Enumerator::findOrFail($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
 
         $allowed = ['foto_pendamping', 'foto_produk'];
 
@@ -169,9 +172,10 @@ class EnumeratorController extends Controller
     /**
      * Generate and display Surat Tugas
      */
-    public function suratTugas($id)
+    public function suratTugas($hashedId)
     {
-        $enumerator = Enumerator::with('koordinator')->findOrFail($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
+        $enumerator->load('koordinator');
 
         return view('superadmin.enumerator.partials.surat', compact('enumerator'));
     }
@@ -179,9 +183,9 @@ class EnumeratorController extends Controller
     /**
      * Generate ID Card as HTML
      */
-    public function idCard($id)
+    public function idCard($hashedId)
     {
-        $enumerator = Enumerator::find($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.enumerator.partials.idcard', compact('enumerator'));
     }
@@ -189,9 +193,9 @@ class EnumeratorController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $enumerator   = Enumerator::find($id);
+        $enumerator   = Enumerator::findByHashedIdOrFail($hashedId);
         $koordinators = Koordinator::all();
         $banks        = DataBank::orderBy('name')->get();
         return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators', 'banks'));
@@ -210,9 +214,9 @@ class EnumeratorController extends Controller
     /**
      * Aktifkan kembali enumerator yang berstatus Tidak Aktif.
      */
-    public function aktivasi($id): RedirectResponse
+    public function aktivasi($hashedId): RedirectResponse
     {
-        $enumerator = Enumerator::findOrFail($id);
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
 
         if ($enumerator->status === 'Tidak Aktif') {
             $enumerator->update(['status' => 'Aktif']);
@@ -228,9 +232,9 @@ class EnumeratorController extends Controller
     /**
      * Delete the specified resource.
      */
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Enumerator::find($id)->delete();
+        Enumerator::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.enumerators.index')
             ->with('success', 'Enumerator deleted successfully');

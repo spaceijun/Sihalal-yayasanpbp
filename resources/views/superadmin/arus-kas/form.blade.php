@@ -1,57 +1,47 @@
-<div class="row padding-1 p-1">
-    <div class="col-md-12">
-
-        <div class="form-group mb-2 mb20">
-            <label for="tipe" class="form-label">{{ __('Tipe') }}</label>
-            <select name="tipe" class="form-control @error('tipe') is-invalid @enderror" id="tipe">
-                <option value="">-- Pilih Tipe --</option>
-                <option value="Pemasukan" {{ old('tipe', $cashflow?->tipe) == 'Pemasukan' ? 'selected' : '' }}>Pemasukan
-                </option>
-                <option value="Pengeluaran" {{ old('tipe', $cashflow?->tipe) == 'Pengeluaran' ? 'selected' : '' }}>
-                    Pengeluaran</option>
-                <option value="Kas" {{ old('tipe', $cashflow?->tipe) == 'Kas' ? 'selected' : '' }}>Kas</option>
-            </select>
-            {!! $errors->first('tipe', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="tanggal" class="form-label">{{ __('Tanggal') }}</label>
-            <input type="date" name="tanggal" class="form-control @error('tanggal') is-invalid @enderror"
-                value="{{ old('tanggal', $cashflow?->tanggal) }}" id="tanggal" placeholder="tanggal">
-            {!! $errors->first('tanggal', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="jumlah" class="form-label">{{ __('Jumlah') }}</label>
-            <input type="number" name="jumlah" class="form-control @error('jumlah') is-invalid @enderror"
-                value="{{ old('jumlah', $cashflow?->jumlah) }}" id="jumlah" placeholder="Jumlah">
-            {!! $errors->first('jumlah', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-
-        <div class="form-group mb-2 mb20">
-            <label for="keterangan" class="form-label">{{ __('Keterangan') }}</label>
-            <textarea name="keterangan" class="form-control @error('keterangan') is-invalid @enderror" id="keterangan"
-                rows="5" placeholder="Keterangan">{{ old('keterangan', $cashflow?->keterangan) }}</textarea>
-            {!! $errors->first('keterangan', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-
-    </div>
-    <div class="col-md-12 mt20 mt-2">
-        <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
-    </div>
+{{-- ── TIPE ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="tipe">Tipe <span class="req">*</span></label>
+    <select name="tipe" id="tipe" class="adm-field-select @error('tipe') is-invalid @enderror">
+        <option value="">-- Pilih Tipe --</option>
+        <option value="Pemasukan" {{ old('tipe', $cashflow?->tipe) == 'Pemasukan' ? 'selected' : '' }}>Pemasukan</option>
+        <option value="Pengeluaran" {{ old('tipe', $cashflow?->tipe) == 'Pengeluaran' ? 'selected' : '' }}>Pengeluaran</option>
+        <option value="Kas" {{ old('tipe', $cashflow?->tipe) == 'Kas' ? 'selected' : '' }}>Kas</option>
+    </select>
+    @error('tipe') <span class="adm-error-msg">{{ $message }}</span> @enderror
 </div>
 
-<!-- CKEditor 5 CDN -->
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+{{-- ── TANGGAL ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="tanggal">Tanggal <span class="req">*</span></label>
+    <input type="date" name="tanggal" id="tanggal"
+        class="adm-input @error('tanggal') is-invalid @enderror"
+        value="{{ old('tanggal', $cashflow?->tanggal) }}">
+    @error('tanggal') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── JUMLAH ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="jumlah">Jumlah <span class="req">*</span></label>
+    <input type="number" name="jumlah" id="jumlah"
+        class="adm-input @error('jumlah') is-invalid @enderror"
+        value="{{ old('jumlah', $cashflow?->jumlah) }}"
+        placeholder="contoh: 500000">
+    @error('jumlah') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── KETERANGAN ── --}}
+<div class="adm-field full-span">
+    <label class="adm-label" for="keterangan">Keterangan</label>
+    <textarea name="keterangan" id="keterangan" rows="5"
+        class="adm-textarea @error('keterangan') is-invalid @enderror"
+        placeholder="Keterangan transaksi...">{{ old('keterangan', $cashflow?->keterangan) }}</textarea>
+    @error('keterangan') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
 <script>
-    ClassicEditor
-        .create(document.querySelector('#keterangan'), {
-            toolbar: [
-                'heading', '|',
-                'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                'blockQuote', 'insertTable', '|',
-                'undo', 'redo'
-            ]
-        })
-        .catch(error => {
-            console.error(error);
-        });
+    if (typeof ClassicEditor !== 'undefined') {
+        ClassicEditor.create(document.querySelector('#keterangan'), {
+            toolbar: ['heading','|','bold','italic','link','bulletedList','numberedList','|','blockQuote','insertTable','|','undo','redo']
+        }).catch(error => console.error(error));
+    }
 </script>

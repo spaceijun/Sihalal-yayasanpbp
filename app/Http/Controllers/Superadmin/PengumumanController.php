@@ -106,9 +106,9 @@ class PengumumanController extends Controller
             ->with('success', 'Pengumuman updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Pengumuman::find($id)->delete();
+        Pengumuman::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.pengumumen.index')
             ->with('success', 'Pengumuman deleted successfully');
@@ -138,3 +138,4 @@ class PengumumanController extends Controller
         return $nomor;
     }
 }
+

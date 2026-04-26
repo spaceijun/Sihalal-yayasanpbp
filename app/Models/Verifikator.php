@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Verifikator extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 
@@ -68,3 +69,4 @@ class Verifikator extends Model
         return $this->belumDibayar()->count();
     }
 }
+

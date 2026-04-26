@@ -113,9 +113,9 @@ class RecruitmentController extends Controller
         return Redirect::route('recruitment.confirm', $recruitment->hashed_id);
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $hashedId)
     {
-        $recruitment = Recruitment::findOrFail($id);
+        $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
         $recruitType = $recruitment->recruit_type; // PENDAMPING atau DATA ENTRY
 
         // Validasi dinamis berdasarkan recruit_type
@@ -130,7 +130,7 @@ class RecruitmentController extends Controller
                 'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak',
             ]);
         } else {
-            // DATA ENTRY — hanya bisa Diterima/Ditolak/Melamar, tanpa koordinator
+            // DATA ENTRY â€” hanya bisa Diterima/Ditolak/Melamar, tanpa koordinator
             $request->validate([
                 'status' => 'required|in:Melamar,Diterima,Ditolak',
                 'alasan_penolakan' => 'required_if:status,Ditolak|nullable',
@@ -150,7 +150,7 @@ class RecruitmentController extends Controller
                 $recruitment->alasan_penolakan = null;
 
                 if ($recruitType == 'PENDAMPING') {
-                    // ── PENDAMPING: butuh koordinator, buat/update Enumerator ──
+                    // â”€â”€ PENDAMPING: butuh koordinator, buat/update Enumerator â”€â”€
                     $recruitment->koordinator_id = $request->koordinator_id;
 
                     $existingEnumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
@@ -192,7 +192,7 @@ class RecruitmentController extends Controller
                         $message = 'Status lamaran berhasil diperbarui dan data enumerator telah diupdate!';
                     }
                 } else {
-                    // ── DATA ENTRY: tidak butuh koordinator, tidak buat Enumerator ──
+                    // â”€â”€ DATA ENTRY: tidak butuh koordinator, tidak buat Enumerator â”€â”€
                     $recruitment->koordinator_id = null;
                     $message = 'Status lamaran DATA ENTRY berhasil diperbarui menjadi diterima!';
                 }
@@ -242,9 +242,9 @@ class RecruitmentController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-    public function downloadFoto($id, $type)
+    public function downloadFoto($hashedId, $type)
     {
-        $recruitment = Recruitment::findOrFail($id);
+        $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
         $filePath = storage_path('app/public/' . $recruitment->$type);
 
         if (file_exists($filePath)) {
@@ -257,9 +257,9 @@ class RecruitmentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $recruitment = Recruitment::with('koordinator')->findOrFail($id);
+        $recruitment = Recruitment::with('koordinator')->findOrFail(Recruitment::findByHashedIdOrFail($hashedId)->id);
         $koordinators = Koordinator::all();
 
         return view('superadmin.recruitment.show', compact('recruitment', 'koordinators'));
@@ -300,3 +300,6 @@ class RecruitmentController extends Controller
         return view('publik.confirm', compact('recruitment'));
     }
 }
+
+
+

@@ -59,20 +59,18 @@ class SpotcheckController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $spotcheck = Spotcheck::find($id);
-
+        $spotcheck = Spotcheck::findByHashedIdOrFail($hashedId);
         return view('superadmin.spotcheck.show', compact('spotcheck'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $spotcheck = Spotcheck::find($id);
-
+        $spotcheck = Spotcheck::findByHashedIdOrFail($hashedId);
         return view('superadmin.spotcheck.edit', compact('spotcheck'));
     }
 
@@ -87,11 +85,12 @@ class SpotcheckController extends Controller
             ->with('success', 'Spotcheck updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Spotcheck::find($id)->delete();
+        Spotcheck::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.spotchecks.index')
             ->with('success', 'Spotcheck deleted successfully');
     }
 }
+

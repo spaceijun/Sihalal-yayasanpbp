@@ -47,20 +47,18 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $user = User::find($id);
-
+        $user = User::findByHashedIdOrFail($hashedId);
         return view('superadmin.user.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $user = User::find($id);
-
+        $user = User::findByHashedIdOrFail($hashedId);
         return view('superadmin.user.edit', compact('user'));
     }
 
@@ -75,11 +73,12 @@ class UserController extends Controller
             ->with('success', 'User updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        User::find($id)->delete();
+        User::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.users.index')
             ->with('success', 'User deleted successfully');
     }
 }
+

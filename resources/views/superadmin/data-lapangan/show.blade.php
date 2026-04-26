@@ -300,7 +300,7 @@
                                 </div>
                             </div>
                         @endif
-                        <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
+                        <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
                             <label
@@ -388,7 +388,7 @@
                                 'label' => 'Foto KTP',
                                 'modal' => 'modalFotoKTP',
                                 'foto' => $dataLapangan->foto_ktp,
-                                'dl_route' => route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->id),
+                                'dl_route' => route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->hashed_id),
                                 'dl_label' => 'KTP',
                                 'dl_class' => 'dl-btn-primary',
                             ],
@@ -459,7 +459,7 @@
                                         <i class="las la-eye"></i>
                                     </button>
                                     @if ($idx === 1)
-                                        <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                        <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->hashed_id) }}"
                                             class="dl-btn dl-btn-success dl-btn-sm">
                                             <i class="las la-download"></i> Download
                                         </a>
@@ -733,7 +733,7 @@
                                 data verifikasi di bawah ini.</div>
                         </div>
 
-                        <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->id) }}"
+                        <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
                             method="POST" id="formVerifikasi">
                             @csrf
                             <div style="margin-bottom:.85rem;">
@@ -797,7 +797,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->id) }}"
+                <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
                     method="POST">
                     @csrf
                     <div class="modal-body">
@@ -837,7 +837,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-lapangans.update-email-sihalal', $dataLapangan->id) }}"
+                <form action="{{ route('superadmin.data-lapangans.update-email-sihalal', $dataLapangan->hashed_id) }}"
                     method="POST">
                     @csrf @method('PATCH')
                     <div class="modal-body">

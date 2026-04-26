@@ -1,24 +1,12 @@
-@extends('layouts.guest')
+﻿@extends('layouts.guest')
 @section('title', 'Form Data Lapangan')
 @section('content')
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Sora:wght@400;600&display=swap');
-
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         .fh-root {
             min-height: 100vh;
             background-color: #EEF3FA;
-            background-image:
-                radial-gradient(ellipse 70% 50% at 10% 5%, rgba(180, 210, 255, 0.5) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 40% at 90% 90%, rgba(160, 220, 200, 0.25) 0%, transparent 55%);
+            background-image: radial-gradient(ellipse 70% 50% at 10% 5%, rgba(180, 210, 255, .5) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 90% 90%, rgba(160, 220, 200, .25) 0%, transparent 55%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             padding: 2rem 1rem 3rem;
             position: relative;
@@ -28,25 +16,26 @@
             content: '';
             position: fixed;
             inset: 0;
-            background-image: radial-gradient(circle, rgba(100, 140, 200, 0.1) 1px, transparent 1px);
+            background-image: radial-gradient(circle, rgba(100, 140, 200, .1) 1px, transparent 1px);
             background-size: 28px 28px;
             pointer-events: none;
             z-index: 0;
         }
 
+        /* Orbs */
         .fh-orb {
             position: fixed;
             border-radius: 50%;
             filter: blur(80px);
             pointer-events: none;
             z-index: 0;
-            animation: fhFloat 14s ease-in-out infinite;
+            animation: pubFloat 14s ease-in-out infinite;
         }
 
         .fh-orb-1 {
             width: 380px;
             height: 380px;
-            background: rgba(130, 180, 255, 0.2);
+            background: rgba(130, 180, 255, .2);
             top: -80px;
             left: -80px;
         }
@@ -54,28 +43,13 @@
         .fh-orb-2 {
             width: 260px;
             height: 260px;
-            background: rgba(100, 210, 180, 0.16);
+            background: rgba(100, 210, 180, .16);
             bottom: -60px;
             right: -60px;
             animation-delay: -6s;
         }
 
-        @keyframes fhFloat {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            40% {
-                transform: translate(16px, -16px);
-            }
-
-            70% {
-                transform: translate(-10px, 10px);
-            }
-        }
-
+        /* Layout */
         .fh-wrap {
             position: relative;
             z-index: 1;
@@ -86,7 +60,7 @@
             align-items: flex-start;
         }
 
-        /* ── LEFT PANEL ── */
+        /* Left panel */
         .fh-left {
             width: 310px;
             flex-shrink: 0;
@@ -95,8 +69,8 @@
             background: linear-gradient(145deg, #1A5FC8 0%, #1040A0 55%, #0C2E78 100%);
             border-radius: 20px;
             padding: 2rem 1.75rem;
-            box-shadow: 0 20px 50px rgba(16, 64, 160, 0.25);
-            animation: cardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+            box-shadow: 0 20px 50px rgba(16, 64, 160, .25);
+            animation: pubCardIn .55s cubic-bezier(.16, 1, .3, 1) both;
             overflow: hidden;
         }
 
@@ -106,7 +80,7 @@
             width: 260px;
             height: 260px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, .06);
             top: -80px;
             right: -80px;
             pointer-events: none;
@@ -118,24 +92,13 @@
             width: 160px;
             height: 160px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, .04);
             bottom: 20px;
             left: -50px;
             pointer-events: none;
         }
 
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        /* Brand */
         .fh-brand {
             display: flex;
             align-items: center;
@@ -148,8 +111,8 @@
         .fh-brand-icon {
             width: 42px;
             height: 42px;
-            background: rgba(255, 255, 255, 0.13);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, .13);
+            border: 1px solid rgba(255, 255, 255, .2);
             border-radius: 11px;
             display: flex;
             align-items: center;
@@ -166,7 +129,7 @@
             font-family: 'Sora', sans-serif;
             font-size: 12.5px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.95);
+            color: rgba(255, 255, 255, .95);
             line-height: 1.4;
         }
 
@@ -174,7 +137,7 @@
             display: block;
             font-size: 11px;
             font-weight: 400;
-            color: rgba(255, 255, 255, 0.42);
+            color: rgba(255, 255, 255, .42);
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
@@ -184,7 +147,7 @@
             font-weight: 600;
             color: #fff;
             line-height: 1.4;
-            margin-bottom: 0.6rem;
+            margin-bottom: .6rem;
             position: relative;
             z-index: 1;
         }
@@ -196,13 +159,14 @@
 
         .fh-left-desc {
             font-size: 12.5px;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, .5);
             line-height: 1.7;
             margin-bottom: 1.75rem;
             position: relative;
             z-index: 1;
         }
 
+        /* Steps */
         .fh-steps {
             display: flex;
             flex-direction: column;
@@ -222,8 +186,8 @@
             width: 26px;
             height: 26px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, .12);
+            border: 1px solid rgba(255, 255, 255, .2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -236,19 +200,20 @@
 
         .fh-step-text {
             font-size: 12.5px;
-            color: rgba(255, 255, 255, 0.65);
+            color: rgba(255, 255, 255, .65);
             line-height: 1.6;
         }
 
         .fh-step-text strong {
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, .9);
             font-weight: 500;
             display: block;
         }
 
+        /* Info box */
         .fh-info-box {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.11);
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .11);
             border-radius: 13px;
             padding: 1.1rem 1.25rem;
             position: relative;
@@ -261,7 +226,7 @@
             font-weight: 600;
             color: #7DD3C8;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: .08em;
             margin-bottom: 8px;
         }
 
@@ -286,13 +251,14 @@
 
         .fh-info-text {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255, 255, 255, .55);
             line-height: 1.5;
         }
 
+        /* Quote */
         .fh-quote {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.11);
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .11);
             border-radius: 13px;
             padding: 1.1rem 1.25rem;
             position: relative;
@@ -309,7 +275,7 @@
 
         .fh-quote-text {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, .6);
             line-height: 1.7;
             font-style: italic;
         }
@@ -317,22 +283,23 @@
         .fh-quote-author {
             margin-top: 8px;
             font-size: 10.5px;
-            color: rgba(255, 255, 255, 0.28);
-            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, .28);
+            letter-spacing: .04em;
             text-transform: uppercase;
         }
 
-        /* ── RIGHT PANEL ── */
+        /* Right panel */
         .fh-right {
             flex: 1;
             min-width: 0;
-            background: #ffffff;
+            background: #fff;
             border-radius: 20px;
             padding: 2.5rem 2.25rem;
-            box-shadow: 0 0 0 1px rgba(100, 140, 210, 0.12), 0 24px 60px rgba(60, 100, 180, 0.1);
-            animation: cardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+            box-shadow: 0 0 0 1px rgba(100, 140, 210, .12), 0 24px 60px rgba(60, 100, 180, .1);
+            animation: pubCardIn .55s cubic-bezier(.16, 1, .3, 1) .08s both;
         }
 
+        /* Form header */
         .fh-form-header {
             margin-bottom: 1.5rem;
         }
@@ -362,7 +329,7 @@
             font-weight: 600;
             color: #1A5FC8;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: .07em;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -376,92 +343,6 @@
             background: #EDF0F7;
         }
 
-        /* Alerts */
-        .alert-success-modern {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            background: #EBF9F5;
-            border: 1px solid #A7DDD0;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-bottom: 1.25rem;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert-success-modern svg {
-            width: 15px;
-            height: 15px;
-            stroke: #0F6E56;
-            fill: none;
-            stroke-width: 2;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .alert-success-modern .alt-text {
-            font-size: 13px;
-            color: #0A5240;
-            flex: 1;
-            line-height: 1.5;
-        }
-
-        .alert-danger-modern {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            background: #FEF2F2;
-            border: 1px solid #FECACA;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-bottom: 1.25rem;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert-danger-modern svg {
-            width: 15px;
-            height: 15px;
-            stroke: #EF4444;
-            fill: none;
-            stroke-width: 2;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .alert-danger-modern .alt-text {
-            font-size: 13px;
-            color: #B91C1C;
-            flex: 1;
-            line-height: 1.5;
-        }
-
-        .alt-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-            color: inherit;
-            opacity: 0.4;
-            padding: 0;
-        }
-
-        .alt-close:hover {
-            opacity: 0.8;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         /* Fields */
         .fh-field {
             margin-bottom: 1.1rem;
@@ -473,11 +354,12 @@
             font-weight: 600;
             color: #6B7A99;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: .07em;
             margin-bottom: 6px;
         }
 
-        .fh-label .req {
+        .fh-label .req,
+        .fh-field .req {
             color: #EF4444;
             margin-left: 2px;
         }
@@ -493,7 +375,7 @@
             color: #0F1F40;
             font-family: 'Plus Jakarta Sans', sans-serif;
             outline: none;
-            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            transition: border-color .2s, background .2s, box-shadow .2s;
         }
 
         .fh-input,
@@ -528,7 +410,7 @@
         .fh-textarea:focus {
             border-color: #1A5FC8;
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 95, 200, .1);
         }
 
         .fh-input.is-invalid,
@@ -552,7 +434,7 @@
             display: block;
         }
 
-        /* Search Pendamping */
+        /* Search pendamping */
         .fh-search-wrap {
             position: relative;
         }
@@ -563,7 +445,7 @@
             background: #fff;
             border: 1px solid #E0E7F0;
             border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(60, 100, 180, 0.1);
+            box-shadow: 0 8px 24px rgba(60, 100, 180, .1);
             margin-top: 4px;
             z-index: 1000;
             overflow: hidden;
@@ -577,7 +459,7 @@
             font-size: 13.5px;
             color: #0F1F40;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: background .15s;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -699,7 +581,7 @@
             color: #6B7A99;
             font-family: 'Plus Jakarta Sans', sans-serif;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
+            transition: border-color .2s, background .2s;
         }
 
         .fh-file-input:hover {
@@ -710,7 +592,7 @@
         .fh-file-input:focus {
             outline: none;
             border-color: #1A5FC8;
-            box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 95, 200, .1);
         }
 
         .fh-file-input.is-invalid {
@@ -725,7 +607,7 @@
             gap: 12px;
         }
 
-        /* ── PRODUK TAMBAHAN ── */
+        /* Produk list */
         .fh-produk-list {
             display: flex;
             flex-direction: column;
@@ -739,18 +621,18 @@
             padding: 1.1rem 1.25rem;
             margin-bottom: 10px;
             position: relative;
-            animation: itemSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation: itemSlideIn .28s cubic-bezier(.16, 1, .3, 1) both;
         }
 
         @keyframes itemSlideIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(-10px)
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0)
             }
         }
 
@@ -758,7 +640,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 0.85rem;
+            margin-bottom: .85rem;
         }
 
         .fh-produk-item-title {
@@ -769,7 +651,7 @@
             align-items: center;
             gap: 7px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: .06em;
         }
 
         .fh-produk-item-title .produk-num {
@@ -791,93 +673,74 @@
             gap: 10px;
         }
 
-        /* Remove button */
+        /* Buttons */
         .fh-btn-remove {
             display: flex;
             align-items: center;
             gap: 5px;
             background: #FEF2F2;
             border: 1px solid #FECACA;
-            color: #DC2626;
             border-radius: 8px;
+            padding: 6px 12px;
             font-size: 12px;
-            font-weight: 600;
-            padding: 5px 10px;
-            cursor: pointer;
-            transition: background 0.15s, transform 0.15s;
+            color: #EF4444;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
         }
 
         .fh-btn-remove:hover {
-            background: #FEE2E2;
-            transform: scale(1.03);
+            background: #EF4444;
+            color: #fff;
+            border-color: #EF4444;
         }
 
         .fh-btn-remove svg {
             width: 13px;
             height: 13px;
-            stroke: currentColor;
             fill: none;
-            stroke-width: 2.5;
+            stroke: currentColor;
+            stroke-width: 2;
         }
 
-        /* Add product button */
         .fh-btn-add-produk {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 7px;
             width: 100%;
-            background: #fff;
-            border: 1.5px dashed #1A5FC8;
-            color: #1A5FC8;
-            border-radius: 11px;
+            padding: 10px 16px;
+            background: #F5F7FB;
+            border: 1.5px dashed #C8D3E8;
+            border-radius: 10px;
             font-size: 13.5px;
-            font-weight: 600;
-            padding: 11px 14px;
-            cursor: pointer;
-            transition: background 0.18s, border-color 0.18s, transform 0.15s;
+            color: #6B7A99;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
             margin-bottom: 1.25rem;
         }
 
         .fh-btn-add-produk:hover {
+            border-color: #1A5FC8;
+            color: #1A5FC8;
             background: #EEF4FF;
-            border-color: #1040A0;
-            transform: translateY(-1px);
-        }
-
-        .fh-btn-add-produk:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .fh-btn-add-produk svg {
             width: 16px;
             height: 16px;
-            stroke: currentColor;
             fill: none;
-            stroke-width: 2.5;
+            stroke: currentColor;
+            stroke-width: 2;
         }
 
-        /* max-produk notice */
         .fh-max-notice {
-            display: none;
             font-size: 12px;
-            color: #8A99B3;
-            text-align: center;
+            color: #F59E0B;
+            display: none;
             margin-bottom: 1rem;
         }
 
-        /* Form lock overlay */
-        .fh-form-locked {
-            opacity: 0.4;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Submit */
         .fh-submit {
             width: 100%;
             height: 48px;
@@ -893,15 +756,28 @@
             align-items: center;
             justify-content: center;
             gap: 9px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 16px rgba(26, 95, 200, 0.28);
+            transition: all .2s;
+            box-shadow: 0 4px 16px rgba(26, 95, 200, .28);
             position: relative;
             overflow: hidden;
         }
 
+        .fh-submit::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, .1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity .2s;
+        }
+
+        .fh-submit:hover::before {
+            opacity: 1;
+        }
+
         .fh-submit:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 28px rgba(26, 95, 200, 0.36);
+            box-shadow: 0 8px 28px rgba(26, 95, 200, .36);
         }
 
         .fh-submit:active {
@@ -909,7 +785,7 @@
         }
 
         .fh-submit:disabled {
-            opacity: 0.7;
+            opacity: .7;
             cursor: not-allowed;
             transform: none;
         }
@@ -918,45 +794,32 @@
             width: 17px;
             height: 17px;
             fill: none;
-            stroke: rgba(255, 255, 255, 0.85);
+            stroke: rgba(255, 255, 255, .85);
             stroke-width: 2;
         }
 
-        .fh-spinner {
-            width: 17px;
-            height: 17px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        /* Back link & footer */
         .fh-back-link {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             font-size: 13px;
-            color: #1A5FC8;
+            color: #8A99B3;
             text-decoration: none;
-            margin-top: 1.25rem;
+            transition: color .2s;
+            margin-top: 1rem;
+        }
+
+        .fh-back-link:hover {
+            color: #1A5FC8;
         }
 
         .fh-back-link svg {
             width: 14px;
             height: 14px;
-            stroke: currentColor;
             fill: none;
+            stroke: currentColor;
             stroke-width: 2;
-        }
-
-        .fh-back-link:hover {
-            text-decoration: underline;
         }
 
         .fh-footer {
@@ -966,7 +829,8 @@
             color: #B0BCCE;
         }
 
-        @media (max-width: 768px) {
+        /* Responsive */
+        @media (max-width:768px) {
             .fh-wrap {
                 flex-direction: column;
             }
@@ -976,7 +840,6 @@
                 position: static;
             }
 
-            .fh-steps,
             .fh-info-box {
                 display: none;
             }
@@ -988,349 +851,363 @@
         }
     </style>
 
+
     <div class="fh-root">
-        <div class="fh-orb fh-orb-1"></div>
-        <div class="fh-orb fh-orb-2"></div>
+        </style>
 
-        <div class="fh-wrap">
+        <div class="fh-root">
+            <div class="fh-orb fh-orb-1"></div>
+            <div class="fh-orb fh-orb-2"></div>
 
-            {{-- ── LEFT PANEL ── --}}
-            <div class="fh-left">
-                <div class="fh-brand">
-                    <div class="fh-brand-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-                    <div class="fh-brand-name">
-                        Kawulo Halal
-                        <small>Sertifikasi Produk Halal Untuk UMKM Low-Risk</small>
-                    </div>
-                </div>
+            <div class="fh-wrap">
 
-                <p class="fh-left-title">Form Data<br><em>Lapangan</em></p>
-                <p class="fh-left-desc">Isi data lapangan dengan lengkap dan akurat agar proses sertifikasi berjalan lancar.
-                </p>
-
-                <div class="fh-steps">
-                    <div class="fh-step">
-                        <div class="fh-step-num">1</div>
-                        <div class="fh-step-text"><strong>Pilih Pendamping</strong>Cari dan pilih nama pendamping aktif
+                {{-- â”€â”€ LEFT PANEL â”€â”€ --}}
+                <div class="fh-left">
+                    <div class="fh-brand">
+                        <div class="fh-brand-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        <div class="fh-brand-name">
+                            Kawulo Halal
+                            <small>Sertifikasi Produk Halal Untuk UMKM Low-Risk</small>
                         </div>
                     </div>
-                    <div class="fh-step">
-                        <div class="fh-step-num">2</div>
-                        <div class="fh-step-text"><strong>Data Pelaku Usaha</strong>Isi nama PU, produk, NIK & alamat</div>
-                    </div>
-                    <div class="fh-step">
-                        <div class="fh-step-num">3</div>
-                        <div class="fh-step-text"><strong>Upload Dokumentasi</strong>Foto KTP, rumah, pendamping & produk
+
+                    <p class="fh-left-title">Form Data<br><em>Lapangan</em></p>
+                    <p class="fh-left-desc">Isi data lapangan dengan lengkap dan akurat agar proses sertifikasi berjalan
+                        lancar.
+                    </p>
+
+                    <div class="fh-steps">
+                        <div class="fh-step">
+                            <div class="fh-step-num">1</div>
+                            <div class="fh-step-text"><strong>Pilih Pendamping</strong>Cari dan pilih nama pendamping aktif
+                            </div>
+                        </div>
+                        <div class="fh-step">
+                            <div class="fh-step-num">2</div>
+                            <div class="fh-step-text"><strong>Data Pelaku Usaha</strong>Isi nama PU, produk, NIK & alamat
+                            </div>
+                        </div>
+                        <div class="fh-step">
+                            <div class="fh-step-num">3</div>
+                            <div class="fh-step-text"><strong>Upload Dokumentasi</strong>Foto KTP, rumah, pendamping &
+                                produk
+                            </div>
+                        </div>
+                        <div class="fh-step">
+                            <div class="fh-step-num">4</div>
+                            <div class="fh-step-text"><strong>Simpan Data</strong>Tinjau kembali dan simpan data lapangan
+                            </div>
                         </div>
                     </div>
-                    <div class="fh-step">
-                        <div class="fh-step-num">4</div>
-                        <div class="fh-step-text"><strong>Simpan Data</strong>Tinjau kembali dan simpan data lapangan</div>
-                    </div>
-                </div>
 
-                <div class="fh-info-box">
-                    <div class="fh-info-title">Ketentuan Foto</div>
-                    <div class="fh-info-row">
-                        <div class="fh-info-dot"></div>
-                        <div class="fh-info-text">Format: JPG, PNG, JPEG</div>
-                    </div>
-                    <div class="fh-info-row">
-                        <div class="fh-info-dot"></div>
-                        <div class="fh-info-text">Ukuran maksimal 10MB per foto</div>
-                    </div>
-                    <div class="fh-info-row">
-                        <div class="fh-info-dot"></div>
-                        <div class="fh-info-text">Foto harus jelas dan tidak buram</div>
-                    </div>
-                    <div class="fh-info-row">
-                        <div class="fh-info-dot"></div>
-                        <div class="fh-info-text">NIK harus tepat 16 digit angka</div>
-                    </div>
-                    <div class="fh-info-row">
-                        <div class="fh-info-dot"></div>
-                        <div class="fh-info-text">Maksimal 5 produk per pendaftaran</div>
-                    </div>
-                </div>
-
-                <div class="fh-quote">
-                    <div class="fh-quote-mark">"</div>
-                    <p class="fh-quote-text">Data yang akurat adalah kunci keberhasilan program sertifikasi halal.</p>
-                    <p class="fh-quote-author">— Kawulo Halal</p>
-                </div>
-            </div>
-
-            {{-- ── RIGHT PANEL ── --}}
-            <div class="fh-right">
-
-                <div class="fh-form-header">
-                    <h2>Form Data Lapangan</h2>
-                    <p>Lengkapi semua data dengan benar dan teliti</p>
-                </div>
-                <div class="fh-divider"></div>
-
-                @if (session('success'))
-                    <div class="alert-success-modern" id="alertSuccess">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                        <div class="alt-text"><strong>Berhasil!</strong> {{ session('success') }}</div>
-                        <button class="alt-close" onclick="this.closest('.alert-success-modern').remove()">&times;</button>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert-danger-modern" id="alertError">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="8" x2="12" y2="12" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
-                        <div class="alt-text"><strong>Gagal!</strong> {{ session('error') }}</div>
-                        <button class="alt-close" onclick="this.closest('.alert-danger-modern').remove()">&times;</button>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('formulir.halal.store') }}" enctype="multipart/form-data"
-                    id="formDataLapangan" novalidate>
-                    @csrf
-
-                    {{-- SECTION 1: PENDAMPING --}}
-                    <div class="fh-section-title">Pendamping</div>
-
-                    <div class="fh-field">
-                        <label class="fh-label">Nama Pendamping <span class="req">*</span></label>
-                        <div class="fh-search-wrap">
-                            <input type="text" id="enumerator_search" class="fh-input"
-                                placeholder="Ketik untuk mencari pendamping..." autocomplete="off">
-                            <div id="search_results" class="fh-search-dropdown"></div>
+                    <div class="fh-info-box">
+                        <div class="fh-info-title">Ketentuan Foto</div>
+                        <div class="fh-info-row">
+                            <div class="fh-info-dot"></div>
+                            <div class="fh-info-text">Format: JPG, PNG, JPEG</div>
                         </div>
-                        <select id="enumerator_id" name="enumerator_id"
-                            class="fh-select @error('enumerator_id') is-invalid @enderror" required style="display:none;">
-                            <option value="">-- Pilih Pendamping --</option>
-                            @foreach ($enumerators as $enumerator)
-                                <option value="{{ $enumerator->id }}" data-name="{{ $enumerator->nama_lengkap }}"
-                                    data-status="{{ $enumerator->status }}"
-                                    {{ old('enumerator_id') == $enumerator->id ? 'selected' : '' }}>
-                                    {{ $enumerator->nama_lengkap }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <div id="selected_enumerator" style="display:none;">
-                            <div class="fh-selected-box">
+                        <div class="fh-info-row">
+                            <div class="fh-info-dot"></div>
+                            <div class="fh-info-text">Ukuran maksimal 10MB per foto</div>
+                        </div>
+                        <div class="fh-info-row">
+                            <div class="fh-info-dot"></div>
+                            <div class="fh-info-text">Foto harus jelas dan tidak buram</div>
+                        </div>
+                        <div class="fh-info-row">
+                            <div class="fh-info-dot"></div>
+                            <div class="fh-info-text">NIK harus tepat 16 digit angka</div>
+                        </div>
+                        <div class="fh-info-row">
+                            <div class="fh-info-dot"></div>
+                            <div class="fh-info-text">Maksimal 5 produk per pendaftaran</div>
+                        </div>
+                    </div>
+
+                    <div class="fh-quote">
+                        <div class="fh-quote-mark">"</div>
+                        <p class="fh-quote-text">Data yang akurat adalah kunci keberhasilan program sertifikasi halal.</p>
+                        <p class="fh-quote-author">â€” Kawulo Halal</p>
+                    </div>
+                </div>
+
+                {{-- â”€â”€ RIGHT PANEL â”€â”€ --}}
+                <div class="fh-right">
+
+                    <div class="fh-form-header">
+                        <h2>Form Data Lapangan</h2>
+                        <p>Lengkapi semua data dengan benar dan teliti</p>
+                    </div>
+                    <div class="fh-divider"></div>
+
+                    @if (session('success'))
+                        <div class="alert-success-modern" id="alertSuccess">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <div class="alt-text"><strong>Berhasil!</strong> {{ session('success') }}</div>
+                            <button class="alt-close"
+                                onclick="this.closest('.alert-success-modern').remove()">&times;</button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert-danger-modern" id="alertError">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <div class="alt-text"><strong>Gagal!</strong> {{ session('error') }}</div>
+                            <button class="alt-close"
+                                onclick="this.closest('.alert-danger-modern').remove()">&times;</button>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('formulir.halal.store') }}" enctype="multipart/form-data"
+                        id="formDataLapangan" novalidate>
+                        @csrf
+
+                        {{-- SECTION 1: PENDAMPING --}}
+                        <div class="fh-section-title">Pendamping</div>
+
+                        <div class="fh-field">
+                            <label class="fh-label">Nama Pendamping <span class="req">*</span></label>
+                            <div class="fh-search-wrap">
+                                <input type="text" id="enumerator_search" class="fh-input"
+                                    placeholder="Ketik untuk mencari pendamping..." autocomplete="off">
+                                <div id="search_results" class="fh-search-dropdown"></div>
+                            </div>
+                            <select id="enumerator_id" name="enumerator_id"
+                                class="fh-select @error('enumerator_id') is-invalid @enderror" required
+                                style="display:none;">
+                                <option value="">-- Pilih Pendamping --</option>
+                                @foreach ($enumerators as $enumerator)
+                                    <option value="{{ $enumerator->id }}" data-name="{{ $enumerator->nama_lengkap }}"
+                                        data-status="{{ $enumerator->status }}"
+                                        {{ old('enumerator_id') == $enumerator->id ? 'selected' : '' }}>
+                                        {{ $enumerator->nama_lengkap }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div id="selected_enumerator" style="display:none;">
+                                <div class="fh-selected-box">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    <span class="fh-selected-text">Terpilih: <span id="selected_name"></span></span>
+                                </div>
+                            </div>
+                            <div id="alert_tidak_aktif" style="display:none;">
+                                <div class="fh-alert-inactive">
+                                    <svg viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                    <div class="fh-alert-inactive-text">
+                                        <strong>Pendamping Tidak Aktif</strong><br>
+                                        Pendamping <strong id="nama_tidak_aktif"></strong> sedang berstatus tidak aktif
+                                        karena tidak memenuhi target minimal 20 data lapangan dalam 30 hari terakhir.
+                                        Silakan pilih pendamping lain atau hubungi koordinator.
+                                    </div>
+                                </div>
+                            </div>
+                            @error('enumerator_id')
+                                <span class="fh-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        {{-- SECTION 2: DATA PU --}}
+                        <div class="fh-section-title" style="margin-top:1.5rem;">Data Pelaku Usaha</div>
+
+                        <div id="formFields">
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="nama_pu">Nama PU <span class="req">*</span></label>
+                                <input type="text" id="nama_pu" name="nama_pu"
+                                    class="fh-input @error('nama_pu') is-invalid @enderror" value="{{ old('nama_pu') }}"
+                                    required autofocus placeholder="Masukkan nama pelaku usaha"
+                                    style="text-transform:uppercase;">
+                                <span class="fh-hint">Nama akan otomatis diubah ke huruf besar</span>
+                                @error('nama_pu')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="telephone">Nomor Telepon <span
+                                        class="req">*</span></label>
+                                <input type="text" id="telephone" name="telephone"
+                                    class="fh-input @error('telephone') is-invalid @enderror"
+                                    value="{{ old('telephone') }}" required placeholder="Contoh: 081234567890"
+                                    maxlength="15" inputmode="numeric">
+                                <span class="fh-hint">Nomor telepon aktif (10â€“15 digit)</span>
+                                @error('telephone')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="nik">NIK <span class="req">*</span></label>
+                                <input type="text" id="nik" name="nik"
+                                    class="fh-input @error('nik') is-invalid @enderror" value="{{ old('nik') }}"
+                                    required placeholder="Masukkan NIK (16 digit)" maxlength="16" inputmode="numeric">
+                                <div class="fh-nik-row">
+                                    <span class="fh-nik-count" id="nikCounter">0/16 digit</span>
+                                    <span class="fh-nik-status err" id="nikStatus">Belum lengkap</span>
+                                </div>
+                                @error('nik')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="alamat">Alamat <span class="req">*</span></label>
+                                <textarea id="alamat" name="alamat" class="fh-textarea @error('alamat') is-invalid @enderror" required
+                                    placeholder="Masukkan alamat lengkap pelaku usaha">{{ old('alamat') }}</textarea>
+                                @error('alamat')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            {{-- SECTION 3: PRODUK --}}
+                            <div class="fh-section-title" style="margin-top:1.5rem;">Produk</div>
+
+                            {{-- Produk Utama --}}
+                            <div class="fh-produk-item" style="border-color:#BAD7F5; background:#F0F6FF;">
+                                <div class="fh-produk-item-header">
+                                    <div class="fh-produk-item-title">
+                                        <div class="produk-num">1</div>
+                                        Produk Utama
+                                    </div>
+                                </div>
+                                <div class="fh-produk-item-grid">
+                                    <div class="fh-field" style="margin-bottom:0;">
+                                        <label class="fh-label" for="nama_produk">Nama Produk <span
+                                                class="req">*</span></label>
+                                        <input type="text" id="nama_produk" name="nama_produk"
+                                            class="fh-input @error('nama_produk') is-invalid @enderror"
+                                            value="{{ old('nama_produk') }}" required placeholder="Nama produk utama">
+                                        @error('nama_produk')
+                                            <span class="fh-error">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="fh-field" style="margin-bottom:0;">
+                                        <label class="fh-label" for="foto_produk">Foto Produk <span
+                                                class="req">*</span></label>
+                                        <input type="file" id="foto_produk" name="foto_produk"
+                                            class="fh-file-input @error('foto_produk') is-invalid @enderror"
+                                            accept="image/*" required>
+                                        <span class="fh-hint">JPG/PNG. Maks 10MB</span>
+                                        @error('foto_produk')
+                                            <span class="fh-error">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Produk Tambahan (dinamis) --}}
+                            <div id="produkTambahanList" class="fh-produk-list"></div>
+
+                            {{-- Tombol Tambah Produk --}}
+                            <button type="button" class="fh-btn-add-produk" id="btnAddProduk">
                                 <svg viewBox="0 0 24 24">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                    <circle cx="12" cy="7" r="4" />
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
                                 </svg>
-                                <span class="fh-selected-text">Terpilih: <span id="selected_name"></span></span>
-                            </div>
-                        </div>
-                        <div id="alert_tidak_aktif" style="display:none;">
-                            <div class="fh-alert-inactive">
-                                <svg viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="12" y1="8" x2="12" y2="12" />
-                                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                                <div class="fh-alert-inactive-text">
-                                    <strong>Pendamping Tidak Aktif</strong><br>
-                                    Pendamping <strong id="nama_tidak_aktif"></strong> sedang berstatus tidak aktif
-                                    karena tidak memenuhi target minimal 20 data lapangan dalam 30 hari terakhir.
-                                    Silakan pilih pendamping lain atau hubungi koordinator.
-                                </div>
-                            </div>
-                        </div>
-                        @error('enumerator_id')
-                            <span class="fh-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                                Tambah Produk Lain
+                            </button>
+                            <p class="fh-max-notice" id="maxProdukNotice">Maksimal 5 produk telah tercapai.</p>
 
-                    {{-- SECTION 2: DATA PU --}}
-                    <div class="fh-section-title" style="margin-top:1.5rem;">Data Pelaku Usaha</div>
+                            {{-- SECTION 4: DOKUMENTASI --}}
+                            <div class="fh-section-title" style="margin-top:0.5rem;">Dokumentasi</div>
 
-                    <div id="formFields">
-
-                        <div class="fh-field">
-                            <label class="fh-label" for="nama_pu">Nama PU <span class="req">*</span></label>
-                            <input type="text" id="nama_pu" name="nama_pu"
-                                class="fh-input @error('nama_pu') is-invalid @enderror" value="{{ old('nama_pu') }}"
-                                required autofocus placeholder="Masukkan nama pelaku usaha"
-                                style="text-transform:uppercase;">
-                            <span class="fh-hint">Nama akan otomatis diubah ke huruf besar</span>
-                            @error('nama_pu')
-                                <span class="fh-error">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="fh-field">
-                            <label class="fh-label" for="telephone">Nomor Telepon <span class="req">*</span></label>
-                            <input type="text" id="telephone" name="telephone"
-                                class="fh-input @error('telephone') is-invalid @enderror" value="{{ old('telephone') }}"
-                                required placeholder="Contoh: 081234567890" maxlength="15" inputmode="numeric">
-                            <span class="fh-hint">Nomor telepon aktif (10–15 digit)</span>
-                            @error('telephone')
-                                <span class="fh-error">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="fh-field">
-                            <label class="fh-label" for="nik">NIK <span class="req">*</span></label>
-                            <input type="text" id="nik" name="nik"
-                                class="fh-input @error('nik') is-invalid @enderror" value="{{ old('nik') }}" required
-                                placeholder="Masukkan NIK (16 digit)" maxlength="16" inputmode="numeric">
-                            <div class="fh-nik-row">
-                                <span class="fh-nik-count" id="nikCounter">0/16 digit</span>
-                                <span class="fh-nik-status err" id="nikStatus">Belum lengkap</span>
-                            </div>
-                            @error('nik')
-                                <span class="fh-error">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="fh-field">
-                            <label class="fh-label" for="alamat">Alamat <span class="req">*</span></label>
-                            <textarea id="alamat" name="alamat" class="fh-textarea @error('alamat') is-invalid @enderror" required
-                                placeholder="Masukkan alamat lengkap pelaku usaha">{{ old('alamat') }}</textarea>
-                            @error('alamat')
-                                <span class="fh-error">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        {{-- SECTION 3: PRODUK --}}
-                        <div class="fh-section-title" style="margin-top:1.5rem;">Produk</div>
-
-                        {{-- Produk Utama --}}
-                        <div class="fh-produk-item" style="border-color:#BAD7F5; background:#F0F6FF;">
-                            <div class="fh-produk-item-header">
-                                <div class="fh-produk-item-title">
-                                    <div class="produk-num">1</div>
-                                    Produk Utama
-                                </div>
-                            </div>
-                            <div class="fh-produk-item-grid">
-                                <div class="fh-field" style="margin-bottom:0;">
-                                    <label class="fh-label" for="nama_produk">Nama Produk <span
-                                            class="req">*</span></label>
-                                    <input type="text" id="nama_produk" name="nama_produk"
-                                        class="fh-input @error('nama_produk') is-invalid @enderror"
-                                        value="{{ old('nama_produk') }}" required placeholder="Nama produk utama">
-                                    @error('nama_produk')
-                                        <span class="fh-error">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="fh-field" style="margin-bottom:0;">
-                                    <label class="fh-label" for="foto_produk">Foto Produk <span
-                                            class="req">*</span></label>
-                                    <input type="file" id="foto_produk" name="foto_produk"
-                                        class="fh-file-input @error('foto_produk') is-invalid @enderror" accept="image/*"
+                            <div class="fh-photo-grid">
+                                <div class="fh-field">
+                                    <label class="fh-label" for="foto_ktp">Foto KTP <span class="req">*</span></label>
+                                    <input type="file" id="foto_ktp" name="foto_ktp"
+                                        class="fh-file-input @error('foto_ktp') is-invalid @enderror" accept="image/*"
                                         required>
                                     <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                    @error('foto_produk')
+                                    @error('foto_ktp')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label" for="foto_rumah">Foto Rumah <span
+                                            class="req">*</span></label>
+                                    <input type="file" id="foto_rumah" name="foto_rumah"
+                                        class="fh-file-input @error('foto_rumah') is-invalid @enderror" accept="image/*"
+                                        required>
+                                    <span class="fh-hint">JPG/PNG. Maks 10MB</span>
+                                    @error('foto_rumah')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label" for="foto_pendamping">Foto Pendamping <span
+                                            class="req">*</span></label>
+                                    <input type="file" id="foto_pendamping" name="foto_pendamping"
+                                        class="fh-file-input @error('foto_pendamping') is-invalid @enderror"
+                                        accept="image/*" required>
+                                    <span class="fh-hint">JPG/PNG. Maks 10MB</span>
+                                    @error('foto_pendamping')
                                         <span class="fh-error">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Produk Tambahan (dinamis) --}}
-                        <div id="produkTambahanList" class="fh-produk-list"></div>
+                            <div style="margin-top:1.5rem;">
+                                <button class="fh-submit" type="submit" id="submitBtn">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                        <polyline points="17 21 17 13 7 13 7 21" />
+                                        <polyline points="7 3 7 8 15 8" />
+                                    </svg>
+                                    Simpan Data
+                                </button>
+                            </div>
 
-                        {{-- Tombol Tambah Produk --}}
-                        <button type="button" class="fh-btn-add-produk" id="btnAddProduk">
+                        </div>{{-- end #formFields --}}
+
+                    </form>
+
+                    <div style="text-align:center;">
+                        <a href="{{ route('superadmin.data-lapangans.index') }}" class="fh-back-link">
                             <svg viewBox="0 0 24 24">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="15 18 9 12 15 6" />
                             </svg>
-                            Tambah Produk Lain
-                        </button>
-                        <p class="fh-max-notice" id="maxProdukNotice">Maksimal 5 produk telah tercapai.</p>
+                            Kembali ke List
+                        </a>
+                    </div>
 
-                        {{-- SECTION 4: DOKUMENTASI --}}
-                        <div class="fh-section-title" style="margin-top:0.5rem;">Dokumentasi</div>
-
-                        <div class="fh-photo-grid">
-                            <div class="fh-field">
-                                <label class="fh-label" for="foto_ktp">Foto KTP <span class="req">*</span></label>
-                                <input type="file" id="foto_ktp" name="foto_ktp"
-                                    class="fh-file-input @error('foto_ktp') is-invalid @enderror" accept="image/*"
-                                    required>
-                                <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                @error('foto_ktp')
-                                    <span class="fh-error">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="fh-field">
-                                <label class="fh-label" for="foto_rumah">Foto Rumah <span class="req">*</span></label>
-                                <input type="file" id="foto_rumah" name="foto_rumah"
-                                    class="fh-file-input @error('foto_rumah') is-invalid @enderror" accept="image/*"
-                                    required>
-                                <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                @error('foto_rumah')
-                                    <span class="fh-error">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="fh-field">
-                                <label class="fh-label" for="foto_pendamping">Foto Pendamping <span
-                                        class="req">*</span></label>
-                                <input type="file" id="foto_pendamping" name="foto_pendamping"
-                                    class="fh-file-input @error('foto_pendamping') is-invalid @enderror" accept="image/*"
-                                    required>
-                                <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                @error('foto_pendamping')
-                                    <span class="fh-error">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div style="margin-top:1.5rem;">
-                            <button class="fh-submit" type="submit" id="submitBtn">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                                    <polyline points="17 21 17 13 7 13 7 21" />
-                                    <polyline points="7 3 7 8 15 8" />
-                                </svg>
-                                Simpan Data
-                            </button>
-                        </div>
-
-                    </div>{{-- end #formFields --}}
-
-                </form>
-
-                <div style="text-align:center;">
-                    <a href="{{ route('superadmin.data-lapangans.index') }}" class="fh-back-link">
-                        <svg viewBox="0 0 24 24">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                        Kembali ke List
-                    </a>
+                    <div class="fh-footer">
+                        &copy;
+                        <script>
+                            document.write(new Date().getFullYear())
+                        </script> Kawulo Halal. All rights reserved.
+                    </div>
                 </div>
 
-                <div class="fh-footer">
-                    &copy;
-                    <script>
-                        document.write(new Date().getFullYear())
-                    </script> Kawulo Halal. All rights reserved.
-                </div>
             </div>
-
         </div>
-    </div>
 
-    {{-- Inject enumerator status map dari PHP ke JS --}}
-    <script>
-        const enumeratorStatusMap = {
-            @foreach ($enumerators as $enumerator)
-                {{ $enumerator->id }}: "{{ $enumerator->status }}",
-            @endforeach
-        };
-    </script>
-    <script src="{{ asset('assets/js/form-halal.js') }}"></script>
-@endsection
+        {{-- Inject enumerator status map dari PHP ke JS --}}
+        <script>
+            const enumeratorStatusMap = {
+                @foreach ($enumerators as $enumerator)
+                    {{ $enumerator->id }}: "{{ $enumerator->status }}",
+                @endforeach
+            };
+        </script>
+        <script src="{{ asset('assets/js/form-halal.js') }}"></script>
+    @endsection

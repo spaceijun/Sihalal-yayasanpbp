@@ -1,403 +1,214 @@
 @extends('layouts.app')
 @section('template_title')
-    Cashflows
+    Laporan Arus Kas
 @endsection
+
 @section('content')
-    {{-- Summary Cards --}}
-    <div class="row">
-        <div class="col-xl-3">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Pemasukan</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span id="totalPemasukan">Rp 0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-trending-up text-success"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="adm-page">
+
+    {{-- ── PAGE HEADER ── --}}
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1>Laporan Arus Kas</h1>
+            <p>Ringkasan pemasukan, pengeluaran, dan neraca kas</p>
         </div>
-        <div class="col-xl-3">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Pengeluaran</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span id="totalPengeluaran">Rp 0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-danger-subtle rounded fs-3">
-                                <i class="bx bx-trending-down text-danger"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <a href="{{ route('superadmin.arus-kas.index') }}" class="adm-btn-secondary">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Kelola Transaksi
+        </a>
+    </div>
+
+    {{-- ── STAT CARDS ── --}}
+    <div class="adm-stats" style="margin-bottom:22px;">
+        <div class="adm-stat is-accent">
+            <div class="adm-stat-label">Total Pemasukan</div>
+            <div class="adm-stat-value" id="totalPemasukan">Rp 0</div>
+            <div class="adm-stat-sub">Semua waktu</div>
         </div>
-        <div class="col-xl-3">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Total Kas</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span id="totalKas">Rp 0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-primary-subtle rounded fs-3">
-                                <i class="bx bx-wallet text-primary"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="adm-stat">
+            <div class="adm-stat-label">Total Pengeluaran</div>
+            <div class="adm-stat-value is-danger" id="totalPengeluaran">Rp 0</div>
+            <div class="adm-stat-sub">Semua waktu</div>
         </div>
-        <div class="col-xl-3">
-            <div class="card card-animate">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <p class="text-uppercase fw-medium text-muted mb-0">Net Cashflow</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-between mt-4">
-                        <div>
-                            <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                <span id="netCashflow">Rp 0</span>
-                            </h4>
-                        </div>
-                        <div class="avatar-sm flex-shrink-0" id="netCashflowIcon">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="bx bx-line-chart text-success"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="adm-stat">
+            <div class="adm-stat-label">Total Kas</div>
+            <div class="adm-stat-value is-warn" id="totalKas">Rp 0</div>
+            <div class="adm-stat-sub">Semua waktu</div>
+        </div>
+        <div class="adm-stat">
+            <div class="adm-stat-label">Net Cashflow</div>
+            <div class="adm-stat-value is-success" id="netCashflow">Rp 0</div>
+            <div class="adm-stat-sub">Pemasukan − Pengeluaran</div>
         </div>
     </div>
 
-    {{-- Chart dengan 2 Tab --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
-            <ul class="nav nav-tabs card-header-tabs" id="chartTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="tab-pemasukan" data-bs-toggle="tab"
-                        data-bs-target="#panel-pemasukan" type="button" role="tab">
-                        <i class="bx bx-trending-up me-1 text-success"></i> Pemasukan
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="tab-pengeluaran" data-bs-toggle="tab" data-bs-target="#panel-pengeluaran"
-                        type="button" role="tab">
-                        <i class="bx bx-trending-down me-1 text-danger"></i> Pengeluaran
-                    </button>
-                </li>
-            </ul>
-        </div>
-        <div class="card-body">
-            <div class="tab-content" id="chartTabContent">
-                <div class="tab-pane fade show active" id="panel-pemasukan" role="tabpanel">
-                    <canvas id="chartPemasukan" height="100"></canvas>
-                </div>
-                <div class="tab-pane fade" id="panel-pengeluaran" role="tabpanel">
-                    <canvas id="chartPengeluaran" height="100"></canvas>
-                </div>
+    {{-- ── CHARTS ── --}}
+    <div class="adm-card" style="margin-bottom:22px;">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                Tren Bulanan
             </div>
+            <div style="display:flex;gap:4px;">
+                <button class="adm-btn primary" id="btnTabPemasukan" onclick="switchTab('pemasukan')">
+                    Pemasukan
+                </button>
+                <button class="adm-btn" id="btnTabPengeluaran" onclick="switchTab('pengeluaran')">
+                    Pengeluaran
+                </button>
+            </div>
+        </div>
+        <div style="padding:20px;">
+            <div id="panelPemasukan"><canvas id="chartPemasukan" height="100"></canvas></div>
+            <div id="panelPengeluaran" style="display:none;"><canvas id="chartPengeluaran" height="100"></canvas></div>
         </div>
     </div>
 
-    {{-- Tabel 10 Transaksi Terakhir --}}
-    <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex align-items-center justify-content-between">
-            <h5 class="mb-0">10 Transaksi Terakhir</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Tipe</th>
-                            <th>Keterangan</th>
-                            <th class="text-end">Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionTable">
-                        <tr>
-                            <td colspan="4" class="text-center">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <span class="ms-2">Memuat data...</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    {{-- ── RECENT TRANSACTIONS ── --}}
+    <div class="adm-card">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                10 Transaksi Terakhir
             </div>
         </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script>
-        let chartPemasukanInstance = null;
-        let chartPengeluaranInstance = null;
-
-        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-            'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-        ];
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(amount);
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
-        }
-
-        function fetchData() {
-            const url = '{{ route('superadmin.cashflows.data') }}';
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    processData(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('transactionTable').innerHTML =
-                        '<tr><td colspan="4" class="text-center text-danger">Gagal memuat data</td></tr>';
-                });
-        }
-
-        function processData(cashflows) {
-            let totalPemasukan = 0;
-            let totalPengeluaran = 0;
-            let totalKas = 0;
-
-            // Data per bulan untuk chart (indeks 0 = Januari, 11 = Desember)
-            const pemasukanPerBulan = Array(12).fill(0);
-            const pengeluaranPerBulan = Array(12).fill(0);
-
-            const currentYear = new Date().getFullYear();
-
-            cashflows.forEach(item => {
-                const jumlah = parseFloat(item.jumlah);
-                const date = new Date(item.created_at);
-                const bulanIndex = date.getMonth(); // 0–11
-                const tahun = date.getFullYear();
-
-                if (item.tipe === 'Pemasukan') {
-                    totalPemasukan += jumlah;
-                    if (tahun === currentYear) pemasukanPerBulan[bulanIndex] += jumlah;
-                } else if (item.tipe === 'Pengeluaran') {
-                    totalPengeluaran += jumlah;
-                    if (tahun === currentYear) pengeluaranPerBulan[bulanIndex] += jumlah;
-                } else if (item.tipe === 'Kas') {
-                    totalKas += jumlah;
-                }
-            });
-
-            const netCashflow = totalPemasukan - totalPengeluaran;
-
-            // Update summary cards
-            document.getElementById('totalPemasukan').textContent = formatCurrency(totalPemasukan);
-            document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
-            document.getElementById('totalKas').textContent = formatCurrency(totalKas);
-            document.getElementById('netCashflow').textContent = formatCurrency(netCashflow);
-
-            // Update net cashflow icon & warna
-            const netIcon = document.getElementById('netCashflowIcon');
-            const netText = document.getElementById('netCashflow');
-            if (netCashflow >= 0) {
-                netIcon.innerHTML =
-                    `<span class="avatar-title bg-success-subtle rounded fs-3"><i class="bx bx-trending-up text-success"></i></span>`;
-                netText.classList.remove('text-danger');
-                netText.classList.add('text-success');
-            } else {
-                netIcon.innerHTML =
-                    `<span class="avatar-title bg-danger-subtle rounded fs-3"><i class="bx bx-trending-down text-danger"></i></span>`;
-                netText.classList.remove('text-success');
-                netText.classList.add('text-danger');
-            }
-
-            renderChartPemasukan(pemasukanPerBulan, currentYear);
-            renderChartPengeluaran(pengeluaranPerBulan, currentYear);
-
-            // Ambil 10 transaksi terakhir berdasarkan created_at
-            const last10 = [...cashflows]
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                .slice(0, 10);
-
-            renderTable(last10);
-        }
-
-        function renderChartPemasukan(data, year) {
-            const ctx = document.getElementById('chartPemasukan');
-            if (!ctx) return;
-            if (chartPemasukanInstance) chartPemasukanInstance.destroy();
-
-            chartPemasukanInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: MONTHS,
-                    datasets: [{
-                        label: 'Pemasukan (Rp)',
-                        data: data,
-                        backgroundColor: 'rgba(25, 135, 84, 0.7)',
-                        borderColor: 'rgba(25, 135, 84, 1)',
-                        borderWidth: 2,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: `Pemasukan per Bulan — ${year}`,
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => formatCurrency(ctx.parsed.y)
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: value => formatCurrency(value)
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderChartPengeluaran(data, year) {
-            const ctx = document.getElementById('chartPengeluaran');
-            if (!ctx) return;
-            if (chartPengeluaranInstance) chartPengeluaranInstance.destroy();
-
-            chartPengeluaranInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: MONTHS,
-                    datasets: [{
-                        label: 'Pengeluaran (Rp)',
-                        data: data,
-                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
-                        borderColor: 'rgba(220, 53, 69, 1)',
-                        borderWidth: 2,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: `Pengeluaran per Bulan — ${year}`,
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => formatCurrency(ctx.parsed.y)
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: value => formatCurrency(value)
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderTable(cashflows) {
-            const tbody = document.getElementById('transactionTable');
-
-            if (!cashflows || cashflows.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center text-muted">Tidak ada data transaksi</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = cashflows.map(item => {
-                let badgeClass = '',
-                    textClass = '';
-                if (item.tipe === 'Pemasukan') {
-                    badgeClass = 'bg-success';
-                    textClass = 'text-success';
-                } else if (item.tipe === 'Pengeluaran') {
-                    badgeClass = 'bg-danger';
-                    textClass = 'text-danger';
-                } else {
-                    badgeClass = 'bg-primary';
-                    textClass = 'text-primary';
-                }
-
-                return `
+        <div class="table-responsive">
+            <table class="adm-table">
+                <thead>
                     <tr>
-                        <td>${formatDate(item.created_at)}</td>
-                        <td><span class="badge ${badgeClass}">${item.tipe}</span></td>
-                        <td>${item.keterangan}</td>
-                        <td class="text-end fw-bold ${textClass}">${formatCurrency(item.jumlah)}</td>
+                        <th>Tanggal</th>
+                        <th>Tipe</th>
+                        <th>Keterangan</th>
+                        <th class="tr">Jumlah</th>
                     </tr>
-                `;
-            }).join('');
-        }
+                </thead>
+                <tbody id="transactionTable">
+                    <tr>
+                        <td colspan="4">
+                            <div class="adm-loading">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                Memuat data...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        fetchData();
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    let chartPemasukanInstance = null;
+    let chartPengeluaranInstance = null;
+    const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', minimumFractionDigits:0 }).format(amount);
+    }
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    function switchTab(tab) {
+        document.getElementById('panelPemasukan').style.display  = tab === 'pemasukan'   ? 'block' : 'none';
+        document.getElementById('panelPengeluaran').style.display = tab === 'pengeluaran' ? 'block' : 'none';
+        document.getElementById('btnTabPemasukan').className   = tab === 'pemasukan'   ? 'adm-btn primary' : 'adm-btn';
+        document.getElementById('btnTabPengeluaran').className = tab === 'pengeluaran' ? 'adm-btn primary' : 'adm-btn';
+    }
+
+    function fetchData() {
+        fetch('{{ route('superadmin.cashflows.data') }}')
+            .then(r => r.json())
+            .then(data => processData(data))
+            .catch(() => {
+                document.getElementById('transactionTable').innerHTML =
+                    '<tr><td colspan="4" style="text-align:center;color:var(--adm-red);padding:30px">Gagal memuat data</td></tr>';
+            });
+    }
+
+    function processData(cashflows) {
+        let totalPemasukan = 0, totalPengeluaran = 0, totalKas = 0;
+        const pemasukanPerBulan = Array(12).fill(0);
+        const pengeluaranPerBulan = Array(12).fill(0);
+        const currentYear = new Date().getFullYear();
+
+        cashflows.forEach(item => {
+            const jumlah = parseFloat(item.jumlah);
+            const date = new Date(item.created_at);
+            const bulanIndex = date.getMonth();
+            const tahun = date.getFullYear();
+
+            if (item.tipe === 'Pemasukan') {
+                totalPemasukan += jumlah;
+                if (tahun === currentYear) pemasukanPerBulan[bulanIndex] += jumlah;
+            } else if (item.tipe === 'Pengeluaran') {
+                totalPengeluaran += jumlah;
+                if (tahun === currentYear) pengeluaranPerBulan[bulanIndex] += jumlah;
+            } else if (item.tipe === 'Kas') {
+                totalKas += jumlah;
+            }
+        });
+
+        const netCashflow = totalPemasukan - totalPengeluaran;
+        document.getElementById('totalPemasukan').textContent  = formatCurrency(totalPemasukan);
+        document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
+        document.getElementById('totalKas').textContent        = formatCurrency(totalKas);
+        const netEl = document.getElementById('netCashflow');
+        netEl.textContent = formatCurrency(netCashflow);
+        netEl.className = netCashflow >= 0 ? 'adm-stat-value is-success' : 'adm-stat-value is-danger';
+
+        renderChart('chartPemasukan', pemasukanPerBulan, `Pemasukan per Bulan — ${currentYear}`, 'rgba(15,110,86,.7)', 'rgba(15,110,86,1)', 'chartPemasukanInstance');
+        renderChart('chartPengeluaran', pengeluaranPerBulan, `Pengeluaran per Bulan — ${currentYear}`, 'rgba(220,38,38,.7)', 'rgba(220,38,38,1)', 'chartPengeluaranInstance');
+
+        const last10 = [...cashflows].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,10);
+        renderTable(last10);
+    }
+
+    function renderChart(canvasId, data, title, bg, border, instanceKey) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        if (window[instanceKey]) window[instanceKey].destroy();
+        window[instanceKey] = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: MONTHS, datasets: [{ data, backgroundColor: bg, borderColor: border, borderWidth: 2, borderRadius: 6 }] },
+            options: {
+                responsive: true,
+                plugins: { legend:{ display:false }, title:{ display:true, text:title, font:{ size:14, weight:'bold' } },
+                    tooltip:{ callbacks:{ label: c => formatCurrency(c.parsed.y) } } },
+                scales: { y: { beginAtZero:true, ticks:{ callback: v => formatCurrency(v) } } }
+            }
+        });
+    }
+
+    function renderTable(cashflows) {
+        const tbody = document.getElementById('transactionTable');
+        if (!cashflows || cashflows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--adm-text-faint);padding:30px">Tidak ada data transaksi</td></tr>';
+            return;
+        }
+        tbody.innerHTML = cashflows.map(item => {
+            let badge = '';
+            let amountClass = '';
+            if (item.tipe === 'Pemasukan') {
+                badge = '<span class="adm-badge adm-badge-success"><span class="dot"></span>Pemasukan</span>';
+                amountClass = 'color:var(--adm-green);';
+            } else if (item.tipe === 'Pengeluaran') {
+                badge = '<span class="adm-badge adm-badge-danger"><span class="dot"></span>Pengeluaran</span>';
+                amountClass = 'color:var(--adm-red);';
+            } else {
+                badge = `<span class="adm-badge adm-badge-pending"><span class="dot"></span>${item.tipe}</span>`;
+                amountClass = 'color:var(--adm-amber);';
+            }
+            return `<tr>
+                <td style="color:var(--adm-text-muted);font-size:12.5px;">${formatDate(item.created_at)}</td>
+                <td>${badge}</td>
+                <td style="font-size:12.5px;color:var(--adm-text-mid);">${item.keterangan}</td>
+                <td class="tr adm-mono" style="font-weight:600;${amountClass}">${formatCurrency(item.jumlah)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    fetchData();
+</script>
 @endsection

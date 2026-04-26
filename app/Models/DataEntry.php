@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Superadmin\Koordinator;
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DataEntry extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 

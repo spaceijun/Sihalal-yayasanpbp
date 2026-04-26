@@ -1,641 +1,369 @@
-@extends('layouts.app')
-
-@section('template_title')
-    Laporan Data Lapangan
-@endsection
-
+﻿@extends('layouts.app')
+@section('template_title') Laporan Harian @endsection
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h5 class="card-title mb-0">Laporan Data Lapangan</h5>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <div class="d-flex justify-content-end gap-2 align-items-center flex-wrap">
-                                <!-- Toggle Tipe Data -->
-                                <div class="btn-group no-print" role="group">
-                                    <input type="radio" class="btn-check btn-sm" name="tipeData" id="filterCreated"
-                                        value="created" {{ $tipeData == 'created' ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-success" for="filterCreated">
-                                        <i class="ri-add-circle-line me-1"></i>Data Masuk
-                                    </label>
+<div class="adm-page">
+    @include('layouts.messages')
 
-                                    <input type="radio" class="btn-check btn-sm" name="tipeData" id="filterUpdated"
-                                        value="updated" {{ $tipeData == 'updated' ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-info" for="filterUpdated">
-                                        <i class="ri-edit-circle-line me-1"></i>Data Diubah
-                                    </label>
-                                </div>
-
-                                <!-- Toggle Tipe Filter -->
-                                <div class="btn-group no-print" role="group">
-                                    <input type="radio" class="btn-check btn-sm" name="tipeFilter" id="filterHarian"
-                                        value="harian" {{ $tipeFilter == 'harian' ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-primary" for="filterHarian">
-                                        <i class="ri-calendar-line me-1"></i>Harian
-                                    </label>
-
-                                    <input type="radio" class="btn-check btn-sm" name="tipeFilter" id="filterBulanan"
-                                        value="bulanan" {{ $tipeFilter == 'bulanan' ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-primary" for="filterBulanan">
-                                        <i class="ri-calendar-2-line me-1"></i>Bulanan
-                                    </label>
-                                </div>
-
-                                <!-- Filter Koordinator -->
-                                <select class="form-select no-print" id="filterKoordinator" style="max-width: 250px;">
-                                    <option value="">Semua Koordinator</option>
-                                    @foreach ($koordinators as $koordinator)
-                                        <option value="{{ $koordinator->id }}"
-                                            {{ $koordinatorId == $koordinator->id ? 'selected' : '' }}>
-                                            {{ $koordinator->nama_lengkap }}
-                                        </option>
-                                    @endforeach
-                                </select>
-
-                                <!-- Filter Tanggal (Harian) -->
-                                <input type="date" class="form-control no-print" id="filterTanggal"
-                                    value="{{ $tanggal }}"
-                                    style="max-width: 200px; {{ $tipeFilter == 'bulanan' ? 'display:none;' : '' }}">
-
-                                <!-- Filter Bulan (Bulanan) -->
-                                <input type="month" class="form-control no-print" id="filterBulan"
-                                    value="{{ $bulan }}"
-                                    style="max-width: 200px; {{ $tipeFilter == 'harian' ? 'display:none;' : '' }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if ($laporanPerKoordinator->isEmpty())
-                        <div class="alert alert-info text-center" role="alert">
-                            <i class="ri-information-line fs-4"></i>
-                            <p class="mb-0 mt-2">Tidak ada data
-                                <strong>{{ $tipeData == 'created' ? 'masuk' : 'diubah' }}</strong> untuk
-                                @if ($tipeFilter == 'harian')
-                                    tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }}
-                                @else
-                                    bulan {{ \Carbon\Carbon::parse($bulan)->format('F Y') }}
-                                @endif
-                                @if ($koordinatorId)
-                                    dan koordinator
-                                    {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
-                                @endif
-                            </p>
-                        </div>
-                    @else
-                        <!-- Periode Info -->
-                        <div class="alert alert-primary border-0 mb-4" role="alert">
-                            <div class="d-flex align-items-center">
-                                <i class="ri-calendar-check-line fs-4 me-2"></i>
-                                <div>
-                                    <strong>Tipe Data:</strong>
-                                    {{ $tipeData == 'created' ? 'Data Masuk (Created)' : 'Data Diubah (Updated)' }}
-                                    <span class="mx-2">|</span>
-                                    <strong>Periode:</strong>
-                                    @if ($tipeFilter == 'harian')
-                                        {{ \Carbon\Carbon::parse($tanggal)->isoFormat('dddd, D MMMM YYYY') }}
-                                    @else
-                                        {{ \Carbon\Carbon::parse($bulan)->isoFormat('MMMM YYYY') }}
-                                    @endif
-                                    @if ($koordinatorId)
-                                        <span class="mx-2">|</span>
-                                        <strong>Koordinator:</strong>
-                                        {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Summary Cards -->
-                        <div class="row mb-4">
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card card-animate">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <p class="text-uppercase fw-medium text-muted mb-0">Total Koordinator</p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-end justify-content-between mt-2">
-                                            <div>
-                                                <h4 class="fs-22 fw-semibold ff-secondary mb-0">
-                                                    {{ $laporanPerKoordinator->count() }}</h4>
-                                            </div>
-                                            <div class="avatar-sm flex-shrink-0">
-                                                <span class="avatar-title bg-primary-subtle rounded fs-3">
-                                                    <i class="ri-user-star-line text-primary"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card card-animate">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <p class="text-uppercase fw-medium text-muted mb-0">Total Data</p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-end justify-content-between mt-2">
-                                            <div>
-                                                <h4 class="fs-22 fw-semibold ff-secondary mb-0">
-                                                    {{ $laporanPerKoordinator->sum('total_data') }}</h4>
-                                            </div>
-                                            <div class="avatar-sm flex-shrink-0">
-                                                <span class="avatar-title bg-success-subtle rounded fs-3">
-                                                    <i class="ri-file-list-3-line text-success"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card card-animate">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <p class="text-uppercase fw-medium text-muted mb-0">Terbit SH</p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-end justify-content-between mt-2">
-                                            <div>
-                                                <h4 class="fs-22 fw-semibold ff-secondary mb-0">
-                                                    {{ $laporanPerKoordinator->sum('total_terbit_sh') }}</h4>
-                                            </div>
-                                            <div class="avatar-sm flex-shrink-0">
-                                                <span class="avatar-title bg-info-subtle rounded fs-3">
-                                                    <i class="ri-check-double-line text-info"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card card-animate">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <p class="text-uppercase fw-medium text-muted mb-0">Dibayar</p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-end justify-content-between mt-2">
-                                            <div>
-                                                <h4 class="fs-22 fw-semibold ff-secondary mb-0">
-                                                    {{ $laporanPerKoordinator->sum('total_pembayaran_dibayar') }}</h4>
-                                            </div>
-                                            <div class="avatar-sm flex-shrink-0">
-                                                <span class="avatar-title bg-warning-subtle rounded fs-3">
-                                                    <i class="ri-money-dollar-circle-line text-warning"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Grafik Data Harian (Hanya untuk Bulanan) -->
-                        @if ($tipeFilter == 'bulanan' && $grafikHarian)
-                            <div class="card border shadow-none mb-4">
-                                <div class="card-header bg-light">
-                                    <h5 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>Grafik Data Per Hari
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="chartHarian" height="80"></canvas>
-                                </div>
-                            </div>
-                        @endif
-
-                        <!-- Laporan Per Koordinator -->
-                        @foreach ($laporanPerKoordinator as $koordinator)
-                            <div class="card border shadow-none mb-3"
-                                id="koordinator-{{ $koordinator['koordinator_id'] }}">
-                                <div class="card-header bg-primary-subtle">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h5 class="mb-0">
-                                                <i
-                                                    class="ri-user-star-fill me-2"></i>{{ $koordinator['nama_koordinator'] }}
-                                            </h5>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button class="btn btn-sm btn-info no-print"
-                                                onclick="downloadKoordinatorImage({{ $koordinator['koordinator_id'] }}, '{{ $koordinator['nama_koordinator'] }}')">
-                                                <i class="ri-download-2-line me-1"></i> Download Gambar
-                                            </button>
-                                            <span class="badge bg-primary fs-6 ms-2">Total:
-                                                {{ $koordinator['total_data'] }} Data</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <!-- Summary Koordinator -->
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-md-6">
-                                            <div class="border rounded p-3">
-                                                <h6 class="text-muted mb-3">Status Proses</h6>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-time-line text-warning me-1"></i> Pending</span>
-                                                    <span
-                                                        class="badge bg-warning">{{ $koordinator['total_pending'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-time-line text-danger me-1"></i> Revisi</span>
-                                                    <span
-                                                        class="badge bg-danger">{{ $koordinator['total_revisi'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-file-text-line text-primary me-1"></i> Progress
-                                                        OSS</span>
-                                                    <span
-                                                        class="badge bg-primary">{{ $koordinator['total_progress_oss'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-file-shield-line text-info me-1"></i> Progress
-                                                        SIHALAL</span>
-                                                    <span
-                                                        class="badge bg-info">{{ $koordinator['total_progress_sihalal'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span><i class="ri-check-double-line text-success me-1"></i> Terbit
-                                                        SH</span>
-                                                    <span
-                                                        class="badge bg-success">{{ $koordinator['total_terbit_sh'] }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="border rounded p-3">
-                                                <h6 class="text-muted mb-3">Status Pembayaran</h6>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-time-line text-secondary me-1"></i> Pending</span>
-                                                    <span
-                                                        class="badge bg-secondary">{{ $koordinator['total_pembayaran_pending'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span><i class="ri-file-paper-line text-warning me-1"></i>
-                                                        Pengajuan</span>
-                                                    <span
-                                                        class="badge bg-warning">{{ $koordinator['total_pembayaran_pengajuan'] }}</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span><i class="ri-check-line text-success me-1"></i> Dibayar</span>
-                                                    <span
-                                                        class="badge bg-success">{{ $koordinator['total_pembayaran_dibayar'] }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Table Enumerator -->
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Enumerator</th>
-                                                    <th class="text-center">Total</th>
-                                                    <th class="text-center" colspan="5">Status Proses</th>
-                                                    <th class="text-center" colspan="3">Status Pembayaran</th>
-                                                </tr>
-                                                <tr>
-                                                    <th colspan="3"></th>
-                                                    <th class="text-center bg-warning-subtle">Pending</th>
-                                                    <th class="text-center bg-danger-subtle">Revisi</th>
-                                                    <th class="text-center bg-primary-subtle">OSS</th>
-                                                    <th class="text-center bg-info-subtle">SIHALAL</th>
-                                                    <th class="text-center bg-success-subtle">Terbit</th>
-                                                    <th class="text-center bg-secondary-subtle">Pending</th>
-                                                    <th class="text-center bg-warning-subtle">Pengajuan</th>
-                                                    <th class="text-center bg-success-subtle">Dibayar</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($koordinator['enumerators'] as $index => $enum)
-                                                    <tr>
-                                                        <td>{{ $index + 1 }}</td>
-                                                        <td><i
-                                                                class="ri-user-3-line me-1"></i>{{ $enum['nama_enumerator'] }}
-                                                        </td>
-                                                        <td class="text-center fw-semibold">{{ $enum['total_data'] }}</td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status']['pending'] > 0)
-                                                                <span
-                                                                    class="badge bg-warning">{{ $enum['status']['pending'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status']['revisi'] > 0)
-                                                                <span
-                                                                    class="badge bg-danger">{{ $enum['status']['revisi'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status']['progress_oss'] > 0)
-                                                                <span
-                                                                    class="badge bg-primary">{{ $enum['status']['progress_oss'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status']['progress_sihalal'] > 0)
-                                                                <span
-                                                                    class="badge bg-info">{{ $enum['status']['progress_sihalal'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status']['terbit_sh'] > 0)
-                                                                <span
-                                                                    class="badge bg-success">{{ $enum['status']['terbit_sh'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status_pembayaran']['pending'] > 0)
-                                                                <span
-                                                                    class="badge bg-secondary">{{ $enum['status_pembayaran']['pending'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status_pembayaran']['pengajuan'] > 0)
-                                                                <span
-                                                                    class="badge bg-warning">{{ $enum['status_pembayaran']['pengajuan'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($enum['status_pembayaran']['dibayar'] > 0)
-                                                                <span
-                                                                    class="badge bg-success">{{ $enum['status_pembayaran']['dibayar'] }}</span>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                            <tfoot class="table-light">
-                                                <tr class="fw-bold">
-                                                    <td colspan="2" class="text-end">Subtotal:</td>
-                                                    <td class="text-center">{{ $koordinator['total_data'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_pending'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_revisi'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_progress_oss'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_progress_sihalal'] }}
-                                                    </td>
-                                                    <td class="text-center">{{ $koordinator['total_terbit_sh'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_pembayaran_pending'] }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        {{ $koordinator['total_pembayaran_pengajuan'] }}</td>
-                                                    <td class="text-center">{{ $koordinator['total_pembayaran_dibayar'] }}
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-
-                        <!-- Grand Total -->
-                        <div class="card border-primary">
-                            <div class="card-body bg-primary-subtle">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center fw-bold">GRAND TOTAL</th>
-                                                <th class="text-center fw-bold">Total Data</th>
-                                                <th class="text-center fw-bold" colspan="5">Status Proses</th>
-                                                <th class="text-center fw-bold" colspan="3">Status Pembayaran</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr class="fs-5">
-                                                <td></td>
-                                                <td class="text-center fw-bold text-primary">
-                                                    {{ $laporanPerKoordinator->sum('total_data') }}</td>
-                                                <td class="text-center fw-bold text-warning">
-                                                    {{ $laporanPerKoordinator->sum('total_pending') }}</td>
-                                                <td class="text-center fw-bold text-danger">
-                                                    {{ $laporanPerKoordinator->sum('total_revisi') }}</td>
-                                                <td class="text-center fw-bold text-primary">
-                                                    {{ $laporanPerKoordinator->sum('total_progress_oss') }}</td>
-                                                <td class="text-center fw-bold text-info">
-                                                    {{ $laporanPerKoordinator->sum('total_progress_sihalal') }}</td>
-                                                <td class="text-center fw-bold text-success">
-                                                    {{ $laporanPerKoordinator->sum('total_terbit_sh') }}</td>
-                                                <td class="text-center fw-bold text-secondary">
-                                                    {{ $laporanPerKoordinator->sum('total_pembayaran_pending') }}</td>
-                                                <td class="text-center fw-bold text-warning">
-                                                    {{ $laporanPerKoordinator->sum('total_pembayaran_pengajuan') }}</td>
-                                                <td class="text-center fw-bold text-success">
-                                                    {{ $laporanPerKoordinator->sum('total_pembayaran_dibayar') }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1>Laporan Data Lapangan</h1>
+            <p>Rekap data masuk / diubah per koordinator & enumerator</p>
         </div>
     </div>
 
-    <!-- Library untuk export image -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Initialize Chart for Bulanan
-        @if ($tipeFilter == 'bulanan' && $grafikHarian)
-            const ctx = document.getElementById('chartHarian');
-            const grafikData = @json($grafikHarian);
+    {{-- ── FILTER BAR ── --}}
+    <div class="adm-filter-bar no-print" style="flex-wrap:wrap;gap:10px;margin-bottom:18px;">
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: grafikData.map(item => {
-                        const date = new Date(item.tanggal);
-                        return date.getDate() + '/' + (date.getMonth() + 1);
-                    }),
-                    datasets: [{
-                        label: 'Total Data Per Hari',
-                        data: grafikData.map(item => item.total),
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    }
-                }
-            });
+        {{-- Toggle Tipe Data --}}
+        <div class="adm-filter-group">
+            <label class="adm-filter-label">Tipe Data</label>
+            <div style="display:flex;gap:0;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden;">
+                <input type="radio" name="tipeData" id="filterCreated" value="created" class="visually-hidden"
+                    {{ $tipeData == 'created' ? 'checked' : '' }}>
+                <label for="filterCreated" class="adm-toggle-btn" style="{{ $tipeData=='created' ? 'background:var(--adm-green);color:#fff;' : '' }}">
+                    Data Masuk
+                </label>
+                <input type="radio" name="tipeData" id="filterUpdated" value="updated" class="visually-hidden"
+                    {{ $tipeData == 'updated' ? 'checked' : '' }}>
+                <label for="filterUpdated" class="adm-toggle-btn" style="{{ $tipeData=='updated' ? 'background:var(--adm-blue);color:#fff;' : '' }}">
+                    Data Diubah
+                </label>
+            </div>
+        </div>
+
+        {{-- Toggle Tipe Filter --}}
+        <div class="adm-filter-group">
+            <label class="adm-filter-label">Periode</label>
+            <div style="display:flex;gap:0;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden;">
+                <input type="radio" name="tipeFilter" id="filterHarian" value="harian" class="visually-hidden"
+                    {{ $tipeFilter == 'harian' ? 'checked' : '' }}>
+                <label for="filterHarian" class="adm-toggle-btn" style="{{ $tipeFilter=='harian' ? 'background:var(--adm-blue);color:#fff;' : '' }}">
+                    Harian
+                </label>
+                <input type="radio" name="tipeFilter" id="filterBulanan" value="bulanan" class="visually-hidden"
+                    {{ $tipeFilter == 'bulanan' ? 'checked' : '' }}>
+                <label for="filterBulanan" class="adm-toggle-btn" style="{{ $tipeFilter=='bulanan' ? 'background:var(--adm-blue);color:#fff;' : '' }}">
+                    Bulanan
+                </label>
+            </div>
+        </div>
+
+        {{-- Filter Koordinator --}}
+        <div class="adm-filter-group">
+            <label class="adm-filter-label">Koordinator</label>
+            <select id="filterKoordinator" class="adm-select" style="min-width:200px;">
+                <option value="">Semua Koordinator</option>
+                @foreach ($koordinators as $koordinator)
+                    <option value="{{ $koordinator->id }}" {{ $koordinatorId == $koordinator->id ? 'selected' : '' }}>
+                        {{ $koordinator->nama_lengkap }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Filter Tanggal --}}
+        <div class="adm-filter-group" id="wrapTanggal" style="{{ $tipeFilter=='bulanan' ? 'display:none;' : '' }}">
+            <label class="adm-filter-label">Tanggal</label>
+            <input type="date" id="filterTanggal" class="adm-select" value="{{ $tanggal }}">
+        </div>
+
+        {{-- Filter Bulan --}}
+        <div class="adm-filter-group" id="wrapBulan" style="{{ $tipeFilter=='harian' ? 'display:none;' : '' }}">
+            <label class="adm-filter-label">Bulan</label>
+            <input type="month" id="filterBulan" class="adm-select" value="{{ $bulan }}">
+        </div>
+    </div>
+
+    @if ($laporanPerKoordinator->isEmpty())
+        <div class="adm-card" style="padding:40px 20px;">
+            <div class="adm-empty">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Tidak ada data <strong>{{ $tipeData == 'created' ? 'masuk' : 'diubah' }}</strong> untuk
+                    @if ($tipeFilter == 'harian')
+                        tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d/m/Y') }}
+                    @else
+                        bulan {{ \Carbon\Carbon::parse($bulan)->format('F Y') }}
+                    @endif
+                    @if ($koordinatorId)
+                        — {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
+                    @endif
+                </p>
+            </div>
+        </div>
+    @else
+
+        {{-- ── PERIODE INFO ── --}}
+        <div class="adm-alert adm-alert-info" style="margin-bottom:16px;">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div style="font-size:13px;">
+                <strong>Tipe Data:</strong> {{ $tipeData == 'created' ? 'Data Masuk' : 'Data Diubah' }}
+                &nbsp;|&nbsp;
+                <strong>Periode:</strong>
+                @if ($tipeFilter == 'harian')
+                    {{ \Carbon\Carbon::parse($tanggal)->isoFormat('dddd, D MMMM YYYY') }}
+                @else
+                    {{ \Carbon\Carbon::parse($bulan)->isoFormat('MMMM YYYY') }}
+                @endif
+                @if ($koordinatorId)
+                    &nbsp;|&nbsp; <strong>Koordinator:</strong>
+                    {{ $koordinators->firstWhere('id', $koordinatorId)->nama_lengkap ?? '' }}
+                @endif
+            </div>
+        </div>
+
+        {{-- ── STAT CARDS ── --}}
+        <div class="adm-stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+            <div class="adm-stat">
+                <div class="adm-stat-label">Total Koordinator</div>
+                <div class="adm-stat-value" style="color:var(--adm-blue);">{{ $laporanPerKoordinator->count() }}</div>
+                <div class="adm-stat-sub">Aktif pada periode ini</div>
+            </div>
+            <div class="adm-stat">
+                <div class="adm-stat-label">Total Data</div>
+                <div class="adm-stat-value">{{ $laporanPerKoordinator->sum('total_data') }}</div>
+                <div class="adm-stat-sub">Keseluruhan data</div>
+            </div>
+            <div class="adm-stat">
+                <div class="adm-stat-label">Terbit SH</div>
+                <div class="adm-stat-value is-success">{{ $laporanPerKoordinator->sum('total_terbit_sh') }}</div>
+                <div class="adm-stat-sub">Sudah terbit sertifikat</div>
+            </div>
+            <div class="adm-stat is-accent">
+                <div class="adm-stat-label">Dibayar</div>
+                <div class="adm-stat-value">{{ $laporanPerKoordinator->sum('total_pembayaran_dibayar') }}</div>
+                <div class="adm-stat-sub">Status pembayaran</div>
+            </div>
+        </div>
+
+        {{-- ── GRAFIK BULANAN ── --}}
+        @if ($tipeFilter == 'bulanan' && $grafikHarian)
+            <div class="adm-card" style="margin-bottom:18px;padding:20px;">
+                <div class="adm-card-header" style="margin:-20px -20px 16px;padding:14px 20px;">
+                    <div class="adm-card-title">
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Grafik Data Per Hari
+                    </div>
+                </div>
+                <canvas id="chartHarian" height="80"></canvas>
+            </div>
         @endif
 
-        // Toggle Filter Type
-        document.querySelectorAll('input[name="tipeFilter"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const filterTanggal = document.getElementById('filterTanggal');
-                const filterBulan = document.getElementById('filterBulan');
+        {{-- ── LAPORAN PER KOORDINATOR ── --}}
+        @foreach ($laporanPerKoordinator as $koordinator)
+            <div class="adm-card" id="koordinator-{{ $koordinator['koordinator_id'] }}" style="margin-bottom:18px;">
+                <div class="adm-card-header" style="background:var(--adm-blue-lt);border-bottom:1px solid var(--adm-border);">
+                    <div class="adm-card-title" style="color:var(--adm-blue);">
+                        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        {{ $koordinator['nama_koordinator'] }}
+                        <span class="adm-count-badge">{{ $koordinator['total_data'] }} Data</span>
+                    </div>
+                    <button class="adm-btn primary no-print" style="font-size:12px;padding:5px 12px;"
+                        onclick="downloadKoordinatorImage({{ $koordinator['koordinator_id'] }}, '{{ $koordinator['nama_koordinator'] }}')">
+                        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Gambar
+                    </button>
+                </div>
 
-                if (this.value === 'harian') {
-                    filterTanggal.style.display = 'block';
-                    filterBulan.style.display = 'none';
-                } else {
-                    filterTanggal.style.display = 'none';
-                    filterBulan.style.display = 'block';
-                }
+                {{-- Summary 2-kolom --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 20px;">
+                    <div style="border:1px solid var(--adm-border);border-radius:8px;padding:14px;">
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--adm-text-muted);margin-bottom:10px;">Status Proses</div>
+                        @foreach ([['Pending','total_pending','#B86800','#FFF9EC'],['Revisi','total_revisi','#DC2626','#FEF2F2'],['Progress OSS','total_progress_oss','#0369A1','#EFF8FF'],['Progress SiHalal','total_progress_sihalal','#1A5FC8','#EFF6FF'],['Terbit SH','total_terbit_sh','#15803D','#F0FDF4']] as [$label,$key,$color,$bg])
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <span style="font-size:12.5px;">{{ $label }}</span>
+                                <span class="adm-badge" style="background:{{ $bg }};color:{{ $color }};border:1px solid {{ $color }}33;">{{ $koordinator[$key] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div style="border:1px solid var(--adm-border);border-radius:8px;padding:14px;">
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--adm-text-muted);margin-bottom:10px;">Status Pembayaran</div>
+                        @foreach ([['Pending','total_pembayaran_pending','#64748B','#F1F5F9'],['Pengajuan','total_pembayaran_pengajuan','#B86800','#FFF9EC'],['Dibayar','total_pembayaran_dibayar','#15803D','#F0FDF4']] as [$label,$key,$color,$bg])
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <span style="font-size:12.5px;">{{ $label }}</span>
+                                <span class="adm-badge" style="background:{{ $bg }};color:{{ $color }};border:1px solid {{ $color }}33;">{{ $koordinator[$key] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
-                applyFilter();
-            });
+                {{-- Tabel Enumerator --}}
+                <div class="table-responsive" style="padding:0 20px 20px;">
+                    <table class="adm-table" style="font-size:12.5px;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width:36px">#</th>
+                                <th rowspan="2">Nama Enumerator</th>
+                                <th rowspan="2" class="tc">Total</th>
+                                <th colspan="5" class="tc" style="background:#EFF8FF;color:#0369A1;">Status Proses</th>
+                                <th colspan="3" class="tc" style="background:#F0FDF4;color:#15803D;">Status Pembayaran</th>
+                            </tr>
+                            <tr>
+                                <th class="tc" style="background:#FFF9EC;color:#B86800;font-size:11px;">Pending</th>
+                                <th class="tc" style="background:#FEF2F2;color:#DC2626;font-size:11px;">Revisi</th>
+                                <th class="tc" style="background:#EFF8FF;color:#0369A1;font-size:11px;">OSS</th>
+                                <th class="tc" style="background:#EFF6FF;color:#2563EB;font-size:11px;">SiHalal</th>
+                                <th class="tc" style="background:#F0FDF4;color:#15803D;font-size:11px;">Terbit</th>
+                                <th class="tc" style="background:#F1F5F9;color:#64748B;font-size:11px;">Pending</th>
+                                <th class="tc" style="background:#FFF9EC;color:#B86800;font-size:11px;">Pengajuan</th>
+                                <th class="tc" style="background:#F0FDF4;color:#15803D;font-size:11px;">Dibayar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($koordinator['enumerators'] as $index => $enum)
+                                <tr>
+                                    <td><span class="adm-rownum">{{ $index + 1 }}</span></td>
+                                    <td style="font-weight:600;">{{ $enum['nama_enumerator'] }}</td>
+                                    <td class="tc" style="font-weight:700;color:var(--adm-blue);">{{ $enum['total_data'] }}</td>
+                                    @foreach (['pending','revisi','progress_oss','progress_sihalal','terbit_sh'] as $s)
+                                        <td class="tc">{{ $enum['status'][$s] > 0 ? $enum['status'][$s] : '—' }}</td>
+                                    @endforeach
+                                    @foreach (['pending','pengajuan','dibayar'] as $p)
+                                        <td class="tc">{{ $enum['status_pembayaran'][$p] > 0 ? $enum['status_pembayaran'][$p] : '—' }}</td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr style="font-weight:700;background:var(--adm-blue-lt);">
+                                <td colspan="2" class="tr" style="font-size:12px;color:var(--adm-text-muted);">Subtotal</td>
+                                <td class="tc" style="color:var(--adm-blue);">{{ $koordinator['total_data'] }}</td>
+                                <td class="tc">{{ $koordinator['total_pending'] }}</td>
+                                <td class="tc">{{ $koordinator['total_revisi'] }}</td>
+                                <td class="tc">{{ $koordinator['total_progress_oss'] }}</td>
+                                <td class="tc">{{ $koordinator['total_progress_sihalal'] }}</td>
+                                <td class="tc" style="color:var(--adm-green);">{{ $koordinator['total_terbit_sh'] }}</td>
+                                <td class="tc">{{ $koordinator['total_pembayaran_pending'] }}</td>
+                                <td class="tc">{{ $koordinator['total_pembayaran_pengajuan'] }}</td>
+                                <td class="tc" style="color:var(--adm-green);">{{ $koordinator['total_pembayaran_dibayar'] }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        @endforeach
+
+        {{-- ── GRAND TOTAL ── --}}
+        <div class="adm-card" style="border-color:var(--adm-blue);background:var(--adm-blue-lt);">
+            <div class="adm-card-header">
+                <div class="adm-card-title" style="color:var(--adm-blue);">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Grand Total
+                </div>
+            </div>
+            <div class="table-responsive" style="padding:0 20px 20px;">
+                <table class="adm-table" style="font-size:12.5px;">
+                    <thead>
+                        <tr>
+                            <th>Total Data</th>
+                            <th class="tc" style="color:#B86800;">Pending</th>
+                            <th class="tc" style="color:#DC2626;">Revisi</th>
+                            <th class="tc" style="color:#0369A1;">OSS</th>
+                            <th class="tc" style="color:#2563EB;">SiHalal</th>
+                            <th class="tc" style="color:var(--adm-green);">Terbit SH</th>
+                            <th class="tc" style="color:#64748B;">Pmt Pending</th>
+                            <th class="tc" style="color:#B86800;">Pmt Pengajuan</th>
+                            <th class="tc" style="color:var(--adm-green);">Pmt Dibayar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="font-weight:700;font-size:15px;">
+                            <td style="color:var(--adm-blue);">{{ $laporanPerKoordinator->sum('total_data') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_pending') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_revisi') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_progress_oss') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_progress_sihalal') }}</td>
+                            <td class="tc" style="color:var(--adm-green);">{{ $laporanPerKoordinator->sum('total_terbit_sh') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_pembayaran_pending') }}</td>
+                            <td class="tc">{{ $laporanPerKoordinator->sum('total_pembayaran_pengajuan') }}</td>
+                            <td class="tc" style="color:var(--adm-green);">{{ $laporanPerKoordinator->sum('total_pembayaran_dibayar') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    @endif
+</div>
+
+{{-- ── JS Libraries (dipertahankan) ── --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if ($tipeFilter == 'bulanan' && $grafikHarian)
+        const ctx = document.getElementById('chartHarian');
+        const grafikData = @json($grafikHarian);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: grafikData.map(item => { const d = new Date(item.tanggal); return d.getDate()+'/'+(d.getMonth()+1); }),
+                datasets: [{ label: 'Total Data Per Hari', data: grafikData.map(item => item.total), borderColor:'rgb(26,95,200)', backgroundColor:'rgba(26,95,200,0.1)', tension:0.3, fill:true }]
+            },
+            options: { responsive:true, maintainAspectRatio:true, plugins:{legend:{display:true,position:'top'}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
         });
+    @endif
 
-        // Toggle Tipe Data
-        document.querySelectorAll('input[name="tipeData"]').forEach(radio => {
-            radio.addEventListener('change', applyFilter);
+    document.querySelectorAll('input[name="tipeFilter"]').forEach(r => {
+        r.addEventListener('change', function() {
+            document.getElementById('wrapTanggal').style.display = this.value === 'harian' ? '' : 'none';
+            document.getElementById('wrapBulan').style.display = this.value === 'bulanan' ? '' : 'none';
+            applyFilter();
         });
+    });
+    document.querySelectorAll('input[name="tipeData"]').forEach(r => r.addEventListener('change', applyFilter));
 
-        // Apply Filter
-        function applyFilter() {
-            const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
-            const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
-            const koordinatorId = document.getElementById('filterKoordinator').value;
-            const tanggal = document.getElementById('filterTanggal').value;
-            const bulan = document.getElementById('filterBulan').value;
+    function applyFilter() {
+        const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
+        const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
+        const koordinatorId = document.getElementById('filterKoordinator').value;
+        const tanggal = document.getElementById('filterTanggal').value;
+        const bulan = document.getElementById('filterBulan').value;
+        let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter + "&tipe_data=" + tipeData;
+        url += tipeFilter === 'harian' ? "&tanggal=" + tanggal : "&bulan=" + bulan;
+        if (koordinatorId) url += "&koordinator_id=" + koordinatorId;
+        window.location.href = url;
+    }
+    document.getElementById('filterTanggal').addEventListener('change', applyFilter);
+    document.getElementById('filterBulan').addEventListener('change', applyFilter);
+    document.getElementById('filterKoordinator').addEventListener('change', applyFilter);
 
-            let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter + "&tipe_data=" + tipeData;
-
-            if (tipeFilter === 'harian') {
-                url += "&tanggal=" + tanggal;
-            } else {
-                url += "&bulan=" + bulan;
-            }
-
-            if (koordinatorId) {
-                url += "&koordinator_id=" + koordinatorId;
-            }
-
-            window.location.href = url;
-        }
-
-        // Event listeners
-        document.getElementById('filterTanggal').addEventListener('change', applyFilter);
-        document.getElementById('filterBulan').addEventListener('change', applyFilter);
-        document.getElementById('filterKoordinator').addEventListener('change', applyFilter);
-
-        // Download Koordinator as Image
-        function downloadKoordinatorImage(koordinatorId, namaKoordinator) {
-            // Show loading indicator
-            const button = event.target.closest('button');
-            const originalHTML = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<i class="ri-loader-4-line me-1"></i> Memproses...';
-
-            // Hide all no-print elements
-            const noPrintElements = document.querySelectorAll('.no-print');
-            noPrintElements.forEach(el => el.style.display = 'none');
-
-            const element = document.getElementById('koordinator-' + koordinatorId);
-
-            html2canvas(element, {
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                // Show elements again
-                noPrintElements.forEach(el => el.style.display = '');
-                button.disabled = false;
-                button.innerHTML = originalHTML;
-
-                // Convert canvas to blob
-                canvas.toBlob(function(blob) {
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
-                    const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
-                    const tanggal = document.getElementById('filterTanggal').value;
-                    const bulan = document.getElementById('filterBulan').value;
-
-                    let filename = 'laporan-' + namaKoordinator.replace(/\s+/g, '-') + '-' + tipeData +
-                        '-' + tipeFilter + '-';
-                    filename += (tipeFilter === 'harian' ? tanggal : bulan) + '.png';
-
-                    link.download = filename;
-                    link.href = url;
-                    link.click();
-
-                    // Show success message if Swal is available
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: 'Laporan ' + namaKoordinator + ' berhasil didownload',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        alert('Laporan ' + namaKoordinator + ' berhasil didownload!');
-                    }
-                });
-            }).catch(error => {
-                noPrintElements.forEach(el => el.style.display = '');
-                button.disabled = false;
-                button.innerHTML = originalHTML;
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat menggenerate gambar'
-                    });
-                } else {
-                    alert('Gagal menggenerate gambar!');
-                }
-                console.error('Error:', error);
+    function downloadKoordinatorImage(koordinatorId, namaKoordinator) {
+        const button = event.target.closest('button');
+        const originalHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;animation:spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Memproses...';
+        const noPrint = document.querySelectorAll('.no-print');
+        noPrint.forEach(el => el.style.display = 'none');
+        const element = document.getElementById('koordinator-' + koordinatorId);
+        html2canvas(element, { scale:2, logging:false, useCORS:true, backgroundColor:'#ffffff' }).then(canvas => {
+            noPrint.forEach(el => el.style.display = '');
+            button.disabled = false; button.innerHTML = originalHTML;
+            canvas.toBlob(function(blob) {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const tipeFilter = document.querySelector('input[name="tipeFilter"]:checked').value;
+                const tipeData = document.querySelector('input[name="tipeData"]:checked').value;
+                const tanggal = document.getElementById('filterTanggal').value;
+                const bulan = document.getElementById('filterBulan').value;
+                let filename = 'laporan-' + namaKoordinator.replace(/\s+/g,'-') + '-' + tipeData + '-' + tipeFilter + '-';
+                filename += (tipeFilter === 'harian' ? tanggal : bulan) + '.png';
+                link.download = filename; link.href = url; link.click();
+                if (typeof Swal !== 'undefined') { Swal.fire({ icon:'success', title:'Berhasil!', text:'Laporan '+namaKoordinator+' berhasil didownload', timer:2000, showConfirmButton:false }); }
+                else { alert('Laporan '+namaKoordinator+' berhasil didownload!'); }
             });
-        }
-    </script>
+        }).catch(error => {
+            noPrint.forEach(el => el.style.display = '');
+            button.disabled = false; button.innerHTML = originalHTML;
+            if (typeof Swal !== 'undefined') { Swal.fire({ icon:'error', title:'Gagal!', text:'Terjadi kesalahan saat menggenerate gambar' }); }
+            else { alert('Gagal menggenerate gambar!'); }
+            console.error('Error:', error);
+        });
+    }
+</script>
+<style>
+    @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+    .adm-toggle-btn { padding:6px 14px; font-size:12.5px; font-weight:600; cursor:pointer; background:#fff; color:var(--adm-text-muted); transition:all .15s; border:none; }
+    .adm-toggle-btn:hover { background:var(--adm-blue-lt); color:var(--adm-blue); }
+    @media print { .no-print { display:none !important; } }
+</style>
 @endsection

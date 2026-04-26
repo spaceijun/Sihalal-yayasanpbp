@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Cashflow extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AppVersion extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Spotcheck extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 
@@ -53,3 +55,4 @@ class Spotcheck extends Model
         return $this->belongsTo(\App\Models\Enumerator::class, 'enumerator_id', 'id');
     }
 }
+

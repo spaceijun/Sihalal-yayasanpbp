@@ -47,9 +47,9 @@ class AppVersionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $appVersion = AppVersion::find($id);
+        $appVersion = AppVersion::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.app-version.show', compact('appVersion'));
     }
@@ -57,9 +57,9 @@ class AppVersionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $appVersion = AppVersion::find($id);
+        $appVersion = AppVersion::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.app-version.edit', compact('appVersion'));
     }
@@ -75,9 +75,9 @@ class AppVersionController extends Controller
             ->with('success', 'AppVersion updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        AppVersion::find($id)->delete();
+        AppVersion::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.app-versions.index')
             ->with('success', 'AppVersion deleted successfully');

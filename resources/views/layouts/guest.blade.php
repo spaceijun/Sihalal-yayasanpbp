@@ -24,6 +24,8 @@
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Public Pages Css (login, form-recruitment, form-data-lapangan, dll.) -->
+    <link href="{{ asset('assets/css/public-pages.css') }}" rel="stylesheet" type="text/css" />
     <!-- CK Editor -->
     <!-- Di dalam head -->
     <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>

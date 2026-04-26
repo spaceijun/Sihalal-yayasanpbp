@@ -1,129 +1,87 @@
 @extends('layouts.app')
-
-@section('template_title')
-    {{ $pengumuman->judul ?? __('Show') . ' Pengumuman' }}
-@endsection
-
+@section('template_title') {{ $pengumuman->judul ?? 'Detail Pengumuman' }} @endsection
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col">
+<div class="adm-page">
 
-                {{-- Topbar --}}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0" style="font-size:13px;">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('superadmin.pengumumen.index') }}">Pengumuman</a>
-                            </li>
-                            <li class="breadcrumb-item active">Detail</li>
-                        </ol>
-                    </nav>
-                    <a href="{{ route('superadmin.pengumumen.index') }}"
-                        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                        <i class="la la-arrow-left"></i> Kembali
-                    </a>
-                </div>
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1>Detail Pengumuman</h1>
+            <p>Informasi lengkap pengumuman untuk data entry</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <a href="{{ route('superadmin.pengumumen.edit', $pengumuman->hashed_id) }}" class="adm-btn-primary">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+            </a>
+            <a href="{{ route('superadmin.pengumumen.index') }}" class="adm-btn-secondary">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Kembali
+            </a>
+        </div>
+    </div>
 
-                {{-- Card utama --}}
-                <div class="card border" style="border-radius:12px; overflow:hidden;">
-
-                    {{-- Header --}}
-                    <div class="card-header bg-white d-flex align-items-center gap-3 py-3 px-4"
-                        style="border-bottom: 0.5px solid rgba(0,0,0,0.08);">
-                        <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-2"
-                            style="width:36px; height:36px; flex-shrink:0;">
-                            <i class="la la-file-alt text-primary" style="font-size:18px;"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-0 fw-medium">Detail Pengumuman</h6>
-                            <small class="text-muted">Informasi lengkap pengumuman</small>
-                        </div>
-                        <span class="badge ms-auto"
-                            style="background:#E6F1FB; color:#185FA5; font-size:11px; font-weight:500; border-radius:999px; padding:4px 12px;">
-                            Aktif
-                        </span>
-                    </div>
-
-                    {{-- Body --}}
-                    <div class="card-body bg-white p-4">
-
-                        {{-- Row: Nomor & Jenis --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <div class="p-3 rounded-2" style="background:#F8F8F7;">
-                                    <p class="text-muted mb-1"
-                                        style="font-size:11px; font-weight:500; letter-spacing:.05em; text-transform:uppercase;">
-                                        <i class="la la-hashtag me-1"></i>Nomor Pengumuman
-                                    </p>
-                                    <p class="mb-0 fw-medium" style="font-size:14px;">{{ $pengumuman->nomor }}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3 rounded-2" style="background:#F8F8F7;">
-                                    <p class="text-muted mb-1"
-                                        style="font-size:11px; font-weight:500; letter-spacing:.05em; text-transform:uppercase;">
-                                        <i class="la la-tag me-1"></i>Jenis Pengumuman
-                                    </p>
-                                    <p class="mb-0 fw-medium" style="font-size:14px;">{{ $pengumuman->jenis }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Judul --}}
-                        <div class="p-3 rounded-2 mb-3" style="background:#F8F8F7;">
-                            <p class="text-muted mb-1"
-                                style="font-size:11px; font-weight:500; letter-spacing:.05em; text-transform:uppercase;">
-                                <i class="la la-heading me-1"></i>Judul Pengumuman
-                            </p>
-                            <p class="mb-0 fw-medium" style="font-size:15px;">{{ $pengumuman->judul }}</p>
-                        </div>
-
-                        {{-- Lampiran PDF --}}
-                        <div class="p-3 rounded-2 mb-3" style="background:#F8F8F7;">
-                            <p class="text-muted mb-2"
-                                style="font-size:11px; font-weight:500; letter-spacing:.05em; text-transform:uppercase;">
-                                <i class="la la-paperclip me-1"></i>Lampiran / Foto
-                            </p>
-                            <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-2 border"
-                                style="border-color: rgba(0,0,0,0.08) !important;">
-                                <div class="d-flex align-items-center justify-content-center rounded-2 flex-shrink-0"
-                                    style="width:36px; height:40px; background:#FCEBEB;">
-                                    <i class="la la-file-pdf" style="font-size:20px; color:#A32D2D;"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <p class="mb-0 fw-medium text-truncate" style="font-size:13px;">Dokumen PDF
-                                    </p>
-                                    <p class="mb-0 text-muted" style="font-size:11px;">{{ $pengumuman->judul }}</p>
-                                </div>
-                                @if ($pengumuman->foto)
-                                    <a href="{{ asset('storage/' . $pengumuman->foto) }}" target="_blank"
-                                        class="btn btn-sm ms-auto flex-shrink-0 d-flex align-items-center gap-1"
-                                        style="background:#E6F1FB; color:#185FA5; border:none; font-size:12px; font-weight:500;">
-                                        <i class="la la-external-link-alt"></i> Lihat PDF
-                                    </a>
-                                @else
-                                    <span class="badge ms-auto flex-shrink-0"
-                                        style="background:#F8F8F7; color:#0581ed; font-size:11px; font-weight:500; border-radius:999px; padding:4px 12px;">
-                                        Tidak ada lampiran
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        {{-- Deskripsi --}}
-                        <div class="p-3 rounded-2" style="background:#F8F8F7;">
-                            <p class="text-muted mb-2"
-                                style="font-size:11px; font-weight:500; letter-spacing:.05em; text-transform:uppercase;">
-                                <i class="la la-align-left me-1"></i>Deskripsi
-                            </p>
-                            <p class="mb-0" style="font-size:14px; line-height:1.7;">{!! $pengumuman->deskripsi !!}</p>
-                        </div>
-
-                    </div>
-                </div>
-
+    {{-- META INFO ── --}}
+    <div class="adm-card" style="margin-bottom:16px;">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Informasi Pengumuman
             </div>
         </div>
-    </section>
+        <div style="padding:0 20px;">
+            <div class="adm-info-list">
+                <div class="adm-info-row">
+                    <span class="adm-info-key">Nomor</span>
+                    <span class="adm-info-val adm-mono" style="font-size:12.5px;background:var(--adm-blue-lt);color:var(--adm-blue);padding:3px 10px;border-radius:6px;">
+                        {{ $pengumuman->nomor }}
+                    </span>
+                </div>
+                <div class="adm-info-row">
+                    <span class="adm-info-key">Jenis</span>
+                    <span class="adm-info-val">
+                        @if ($pengumuman->jenis === 'OSS')
+                            <span class="adm-badge adm-badge-oss">OSS</span>
+                        @elseif ($pengumuman->jenis === 'SIHALAL')
+                            <span class="adm-badge adm-badge-sihalal">SIHALAL</span>
+                        @else
+                            <span class="adm-badge adm-badge-info">{{ $pengumuman->jenis }}</span>
+                        @endif
+                    </span>
+                </div>
+                <div class="adm-info-row">
+                    <span class="adm-info-key">Judul</span>
+                    <span class="adm-info-val" style="font-size:15px;">{{ $pengumuman->judul }}</span>
+                </div>
+                <div class="adm-info-row">
+                    <span class="adm-info-key">Lampiran</span>
+                    <span class="adm-info-val">
+                        @if ($pengumuman->foto)
+                            <a href="{{ asset('storage/' . $pengumuman->foto) }}" target="_blank"
+                                class="adm-btn primary" style="padding:5px 14px;font-size:12px;">
+                                <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Lihat PDF / Dokumen
+                            </a>
+                        @else
+                            <span style="color:var(--adm-text-faint);font-size:13px;">Tidak ada lampiran</span>
+                        @endif
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ISI PENGUMUMAN ── --}}
+    <div class="adm-card">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <svg viewBox="0 0 24 24"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                Isi Pengumuman
+            </div>
+        </div>
+        <div style="padding:20px 24px;font-size:14px;line-height:1.8;color:var(--adm-text-mid);">
+            {!! $pengumuman->deskripsi !!}
+        </div>
+    </div>
+
+</div>
 @endsection

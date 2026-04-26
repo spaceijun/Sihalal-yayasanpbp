@@ -79,7 +79,7 @@
                             revisi, atau tolak.</div>
                     </div>
                     <div class="d-flex gap-2 flex-shrink-0">
-                        <form action="{{ route('superadmin.data-entry-progress.terima', $progress->id) }}" method="POST">
+                        <form action="{{ route('superadmin.data-entry-progress.terima', $progress->hashed_id) }}" method="POST">
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="btn btn-success btn-sm fw-semibold">
@@ -363,7 +363,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-entry-progress.revisi', $progress->id) }}" method="POST">
+                <form action="{{ route('superadmin.data-entry-progress.revisi', $progress->hashed_id) }}" method="POST">
                     @csrf
                     @method('PATCH')
                     <div class="modal-body p-4">
@@ -406,7 +406,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-entry-progress.tolak', $progress->id) }}" method="POST">
+                <form action="{{ route('superadmin.data-entry-progress.tolak', $progress->hashed_id) }}" method="POST">
                     @csrf
                     @method('PATCH')
                     <div class="modal-body p-4">

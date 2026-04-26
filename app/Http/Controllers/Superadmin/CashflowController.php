@@ -70,9 +70,9 @@ class CashflowController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $cashflow = Cashflow::find($id);
+        $cashflow = Cashflow::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.arus-kas.show', compact('cashflow'));
     }
@@ -80,9 +80,9 @@ class CashflowController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $cashflow = Cashflow::find($id);
+        $cashflow = Cashflow::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.arus-kas.edit', compact('cashflow'));
     }
@@ -98,9 +98,9 @@ class CashflowController extends Controller
             ->with('success', 'Cashflow updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        Cashflow::find($id)->delete();
+        Cashflow::findByHashedIdOrFail($hashedId)->delete();
 
         return Redirect::route('superadmin.arus-kas.index')
             ->with('success', 'Cashflow deleted successfully');

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasHashedId;
 
 class DataEntryProgress extends Model
 {
+    use HasHashedId;
     protected $fillable = [
         'user_id',
         'data_entry_id',

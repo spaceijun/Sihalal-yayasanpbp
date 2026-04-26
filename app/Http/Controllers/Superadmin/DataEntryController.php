@@ -70,18 +70,20 @@ class DataEntryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($hashedId): View
     {
-        $dataEntry = DataEntry::with('koordinators')->findOrFail($id);
+        $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
+        $dataEntry->load('koordinators');
         return view('superadmin.data-entry.show', compact('dataEntry'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $dataEntry              = DataEntry::with('koordinators')->findOrFail($id);
+        $dataEntry              = DataEntry::findByHashedIdOrFail($hashedId);
+        $dataEntry->load('koordinators');
         $koordinators           = Koordinator::all();
         $selectedKoordinatorIds = $dataEntry->koordinators->pluck('id')->toArray();
 
@@ -119,9 +121,9 @@ class DataEntryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        $dataEntry = DataEntry::findOrFail($id);
+        $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
 
         // Detach koordinator dulu sebelum delete
         $dataEntry->koordinators()->detach();

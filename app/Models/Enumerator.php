@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Enumerator extends Model
 {
+    use HasHashedId;
 
     protected $perPage = 20;
 

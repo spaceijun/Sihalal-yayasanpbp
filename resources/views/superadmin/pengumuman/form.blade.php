@@ -1,61 +1,60 @@
-<div class="row padding-1 p-1">
-    <div class="col-md-12">
-
-        <div class="form-group mb-2 mb20">
-            <label for="nomor" class="form-label">{{ __('Nomor Pengumuman') }}</label>
-            <input type="text" name="nomor" class="form-control bg-light @error('nomor') is-invalid @enderror"
-                value="{{ old('nomor', $nextNomor ?? 'YPBP-KH/' . now()->format('m') . '/' . now()->format('Y') . '/001') }}"
-                id="nomor" readonly>
-            {!! $errors->first('nomor', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="judul" class="form-label">{{ __('Judul Pengumuman') }}</label>
-            <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror"
-                value="{{ old('judul', $pengumuman?->judul) }}" id="judul" placeholder="Judul">
-            {!! $errors->first('judul', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="jenis" class="form-label">{{ __('Jenis Pengumuman') }}</label>
-
-            <select name="jenis" id="jenis" class="form-control @error('jenis') is-invalid @enderror">
-                <option value="">-- Pilih Jenis --</option>
-
-                <option value="SIHALAL" {{ old('jenis', $pengumuman?->jenis) == 'SIHALAL' ? 'selected' : '' }}>
-                    SIHALAL
-                </option>
-
-                <option value="OSS" {{ old('jenis', $pengumuman?->jenis) == 'OSS' ? 'selected' : '' }}>
-                    OSS
-                </option>
-            </select>
-
-            {!! $errors->first('jenis', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="foto" class="form-label">{{ __('Foto') }}</label>
-            <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror"
-                value="{{ old('foto', $pengumuman?->foto) }}" id="foto" placeholder="Foto"
-                accept=".jpeg,.png,.jpg,.gif,.svg,.pdf">
-            {!! $errors->first('foto', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-        <div class="form-group mb-2 mb20">
-            <label for="deskripsi" class="form-label">{{ __('Isi Pengumuman') }}</label>
-            <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi"
-                placeholder="Isi Pengumuman" rows="5">{{ old('deskripsi', $pengumuman?->deskripsi) }}</textarea>
-            {!! $errors->first('deskripsi', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
-
-    </div>
-    <div class="col-md-12 mt20 mt-2">
-        <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
-    </div>
+{{-- ── NOMOR PENGUMUMAN (auto) ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="nomor">Nomor Pengumuman</label>
+    <input type="text" name="nomor" id="nomor"
+        class="adm-input @error('nomor') is-invalid @enderror"
+        value="{{ old('nomor', $nextNomor ?? 'YPBP-KH/' . now()->format('m') . '/' . now()->format('Y') . '/001') }}"
+        readonly style="background:var(--adm-bg-muted);cursor:not-allowed;color:var(--adm-text-muted);font-family:var(--adm-font-mono,monospace);font-size:13px;">
+    <span class="adm-hint">Nomor dibuat otomatis oleh sistem.</span>
+    @error('nomor') <span class="adm-error-msg">{{ $message }}</span> @enderror
 </div>
 
+{{-- ── JENIS PENGUMUMAN ── --}}
+<div class="adm-field">
+    <label class="adm-label" for="jenis">Jenis Pengumuman <span class="req">*</span></label>
+    <select name="jenis" id="jenis" class="adm-field-select @error('jenis') is-invalid @enderror">
+        <option value="">-- Pilih Jenis --</option>
+        <option value="SIHALAL" {{ old('jenis', $pengumuman?->jenis) == 'SIHALAL' ? 'selected' : '' }}>SIHALAL</option>
+        <option value="OSS" {{ old('jenis', $pengumuman?->jenis) == 'OSS' ? 'selected' : '' }}>OSS</option>
+    </select>
+    @error('jenis') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── JUDUL ── --}}
+<div class="adm-field full-span">
+    <label class="adm-label" for="judul">Judul Pengumuman <span class="req">*</span></label>
+    <input type="text" name="judul" id="judul"
+        class="adm-input @error('judul') is-invalid @enderror"
+        value="{{ old('judul', $pengumuman?->judul) }}"
+        placeholder="Judul pengumuman yang jelas dan deskriptif">
+    @error('judul') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── FOTO / LAMPIRAN ── --}}
+<div class="adm-field full-span">
+    <label class="adm-label" for="foto">Lampiran / Foto <span style="font-weight:400;color:var(--adm-text-muted);">(PDF, JPG, PNG)</span></label>
+    <input type="file" name="foto" id="foto"
+        class="adm-input @error('foto') is-invalid @enderror"
+        accept=".jpeg,.png,.jpg,.gif,.svg,.pdf">
+    @if ($pengumuman?->foto)
+        <span class="adm-hint">
+            File saat ini:
+            <a href="{{ asset('storage/' . $pengumuman->foto) }}" target="_blank" style="color:var(--adm-blue);">Lihat lampiran</a>
+            — Upload baru untuk mengganti.
+        </span>
+    @endif
+    @error('foto') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
+
+{{-- ── ISI PENGUMUMAN (ClassicEditor) ── --}}
+<div class="adm-field full-span">
+    <label class="adm-label" for="deskripsi">Isi Pengumuman <span class="req">*</span></label>
+    <textarea name="deskripsi" id="deskripsi"
+        class="adm-textarea @error('deskripsi') is-invalid @enderror"
+        rows="6" placeholder="Tulis isi pengumuman di sini...">{{ old('deskripsi', $pengumuman?->deskripsi) }}</textarea>
+    @error('deskripsi') <span class="adm-error-msg">{{ $message }}</span> @enderror
+</div>
 
 <script>
-    ClassicEditor
-        .create(document.querySelector('#deskripsi'))
-        .catch(error => {
-            console.error(error);
-        });
+    ClassicEditor.create(document.querySelector('#deskripsi')).catch(error => console.error(error));
 </script>

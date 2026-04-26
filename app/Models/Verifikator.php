@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -69,4 +70,3 @@ class Verifikator extends Model
         return $this->belumDibayar()->count();
     }
 }
-

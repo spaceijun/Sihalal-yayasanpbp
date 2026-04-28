@@ -26,6 +26,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a href="{{ url('resep-makanan') }}" class="nav-link {{ $current_url == 'resep-makanan' ? 'active' : '' }}">
+        <i data-feather="file-text"></i>Resep Makanan
+    </a>
+</li>
+<li class="nav-item">
     <a href="{{ url('data-entry/manajemen-akun') }}"
         class="nav-link {{ $current_url == 'data-entry/manajemen-akun' ? 'active' : '' }}">
         <i data-feather="settings"></i>Setting Akun

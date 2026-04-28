@@ -95,7 +95,12 @@
 
 
                 <li class="menu-title"><span data-key="t-menu">Settings</span></li>
-
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/resep-makanans') }}"
+                        class="nav-link {{ $current_url == 'superadmin/resep-makanans' ? 'active' : '' }}">
+                        <i data-feather="file-text"></i>Resep Makanan
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/settings') }}"
                         class="nav-link {{ $current_url == 'superadmin/settings' ? 'active' : '' }}">

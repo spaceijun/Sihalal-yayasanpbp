@@ -7,6 +7,7 @@ use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapang
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
 use App\Http\Controllers\DataEntry\SettingAkunController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
 use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
 use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\PengumumanController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
+use App\Http\Controllers\Superadmin\ResepMakananController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
 use App\Http\Controllers\Superadmin\UserController;
@@ -65,6 +67,7 @@ Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck
 Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
 Route::get('version/check', [AppVersionController::class, 'check']);
 Route::get('/recruitment/confirm/{hashedId}', [RecruitmentController::class, 'confirm'])->name('recruitment.confirm');
+Route::get('resep-makanan', [HomeController::class, 'resepMakanan'])->name('resep-makanan');
 
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
@@ -137,6 +140,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::patch('/{progress}/tolak',                  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
             Route::post('/bulk-terima',                        [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
         });
+        // Resep Makanan 
+        Route::resource('resep-makanans', ResepMakananController::class);
         // Pengumuman
         Route::get('pengumumen', [PengumumanController::class, 'index'])->name('pengumumen.index');
         Route::get('pengumumen/create', [PengumumanController::class, 'create'])->name('pengumumen.create');

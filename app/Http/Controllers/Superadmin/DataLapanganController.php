@@ -42,9 +42,9 @@ class DataLapanganController extends Controller
     public function index(Request $request): View
     {
         $filters = [
-            'nama_pu'      => $request->nama_pu,
+            'nama_pu'       => $request->nama_pu,
             'enumerator_id' => $request->enumerator_id,
-            'status'       => $request->status,
+            'status'        => $request->status,
         ];
 
         $dataLapangans = $this->dataLapanganService->getFilteredData($filters, 20);
@@ -65,12 +65,13 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Kirim notifikasi revisi untuk satu data
+     * Kirim notifikasi revisi untuk satu data — pakai hashedId
      */
-    public function sendRevisiNotification($id): JsonResponse
+    public function sendRevisiNotification($hashedId): JsonResponse
     {
         try {
-            $dataLapangan = DataLapangan::with('enumerator')->findOrFail($id);
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+            $dataLapangan->load('enumerator');
             $result = $this->notificationService->sendRevisiNotification($dataLapangan);
 
             return response()->json($result, $result['success'] ? 200 : 400);
@@ -140,7 +141,7 @@ class DataLapanganController extends Controller
         $uploadResult = $this->fileService->uploadFile($dataLapangan, $request->file('file'), $fileType);
 
         // Update status
-        $newStatus = $this->statusService->determineStatusByFileType($fileType);
+        $newStatus        = $this->statusService->determineStatusByFileType($fileType);
         $dataLapangan->status = $newStatus;
         $dataLapangan->save();
 
@@ -180,7 +181,7 @@ class DataLapanganController extends Controller
         }
 
         try {
-            $tempPath = $this->imageService->compressKTPImage($fotoPath, $id);
+            $tempPath = $this->imageService->compressKTPImage($fotoPath, $hashedId);
             $fileName = $this->imageService->generateSafeFilename($dataLapangan->nama_pu);
 
             return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
@@ -280,7 +281,8 @@ class DataLapanganController extends Controller
         ]);
 
         $dlObjEmail = DataLapangan::findByHashedIdOrFail($hashedId);
-        $this->dataLapanganService->updateEmail($dlObjEmail->id,
+        $this->dataLapanganService->updateEmail(
+            $dlObjEmail->id,
             $request->email,
             $request->verifikator_id,
             $request->tanggal_verifikasi
@@ -291,11 +293,6 @@ class DataLapanganController extends Controller
 
     /**
      * Upload gambar secara sekuensial (AJAX).
-     *
-     * Mendukung: foto_ktp, foto_rumah, foto_pendamping,
-     *            foto_produk, foto_produk_2 â€¦ foto_produk_5
-     *
-     * POST /superadmin/data-lapangans/upload/{type}
      */
     public function uploadFileSequintal(Request $request, $type): JsonResponse
     {
@@ -361,16 +358,30 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Bulk update status pembayaran sejumlah data lapangan menjadi DIBAYAR.
+     * Bulk update status pembayaran — ids[] berisi hashed_id, di-decode dulu.
      */
     public function bulkUpdateStatusPayment(Request $request): JsonResponse
     {
         $request->validate([
             'ids'   => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:data_lapangans,id',
+            'ids.*' => 'required|string', // hashed_id adalah string
         ]);
 
-        $dataLapangans = DataLapangan::whereIn('id', $request->ids)
+        // Decode semua hashed_id ke real ID
+        $realIds = collect($request->ids)
+            ->map(fn($hashedId) => DataLapangan::findByHashedId($hashedId)?->id)
+            ->filter()
+            ->values()
+            ->all();
+
+        if (empty($realIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data valid yang ditemukan.',
+            ], 422);
+        }
+
+        $dataLapangans = DataLapangan::whereIn('id', $realIds)
             ->where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'PENDING')
             ->get();
@@ -390,7 +401,7 @@ class DataLapanganController extends Controller
                 $this->processPembayaran($dataLapangan);
                 $updated++;
             } catch (\Exception $e) {
-                $errors[] = "ID {$dataLapangan->id} ({$dataLapangan->nama_pu}): {$e->getMessage()}";
+                $errors[] = "({$dataLapangan->nama_pu}): {$e->getMessage()}";
                 Log::error("bulkUpdateStatusPayment error on ID {$dataLapangan->id}: {$e->getMessage()}");
             }
         }
@@ -449,11 +460,11 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified resource — pakai hashedId.
      */
-    public function edit($id): View
+    public function edit($hashedId): View
     {
-        $dataLapangan = DataLapangan::find($id);
+        $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
 
         return view('superadmin.data-lapangan.edit', compact('dataLapangan'));
     }
@@ -470,7 +481,7 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Download foto rumah as PDF
+     * Download foto rumah as PDF — pakai hashedId.
      */
     public function downloadFotoRumahPdf($hashedId)
     {
@@ -486,11 +497,12 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage — pakai hashedId.
      */
-    public function destroy($id): RedirectResponse
+    public function destroy($hashedId): RedirectResponse
     {
-        $this->dataLapanganService->delete($id);
+        $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+        $this->dataLapanganService->delete($dataLapangan->id);
 
         return Redirect::route('superadmin.data-lapangans.index')
             ->with('success', 'DataLapangan deleted successfully');
@@ -511,4 +523,3 @@ class DataLapanganController extends Controller
         return redirect()->back()->with('success', 'Email Sihalal berhasil diperbarui');
     }
 }
-

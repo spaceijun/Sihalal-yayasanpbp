@@ -221,18 +221,30 @@ class DataEntryProgressController extends Controller
 
     /**
      * Terima banyak progress sekaligus.
+     * progress_ids[] berisi hashed_id — di-decode dulu ke id asli.
      * Status data_lapangans masing-masing baru diubah di sini.
      */
     public function bulkTerima(Request $request): RedirectResponse
     {
         $request->validate([
             'progress_ids'       => 'required|array|min:1',
-            'progress_ids.*'     => 'exists:data_entry_progress,id',
+            'progress_ids.*'     => 'string', // hashed_id adalah string
             'verifikator_id'     => 'required|exists:verifikators,id',
             'tanggal_verifikasi' => 'required|date',
         ]);
 
-        $progresses = DataEntryProgress::whereIn('id', $request->progress_ids)
+        // Decode semua hashed_id ke id asli
+        $realIds = collect($request->progress_ids)
+            ->map(fn($hashedId) => DataEntryProgress::findByHashedId($hashedId)?->id)
+            ->filter()
+            ->values()
+            ->all();
+
+        if (empty($realIds)) {
+            return redirect()->back()->with('error', 'Tidak ada progress valid yang dipilih.');
+        }
+
+        $progresses = DataEntryProgress::whereIn('id', $realIds)
             ->where('status', 'PENDING')
             ->get();
 

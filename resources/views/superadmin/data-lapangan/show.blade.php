@@ -300,7 +300,8 @@
                                 </div>
                             </div>
                         @endif
-                        <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
+                        <form
+                            action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
                             <label
@@ -381,14 +382,17 @@
                         </button>
                     </div>
 
-                    {{-- Foto utama --}}
+                    {{-- Foto utama — semua pakai hashed_id --}}
                     @php
                         $staticPhotos = [
                             [
                                 'label' => 'Foto KTP',
                                 'modal' => 'modalFotoKTP',
                                 'foto' => $dataLapangan->foto_ktp,
-                                'dl_route' => route('superadmin.datalapangan.download-foto-ktp', $dataLapangan->hashed_id),
+                                'dl_route' => route(
+                                    'superadmin.datalapangan.download-foto-ktp',
+                                    $dataLapangan->hashed_id,
+                                ),
                                 'dl_label' => 'KTP',
                                 'dl_class' => 'dl-btn-primary',
                             ],
@@ -396,9 +400,10 @@
                                 'label' => 'Foto Rumah',
                                 'modal' => 'modalFotoRumah',
                                 'foto' => $dataLapangan->foto_rumah,
+                                // KOREKSI: pakai hashed_id bukan id
                                 'dl_route' => route(
                                     'superadmin.datalapangan.download-foto-rumah-pdf',
-                                    $dataLapangan->id,
+                                    $dataLapangan->hashed_id,
                                 ),
                                 'dl_label' => 'PDF',
                                 'dl_class' => 'dl-btn-ghost',
@@ -407,9 +412,10 @@
                                 'label' => 'Foto Pendamping',
                                 'modal' => 'modalFotoPendamping',
                                 'foto' => $dataLapangan->foto_pendamping,
+                                // KOREKSI: pakai hashed_id bukan id
                                 'dl_route' => route(
                                     'superadmin.datalapangan.download-foto-pendamping',
-                                    $dataLapangan->id,
+                                    $dataLapangan->hashed_id,
                                 ),
                                 'dl_label' => 'Download',
                                 'dl_class' => 'dl-btn-success',
@@ -543,8 +549,9 @@
                                     class="dl-btn dl-btn-success dl-btn-sm">
                                     <i class="las la-download"></i> Unduh
                                 </a>
+                                {{-- KOREKSI: deleteFile pakai hashed_id --}}
                                 <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
-                                    onclick="deleteFile('{{ $dataLapangan->id }}', 'oss')">
+                                    onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'oss')">
                                     <i class="las la-trash"></i>
                                 </button>
                             @endif
@@ -579,8 +586,9 @@
                                     class="dl-btn dl-btn-success dl-btn-sm">
                                     <i class="las la-download"></i> Unduh
                                 </a>
+                                {{-- KOREKSI: deleteFile pakai hashed_id --}}
                                 <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
-                                    onclick="deleteFile('{{ $dataLapangan->id }}', 'sihalal')">
+                                    onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'sihalal')">
                                     <i class="las la-trash"></i>
                                 </button>
                             @endif
@@ -1023,14 +1031,12 @@
             color: var(--dl-text);
         }
 
-        /* ── PAGE WRAPPER ── */
         .dl-page {
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* ── HEADER BAR ── */
         .dl-header {
             display: flex;
             align-items: flex-start;
@@ -1062,7 +1068,6 @@
             font-weight: 600;
         }
 
-        /* ── BADGES ── */
         .dl-badge {
             display: inline-flex;
             align-items: center;
@@ -1127,7 +1132,6 @@
             color: #0369A1;
         }
 
-        /* ── STEPPER ── */
         .dl-stepper {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1219,7 +1223,6 @@
             font-weight: 700;
         }
 
-        /* ── GRID ── */
         .dl-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1232,7 +1235,6 @@
             }
         }
 
-        /* ── CARD ── */
         .dl-card {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1282,7 +1284,6 @@
             padding: 1.25rem;
         }
 
-        /* ── INFO TABLE ── */
         .dl-info-table {
             width: 100%;
             border-collapse: collapse;
@@ -1317,7 +1318,6 @@
             color: var(--dl-text);
         }
 
-        /* ── SECTION DIVIDER ── */
         .dl-divider {
             display: flex;
             align-items: center;
@@ -1340,7 +1340,6 @@
             background: var(--dl-border);
         }
 
-        /* ── ACTION BUTTONS ── */
         .dl-btn {
             display: inline-flex;
             align-items: center;
@@ -1422,7 +1421,6 @@
             border-radius: var(--dl-radius-sm);
         }
 
-        /* ── VERIFIKATOR CHIP ── */
         .dl-verif-chip {
             display: flex;
             align-items: center;
@@ -1458,7 +1456,6 @@
             color: var(--dl-muted);
         }
 
-        /* ── DATA ENTRY ROW ── */
         .dl-entry-row {
             display: flex;
             align-items: center;
@@ -1485,7 +1482,6 @@
             color: var(--dl-muted);
         }
 
-        /* ── PHOTO ROW ── */
         .dl-photo-row {
             display: flex;
             align-items: center;
@@ -1540,7 +1536,6 @@
             gap: 6px;
         }
 
-        /* ── PRODUK GRID ── */
         .dl-produk-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1602,7 +1597,6 @@
             line-height: 1.4;
         }
 
-        /* ── FILE ROW ── */
         .dl-file-row {
             display: flex;
             align-items: center;
@@ -1658,7 +1652,6 @@
             color: var(--dl-rose);
         }
 
-        /* ── UPLOAD ROW ── */
         .dl-upload-group {
             display: flex;
             gap: 8px;
@@ -1683,7 +1676,6 @@
             border-color: var(--dl-blue);
         }
 
-        /* ── REVISI ALERT ── */
         .dl-revisi-alert {
             display: flex;
             gap: 10px;
@@ -1715,7 +1707,6 @@
             color: #78350F;
         }
 
-        /* ── SPOTCHECK ── */
         .dl-spotcheck-item {
             display: flex;
             align-items: center;
@@ -1728,7 +1719,6 @@
             border-bottom: none;
         }
 
-        /* ── KETERANGAN TEXTAREA ── */
         .dl-textarea {
             width: 100%;
             padding: 10px 12px;
@@ -1748,7 +1738,6 @@
             box-shadow: 0 0 0 3px rgba(26, 95, 200, .08);
         }
 
-        /* ── ALERTS ── */
         .dl-alert {
             display: flex;
             align-items: flex-start;
@@ -1776,7 +1765,6 @@
             margin-top: 1px;
         }
 
-        /* ── CHECKLIST CARD ── */
         .dl-check-card {
             border: 1.5px solid var(--dl-border);
             border-radius: 12px;
@@ -1837,7 +1825,6 @@
             display: none;
         }
 
-        /* ── BACK BUTTON ── */
         .dl-back {
             display: inline-flex;
             align-items: center;
@@ -1859,7 +1846,6 @@
             transform: translateX(-2px);
         }
 
-        /* ── MODAL ── */
         .dl-modal .modal-content {
             border: none;
             border-radius: 16px;
@@ -1918,7 +1904,6 @@
             box-shadow: 0 0 0 3px rgba(26, 95, 200, .1);
         }
 
-        /* ── KOLASE ── */
         .dl-collage-img {
             height: 260px;
             object-fit: cover;
@@ -1927,7 +1912,6 @@
             border-radius: 0 0 10px 10px;
         }
 
-        /* ── EMPTY STATE ── */
         .dl-empty {
             text-align: center;
             padding: 1.5rem;
@@ -1942,7 +1926,6 @@
             opacity: .4;
         }
 
-        /* ── ANIMATIONS ── */
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -1979,7 +1962,6 @@
             animation-delay: .25s;
         }
 
-        /* ── RESPONSIVE ACTIONS ── */
         .dl-actions-group {
             display: flex;
             gap: 6px;
@@ -2027,7 +2009,6 @@
                 },
             ];
             let valid = true;
-
             checks.forEach(c => {
                 const el = document.querySelector(`input[name="${c.name}"]:checked`);
                 const warnEl = document.getElementById(c.warn);
@@ -2038,7 +2019,6 @@
                     warnEl.style.display = 'none';
                 }
             });
-
             const qKet = document.querySelector('input[name="q_keterangan"]:checked');
             if (!qKet) {
                 valid = false;
@@ -2046,7 +2026,6 @@
                 card.style.borderColor = 'var(--dl-rose)';
                 setTimeout(() => card.style.borderColor = 'var(--dl-border)', 2000);
             }
-
             if (valid) {
                 document.getElementById('stepChecklist').classList.add('d-none');
                 document.getElementById('stepForm').classList.remove('d-none');
@@ -2066,15 +2045,16 @@
             document.getElementById('stepForm').classList.add('d-none');
         });
 
-        // ── FILE DELETE ──
-        function deleteFile(id, fileType) {
+        // ── FILE DELETE — pakai hashed_id bukan raw id ──
+        function deleteFile(hashedId, fileType) {
             if (!confirm('Apakah Anda yakin ingin menghapus file ini?')) return;
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `{{ url('superadmin/data-lapangans') }}/${id}/delete-file`;
+            // hashedId di-resolve oleh resolveRouteBinding di trait
+            form.action = `{{ url('superadmin/data-lapangans') }}/${hashedId}/delete-file`;
             form.innerHTML = `
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="file_type" value="${fileType}">`;
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="file_type" value="${fileType}">`;
             document.body.appendChild(form);
             form.submit();
         }

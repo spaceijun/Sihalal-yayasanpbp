@@ -10,8 +10,8 @@ use App\Models\DataEntryProgress;
 class DataEntryPenagihanService
 {
     const DATA_PER_PAKET       = 15;
-    const TARIF_OSS_PER_PAKET  = 100000;
-    const TARIF_SIHALAL_PER_PAKET = 150000;
+    const TARIF_OSS_PER_PAKET  = 150000;
+    const TARIF_SIHALAL_PER_PAKET = 200000;
 
     /**
      * Kembalikan tarif per paket berdasarkan entry_type data entry.

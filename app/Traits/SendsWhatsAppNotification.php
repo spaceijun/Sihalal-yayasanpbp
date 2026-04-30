@@ -406,7 +406,7 @@ trait SendsWhatsAppNotification
         int $nominal
     ): string {
         $nominalFormatted = 'Rp ' . number_format($nominal, 0, ',', '.');
-        $perPaket         = 'Rp ' . number_format(100000, 0, ',', '.');
+        $perPaket         = 'Rp ' . number_format(150000, 0, ',', '.');
 
         return "💰 *NOTIFIKASI PEMBAYARAN DATA ENTRY*\n\n" .
             "Halo *{$namaDataEntry}*!\n\n" .

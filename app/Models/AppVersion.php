@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 
 /**

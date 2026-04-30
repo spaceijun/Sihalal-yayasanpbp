@@ -31,7 +31,7 @@ Route::get('data-lapangan/by-enumerator/{enumeratorId}', function ($enumeratorId
 
     return response()->json($dataLapangan);
 });
-Route::middleware('auth:sanctum')->post('/fcm-token', [FcmController::class, 'store']);
+Route::middleware('auth:web')->post('/fcm-token', [FcmController::class, 'store']);
 
 Route::apiResource('data-banks', DatabankController::class);
 // =============================================

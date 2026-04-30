@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Observers;
 
 use App\Models\Cashflow;
@@ -14,7 +15,7 @@ class CashflowObserver
 
         NotificationHelper::kirimPemasukan(
             $user,
-            (double) $cashflow->nominal
+            (float) $cashflow->jumlah
         );
     }
 }

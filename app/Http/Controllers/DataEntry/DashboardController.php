@@ -51,7 +51,9 @@ class DashboardController extends Controller
 
         // Paket & penghasilan dihitung dari data DITERIMA
         $kelipatan        = (int) floor($totalDiterima / $kelipatanPer);
-        $totalPenghasilan = $kelipatan * $tarifPer15;
+        $totalPenghasilan = DataEntryPenagihan::where('data_entry_id', $dataEntry->id)
+            ->where('status', 'Dibayar')
+            ->sum('nominal');
 
         // Sisa data DITERIMA yang belum membentuk paket
         $sisaData = $totalDiterima % $kelipatanPer;

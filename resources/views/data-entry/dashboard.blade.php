@@ -31,7 +31,8 @@
             </div>
             <div class="db-hero__stat-divider"></div>
             <div class="db-hero__stat">
-                <div class="db-hero__stat-num">Rp {{ number_format($totalPenghasilan, 0, ',', '.') }}</div>
+                <div class="db-hero__stat-num">Rp
+                    {{ number_format($penagihans->where('status', 'Dibayar')->sum('nominal'), 0, ',', '.') }}</div>
                 <div class="db-hero__stat-lbl">Total penghasilan</div>
             </div>
         </div>

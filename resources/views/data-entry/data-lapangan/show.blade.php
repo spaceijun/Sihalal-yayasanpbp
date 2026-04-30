@@ -87,18 +87,23 @@
                     <span class="dl-badge-dot"></span>{{ $dataLapangan->status }}
                 </span>
 
-                @if (
-                    ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK') &&
-                        !$hasPendingProgress &&
-                        !$dataLapangan->email_sihalal)
-                    <button type="button" class="dl-btn dl-btn-success" data-bs-toggle="modal"
-                        data-bs-target="#modalUpdateStatusHalal">
-                        <i class="las la-edit"></i> Update Status Halal
-                    </button>
-                @elseif ($hasPendingProgress || $dataLapangan->email_sihalal)
-                    <span class="dl-badge dl-badge-pending">
-                        <i class="las la-clock" style="font-size:12px;"></i>&nbsp;Menunggu Review Admin
-                    </span>
+                @php
+                    $isPendingStatusUpdate =
+                        $latestProgress?->status === 'PENDING' &&
+                        ($latestProgress?->new_data['file_type'] ?? null) === 'status_update';
+                @endphp
+
+                @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
+                    @if (!$hasPendingProgress && !$dataLapangan->email_sihalal && !$isPendingStatusUpdate)
+                        <button type="button" class="dl-btn dl-btn-success" data-bs-toggle="modal"
+                            data-bs-target="#modalUpdateStatusHalal">
+                            <i class="las la-edit"></i> Update Status Halal
+                        </button>
+                    @elseif ($hasPendingProgress || $dataLapangan->email_sihalal || $isPendingStatusUpdate)
+                        <span class="dl-badge dl-badge-pending">
+                            <i class="las la-clock" style="font-size:12px;"></i>&nbsp;Menunggu Review Admin
+                        </span>
+                    @endif
                 @endif
 
                 <a href="{{ route('data-entry.data-lapangan.index') }}" class="dl-back">

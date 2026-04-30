@@ -13,6 +13,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "dedoc/scramble": "^0.13.14",
         "intervention/image": "^3.11",
+        "kreait/laravel-firebase": "^7.1",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",

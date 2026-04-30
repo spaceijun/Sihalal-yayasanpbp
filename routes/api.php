@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\EnumeratorApi;
+use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\KoorDataLapanganController;
 use App\Http\Controllers\Api\RecruitmentApi;
 use App\Models\DataLapangan;
@@ -22,13 +23,15 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'store']);
 Route::post('/check-nik', [DataLapanganController::class, 'checkNik'])->name('check.nik');
 Route::get('data-lapangan/by-enumerator/{enumeratorId}', function ($enumeratorId) {
-    $dataLapangan = DataLapangan::where('enumerator_id', $enumeratorId)
-        ->whereDoesntHave('spotchecks')
+    $dataLapangan = DataLapangan::query()
+        ->where('enumerator_id', '=', $enumeratorId)
+        ->whereDoesntHave('spotchecks', function ($query) {}, '>=', 1)
         ->select('id', 'nama_pu')
         ->get();
 
     return response()->json($dataLapangan);
 });
+Route::middleware('auth:sanctum')->post('/fcm-token', [FcmController::class, 'store']);
 
 Route::apiResource('data-banks', DatabankController::class);
 // =============================================

@@ -16,10 +16,10 @@ class DataEntryPenagihanController extends Controller
             ->latest()
             ->paginate(20);
 
-        $totalMenunggu  = DataEntryPenagihan::where('status', 'Menunggu')->count();
-        $totalDiproses  = DataEntryPenagihan::where('status', 'Diproses')->count();
-        $totalDibayar   = DataEntryPenagihan::where('status', 'Dibayar')->sum('nominal');
-        $totalDitolak   = DataEntryPenagihan::where('status', 'Ditolak')->count();
+        $totalMenunggu = DataEntryPenagihan::where('status', 'Menunggu')->count();
+        $totalDiproses = DataEntryPenagihan::where('status', 'Diproses')->count();
+        $totalDibayar  = DataEntryPenagihan::where('status', 'Dibayar')->sum('nominal');
+        $totalDitolak  = DataEntryPenagihan::where('status', 'Ditolak')->count();
 
         return view('superadmin.penagihan.index', compact(
             'penagihans',
@@ -41,13 +41,8 @@ class DataEntryPenagihanController extends Controller
         return redirect()->back()->with('info', 'Tagihan sedang diproses.');
     }
 
-
     /**
      * Approve tagihan yang sedang diproses.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DataEntryPenagihan  $penagihan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function approve(Request $request, DataEntryPenagihan $penagihan)
     {
@@ -65,6 +60,11 @@ class DataEntryPenagihanController extends Controller
             'tanggal_dibayar' => now(),
         ]);
 
+        // Hitung tarif per paket dari nominal aktual (bukan hardcode)
+        $tarifPerPaket = $penagihan->jumlah_paket > 0
+            ? (int) round($penagihan->nominal / $penagihan->jumlah_paket)
+            : 0;
+
         // Insert ke cashflow sebagai Pengeluaran
         Cashflow::create([
             'data_lapangan_id' => null,
@@ -73,16 +73,15 @@ class DataEntryPenagihanController extends Controller
             'keterangan'       => 'Pembayaran data entry ' . $penagihan->dataEntry->nama_lengkap .
                 ' sebanyak ' . $penagihan->jumlah_data . ' data' .
                 ' (' . $penagihan->jumlah_paket . ' paket x Rp ' .
-                number_format(100000, 0, ',', '.') . ')',
+                number_format($tarifPerPaket, 0, ',', '.') . ')',
             'tanggal'          => now()->toDateString(),
         ]);
 
-        // ✅ Kirim notifikasi WhatsApp ke data entry
-        $dataEntry       = $penagihan->dataEntry;
+        // Kirim notifikasi WhatsApp ke data entry
+        $dataEntry        = $penagihan->dataEntry;
         $notificationSent = false;
 
         if ($dataEntry && $dataEntry->telephone) {
-            // Gunakan instance sementara untuk akses trait
             $notificationSent = $penagihan->sendPembayaranDataEntryNotification(
                 $dataEntry->nama_lengkap,
                 $dataEntry->telephone,
@@ -92,13 +91,14 @@ class DataEntryPenagihanController extends Controller
             );
         }
 
-        $message = "Tagihan Rp " . number_format($penagihan->nominal, 0, ',', '.') . " berhasil disetujui dan dicatat di cashflow.";
+        $message = 'Tagihan Rp ' . number_format($penagihan->nominal, 0, ',', '.') . ' berhasil disetujui dan dicatat di cashflow.';
         $message .= $notificationSent
             ? ' Notifikasi WhatsApp telah dikirim ke data entry.'
             : ' Namun notifikasi WhatsApp gagal dikirim.';
 
         return redirect()->back()->with('success', $message);
     }
+
     public function tolak(Request $request, DataEntryPenagihan $penagihan): RedirectResponse
     {
         $request->validate([

@@ -9,8 +9,8 @@ use App\Models\DataEntryProgress;
 
 class DataEntryPenagihanService
 {
-    const DATA_PER_PAKET       = 15;
-    const TARIF_OSS_PER_PAKET  = 150000;
+    const DATA_PER_PAKET          = 15;
+    const TARIF_OSS_PER_PAKET     = 150000;
     const TARIF_SIHALAL_PER_PAKET = 200000;
 
     /**
@@ -26,14 +26,40 @@ class DataEntryPenagihanService
     /**
      * Dipanggil oleh superadmin ketika meng-approve (DITERIMA) satu progress.
      * Setelah progress di-update ke DITERIMA, cek apakah sudah cukup untuk paket baru.
+     *
+     * Aturan:
+     * - Penagihan HANYA dibuat jika tidak ada data PENDING yang masih menunggu review.
+     * - Progress dari penagihan yang Ditolak bisa ditagih ulang.
      */
     public function cekDanBuatTagihan(DataEntry $dataEntry): ?DataEntryPenagihan
     {
-        // Ambil progress yang sudah DITERIMA tapi belum masuk tagihan manapun
+        // Cek apakah masih ada data PENDING milik data entry ini.
+        // Jika ada, tahan dulu — tunggu semua review selesai agar tidak ada
+        // penagihan parsial yang dibuat sebelum data pending ikut diterima/ditolak.
+        $adaPending = DataEntryProgress::where('data_entry_id', $dataEntry->id)
+            ->where('action', 'created')
+            ->where('status', 'PENDING')
+            ->exists();
+
+        if ($adaPending) {
+            return null;
+        }
+
+        // Ambil progress yang sudah DITERIMA tapi belum masuk tagihan aktif.
+        // Progress dari penagihan Ditolak diikutkan kembali agar bisa ditagih ulang.
         $progressDiterima = DataEntryProgress::where('data_entry_id', $dataEntry->id)
             ->where('action', 'created')
             ->where('status', 'DITERIMA')
-            ->whereDoesntHave('penagihanDetails')
+            ->where(function ($query) {
+                $query->whereDoesntHave('penagihanDetails')
+                    ->orWhereHas('penagihanDetails', function ($q) {
+                        // Jika detail terkait penagihan yang Ditolak,
+                        // progress boleh masuk ke tagihan baru
+                        $q->whereHas('penagihan', function ($q2) {
+                            $q2->where('status', 'Ditolak');
+                        });
+                    });
+            })
             ->get();
 
         $totalDiterima = $progressDiterima->count();

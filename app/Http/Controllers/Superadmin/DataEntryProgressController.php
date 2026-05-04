@@ -58,6 +58,17 @@ class DataEntryProgressController extends Controller
         return null;
     }
 
+    /**
+     * Cek apakah data entry masih punya progress PENDING selain progress yang baru saja diproses.
+     */
+    private function cekAdaPending(int $dataEntryId): bool
+    {
+        return DataEntryProgress::where('data_entry_id', $dataEntryId)
+            ->where('action', 'created')
+            ->where('status', 'PENDING')
+            ->exists();
+    }
+
     public function index(Request $request): View
     {
         $query = DataEntryProgress::with([
@@ -156,8 +167,31 @@ class DataEntryProgressController extends Controller
         }
 
         $dataEntry = $progress->dataEntry;
-        if ($dataEntry) {
-            $this->penagihanService->cekDanBuatTagihan($dataEntry);
+        if (!$dataEntry) {
+            return redirect()->back()->with('success', 'Progress berhasil diterima.');
+        }
+
+        // Cek apakah masih ada data PENDING lain setelah progress ini diterima
+        $adaPending = $this->cekAdaPending($dataEntry->id);
+
+        if ($adaPending) {
+            return redirect()->back()->with(
+                'success',
+                'Progress berhasil diterima. ' .
+                    'Tagihan belum dibuat karena masih ada data lain yang menunggu review.'
+            );
+        }
+
+        // Tidak ada pending — coba buat tagihan
+        $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
+
+        if ($penagihan) {
+            return redirect()->back()->with(
+                'success',
+                'Progress berhasil diterima. ' .
+                    'Tagihan baru sebesar Rp ' . number_format($penagihan->nominal, 0, ',', '.') .
+                    ' (' . $penagihan->jumlah_paket . ' paket) otomatis dibuat.'
+            );
         }
 
         return redirect()->back()->with('success', 'Progress berhasil diterima.');
@@ -228,7 +262,7 @@ class DataEntryProgressController extends Controller
     {
         $request->validate([
             'progress_ids'       => 'required|array|min:1',
-            'progress_ids.*'     => 'string', // hashed_id adalah string
+            'progress_ids.*'     => 'string',
             'verifikator_id'     => 'required|exists:verifikators,id',
             'tanggal_verifikasi' => 'required|date',
         ]);
@@ -276,13 +310,38 @@ class DataEntryProgressController extends Controller
             }
         }
 
+        $penagihanDibuat = 0;
+        $adaPendingInfo  = false;
+
         foreach (array_unique($dataEntryIds) as $dataEntryId) {
             $dataEntry = DataEntry::find($dataEntryId);
-            if ($dataEntry) {
-                $this->penagihanService->cekDanBuatTagihan($dataEntry);
+            if (!$dataEntry) {
+                continue;
+            }
+
+            // Cek apakah masih ada PENDING setelah bulk diterima
+            if ($this->cekAdaPending($dataEntryId)) {
+                $adaPendingInfo = true;
+                continue; // Lewati pembuatan tagihan untuk data entry ini
+            }
+
+            $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
+            if ($penagihan) {
+                $penagihanDibuat++;
             }
         }
 
-        return redirect()->back()->with('success', $progresses->count() . ' progress berhasil diterima.');
+        // Susun pesan feedback
+        $msg = $progresses->count() . ' progress berhasil diterima.';
+
+        if ($penagihanDibuat > 0) {
+            $msg .= " {$penagihanDibuat} tagihan baru otomatis dibuat.";
+        }
+
+        if ($adaPendingInfo) {
+            $msg .= ' Beberapa tagihan ditahan karena masih ada data lain yang menunggu review.';
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 }

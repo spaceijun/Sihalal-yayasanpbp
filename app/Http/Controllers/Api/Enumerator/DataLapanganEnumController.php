@@ -158,6 +158,10 @@ class DataLapanganEnumController extends Controller
             'foto-pendamping' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'foto-produk'     => 'required|image|mimes:jpg,jpeg,png|max:2048',
 
+            // NIB
+            'has_nib'         => 'required|in:true,false,1,0',
+            'file_oss'        => 'nullable|file|mimes:pdf|max:5120|required_if:has_nib,true,has_nib,1',
+
             // Produk tambahan (opsional)
             'nama_produk_2'   => 'nullable|string|max:255',
             'nama_produk_3'   => 'nullable|string|max:255',
@@ -193,6 +197,12 @@ class DataLapanganEnumController extends Controller
                 if ($request->hasFile($inputKey)) {
                     $uploadedPaths[$dbColumn] = $request->file($inputKey)->store('foto-produk', 'public');
                 }
+            }
+
+            // Upload file OSS jika has_nib = true
+            $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
+            if ($hasNib && $request->hasFile('file_oss')) {
+                $uploadedPaths['file_oss'] = $request->file('file_oss')->store('files/oss', 'public');
             }
 
             $dataLapangan = $this->createData(array_merge([
@@ -241,12 +251,18 @@ class DataLapanganEnumController extends Controller
             }
         }
 
+        // Rule file_oss jika dikirim
+        if ($request->hasFile('file_oss')) {
+            $fotoRules['file_oss'] = 'file|mimes:pdf|max:5120';
+        }
+
         $validator = Validator::make($request->all(), array_merge([
             'nama_pu'       => 'sometimes|required|string|max:255',
             'nik'           => 'sometimes|required|string|size:16',
             'telephone'     => 'sometimes|required|string|max:15',
             'nama_produk'   => 'sometimes|required|string|max:255',
             'alamat'        => 'sometimes|required|string',
+            'has_nib'       => 'sometimes|in:true,false,1,0',
             'nama_produk_2' => 'nullable|string|max:255',
             'nama_produk_3' => 'nullable|string|max:255',
             'nama_produk_4' => 'nullable|string|max:255',
@@ -284,11 +300,19 @@ class DataLapanganEnumController extends Controller
             if ($request->has('nama_produk_4'))  $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
             if ($request->has('nama_produk_5'))  $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
 
+            // Update has_nib — jika false, hapus file_oss yang ada
+            if ($request->has('has_nib')) {
+                $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
+                if (! $hasNib && $dataLapangan->file_oss) {
+                    Storage::disk('public')->delete($dataLapangan->file_oss);
+                    $dataToUpdate['file_oss'] = null;
+                }
+            }
+
             // Upload foto baru & kumpulkan path lama untuk dihapus setelah update
             $oldPaths = [];
             foreach (self::FOTO_FIELDS as $inputKey => $dbColumn) {
                 if ($request->hasFile($inputKey)) {
-                    // Tentukan folder tujuan: semua foto-produk-* ke folder foto-produk
                     $folder = str_starts_with($inputKey, 'foto-produk')
                         ? 'foto-produk'
                         : $inputKey;
@@ -297,6 +321,13 @@ class DataLapanganEnumController extends Controller
                     $dataToUpdate[$dbColumn] = $newPaths[$dbColumn];
                     $oldPaths[$dbColumn]     = $dataLapangan->getOriginal($dbColumn);
                 }
+            }
+
+            // Upload file OSS baru jika ada
+            if ($request->hasFile('file_oss')) {
+                $newPaths['file_oss']      = $request->file('file_oss')->store('files/oss', 'public');
+                $dataToUpdate['file_oss']  = $newPaths['file_oss'];
+                $oldPaths['file_oss']      = $dataLapangan->getOriginal('file_oss');
             }
 
             $dataLapangan->update($dataToUpdate);
@@ -349,6 +380,11 @@ class DataLapanganEnumController extends Controller
                 }
             }
 
+            // Hapus file OSS jika ada
+            if ($dataLapangan->file_oss) {
+                Storage::disk('public')->delete($dataLapangan->file_oss);
+            }
+
             $dataLapangan->delete();
 
             return response()->json([
@@ -396,6 +432,7 @@ class DataLapanganEnumController extends Controller
             'foto_produk_3'   => $data['foto_produk_3'] ?? null,
             'foto_produk_4'   => $data['foto_produk_4'] ?? null,
             'foto_produk_5'   => $data['foto_produk_5'] ?? null,
+            'file_oss'        => $data['file_oss'] ?? null,
         ]);
     }
 
@@ -422,12 +459,12 @@ class DataLapanganEnumController extends Controller
             'foto_produk_3'       => $item->foto_produk_3   ? Storage::url($item->foto_produk_3)   : null,
             'foto_produk_4'       => $item->foto_produk_4   ? Storage::url($item->foto_produk_4)   : null,
             'foto_produk_5'       => $item->foto_produk_5   ? Storage::url($item->foto_produk_5)   : null,
+            'file_oss'            => $item->file_oss        ? Storage::url($item->file_oss)        : null,
             'status'              => $item->status,
             'status_pembayaran'   => $item->status_pembayaran,
             'verifikator'         => $item->verifikator,
             'tanggal_verifikasi'  => $item->tanggal_verifikasi,
             'keterangan'          => $item->keterangan,
-            'file_oss'            => $item->file_oss     ? Storage::url($item->file_oss)     : null,
             'file_sihalal'        => $item->file_sihalal ? Storage::url($item->file_sihalal) : null,
             'created_at'          => $item->created_at,
             'updated_at'          => $item->updated_at,

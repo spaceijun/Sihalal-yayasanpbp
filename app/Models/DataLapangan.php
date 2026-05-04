@@ -66,6 +66,7 @@ class DataLapangan extends Model
         'tanggal_verifikasi',
         'status_pembayaran',
         'file_oss',
+        'has_nib',
         'file_sihalal',
         'keterangan_oss',
         'keterangan_sihalal',
@@ -78,6 +79,7 @@ class DataLapangan extends Model
     protected $casts = [
         'edit_expires_at' => 'datetime',
         'is_being_edited' => 'boolean',
+        'has_nib' => 'boolean',
     ];
 
     public function scopeAvailable($query)

@@ -118,14 +118,23 @@ class DataLapanganService
         ?int $verifikatorId,
         ?string $tanggalVerifikasi
     ): void {
-        DataLapangan::where('id', $id)->update([
+        $dataLapangan = DataLapangan::findOrFail($id);
+
+        if ($dataLapangan->email_sihalal !== null) {
+            $status = 'PROGRESS SIHALAL';
+        } elseif ($dataLapangan->file_oss !== null) {
+            $status = 'PROGRESS OSS';
+        } else {
+            $status = 'TERVERIFIKASI';
+        }
+
+        $dataLapangan->update([
             'email'              => $email,
             'verifikator_id'     => $verifikatorId,
             'tanggal_verifikasi' => $tanggalVerifikasi,
-            'status'             => 'TERVERIFIKASI',
+            'status'             => $status,
         ]);
     }
-
     /**
      * Update email sihalal of a data lapangan.
      */

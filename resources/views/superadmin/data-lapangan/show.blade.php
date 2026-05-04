@@ -139,7 +139,7 @@
                     <div class="dl-card-body">
 
                         {{-- Tombol aksi --}}
-                        @if ($dataLapangan->status == 'PENDING')
+                        @if (in_array($dataLapangan->status, ['PENDING', 'REVISI']))
                             <div class="dl-actions-group" style="margin-bottom:1rem;">
                                 <button type="button" class="dl-btn dl-btn-success" data-bs-toggle="modal"
                                     data-bs-target="#modalUpdateEmail">

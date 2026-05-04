@@ -31,7 +31,7 @@ class ImageService
     /**
      * Compress and create temporary KTP image
      */
-    public function compressKTPImage(string $fotoPath, int $id): string
+    public function compressKTPImage(string $fotoPath, string $id): string
     {
         // Detect image type
         $imageInfo = getimagesize($fotoPath);

@@ -186,21 +186,30 @@ class DataLapanganEnumController extends Controller
         $uploadedPaths = [];
 
         try {
+            // Parse has_nib lebih awal agar bisa dipakai di createData
+            $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
+
             // Upload foto wajib
-            $uploadedPaths['foto_ktp']        = $request->file('foto-ktp')->store('foto-ktp', 'public');
-            $uploadedPaths['foto_rumah']       = $request->file('foto-rumah')->store('foto-rumah', 'public');
-            $uploadedPaths['foto_pendamping']  = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
-            $uploadedPaths['foto_produk']      = $request->file('foto-produk')->store('foto-produk', 'public');
+            $uploadedPaths['foto_ktp']       = $request->file('foto-ktp')->store('foto-ktp', 'public');
+            $uploadedPaths['foto_rumah']      = $request->file('foto-rumah')->store('foto-rumah', 'public');
+            $uploadedPaths['foto_pendamping'] = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
+            $uploadedPaths['foto_produk']     = $request->file('foto-produk')->store('foto-produk', 'public');
 
             // Upload foto produk tambahan jika ada
-            foreach (['foto-produk-2' => 'foto_produk_2', 'foto-produk-3' => 'foto_produk_3', 'foto-produk-4' => 'foto_produk_4', 'foto-produk-5' => 'foto_produk_5'] as $inputKey => $dbColumn) {
+            foreach (
+                [
+                    'foto-produk-2' => 'foto_produk_2',
+                    'foto-produk-3' => 'foto_produk_3',
+                    'foto-produk-4' => 'foto_produk_4',
+                    'foto-produk-5' => 'foto_produk_5',
+                ] as $inputKey => $dbColumn
+            ) {
                 if ($request->hasFile($inputKey)) {
                     $uploadedPaths[$dbColumn] = $request->file($inputKey)->store('foto-produk', 'public');
                 }
             }
 
-            // Upload file OSS jika has_nib = true
-            $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
+            // Upload file OSS hanya jika has_nib = true
             if ($hasNib && $request->hasFile('file_oss')) {
                 $uploadedPaths['file_oss'] = $request->file('file_oss')->store('files/oss', 'public');
             }
@@ -212,6 +221,7 @@ class DataLapanganEnumController extends Controller
                 'telephone'     => $request->telephone,
                 'nama_produk'   => $request->nama_produk,
                 'alamat'        => $request->alamat,
+                'has_nib'       => $hasNib,  // ← simpan nilai asli pilihan user
                 'nama_produk_2' => $request->nama_produk_2,
                 'nama_produk_3' => $request->nama_produk_3,
                 'nama_produk_4' => $request->nama_produk_4,
@@ -290,19 +300,21 @@ class DataLapanganEnumController extends Controller
             $dataToUpdate = ['status' => 'PENDING'];
 
             // Field teks
-            if ($request->has('nama_pu'))       $dataToUpdate['nama_pu']       = strtoupper($request->nama_pu);
-            if ($request->has('nik'))            $dataToUpdate['nik']           = $request->nik;
-            if ($request->has('telephone'))      $dataToUpdate['telephone']     = $request->telephone;
-            if ($request->has('nama_produk'))    $dataToUpdate['nama_produk']   = $request->nama_produk;
-            if ($request->has('alamat'))         $dataToUpdate['alamat']        = $request->alamat;
-            if ($request->has('nama_produk_2'))  $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
-            if ($request->has('nama_produk_3'))  $dataToUpdate['nama_produk_3'] = $request->nama_produk_3;
-            if ($request->has('nama_produk_4'))  $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
-            if ($request->has('nama_produk_5'))  $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
+            if ($request->has('nama_pu'))      $dataToUpdate['nama_pu']       = strtoupper($request->nama_pu);
+            if ($request->has('nik'))           $dataToUpdate['nik']           = $request->nik;
+            if ($request->has('telephone'))     $dataToUpdate['telephone']     = $request->telephone;
+            if ($request->has('nama_produk'))   $dataToUpdate['nama_produk']   = $request->nama_produk;
+            if ($request->has('alamat'))        $dataToUpdate['alamat']        = $request->alamat;
+            if ($request->has('nama_produk_2')) $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
+            if ($request->has('nama_produk_3')) $dataToUpdate['nama_produk_3'] = $request->nama_produk_3;
+            if ($request->has('nama_produk_4')) $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
+            if ($request->has('nama_produk_5')) $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
 
-            // Update has_nib — jika false, hapus file_oss yang ada
+            // Update has_nib — simpan nilai asli pilihan user ke DB
+            // Jika false, hapus file_oss yang sudah ada
             if ($request->has('has_nib')) {
                 $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
+                $dataToUpdate['has_nib'] = $hasNib; // ← simpan ke DB
                 if (! $hasNib && $dataLapangan->file_oss) {
                     Storage::disk('public')->delete($dataLapangan->file_oss);
                     $dataToUpdate['file_oss'] = null;
@@ -325,9 +337,9 @@ class DataLapanganEnumController extends Controller
 
             // Upload file OSS baru jika ada
             if ($request->hasFile('file_oss')) {
-                $newPaths['file_oss']      = $request->file('file_oss')->store('files/oss', 'public');
-                $dataToUpdate['file_oss']  = $newPaths['file_oss'];
-                $oldPaths['file_oss']      = $dataLapangan->getOriginal('file_oss');
+                $newPaths['file_oss']     = $request->file('file_oss')->store('files/oss', 'public');
+                $dataToUpdate['file_oss'] = $newPaths['file_oss'];
+                $oldPaths['file_oss']     = $dataLapangan->getOriginal('file_oss');
             }
 
             $dataLapangan->update($dataToUpdate);
@@ -433,6 +445,7 @@ class DataLapanganEnumController extends Controller
             'foto_produk_4'   => $data['foto_produk_4'] ?? null,
             'foto_produk_5'   => $data['foto_produk_5'] ?? null,
             'file_oss'        => $data['file_oss'] ?? null,
+            'has_nib'         => $data['has_nib'] ?? false, // ← simpan pilihan user
         ]);
     }
 
@@ -460,6 +473,11 @@ class DataLapanganEnumController extends Controller
             'foto_produk_4'       => $item->foto_produk_4   ? Storage::url($item->foto_produk_4)   : null,
             'foto_produk_5'       => $item->foto_produk_5   ? Storage::url($item->foto_produk_5)   : null,
             'file_oss'            => $item->file_oss        ? Storage::url($item->file_oss)        : null,
+            // Baca dari kolom has_nib di DB; fallback ke inferensi file_oss
+            // untuk data lama yang belum punya kolom has_nib
+            'has_nib'             => isset($item->has_nib)
+                ? (bool) $item->has_nib
+                : (bool) $item->file_oss,
             'status'              => $item->status,
             'status_pembayaran'   => $item->status_pembayaran,
             'verifikator'         => $item->verifikator,

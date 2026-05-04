@@ -4,8 +4,8 @@
         {{-- Checkbox untuk bulk payment --}}
         <td style="width:40px;text-align:center;">
             @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
-                <input type="checkbox" class="row-checkbox adm-checkbox"
-                    value="{{ $dataLapangan->id }}" data-id="{{ $dataLapangan->id }}">
+                <input type="checkbox" class="row-checkbox adm-checkbox" value="{{ $dataLapangan->hashed_id }}"
+                    data-id="{{ $dataLapangan->hashed_id }}">
             @endif
         </td>
 
@@ -40,17 +40,20 @@
             @if ($s === 'PENDING')
                 <span class="adm-badge adm-badge-pending"><span class="dot"></span>Pending</span>
             @elseif ($s === 'TERVERIFIKASI')
-                <span class="adm-badge" style="background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;"><span class="dot" style="background:#64748B;"></span>Terverifikasi</span>
+                <span class="adm-badge" style="background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;"><span
+                        class="dot" style="background:#64748B;"></span>Terverifikasi</span>
             @elseif ($s === 'PROGRESS OSS')
                 <span class="adm-badge adm-badge-info"><span class="dot"></span>Progress OSS</span>
             @elseif ($s === 'PROGRESS SIHALAL')
-                <span class="adm-badge" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;"><span class="dot" style="background:#2563EB;"></span>Progress SiHalal</span>
+                <span class="adm-badge" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;"><span
+                        class="dot" style="background:#2563EB;"></span>Progress SiHalal</span>
             @elseif ($s === 'TERBIT SH')
                 <span class="adm-badge adm-badge-success"><span class="dot"></span>Terbit SH</span>
             @elseif ($s === 'DITOLAK')
                 <span class="adm-badge adm-badge-danger"><span class="dot"></span>Ditolak</span>
             @elseif ($s === 'REVISI')
-                <span class="adm-badge" style="background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;"><span class="dot" style="background:#C2410C;"></span>Revisi</span>
+                <span class="adm-badge" style="background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;"><span
+                        class="dot" style="background:#C2410C;"></span>Revisi</span>
             @endif
         </td>
 
@@ -68,7 +71,10 @@
         <td class="tc">
             @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
                 <span class="adm-badge adm-badge-success">
-                    <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;"><polyline points="20 6 9 17 4 12"/></svg>
+                    <svg viewBox="0 0 24 24"
+                        style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
                     Sudah
                 </span>
             @else
@@ -79,24 +85,35 @@
         <td class="tc">
             <div class="adm-actions" style="justify-content:center;gap:4px;">
                 <a class="adm-btn primary icon-only"
-                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}" title="Lihat Detail">
-                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"
+                    title="Lihat Detail">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
                 </a>
 
                 @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
-                    <form action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
+                    <form
+                        action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                         method="POST" class="d-inline">
                         @csrf @method('PATCH')
                         <button type="submit" class="adm-btn success icon-only" title="Tandai Dibayar">
-                            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6" />
+                            </svg>
                         </button>
                     </form>
                 @endif
 
                 @if ($dataLapangan->is_being_edited && $dataLapangan->edit_expires_at?->isFuture())
-                    <button class="adm-btn warning icon-only btn-force-unlock"
-                        data-id="{{ $dataLapangan->id }}" title="Paksa buka kunci">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <button class="adm-btn warning icon-only btn-force-unlock" data-id="{{ $dataLapangan->id }}"
+                        title="Paksa buka kunci">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                        </svg>
                     </button>
                 @endif
 
@@ -105,7 +122,13 @@
                         method="POST" class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
                         @csrf @method('DELETE')
                         <button type="submit" class="adm-btn danger icon-only" title="Hapus Data">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M9 6V4h6v2" />
+                            </svg>
                         </button>
                     </form>
                 @endif
@@ -116,7 +139,10 @@
     <tr>
         <td colspan="10">
             <div class="adm-empty">
-                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                </svg>
                 <p>Belum ada data lapangan.</p>
             </div>
         </td>

@@ -317,7 +317,7 @@
                                     data-bs-toggle="modal" data-bs-target="#modalFotoRumah">
                                     <i class="las la-eye"></i>
                                 </button>
-                                <a href="{{ route('data-entry.datalapangan.download-foto-rumah-pdf', $dataLapangan->id) }}"
+                                <a href="{{ route('data-entry.datalapangan.download-foto-rumah-pdf', $dataLapangan->hashed_id) }}"
                                     class="dl-btn dl-btn-ghost dl-btn-sm">
                                     <i class="las la-download"></i> PDF
                                 </a>
@@ -334,7 +334,7 @@
                                     data-bs-toggle="modal" data-bs-target="#modalFotoKTP">
                                     <i class="las la-eye"></i>
                                 </button>
-                                <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->hashed_id) }}"
                                     class="dl-btn dl-btn-primary dl-btn-sm">
                                     <i class="las la-download"></i> Download KTP
                                 </a>
@@ -357,7 +357,7 @@
                                     data-bs-toggle="modal" data-bs-target="#modalFotoKTP">
                                     <i class="las la-eye"></i>
                                 </button>
-                                <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->id) }}"
+                                <a href="{{ route('data-entry.datalapangan.download-foto-ktp', $dataLapangan->hashed_id) }}"
                                     class="dl-btn dl-btn-primary dl-btn-sm">
                                     <i class="las la-download"></i> Download KTP
                                 </a>
@@ -380,7 +380,7 @@
                                             <i class="las la-eye"></i>
                                         </button>
                                         @if ($idx === 1)
-                                            <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->id) }}"
+                                            <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->hashed_id) }}"
                                                 class="dl-btn dl-btn-success dl-btn-sm">
                                                 <i class="las la-download"></i> Download
                                             </a>

@@ -364,7 +364,7 @@ class DataLapanganController extends Controller
     {
         $request->validate([
             'ids'   => 'required|array|min:1',
-            'ids.*' => 'required|string', // hashed_id adalah string
+            'ids.*' => 'required|string', 
         ]);
 
         // Decode semua hashed_id ke real ID

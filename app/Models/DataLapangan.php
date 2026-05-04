@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Models\Superadmin\Koordinator;
+use App\Models\CashflowsKoordinator;
+use App\Models\Cashflow;
+use App\Models\User;
 use App\Traits\HasHashedId;
 use App\Traits\SendsWhatsAppNotification;
 use Illuminate\Database\Eloquent\Model;

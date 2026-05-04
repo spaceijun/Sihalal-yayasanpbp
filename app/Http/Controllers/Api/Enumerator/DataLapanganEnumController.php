@@ -473,9 +473,7 @@ class DataLapanganEnumController extends Controller
             'foto_produk_4'       => $item->foto_produk_4   ? Storage::url($item->foto_produk_4)   : null,
             'foto_produk_5'       => $item->foto_produk_5   ? Storage::url($item->foto_produk_5)   : null,
             'file_oss'            => $item->file_oss        ? Storage::url($item->file_oss)        : null,
-            // Baca dari kolom has_nib di DB; fallback ke inferensi file_oss
-            // untuk data lama yang belum punya kolom has_nib
-            'has_nib'             => isset($item->has_nib)
+            'has_nib' => $item->has_nib !== null
                 ? (bool) $item->has_nib
                 : (bool) $item->file_oss,
             'status'              => $item->status,

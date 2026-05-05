@@ -73,6 +73,12 @@
                         <i data-feather="calendar"></i>Laporan Harian
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/tickets') }}"
+                        class="nav-link {{ $current_url == 'superadmin/tickets' ? 'active' : '' }}">
+                        <i data-feather="send"></i>Tickets
+                    </a>
+                </li>
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/penagihan') }}"

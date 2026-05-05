@@ -26,6 +26,13 @@
     </a>
 </li>
 <li class="nav-item">
+    <a href="{{ url('data-entry/tickets') }}"
+        class="nav-link {{ $current_url == 'data-entry/tickets' ? 'active' : '' }}">
+        <i data-feather="send"></i>Tiket
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ url('resep-makanan') }}" class="nav-link {{ $current_url == 'resep-makanan' ? 'active' : '' }}">
         <i data-feather="file-text"></i>Resep Makanan
     </a>

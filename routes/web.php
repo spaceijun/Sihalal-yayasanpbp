@@ -6,6 +6,7 @@ use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
 use App\Http\Controllers\DataEntry\SettingAkunController;
+use App\Http\Controllers\DataEntry\TicketsEntryController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\ResepMakananController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
+use App\Http\Controllers\Superadmin\TicketController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
@@ -152,6 +154,9 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::delete('pengumumen/{id}', [PengumumanController::class, 'destroy'])->name('pengumumen.destroy');
         // Management Users 
         Route::resource('users', UserController::class);
+        // Ticket
+        Route::resource('tickets', TicketController::class);
+        Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
 
         // settings
         Route::get('/settings', [SettingwebsiteController::class, 'index'])->name('settings.index');
@@ -171,45 +176,45 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
 /**
  * Koordinator Routes
  */
-Route::middleware('auth', 'role:koordinator')->group(function () {
-    Route::prefix('koordinator')->name('koordinator.')->group(function () {
-        Route::get('dashboard', [KoordinatorDashboardController::class, 'index']);
-        Route::get('/', [KoordinatorDashboardController::class, 'index'])->name('dashboard');
+// Route::middleware('auth', 'role:koordinator')->group(function () {
+//     Route::prefix('koordinator')->name('koordinator.')->group(function () {
+//         Route::get('dashboard', [KoordinatorDashboardController::class, 'index']);
+//         Route::get('/', [KoordinatorDashboardController::class, 'index'])->name('dashboard');
 
-        // Data Lapangan
-        Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
-        Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
-        Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
-        Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
-        Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
-        Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+//         // Data Lapangan
+//         Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
+//         Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
+//         Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
+//         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
+//         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
+//         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
 
 
-        // Data Pendamping
-        Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
-        Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');
-        Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
-        Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
-        Route::get('data-pendamping/{id}/data-lapangan', [DataPendampingController::class, 'dataLapangan'])->name('data-pendamping.data-lapangan');
-        Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
+//         // Data Pendamping
+//         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
+//         Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');
+//         Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
+//         Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
+//         Route::get('data-pendamping/{id}/data-lapangan', [DataPendampingController::class, 'dataLapangan'])->name('data-pendamping.data-lapangan');
+//         Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
 
-        // Recruitments
-        Route::resource('recruitments', KoordinatorRecruitmentController::class);
-        Route::post('recruitments/{id}/update-status', [KoordinatorRecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
-        Route::get('recruitments/{id}/download-foto/{type}', [KoordinatorRecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
+//         // Recruitments
+//         Route::resource('recruitments', KoordinatorRecruitmentController::class);
+//         Route::post('recruitments/{id}/update-status', [KoordinatorRecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
+//         Route::get('recruitments/{id}/download-foto/{type}', [KoordinatorRecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
 
-        // settings
-        Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
-        // Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    });
-    Route::view('superadmin/dashboard', 'superadmin.home.index');
-    // Route::get('/', function () {
-    //     return view('superadmin.home.index')->name('superadmin.index');
-    // });
-});
+//         // settings
+//         Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
+//         // Profile
+//         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+//     });
+//     Route::view('superadmin/dashboard', 'superadmin.home.index');
+//     // Route::get('/', function () {
+//     //     return view('superadmin.home.index')->name('superadmin.index');
+//     // });
+// });
 
 /**
  * DATA ENTRY ROUTES
@@ -241,6 +246,9 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         // Progress
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
+
+        // Ticket
+        Route::resource('tickets', TicketsEntryController::class);
 
         // settings
         Route::get('manajemen-akun', [SettingAkunController::class, 'index'])->name('manajemen-akun.index');

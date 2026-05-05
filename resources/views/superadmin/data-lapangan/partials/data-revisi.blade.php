@@ -51,7 +51,7 @@
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-primary send-notification-btn"
                                                     data-bs-toggle="modal" data-bs-target="#sendModal"
-                                                    data-id="{{ $dataLapangan->id }}"
+                                                    data-id="{{ $dataLapangan->hashed_id }}"
                                                     data-nama="{{ $dataLapangan->nama_pu }}">
                                                     <i class="las la-paper-plane"></i> Kirim WA
                                                 </button>

@@ -19,8 +19,8 @@ class KawuloHalalService
 
     public function __construct()
     {
-        $this->apiKey = env('KAWULOHALAL_API_KEY');
-        $this->sender = env('KAWULOHALAL_SENDER');
+        $this->apiKey = config('services.kawulohalal.api_key');
+        $this->sender = config('services.kawulohalal.sender');
     }
 
     /**
@@ -164,16 +164,75 @@ class KawuloHalalService
             'media_type'     => $mediaType,
             'url'            => $url,
             'caption_length' => strlen($caption ?? ''),
+            'has_api_key'    => !empty($this->apiKey),
+            'has_sender'     => !empty($this->sender),
         ]);
 
         return $this->makeRequest(self::ENDPOINTS['send_media'], $params, $method);
     }
 
     /**
-     * Shorthand: send a document.
+     * Send media with retry logic on failure.
+     *
+     * @param string      $number       Recipient number
+     * @param string      $mediaType    One of: image, video, audio, document
+     * @param string      $url          Direct public URL to the media file
+     * @param string|null $caption      Optional caption/message
+     * @param string|null $footer       Optional footer text
+     * @param int         $maxRetry     Maximum number of attempts (default: 3)
+     * @param int         $delaySeconds Delay in seconds between retries (default: 2)
+     * @return array
+     */
+    public function sendMediaWithRetry(
+        string  $number,
+        string  $mediaType,
+        string  $url,
+        ?string $caption      = null,
+        ?string $footer       = null,
+        int     $maxRetry     = 3,
+        int     $delaySeconds = 2
+    ): array {
+        $attempt = 0;
+        $result  = ['status' => false, 'error' => 'No attempt made'];
+
+        while ($attempt < $maxRetry) {
+            $attempt++;
+            $result = $this->sendMedia($number, $mediaType, $url, $caption, $footer);
+
+            if ($result['status'] === true) {
+                return $result;
+            }
+
+            Log::warning('KawuloHalal: retry attempt', [
+                'attempt'    => $attempt,
+                'max'        => $maxRetry,
+                'number'     => $number,
+                'media_type' => $mediaType,
+                'url'        => $url,
+                'error'      => $result['error'] ?? '-',
+            ]);
+
+            if ($attempt < $maxRetry) {
+                sleep($delaySeconds);
+            }
+        }
+
+        Log::error('KawuloHalal: semua retry gagal', [
+            'number'     => $number,
+            'media_type' => $mediaType,
+            'url'        => $url,
+            'max_retry'  => $maxRetry,
+            'error'      => $result['error'] ?? '-',
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Shorthand: send a document with retry.
      */
     public function sendDocument(string $number, string $url, ?string $caption = null, ?string $footer = null): array
     {
-        return $this->sendMedia($number, 'document', $url, $caption, $footer);
+        return $this->sendMediaWithRetry($number, 'document', $url, $caption, $footer);
     }
 }

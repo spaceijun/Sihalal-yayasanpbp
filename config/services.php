@@ -34,8 +34,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    'fonnte' => [
-        'account_token' => env('ACCOUNT_TOKEN'),
+
+    'kawulohalal' => [
+        'api_key' => env('KAWULOHALAL_API_KEY'),
+        'sender'  => env('KAWULOHALAL_SENDER'),
     ],
 
 ];

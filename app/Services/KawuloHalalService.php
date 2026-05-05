@@ -40,7 +40,7 @@ class KawuloHalalService
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept'       => 'application/json',
-            ]);
+            ])->timeout(10)->connectTimeout(5);
 
             $response = match (strtoupper($method)) {
                 'GET'   => $http->get($endpoint, $params),
@@ -48,22 +48,37 @@ class KawuloHalalService
                 default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
             };
 
-            Log::info('KawuloHalal API Response', [
-                'endpoint' => $endpoint,
-                'method'   => $method,
-                'response' => $response->json(),
-            ]);
+            $responseJson = $response->json();
+            $logContext   = [
+                'endpoint'    => $endpoint,
+                'method'      => $method,
+                'http_status' => $response->status(),
+                'response'    => $responseJson,
+            ];
+
+            if (isset($responseJson['status']) && $responseJson['status'] === false) {
+                Log::warning('KawuloHalal API: gateway menolak request', $logContext);
+            } else {
+                Log::info('KawuloHalal API Response', $logContext);
+            }
 
             if ($response->failed()) {
                 return [
                     'status' => false,
-                    'error'  => $response->json()['message'] ?? 'Unknown error occurred',
+                    'error'  => $responseJson['msg'] ?? $responseJson['message'] ?? 'Unknown error occurred',
+                ];
+            }
+
+            if (isset($responseJson['status']) && $responseJson['status'] === false) {
+                return [
+                    'status' => false,
+                    'error'  => $responseJson['msg'] ?? $responseJson['message'] ?? 'Gateway menolak pesan',
                 ];
             }
 
             return [
                 'status' => true,
-                'data'   => $response->json(),
+                'data'   => $responseJson,
             ];
         } catch (\Exception $e) {
             Log::error('KawuloHalal API Exception', ['message' => $e->getMessage()]);
@@ -113,9 +128,8 @@ class KawuloHalalService
             $params['caption'] = $caption;
         }
 
-        if (!is_null($footer)) {
-            $params['footer'] = $footer;
-        }
+        // Footer sengaja tidak dikirim — gateway memiliki bug saat memproses property footer
+        // if (!is_null($footer)) { $params['footer'] = $footer; }
 
         // Pastikan URL bisa diakses publik sebelum dikirim ke gateway
         $urlCheck = $this->assertPublicUrl($url);

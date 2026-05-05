@@ -157,7 +157,6 @@ class NotificationService
                 mediaType: 'document',
                 url: $fileUrl,
                 caption: $caption,
-                footer: 'TIM KAWULO HALAL | +62 897-6774-482',
             );
 
             return $response['status'] ?? false;
@@ -190,7 +189,6 @@ class NotificationService
                 mediaType: 'document',
                 url: $fileUrl,
                 caption: $caption,
-                footer: 'TIM KAWULO HALAL | +62 897-6774-482',
             );
 
             return $response['status'] ?? false;
@@ -207,14 +205,13 @@ class NotificationService
     /**
      * Kirim notifikasi bertipe image menggunakan default media URL.
      */
-    private function sendImageNotification(string $phone, string $caption, ?string $footer = null): bool
+    private function sendImageNotification(string $phone, string $caption): bool
     {
         $response = $this->kawuloHalal->sendMedia(
             number: $phone,
             mediaType: 'image',
             url: $this->defaultMediaUrl(),
             caption: $caption,
-            footer: $footer,
         );
 
         return $response['status'] ?? false;
@@ -230,6 +227,7 @@ class NotificationService
             return null;
         }
 
+        // Hapus semua karakter selain angka
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
         if (str_starts_with($phone, '0')) {
@@ -238,6 +236,17 @@ class NotificationService
 
         if (!str_starts_with($phone, '62')) {
             $phone = '62' . $phone;
+        }
+
+        // Nomor WhatsApp Indonesia minimal 10 digit (62 + 8 digit)
+        // maksimal 15 digit sesuai standar E.164
+        $digitCount = strlen($phone);
+        if ($digitCount < 10 || $digitCount > 15) {
+            Log::warning('NotificationService: nomor telepon tidak valid', [
+                'raw'    => $phone,
+                'length' => $digitCount,
+            ]);
+            return null;
         }
 
         return $phone;

@@ -32,13 +32,14 @@ class NotificationService
             return $this->failure('Nomor telepon enumerator tidak tersedia');
         }
 
-        $message = $this->buildRevisiMessage(
+        $caption = $this->buildRevisiCaption(
             $dataLapangan->enumerator->nama_lengkap,
             $dataLapangan->nama_pu,
             $dataLapangan->keterangan
         );
 
-        $sent = $this->sendTextNotification($phone, $message);
+        $response = $this->kawuloHalal->sendText($phone, $caption);
+        $sent     = $response['status'] ?? false;
 
         return $sent
             ? $this->success('Notifikasi berhasil dikirim ke ' . $dataLapangan->enumerator->nama_lengkap)
@@ -116,7 +117,7 @@ class NotificationService
             }
 
             $emailUsername = str_replace(' ', '', strtolower($dataLapangan->nama_pu));
-            $message       = $this->buildOSSMessage($dataLapangan->nama_pu, $emailUsername);
+            $message       = $this->buildOSSCaption($dataLapangan->nama_pu, $emailUsername);
 
             $response = $this->kawuloHalal->sendText(
                 number: $phone,
@@ -131,7 +132,7 @@ class NotificationService
     }
 
     /**
-     * Kirim notifikasi sertifikat halal terbit beserta link download ke PU.
+     * Kirim notifikasi sertifikat halal terbit beserta file ke PU.
      */
     public function sendSihalalUploadNotification(DataLapangan $dataLapangan): bool
     {
@@ -147,12 +148,14 @@ class NotificationService
                 return false;
             }
 
-            $fileUrl  = asset('storage/' . $dataLapangan->file_sihalal);
-            $message  = $this->buildSihalalMessage($dataLapangan->nama_pu, $fileUrl);
+            $fileUrl = asset('storage/' . $dataLapangan->file_sihalal);
+            $caption = $this->buildSihalalCaption($dataLapangan->nama_pu);
 
-            $response = $this->kawuloHalal->sendText(
+            $response = $this->kawuloHalal->sendMedia(
                 number: $phone,
-                message: $message,
+                mediaType: 'document',
+                url: $fileUrl,
+                caption: $caption,
             );
 
             return $response['status'] ?? false;
@@ -177,12 +180,14 @@ class NotificationService
                 return false;
             }
 
-            $fileUrl  = asset('storage/' . $dataLapangan->file_oss);
-            $message  = $this->buildOSSUploadMessage($dataLapangan->nama_pu, $fileUrl);
+            $fileUrl = asset('storage/' . $dataLapangan->file_oss);
+            $caption = $this->buildOSSUploadCaption($dataLapangan->nama_pu);
 
-            $response = $this->kawuloHalal->sendText(
+            $response = $this->kawuloHalal->sendMedia(
                 number: $phone,
-                message: $message,
+                mediaType: 'document',
+                url: $fileUrl,
+                caption: $caption,
             );
 
             return $response['status'] ?? false;
@@ -197,19 +202,6 @@ class NotificationService
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Kirim notifikasi teks via KawuloHalal.
-     */
-    private function sendTextNotification(string $phone, string $message): bool
-    {
-        $response = $this->kawuloHalal->sendText(
-            number: $phone,
-            message: $message,
-        );
-
-        return $response['status'] ?? false;
-    }
-
-    /**
      * Format nomor telepon ke format internasional (62xxx).
      * Kembalikan null jika nomor kosong atau tidak valid.
      */
@@ -219,7 +211,6 @@ class NotificationService
             return null;
         }
 
-        // Hapus semua karakter selain angka
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
         if (str_starts_with($phone, '0')) {
@@ -266,7 +257,7 @@ class NotificationService
     // Message Templates
     // ─────────────────────────────────────────────────────────────────────────
 
-    private function buildRevisiMessage(string $namaPendamping, string $namaPU, string $revisi): string
+    private function buildRevisiCaption(string $namaPendamping, string $namaPU, string $revisi): string
     {
         return "🔔 *NOTIFIKASI REVISI DATA*\n\n" .
             "Nama Pendamping : *{$namaPendamping}*\n" .
@@ -279,7 +270,7 @@ class NotificationService
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildOSSMessage(string $namaPU, string $emailUsername): string
+    private function buildOSSCaption(string $namaPU, string $emailUsername): string
     {
         return "Halo {$namaPU}!\n\n" .
             "NIB kamu sudah terbit nih! Selanjutnya silahkan pengajuan ke sertifikasi halal ya!\n\n" .
@@ -292,26 +283,24 @@ class NotificationService
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildOSSUploadMessage(string $namaPU, string $fileUrl): string
+    private function buildOSSUploadCaption(string $namaPU): string
     {
         return "📄 *SELAMAT! NIB TELAH TERBIT*\n\n" .
             "Halo *{$namaPU}*!\n\n" .
-            "File NIB Anda telah Terbit.\n\n" .
-            "📥 Download File OSS:\n🔗 {$fileUrl}\n\n" .
-            "Silahkan download dan simpan file NIB Anda. Jika ada pertanyaan lebih lanjut hubungi :\n" .
+            "File NIB Anda telah Terbit. Silahkan download dan simpan file NIB Anda.\n\n" .
+            "Jika ada pertanyaan lebih lanjut hubungi :\n" .
             "+62 897-6774-482 (Customer Service)\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildSihalalMessage(string $namaPU, string $fileUrl): string
+    private function buildSihalalCaption(string $namaPU): string
     {
         return "🎉 *SELAMAT! SERTIFIKAT HALAL TERBIT*\n\n" .
             "Halo *{$namaPU}*!\n\n" .
-            "Sertifikat Halal Anda telah terbit.\n\n" .
-            "📥 Download Sertifikat Halal:\n🔗 {$fileUrl}\n\n" .
+            "Sertifikat Halal Anda telah terbit. Silahkan download dan simpan sertifikat Anda.\n\n" .
             "*Selamat! Produk Anda kini telah tersertifikasi halal.*🎉\n\n" .
-            "Silahkan download dan simpan sertifikat Anda. Jika ada pertanyaan lebih lanjut hubungi :\n" .
+            "Jika ada pertanyaan lebih lanjut hubungi :\n" .
             "+62 897-6774-482 (Customer Service)\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n*TIM KAWULO HALAL*";

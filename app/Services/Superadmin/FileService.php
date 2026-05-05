@@ -21,8 +21,13 @@ class FileService
             Storage::delete($dataLapangan->$fieldName);
         }
 
-        // Store new file
-        $path = $file->store('files/' . $fileType, 'public');
+        // Generate nama file: SH-nama_pu.pdf
+        $safeName  = preg_replace('/[^A-Za-z0-9\-_]/', '_', $dataLapangan->nama_pu);
+        $fileName  = 'SH-' . $safeName . '.' . $file->getClientOriginalExtension();
+        $directory = 'files/' . $fileType;
+
+        // Store dengan nama custom
+        $path = $file->storeAs($directory, $fileName, 'public');
 
         // Simpan path ke kolom yang sesuai dan persist ke database
         $dataLapangan->$fieldName = $path;
@@ -41,14 +46,12 @@ class FileService
     public function deleteFile(DataLapangan $dataLapangan, string $fileType): bool
     {
         $fieldName = 'file_' . $fileType;
-
         if ($dataLapangan->$fieldName) {
             Storage::delete($dataLapangan->$fieldName);
             $dataLapangan->$fieldName = null;
             $dataLapangan->save();
             return true;
         }
-
         return false;
     }
 
@@ -87,7 +90,6 @@ class FileService
             'foto_produk_4',
             'foto_produk_5',
         ];
-
         return in_array($type, $allowedTypes);
     }
 }

@@ -32,13 +32,13 @@ class NotificationService
             return $this->failure('Nomor telepon enumerator tidak tersedia');
         }
 
-        $caption = $this->buildRevisiCaption(
+        $message = $this->buildRevisiMessage(
             $dataLapangan->enumerator->nama_lengkap,
             $dataLapangan->nama_pu,
             $dataLapangan->keterangan
         );
 
-        $sent = $this->sendImageNotification($phone, $caption);
+        $sent = $this->sendTextNotification($phone, $message);
 
         return $sent
             ? $this->success('Notifikasi berhasil dikirim ke ' . $dataLapangan->enumerator->nama_lengkap)
@@ -116,13 +116,11 @@ class NotificationService
             }
 
             $emailUsername = str_replace(' ', '', strtolower($dataLapangan->nama_pu));
-            $caption       = $this->buildOSSCaption($dataLapangan->nama_pu, $emailUsername);
+            $message       = $this->buildOSSMessage($dataLapangan->nama_pu, $emailUsername);
 
-            $response = $this->kawuloHalal->sendMedia(
+            $response = $this->kawuloHalal->sendText(
                 number: $phone,
-                mediaType: 'image',
-                url: $this->defaultMediaUrl(),
-                caption: $caption,
+                message: $message,
             );
 
             return $response['status'] ?? false;
@@ -133,7 +131,7 @@ class NotificationService
     }
 
     /**
-     * Kirim notifikasi sertifikat halal terbit beserta file ke PU.
+     * Kirim notifikasi sertifikat halal terbit beserta link download ke PU.
      */
     public function sendSihalalUploadNotification(DataLapangan $dataLapangan): bool
     {
@@ -150,13 +148,11 @@ class NotificationService
             }
 
             $fileUrl  = asset('storage/' . $dataLapangan->file_sihalal);
-            $caption  = $this->buildSihalalCaption($dataLapangan->nama_pu, $fileUrl);
+            $message  = $this->buildSihalalMessage($dataLapangan->nama_pu, $fileUrl);
 
-            $response = $this->kawuloHalal->sendMedia(
+            $response = $this->kawuloHalal->sendText(
                 number: $phone,
-                mediaType: 'document',
-                url: $fileUrl,
-                caption: $caption,
+                message: $message,
             );
 
             return $response['status'] ?? false;
@@ -182,13 +178,11 @@ class NotificationService
             }
 
             $fileUrl  = asset('storage/' . $dataLapangan->file_oss);
-            $caption  = $this->buildOSSUploadCaption($dataLapangan->nama_pu, $fileUrl);
+            $message  = $this->buildOSSUploadMessage($dataLapangan->nama_pu, $fileUrl);
 
-            $response = $this->kawuloHalal->sendMedia(
+            $response = $this->kawuloHalal->sendText(
                 number: $phone,
-                mediaType: 'document',
-                url: $fileUrl,
-                caption: $caption,
+                message: $message,
             );
 
             return $response['status'] ?? false;
@@ -203,15 +197,13 @@ class NotificationService
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Kirim notifikasi bertipe image menggunakan default media URL.
+     * Kirim notifikasi teks via KawuloHalal.
      */
-    private function sendImageNotification(string $phone, string $caption): bool
+    private function sendTextNotification(string $phone, string $message): bool
     {
-        $response = $this->kawuloHalal->sendMedia(
+        $response = $this->kawuloHalal->sendText(
             number: $phone,
-            mediaType: 'image',
-            url: $this->defaultMediaUrl(),
-            caption: $caption,
+            message: $message,
         );
 
         return $response['status'] ?? false;
@@ -219,7 +211,7 @@ class NotificationService
 
     /**
      * Format nomor telepon ke format internasional (62xxx).
-     * Kembalikan null jika nomor kosong.
+     * Kembalikan null jika nomor kosong atau tidak valid.
      */
     private function resolvePhone(?string $phone): ?string
     {
@@ -252,11 +244,6 @@ class NotificationService
         return $phone;
     }
 
-    private function defaultMediaUrl(): string
-    {
-        return env('KAWULOHALAL_DEFAULT_MEDIA_URL', 'https://kawulohalal.id/assets/logo.png');
-    }
-
     private function success(string $message, array $data = []): array
     {
         $result = ['success' => true, 'message' => $message];
@@ -279,7 +266,7 @@ class NotificationService
     // Message Templates
     // ─────────────────────────────────────────────────────────────────────────
 
-    private function buildRevisiCaption(string $namaPendamping, string $namaPU, string $revisi): string
+    private function buildRevisiMessage(string $namaPendamping, string $namaPU, string $revisi): string
     {
         return "🔔 *NOTIFIKASI REVISI DATA*\n\n" .
             "Nama Pendamping : *{$namaPendamping}*\n" .
@@ -292,7 +279,7 @@ class NotificationService
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildOSSCaption(string $namaPU, string $emailUsername): string
+    private function buildOSSMessage(string $namaPU, string $emailUsername): string
     {
         return "Halo {$namaPU}!\n\n" .
             "NIB kamu sudah terbit nih! Selanjutnya silahkan pengajuan ke sertifikasi halal ya!\n\n" .
@@ -305,7 +292,7 @@ class NotificationService
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildOSSUploadCaption(string $namaPU, string $fileUrl): string
+    private function buildOSSUploadMessage(string $namaPU, string $fileUrl): string
     {
         return "📄 *SELAMAT! NIB TELAH TERBIT*\n\n" .
             "Halo *{$namaPU}*!\n\n" .
@@ -317,7 +304,7 @@ class NotificationService
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 
-    private function buildSihalalCaption(string $namaPU, string $fileUrl): string
+    private function buildSihalalMessage(string $namaPU, string $fileUrl): string
     {
         return "🎉 *SELAMAT! SERTIFIKAT HALAL TERBIT*\n\n" .
             "Halo *{$namaPU}*!\n\n" .

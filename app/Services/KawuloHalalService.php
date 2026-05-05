@@ -11,10 +11,8 @@ class KawuloHalalService
     protected ?string $sender;
 
     const ENDPOINTS = [
-        'send_media' => 'https://gateway.kawulohalal.id/send-media',
+        'send_message' => 'https://gateway.kawulohalal.id/send-message',
     ];
-
-    const ALLOWED_MEDIA_TYPES = ['image', 'video', 'audio', 'document'];
 
     public function __construct()
     {
@@ -91,111 +89,33 @@ class KawuloHalalService
     }
 
     /**
-     * Send media (image, video, audio, document) via WhatsApp.
+     * Send a text message via WhatsApp.
      *
-     * @param string      $number     Recipient number, e.g. 72888xxxx or 62888xxxx
-     * @param string      $mediaType  One of: image, video, audio, document
-     * @param string      $url        Direct URL to the media file
-     * @param string|null $caption    Optional caption/message
-     * @param string|null $footer     Optional footer text
-     * @param string      $method     'POST' (default) or 'GET'
+     * @param string      $number   Recipient number, e.g. 72888xxxx or 62888xxxx
+     * @param string      $message  Message to be sent
+     * @param string|null $footer   Optional footer under message
+     * @param string      $method   'POST' (default) or 'GET'
      * @return array
      */
-    public function sendMedia(
+    public function sendText(
         string  $number,
-        string  $mediaType,
-        string  $url,
-        ?string $caption = null,
-        ?string $footer  = null,
-        string  $method  = 'POST'
+        string  $message,
+        ?string $footer = null,
+        string  $method = 'POST'
     ): array {
-        if (!in_array($mediaType, self::ALLOWED_MEDIA_TYPES)) {
-            return [
-                'status' => false,
-                'error'  => "Invalid media_type '{$mediaType}'. Allowed: " . implode(', ', self::ALLOWED_MEDIA_TYPES),
-            ];
-        }
-
         $params = [
-            'api_key'    => $this->apiKey,
-            'sender'     => $this->sender,
-            'number'     => $number,
-            'media_type' => $mediaType,
-            'url'        => $url,
+            'api_key' => $this->apiKey,
+            'sender'  => $this->sender,
+            'number'  => $number,
+            'message' => $message,
+            'footer'  => $footer ?? '',
         ];
 
-        if (!is_null($caption)) {
-            $params['caption'] = $caption;
-        }
+        Log::info('KawuloHalal Send Text Request', [
+            'number' => $number,
+            'footer' => $params['footer'],
+        ]);
 
-        // Footer sengaja tidak dikirim — gateway memiliki bug saat memproses property footer
-        // if (!is_null($footer)) { $params['footer'] = $footer; }
-
-        // Pastikan URL bisa diakses publik sebelum dikirim ke gateway
-        $urlCheck = $this->assertPublicUrl($url);
-        if ($urlCheck !== null) {
-            return $urlCheck;
-        }
-
-        Log::info('KawuloHalal Send Media Request', ['params' => $params]);
-
-        return $this->makeRequest(self::ENDPOINTS['send_media'], $params, $method);
-    }
-
-    /**
-     * Shorthand: send an image.
-     */
-    public function sendImage(string $number, string $url, ?string $caption = null, ?string $footer = null): array
-    {
-        return $this->sendMedia($number, 'image', $url, $caption, $footer);
-    }
-
-    /**
-     * Shorthand: send a video.
-     */
-    public function sendVideo(string $number, string $url, ?string $caption = null, ?string $footer = null): array
-    {
-        return $this->sendMedia($number, 'video', $url, $caption, $footer);
-    }
-
-    /**
-     * Shorthand: send an audio file.
-     */
-    public function sendAudio(string $number, string $url, ?string $caption = null): array
-    {
-        return $this->sendMedia($number, 'audio', $url, $caption);
-    }
-
-    /**
-     * Shorthand: send a document.
-     */
-    public function sendDocument(string $number, string $url, ?string $caption = null, ?string $footer = null): array
-    {
-        return $this->sendMedia($number, 'document', $url, $caption, $footer);
-    }
-
-    /**
-     * Validasi bahwa URL bersifat publik (bukan localhost / .test / .local).
-     * Kembalikan array error jika lokal, null jika aman.
-     */
-    protected function assertPublicUrl(string $url): ?array
-    {
-        $host = parse_url($url, PHP_URL_HOST) ?? '';
-
-        $isLocal = str_ends_with($host, '.test')
-            || str_ends_with($host, '.local')
-            || str_ends_with($host, '.localhost')
-            || in_array($host, ['localhost', '127.0.0.1', '::1']);
-
-        if ($isLocal) {
-            $message = "URL media bersifat lokal ({$host}) dan tidak dapat diakses oleh gateway eksternal. "
-                . "Gunakan URL publik atau expose via ngrok/tunnel.";
-
-            Log::error('KawuloHalal URL lokal terdeteksi', ['url' => $url, 'host' => $host]);
-
-            return ['status' => false, 'error' => $message];
-        }
-
-        return null;
+        return $this->makeRequest(self::ENDPOINTS['send_message'], $params, $method);
     }
 }

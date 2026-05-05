@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Enumerator;
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
+use App\Models\CashflowsKoordinator; // ← model yang benar
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,6 +42,12 @@ class HomeApiController extends Controller
 
         $dataMasuk = DataLapangan::where('enumerator_id', $enumeratorId)->count();
 
+        $totalPemasukan = CashflowsKoordinator::where('tipe', 'PEMASUKAN')
+            ->whereHas('dataLapangan', function ($q) use ($enumeratorId) {
+                $q->where('enumerator_id', $enumeratorId);
+            })
+            ->sum('nominal');
+
         $dataLapangan = DataLapangan::with('enumerator')
             ->where('enumerator_id', $enumeratorId)
             ->orderBy('created_at', 'desc')
@@ -58,13 +65,14 @@ class HomeApiController extends Controller
             'message' => 'Dashboard data retrieved successfully',
             'data'    => [
                 'statistik' => [
-                    'pending'    => $pending,
-                    'terverifikasi' => $terverifikasi,
-                    'progress'   => $progress,
-                    'terbit_sh'  => $terbitSH,
-                    'revisi'     => $revisi,
-                    'data_masuk' => $dataMasuk,
-                    'dibayar'    => $dibayar,
+                    'pending'         => $pending,
+                    'terverifikasi'   => $terverifikasi,
+                    'progress'        => $progress,
+                    'terbit_sh'       => $terbitSH,
+                    'revisi'          => $revisi,
+                    'data_masuk'      => $dataMasuk,
+                    'dibayar'         => $dibayar,
+                    'total_pemasukan' => (float) $totalPemasukan,
                 ],
                 'data_lapangan'      => $dataLapangan,
                 'pengajuan_terakhir' => $pengajuanTerakhir,

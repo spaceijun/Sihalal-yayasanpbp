@@ -11,8 +11,8 @@ class KawuloHalalService
     protected ?string $sender;
 
     const ENDPOINTS = [
-        'send_message' => 'https://gateway.kawulohalal.id/send-message',
-        'send_media'   => 'https://gateway.kawulohalal.id/send-media',
+        'send_message' => 'https://kawalakugateway.cloud/send-message',
+        'send_media'   => 'https://kawalakugateway.cloud/send-media',
     ];
 
     const ALLOWED_MEDIA_TYPES = ['image', 'video', 'audio', 'document'];

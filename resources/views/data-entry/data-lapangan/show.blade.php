@@ -384,6 +384,10 @@
                                                 class="dl-btn dl-btn-success dl-btn-sm">
                                                 <i class="las la-download"></i> Download
                                             </a>
+                                            <button type="button" class="dl-btn dl-btn-amber dl-btn-sm"
+                                                onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
+                                                <i class="las la-search"></i> Analisis Halal
+                                            </button>
                                         @else
                                             <a href="{{ asset('storage/' . $prod['foto']) }}" download
                                                 class="dl-btn dl-btn-success dl-btn-sm">
@@ -586,6 +590,191 @@
             </div>
         </div>
     @endforeach
+
+    {{-- ══════════════════════════════════════ --}}
+    {{-- MODAL ANALISIS HALAL (GEMINI)         --}}
+    {{-- ══════════════════════════════════════ --}}
+    <div class="modal fade dl-modal" id="modalAnalisisHalal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="las la-microscope" style="color:var(--dl-green);"></i>
+                        Analisis Bahan &amp; Proses Halal
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+
+                    {{-- Image Preview Strip --}}
+                    <div id="analisisImageStrip"
+                        style="background:#F8FAFC;border-bottom:1px solid var(--dl-border);padding:14px 20px;display:flex;align-items:center;gap:14px;">
+                        <img id="analisisPreviewImg" src="" alt=""
+                            style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1.5px solid var(--dl-border);flex-shrink:0;">
+                        <div>
+                            <div id="analisisProductName"
+                                style="font-family:'Sora',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">
+                            </div>
+                            <div style="font-size:12px;color:var(--dl-muted);">Analisis menggunakan Gemini Vision AI</div>
+                            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                                <span class="dl-badge dl-badge-verif" style="font-size:10px;">
+                                    <i class="las la-robot" style="font-size:11px;"></i> Gemini Flash
+                                </span>
+                                <span class="dl-badge dl-badge-pending" style="font-size:10px;">
+                                    <i class="las la-shield-alt" style="font-size:11px;"></i> Analisis Kehalalan
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Loading State --}}
+                    <div id="analisisLoading"
+                        style="display:none;padding:48px 24px;text-align:center;flex-direction:column;align-items:center;gap:12px;">
+                        <div class="analisis-spinner"></div>
+                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-top:8px;">Menganalisis foto
+                            produk...</div>
+                        <div style="font-size:12px;color:var(--dl-muted);">Gemini sedang mendeteksi bahan & proses</div>
+                    </div>
+
+                    {{-- Error State --}}
+                    <div id="analisisError" style="display:none;padding:32px 24px;text-align:center;">
+                        <div
+                            style="width:52px;height:52px;border-radius:50%;background:var(--dl-rose-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                            <i class="las la-exclamation-circle" style="font-size:24px;color:var(--dl-rose);"></i>
+                        </div>
+                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-bottom:6px;">Analisis Gagal
+                        </div>
+                        <div id="analisisErrorMsg" style="font-size:13px;color:var(--dl-muted);"></div>
+                        <button type="button" class="dl-btn dl-btn-primary dl-btn-sm" style="margin-top:14px;"
+                            onclick="retryAnalisis()">
+                            <i class="las la-redo-alt"></i> Coba Lagi
+                        </button>
+                    </div>
+
+                    {{-- Result State --}}
+                    <div id="analisisResult" style="display:none;padding:20px 24px;">
+
+                        {{-- Verdict Banner --}}
+                        <div id="analisisVerdictBanner"
+                            style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;margin-bottom:20px;border:1.5px solid;">
+                            <div id="analisisVerdictIcon"
+                                style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
+                            </div>
+                            <div>
+                                <div id="analisisVerdictTitle"
+                                    style="font-family:'Sora',sans-serif;font-weight:700;font-size:15px;"></div>
+                                <div id="analisisVerdictDesc" style="font-size:12.5px;margin-top:2px;opacity:.75;"></div>
+                            </div>
+                            <div id="analisisVerdictScore"
+                                style="margin-left:auto;font-size:24px;font-weight:700;font-family:monospace;flex-shrink:0;">
+                            </div>
+                        </div>
+
+                        {{-- Two-col grid --}}
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+
+                            {{-- Bahan Terdeteksi --}}
+                            <div class="dl-card" style="box-shadow:none;border:1.5px solid var(--dl-border);">
+                                <div class="dl-card-head"
+                                    style="padding:.65rem 1rem;background:#F5F0FF;border-bottom:1px solid #E9D5FF;">
+                                    <div class="dl-card-head-left">
+                                        <div class="dl-card-icon"
+                                            style="background:#fff;width:26px;height:26px;border-radius:7px;">
+                                            <i class="las la-list" style="color:#7C3AED;font-size:13px;"></i>
+                                        </div>
+                                        <span class="dl-card-title" style="font-size:12px;color:#5B21B6;">Bahan
+                                            Terdeteksi</span>
+                                    </div>
+                                </div>
+                                <div class="dl-card-body" style="padding:.85rem 1rem;">
+                                    <ul id="analisisBahanList"
+                                        style="margin:0;padding-left:16px;font-size:13px;color:var(--dl-text);line-height:1.8;">
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {{-- Proses Produksi --}}
+                            <div class="dl-card" style="box-shadow:none;border:1.5px solid var(--dl-border);">
+                                <div class="dl-card-head"
+                                    style="padding:.65rem 1rem;background:#F0FDFA;border-bottom:1px solid #99F6E4;">
+                                    <div class="dl-card-head-left">
+                                        <div class="dl-card-icon"
+                                            style="background:#fff;width:26px;height:26px;border-radius:7px;">
+                                            <i class="las la-cogs" style="color:#0D9488;font-size:13px;"></i>
+                                        </div>
+                                        <span class="dl-card-title" style="font-size:12px;color:#0F766E;">Proses
+                                            Produksi</span>
+                                    </div>
+                                </div>
+                                <div class="dl-card-body" style="padding:.85rem 1rem;">
+                                    <ul id="analisisProsesList"
+                                        style="margin:0;padding-left:16px;font-size:13px;color:var(--dl-text);line-height:1.8;">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Potensi Risiko --}}
+                        <div id="analisisRisikoSection" class="dl-card"
+                            style="box-shadow:none;border:1.5px solid #FECDD3;margin-bottom:16px;display:none;">
+                            <div class="dl-card-head"
+                                style="padding:.65rem 1rem;background:#FFF1F2;border-bottom:1px solid #FECDD3;">
+                                <div class="dl-card-head-left">
+                                    <div class="dl-card-icon"
+                                        style="background:#fff;width:26px;height:26px;border-radius:7px;">
+                                        <i class="las la-exclamation-triangle" style="color:#E11D48;font-size:13px;"></i>
+                                    </div>
+                                    <span class="dl-card-title" style="font-size:12px;color:#9F1239;">Potensi Risiko
+                                        Kehalalan</span>
+                                </div>
+                            </div>
+                            <div class="dl-card-body" style="padding:.85rem 1rem;">
+                                <ul id="analisisRisikoList"
+                                    style="margin:0;padding-left:16px;font-size:13px;color:#9F1239;line-height:1.8;"></ul>
+                            </div>
+                        </div>
+
+                        {{-- Rekomendasi --}}
+                        <div class="dl-card"
+                            style="box-shadow:none;border:1.5px solid #A7F3D0;background:var(--dl-green-lt);">
+                            <div class="dl-card-body"
+                                style="padding:.85rem 1rem;display:flex;gap:10px;align-items:flex-start;">
+                                <i class="las la-lightbulb"
+                                    style="color:var(--dl-green);font-size:20px;flex-shrink:0;margin-top:1px;"></i>
+                                <div>
+                                    <div
+                                        style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dl-green);margin-bottom:4px;">
+                                        Rekomendasi</div>
+                                    <div id="analisisRekomendasi" style="font-size:13px;color:#065F46;line-height:1.6;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Timestamp --}}
+                        <div
+                            style="margin-top:14px;font-size:11px;color:var(--dl-muted);text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:5px;">
+                            <i class="las la-robot" style="font-size:13px;"></i>
+                            Dianalisis oleh Gemini Flash &nbsp;·&nbsp;
+                            <span id="analisisTimestamp"></span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="dl-btn dl-btn-success" id="btnCopyAnalisis" style="display:none;"
+                        onclick="copyAnalisisResult()">
+                        <i class="las la-copy"></i> Salin Hasil
+                    </button>
+                    <button type="button" class="dl-btn dl-btn-primary" id="btnReanalisis" style="display:none;"
+                        onclick="retryAnalisis()">
+                        <i class="las la-redo-alt"></i> Analisis Ulang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     {{-- ══════════════════════════════════════ --}}
@@ -1390,6 +1579,28 @@
         .dl-card:nth-child(3) {
             animation-delay: .15s;
         }
+
+        /* ── ANALISIS SPINNER ── */
+        .analisis-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--dl-border);
+            border-top-color: var(--dl-green);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #analisisLoading {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 
 
@@ -1454,16 +1665,262 @@
         function printCollage() {
             const w = window.open('', '', 'height=700,width=900');
             w.document.write(`<html><head><title>Kolase Foto</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-            <style>.dl-collage-img{height:260px;object-fit:cover;width:100%}@media print{body{-webkit-print-color-adjust:exact}}</style>
-            </head><body><h5 class="text-center my-4">Dokumentasi Foto — {{ $dataLapangan->nama_pu }}</h5>
-            ${document.getElementById('collageContent').innerHTML}</body></html>`);
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>.dl-collage-img{height:260px;object-fit:cover;width:100%}@media print{body{-webkit-print-color-adjust:exact}}</style>
+        </head><body><h5 class="text-center my-4">Dokumentasi Foto — {{ $dataLapangan->nama_pu }}</h5>
+        ${document.getElementById('collageContent').innerHTML}</body></html>`);
             w.document.close();
             setTimeout(() => {
                 w.focus();
                 w.print();
                 w.close();
             }, 300);
+        }
+
+        // ══════════════════════════════════════
+        // ANALISIS HALAL — GEMINI VISION (GLOBAL)
+        // ══════════════════════════════════════
+        const GEMINI_KEY = 'AIzaSyC8lDEio7_IZD6KH7dcD_2vPPmPCvruAPM';
+        const GEMINI_URL =
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+        let _currentAnalisisUrl = '';
+        let _currentAnalisisName = '';
+
+        function _showAnalisisState(state) {
+            ['analisisLoading', 'analisisError', 'analisisResult'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            if (state === 'loading') {
+                document.getElementById('analisisLoading').style.display = 'flex';
+            } else if (state === 'error') {
+                document.getElementById('analisisError').style.display = 'block';
+            } else if (state === 'result') {
+                document.getElementById('analisisResult').style.display = 'block';
+            }
+        }
+
+        function openAnalisisHalal(imgUrl, productName) {
+            _currentAnalisisUrl = imgUrl;
+            _currentAnalisisName = productName;
+            document.getElementById('analisisPreviewImg').src = imgUrl;
+            document.getElementById('analisisProductName').textContent = productName;
+            _showAnalisisState('loading');
+            document.getElementById('btnCopyAnalisis').style.display = 'none';
+            document.getElementById('btnReanalisis').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('modalAnalisisHalal')).show();
+            runGeminiAnalisis(imgUrl);
+        }
+
+        function retryAnalisis() {
+            _showAnalisisState('loading');
+            runGeminiAnalisis(_currentAnalisisUrl);
+        }
+
+        async function imageUrlToBase64(url) {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve({
+                        base64,
+                        mimeType: blob.type || 'image/jpeg'
+                    });
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function runGeminiAnalisis(imgUrl) {
+            try {
+                const {
+                    base64,
+                    mimeType
+                } = await imageUrlToBase64(imgUrl);
+                const prompt = `Kamu adalah ahli sertifikasi halal MUI Indonesia yang berpengalaman.
+
+Analisis foto produk makanan/minuman berikut secara mendetail untuk keperluan sertifikasi halal.
+
+Berikan analisis dalam format JSON SAJA (tanpa markdown, tanpa penjelasan tambahan) dengan struktur berikut:
+{
+  "verdict": "HALAL" | "PERLU_VERIFIKASI" | "BERISIKO",
+  "confidence_score": <angka 0-100>,
+  "verdict_desc": "<deskripsi singkat 1 kalimat>",
+  "bahan_terdeteksi": ["<bahan1>", "<bahan2>", ...],
+  "proses_produksi": ["<proses1>", "<proses2>", ...],
+  "potensi_risiko": ["<risiko1>", ...],
+  "rekomendasi": "<rekomendasi tindak lanjut untuk proses sertifikasi halal>"
+}
+
+Fokus pada:
+1. Bahan-bahan yang terlihat atau dapat diduga dari foto (kemasan, label, tampilan produk)
+2. Proses produksi yang terlihat (peralatan, metode, lingkungan)
+3. Risiko kontaminasi atau bahan haram (babi, alkohol, darah, dll)
+4. Kesesuaian proses dengan standar halal MUI`;
+
+                const requestBody = {
+                    contents: [{
+                        parts: [{
+                                inline_data: {
+                                    mime_type: mimeType,
+                                    data: base64
+                                }
+                            },
+                            {
+                                text: prompt
+                            }
+                        ]
+                    }],
+                    generationConfig: {
+                        temperature: 0.2,
+                        maxOutputTokens: 1024
+                    }
+                };
+
+                const response = await fetch(GEMINI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData?.error?.message || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+                const cleaned = rawText.replace(/```json|```/g, '').trim();
+                let parsed;
+                try {
+                    parsed = JSON.parse(cleaned);
+                } catch {
+                    throw new Error('Respons AI tidak dapat diparse. Coba lagi.');
+                }
+
+                renderAnalisisResult(parsed);
+
+            } catch (err) {
+                _showAnalisisState('error');
+                document.getElementById('analisisErrorMsg').textContent = err.message ||
+                    'Terjadi kesalahan tidak terduga.';
+                document.getElementById('btnReanalisis').style.display = 'inline-flex';
+            }
+        }
+
+        function renderAnalisisResult(data) {
+            const verdictConfig = {
+                'HALAL': {
+                    bg: 'var(--dl-green-lt)',
+                    border: '#A7F3D0',
+                    iconBg: 'var(--dl-green)',
+                    icon: 'la-check-circle',
+                    titleColor: '#065F46',
+                    descColor: '#059669',
+                    scoreColor: '#059669',
+                },
+                'PERLU_VERIFIKASI': {
+                    bg: '#FFFBEB',
+                    border: '#FDE68A',
+                    iconBg: 'var(--dl-amber)',
+                    icon: 'la-exclamation-circle',
+                    titleColor: '#92400E',
+                    descColor: '#D97706',
+                    scoreColor: '#D97706',
+                },
+                'BERISIKO': {
+                    bg: 'var(--dl-rose-lt)',
+                    border: '#FECDD3',
+                    iconBg: 'var(--dl-rose)',
+                    icon: 'la-times-circle',
+                    titleColor: '#9F1239',
+                    descColor: '#E11D48',
+                    scoreColor: '#E11D48',
+                }
+            };
+
+            const vc = verdictConfig[data.verdict] ?? verdictConfig['PERLU_VERIFIKASI'];
+            const banner = document.getElementById('analisisVerdictBanner');
+            banner.style.background = vc.bg;
+            banner.style.borderColor = vc.border;
+
+            const iconEl = document.getElementById('analisisVerdictIcon');
+            iconEl.style.background = vc.iconBg;
+            iconEl.innerHTML = `<i class="las ${vc.icon}" style="color:#fff;font-size:22px;"></i>`;
+
+            const titleMap = {
+                HALAL: 'Terindikasi HALAL',
+                PERLU_VERIFIKASI: 'Perlu Verifikasi Lebih Lanjut',
+                BERISIKO: 'Terdeteksi Risiko Kehalalan'
+            };
+            document.getElementById('analisisVerdictTitle').textContent = titleMap[data.verdict] ?? data.verdict;
+            document.getElementById('analisisVerdictTitle').style.color = vc.titleColor;
+            document.getElementById('analisisVerdictDesc').textContent = data.verdict_desc ?? '';
+            document.getElementById('analisisVerdictDesc').style.color = vc.descColor;
+            document.getElementById('analisisVerdictScore').textContent = (data.confidence_score ?? 0) + '%';
+            document.getElementById('analisisVerdictScore').style.color = vc.scoreColor;
+
+            const bahanList = document.getElementById('analisisBahanList');
+            bahanList.innerHTML = '';
+            (data.bahan_terdeteksi ?? []).forEach(b => {
+                const li = document.createElement('li');
+                li.textContent = b;
+                bahanList.appendChild(li);
+            });
+            if (!data.bahan_terdeteksi?.length) {
+                bahanList.innerHTML = '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
+            }
+
+            const prosesList = document.getElementById('analisisProsesList');
+            prosesList.innerHTML = '';
+            (data.proses_produksi ?? []).forEach(p => {
+                const li = document.createElement('li');
+                li.textContent = p;
+                prosesList.appendChild(li);
+            });
+            if (!data.proses_produksi?.length) {
+                prosesList.innerHTML = '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
+            }
+
+            const risikoSection = document.getElementById('analisisRisikoSection');
+            const risikoList = document.getElementById('analisisRisikoList');
+            risikoList.innerHTML = '';
+            if (data.potensi_risiko?.length) {
+                risikoSection.style.display = 'block';
+                data.potensi_risiko.forEach(r => {
+                    const li = document.createElement('li');
+                    li.textContent = r;
+                    risikoList.appendChild(li);
+                });
+            } else {
+                risikoSection.style.display = 'none';
+            }
+
+            document.getElementById('analisisRekomendasi').textContent = data.rekomendasi ?? '—';
+            document.getElementById('analisisTimestamp').textContent = new Date().toLocaleString('id-ID');
+
+            _showAnalisisState('result');
+            document.getElementById('btnCopyAnalisis').style.display = 'inline-flex';
+            document.getElementById('btnReanalisis').style.display = 'inline-flex';
+        }
+
+        function copyAnalisisResult() {
+            const text = document.getElementById('analisisResult').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('btnCopyAnalisis');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="las la-check"></i> Tersalin!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }, 2000);
+            }).catch(() => alert('Gagal menyalin teks.'));
         }
 
         // ── MODAL PERATURAN ──
@@ -1497,8 +1954,8 @@
                     className: 'dl-alert dl-alert-danger position-fixed top-0 start-0 end-0 m-3',
                     style: 'z-index:99999;',
                     innerHTML: `<i class="las la-exclamation-circle dl-alert-icon"></i>
-                        <strong>Waktu Sesi Habis!</strong>&nbsp;Data telah dilepas. Anda akan diarahkan dalam
-                        <strong id="redirectCountdown">5</strong> detik...`
+                    <strong>Waktu Sesi Habis!</strong>&nbsp;Data telah dilepas. Anda akan diarahkan dalam
+                    <strong id="redirectCountdown">5</strong> detik...`
                 });
                 document.body.prepend(alertDiv);
                 let cd = 5;

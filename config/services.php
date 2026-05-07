@@ -40,4 +40,8 @@ return [
         'sender'  => env('KAWULOHALAL_SENDER'),
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
 ];

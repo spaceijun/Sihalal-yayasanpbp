@@ -2,6 +2,7 @@
 
 namespace App\Services\Superadmin;
 
+use App\Models\DataEntry;
 use App\Models\DataLapangan;
 use App\Services\KawuloHalalService;
 use Illuminate\Support\Facades\Log;
@@ -197,6 +198,42 @@ class NotificationService
         }
     }
 
+    /**
+     * Kirim notifikasi revisi data entry ke nomor telephone di tabel data_entrys.
+     */
+    public function sendDataEntryRevisiNotification(
+        DataEntry $dataEntry,
+        string $namaPU,
+        string $keteranganRevisi,
+    ): bool {
+        try {
+            $phone = $this->resolvePhone($dataEntry->telephone);
+
+            if (!$phone) {
+                Log::warning('NotificationService: telephone data entry tidak tersedia', [
+                    'data_entry_id' => $dataEntry->id,
+                ]);
+                return false;
+            }
+
+            $caption = $this->buildDataEntryRevisiCaption(
+                namaPU: $namaPU,
+                entryType: $dataEntry->entry_type ?? '-',
+                keterangan: $keteranganRevisi,
+            );
+
+            $response = $this->kawuloHalal->sendText($phone, $caption);
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('NotificationService: data entry revisi notification error', [
+                'data_entry_id' => $dataEntry->id,
+                'message'       => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Internal Helpers
     // ─────────────────────────────────────────────────────────────────────────
@@ -303,6 +340,19 @@ class NotificationService
             "Jika ada pertanyaan lebih lanjut hubungi :\n" .
             "+62 897-6774-482 (Customer Service)\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n*TIM KAWULO HALAL*";
+    }
+
+
+    private function buildDataEntryRevisiCaption(
+        string $namaPU,
+        string $entryType,
+        string $keterangan,
+    ): string {
+        return "🔔 *REVISI DATA ENTRY*\n\n" .
+            "Nama PU      : *{$namaPU}*\n" .
+            "Entry Type   : *{$entryType}*\n" .
+            "Keterangan   :\n{$keterangan}\n\n" .
             "Best Regards,\n*TIM KAWULO HALAL*";
     }
 }

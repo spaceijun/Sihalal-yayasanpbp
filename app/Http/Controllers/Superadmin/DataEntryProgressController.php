@@ -7,6 +7,7 @@ use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
 use App\Models\Verifikator;
 use App\Services\DataEntryPenagihanService;
+use App\Services\Superadmin\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,10 +16,12 @@ use Illuminate\View\View;
 class DataEntryProgressController extends Controller
 {
     protected $penagihanService;
+    protected $notificationService;
 
-    public function __construct(DataEntryPenagihanService $penagihanService)
+    public function __construct(DataEntryPenagihanService $penagihanService, NotificationService $notificationService)
     {
         $this->penagihanService = $penagihanService;
+        $this->notificationService = $notificationService;
     }
 
     private function getStatusCounts(): array
@@ -214,6 +217,19 @@ class DataEntryProgressController extends Controller
         ]);
 
         // Status data_lapangans TIDAK berubah saat revisi
+
+        // Kirim notifikasi WhatsApp ke telephone data entry
+        $dataEntry = $progress->dataEntry;
+        if ($dataEntry) {
+            $progress->loadMissing('dataLapangan');
+            $namaPU = $progress->dataLapangan?->nama_pu ?? '-';
+
+            $this->notificationService->sendDataEntryRevisiNotification(
+                dataEntry: $dataEntry,
+                namaPU: $namaPU,
+                keteranganRevisi: $request->keterangan_revisi,
+            );
+        }
 
         return redirect()->back()->with('success', 'Progress ditandai perlu revisi.');
     }

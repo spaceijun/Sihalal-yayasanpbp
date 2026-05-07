@@ -1680,7 +1680,7 @@
         // ══════════════════════════════════════
         // ANALISIS HALAL — GEMINI VISION (GLOBAL)
         // ══════════════════════════════════════
-        const GEMINI_KEY = 'AIzaSyC8lDEio7_IZD6KH7dcD_2vPPmPCvruAPM';
+        const GEMINI_KEY = 'AIzaSyAWbAG97-umbqMAcV6MXKkzAuUHkbyGTkc';
         const GEMINI_URL =
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 

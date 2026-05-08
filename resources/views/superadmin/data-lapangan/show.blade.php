@@ -744,6 +744,7 @@
                         <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
                             method="POST" id="formVerifikasi">
                             @csrf
+
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email"
@@ -754,6 +755,40 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            {{-- PASSWORD — tidak disimpan DB, hanya dikirim ke cPanel --}}
+                            <div style="margin-bottom:.85rem;">
+                                <label class="form-label">Password Email</label>
+                                <div style="position:relative;">
+                                    <input type="password" name="email_password" id="emailPasswordInput"
+                                        class="form-control @error('email_password') is-invalid @enderror"
+                                        placeholder="Buat password email" required autocomplete="new-password">
+                                    <button type="button" onclick="togglePassword()"
+                                        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dl-muted);font-size:16px;">
+                                        <i class="las la-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                                @error('email_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">
+                                    <i class="las la-info-circle"></i>
+                                    Password hanya digunakan untuk membuat akun email. Tidak disimpan di database.
+                                </p>
+                            </div>
+
+                            {{-- Konfirmasi Password --}}
+                            <div style="margin-bottom:.85rem;">
+                                <label class="form-label">Konfirmasi Password</label>
+                                <input type="password" name="email_password_confirmation" id="emailPasswordConfirm"
+                                    class="form-control" placeholder="Ulangi password" required
+                                    autocomplete="new-password">
+                                <div id="passwordMatchWarn"
+                                    style="display:none;font-size:12px;color:var(--dl-rose);margin-top:4px;">
+                                    <i class="las la-times-circle"></i> Password tidak cocok
+                                </div>
+                            </div>
+
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Verifikator</label>
                                 <select name="verifikator_id"
@@ -770,6 +805,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Tanggal Verifikasi</label>
                                 <input type="date" name="tanggal_verifikasi"
@@ -779,12 +815,14 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
                             <div style="display:flex;justify-content:space-between;">
                                 <button type="button" class="dl-btn dl-btn-ghost" onclick="backToChecklist()">
                                     <i class="las la-arrow-left"></i> Kembali
                                 </button>
-                                <button type="submit" class="dl-btn dl-btn-primary">
-                                    <i class="las la-save"></i> Simpan
+                                <button type="submit" class="dl-btn dl-btn-primary"
+                                    onclick="return checkPasswordMatch()">
+                                    <i class="las la-save"></i> Simpan & Buat Email
                                 </button>
                             </div>
                         </form>
@@ -2146,5 +2184,39 @@
                 setTimeout(() => el.remove(), 400);
             });
         }, 5000);
+
+        // ── PASSWORD TOGGLE ──
+        function togglePassword() {
+            const input = document.getElementById('emailPasswordInput');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'las la-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'las la-eye';
+            }
+        }
+
+        // ── CEK PASSWORD MATCH sebelum submit ──
+        function checkPasswordMatch() {
+            const pass = document.getElementById('emailPasswordInput').value;
+            const confirm = document.getElementById('emailPasswordConfirm').value;
+            const warn = document.getElementById('passwordMatchWarn');
+
+            if (pass !== confirm) {
+                warn.style.display = 'block';
+                return false; // batalkan submit
+            }
+            warn.style.display = 'none';
+            return true;
+        }
+
+        // Live check saat user mengetik konfirmasi
+        document.getElementById('emailPasswordConfirm')?.addEventListener('input', function() {
+            const pass = document.getElementById('emailPasswordInput').value;
+            const warn = document.getElementById('passwordMatchWarn');
+            warn.style.display = (this.value && this.value !== pass) ? 'block' : 'none';
+        });
     </script>
 @endsection

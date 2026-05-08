@@ -112,30 +112,42 @@ class DataLapanganService
     /**
      * Update email, verifikator, dan tanggal_verifikasi
      */
-    public function updateEmail(
-        $id,
-        string $email,
-        ?int $verifikatorId,
-        ?string $tanggalVerifikasi
-    ): void {
-        $dataLapangan = DataLapangan::findOrFail($id);
+    public function updateEmail(Request $request, $hashedId): RedirectResponse
+    {
+        $request->validate([
+            'email'                      => 'required|email|max:255',
+            'email_password'             => 'required|string|min:8|confirmed', // confirmed = cek email_password_confirmation
+            'verifikator_id'             => 'nullable|exists:verifikators,id',
+            'tanggal_verifikasi'         => 'nullable|date',
+        ]);
 
-        if ($dataLapangan->email_sihalal !== null) {
-            $status = 'PROGRESS SIHALAL';
-        } elseif ($dataLapangan->file_oss !== null) {
-            $status = 'PROGRESS OSS';
-        } else {
-            $status = 'TERVERIFIKASI';
+        $dlObjEmail = DataLapangan::findByHashedIdOrFail($hashedId);
+
+        $emailPrefix = explode('@', $request->email)[0];
+
+        try {
+            $cpanel = app(CpanelEmailService::class);
+
+            if (!$cpanel->emailExists($emailPrefix)) {
+                // Kirim password user ke cPanel — TIDAK disimpan ke DB
+                $cpanel->createEmailAccount($emailPrefix, $request->email_password);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['email' => 'Gagal membuat email di cPanel: ' . $e->getMessage()])
+                ->withInput();
         }
 
-        $dataLapangan->update([
-            'email'              => $email,
-            'verifikator_id'     => $verifikatorId,
-            'tanggal_verifikasi' => $tanggalVerifikasi,
-            'status'             => $status,
-        ]);
-    }
-    /**
+        // Simpan hanya email (tanpa password) ke DB
+        $this->dataLapanganService->updateEmail(
+            $dlObjEmail->id,
+            $request->email,
+            $request->verifikator_id,
+            $request->tanggal_verifikasi
+        );
+
+        return redirect()->back()->with('success', 'Email berhasil dibuat dan data diperbarui.');
+    }    /**
      * Update email sihalal of a data lapangan.
      */
     public function updateEmailSihalal(int $id, string $emailSihalal): DataLapangan

@@ -276,45 +276,53 @@ class DataLapanganController extends Controller
     public function updateEmail(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
-            'email'                      => 'required|email|max:255',
-            'email_password'             => 'required|string|min:8|confirmed',
-            'verifikator_id'             => 'nullable|exists:verifikators,id',
-            'tanggal_verifikasi'         => 'nullable|date',
+            'email_prefix'       => 'required|string|max:100|regex:/^[a-zA-Z0-9._+-]+$/',
+            'email_password'     => 'required|string|min:8',
+            'verifikator_id'     => 'nullable|exists:verifikators,id',
+            'tanggal_verifikasi' => 'nullable|date',
         ]);
+
+        // Gabungkan prefix + domain
+        $email = $request->email_prefix . '@kawulohalal.id';
+        $emailPrefix = $request->email_prefix;
 
         $dlObjEmail = DataLapangan::findByHashedIdOrFail($hashedId);
 
-        // Ambil prefix email (sebelum @)
-        $emailPrefix = explode('@', $request->email)[0];
-
-        // ── CPANEL: Buat email ──
         try {
             $cpanel = app(CpanelEmailService::class);
 
-            Log::info('Controller: cek emailExists untuk ' . $emailPrefix);
-
             if (!$cpanel->emailExists($emailPrefix)) {
-                Log::info('Controller: email belum ada, mulai buat...');
                 $cpanel->createEmailAccount($emailPrefix, $request->email_password);
-            } else {
-                Log::info('Controller: email sudah ada, skip pembuatan');
             }
         } catch (\Exception $e) {
-            Log::error('Controller: Exception - ' . $e->getMessage());
             return redirect()->back()
-                ->withErrors(['email' => 'Gagal membuat email di cPanel: ' . $e->getMessage()])
+                ->withErrors(['email_prefix' => 'Gagal membuat email: ' . $e->getMessage()])
                 ->withInput();
         }
 
-        // ── DB: Simpan hanya email (tanpa password) ──
+        // Simpan email lengkap ke DB (tanpa password)
         $this->dataLapanganService->updateEmail(
             $dlObjEmail->id,
-            $request->email,
+            $email,
             $request->verifikator_id,
             $request->tanggal_verifikasi
         );
 
-        return redirect()->back()->with('success', 'Email berhasil dibuat dan data diperbarui.');
+        return redirect()->back()->with('success', 'Email ' . $email . ' berhasil dibuat.');
+    }
+
+    public function checkEmail(Request $request): JsonResponse
+    {
+        $prefix = $request->query('prefix');
+
+        if (empty($prefix)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $cpanel = app(CpanelEmailService::class);
+        $exists = $cpanel->emailExists($prefix);
+
+        return response()->json(['exists' => $exists]);
     }
     /**
      * Upload gambar secara sekuensial (AJAX).

@@ -732,6 +732,7 @@
                     </div>
 
                     {{-- Step 2: Form --}}
+                    {{-- Step 2: Form --}}
                     <div id="stepForm" class="d-none">
                         <div
                             style="display:flex;gap:10px;padding:12px 14px;background:var(--dl-green-lt);border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1.25rem;">
@@ -745,18 +746,36 @@
                             method="POST" id="formVerifikasi">
                             @csrf
 
+                            {{-- EMAIL PREFIX + domain tetap --}}
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Email</label>
-                                <input type="email" name="email"
-                                    class="form-control @error('email') is-invalid @enderror"
-                                    value="{{ old('email', $dataLapangan->email) }}" placeholder="Masukkan email"
-                                    required>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div style="display:flex;align-items:center;gap:0;">
+                                    <input type="text" name="email_prefix" id="emailPrefixInput"
+                                        class="form-control @error('email_prefix') is-invalid @enderror"
+                                        style="border-radius:var(--dl-radius-sm) 0 0 var(--dl-radius-sm);border-right:none;"
+                                        value="{{ old('email_prefix', $dataLapangan->email ? explode('@', $dataLapangan->email)[0] : '') }}"
+                                        placeholder="namauser" required autocomplete="off">
+                                    <span
+                                        style="padding:8px 12px;background:#F1F5F9;border:1.5px solid var(--dl-border);border-left:none;border-radius:0 var(--dl-radius-sm) var(--dl-radius-sm) 0;font-size:13px;color:var(--dl-muted);white-space:nowrap;font-weight:600;">
+                                        @kawulohalal.id
+                                    </span>
+                                </div>
+                                @error('email_prefix')
+                                    <div style="font-size:12px;color:var(--dl-rose);margin-top:4px;">{{ $message }}</div>
                                 @enderror
+
+                                {{-- Status cek email --}}
+                                <div id="emailCheckStatus"
+                                    style="margin-top:6px;font-size:12px;display:none;padding:6px 10px;border-radius:6px;">
+                                </div>
+
+                                <button type="button" onclick="checkEmailExists()" class="dl-btn dl-btn-ghost dl-btn-sm"
+                                    style="margin-top:6px;">
+                                    <i class="las la-search"></i> Cek Ketersediaan Email
+                                </button>
                             </div>
 
-                            {{-- PASSWORD — tidak disimpan DB, hanya dikirim ke cPanel --}}
+                            {{-- PASSWORD — 1 field saja, tidak disimpan DB --}}
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Password Email</label>
                                 <div style="position:relative;">
@@ -775,18 +794,6 @@
                                     <i class="las la-info-circle"></i>
                                     Password hanya digunakan untuk membuat akun email. Tidak disimpan di database.
                                 </p>
-                            </div>
-
-                            {{-- Konfirmasi Password --}}
-                            <div style="margin-bottom:.85rem;">
-                                <label class="form-label">Konfirmasi Password</label>
-                                <input type="password" name="email_password_confirmation" id="emailPasswordConfirm"
-                                    class="form-control" placeholder="Ulangi password" required
-                                    autocomplete="new-password">
-                                <div id="passwordMatchWarn"
-                                    style="display:none;font-size:12px;color:var(--dl-rose);margin-top:4px;">
-                                    <i class="las la-times-circle"></i> Password tidak cocok
-                                </div>
                             </div>
 
                             <div style="margin-bottom:.85rem;">
@@ -820,14 +827,12 @@
                                 <button type="button" class="dl-btn dl-btn-ghost" onclick="backToChecklist()">
                                     <i class="las la-arrow-left"></i> Kembali
                                 </button>
-                                <button type="submit" class="dl-btn dl-btn-primary"
-                                    onclick="return checkPasswordMatch()">
+                                <button type="submit" class="dl-btn dl-btn-primary" id="btnSubmitEmail">
                                     <i class="las la-save"></i> Simpan & Buat Email
                                 </button>
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -2198,25 +2203,61 @@
             }
         }
 
-        // ── CEK PASSWORD MATCH sebelum submit ──
-        function checkPasswordMatch() {
-            const pass = document.getElementById('emailPasswordInput').value;
-            const confirm = document.getElementById('emailPasswordConfirm').value;
-            const warn = document.getElementById('passwordMatchWarn');
+        // ── CEK EMAIL VIA AJAX ──
+        function checkEmailExists() {
+            const prefix = document.getElementById('emailPrefixInput').value.trim();
+            const statusEl = document.getElementById('emailCheckStatus');
 
-            if (pass !== confirm) {
-                warn.style.display = 'block';
-                return false; // batalkan submit
+            if (!prefix) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#FFF1F2';
+                statusEl.style.border = '1px solid #FECDD3';
+                statusEl.style.color = 'var(--dl-rose)';
+                statusEl.innerHTML = '<i class="las la-times-circle"></i> Masukkan nama email terlebih dahulu.';
+                return;
             }
-            warn.style.display = 'none';
-            return true;
+
+            // Loading state
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#F1F5F9';
+            statusEl.style.border = '1px solid var(--dl-border)';
+            statusEl.style.color = 'var(--dl-muted)';
+            statusEl.innerHTML = '<i class="las la-spinner la-spin"></i> Mengecek ketersediaan email...';
+
+            fetch(`{{ route('superadmin.data-lapangans.check-email') }}?prefix=${encodeURIComponent(prefix)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.exists) {
+                        statusEl.style.background = '#FFF1F2';
+                        statusEl.style.border = '1px solid #FECDD3';
+                        statusEl.style.color = 'var(--dl-rose)';
+                        statusEl.innerHTML = '<i class="las la-times-circle"></i> Email <strong>' + prefix +
+                            '@kawulohalal.id</strong> sudah digunakan.';
+                    } else {
+                        statusEl.style.background = 'var(--dl-green-lt)';
+                        statusEl.style.border = '1px solid #A7F3D0';
+                        statusEl.style.color = 'var(--dl-green)';
+                        statusEl.innerHTML = '<i class="las la-check-circle"></i> Email <strong>' + prefix +
+                            '@kawulohalal.id</strong> tersedia.';
+                    }
+                })
+                .catch(() => {
+                    statusEl.style.background = '#FFF1F2';
+                    statusEl.style.border = '1px solid #FECDD3';
+                    statusEl.style.color = 'var(--dl-rose)';
+                    statusEl.innerHTML = '<i class="las la-exclamation-circle"></i> Gagal mengecek email. Coba lagi.';
+                });
         }
 
-        // Live check saat user mengetik konfirmasi
-        document.getElementById('emailPasswordConfirm')?.addEventListener('input', function() {
-            const pass = document.getElementById('emailPasswordInput').value;
-            const warn = document.getElementById('passwordMatchWarn');
-            warn.style.display = (this.value && this.value !== pass) ? 'block' : 'none';
+        // Reset status cek saat user mengetik ulang prefix
+        document.getElementById('emailPrefixInput')?.addEventListener('input', function() {
+            const statusEl = document.getElementById('emailCheckStatus');
+            statusEl.style.display = 'none';
         });
     </script>
 @endsection

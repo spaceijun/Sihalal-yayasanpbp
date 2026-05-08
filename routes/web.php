@@ -106,6 +106,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
+        Route::get('data-lapangans/check-email', [DataLapanganController::class, 'checkEmail'])->name('data-lapangans.check-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
         // Tagihan Data Entry
         Route::get('/penagihan', [DataEntryPenagihanController::class, 'index'])->name('penagihan.index');

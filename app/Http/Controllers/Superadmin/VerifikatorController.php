@@ -10,14 +10,18 @@ use App\Http\Requests\VerifikatorRequest;
 use App\Models\Cashflow;
 use App\Models\DataEntryProgress;
 use App\Models\VerifikatorPayment;
-use App\Traits\SendsWhatsAppNotification;
+use App\Services\Superadmin\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class VerifikatorController extends Controller
 {
-    use SendsWhatsAppNotification;
+    protected $notificationService;
+    public function __construct()
+    {
+        $this->notificationService = app()->make(NotificationService::class);
+    }
     /**
      * Menampilkan halaman verifikator.
      *
@@ -141,7 +145,7 @@ class VerifikatorController extends Controller
 
         // Notifikasi Wa
         if ($payment && $verifikator->telephone) {
-            $this->sendPembayaranVerifikatorNotification(
+            $this->notificationService->sendPembayaranVerifikatorNotification(
                 $verifikator->nama_lengkap,
                 $verifikator->telephone,
                 $payment->jumlah_data,
@@ -301,4 +305,3 @@ class VerifikatorController extends Controller
             ->with('success', 'Verifikator deleted successfully');
     }
 }
-

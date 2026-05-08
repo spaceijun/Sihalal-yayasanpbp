@@ -29,6 +29,7 @@ use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\PengumumanController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\ResepMakananController;
+use App\Http\Controllers\Superadmin\ServerInfoController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
 use App\Http\Controllers\Superadmin\TicketController;
@@ -76,7 +77,11 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
+        // Server Info
+        Route::get('/server-info', [ServerInfoController::class, 'index'])
+            ->name('server-info');
+        Route::get('/server-info/realtime', [ServerInfoController::class, 'realtime'])
+            ->name('server-info.realtime');
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);

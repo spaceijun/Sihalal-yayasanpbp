@@ -29,6 +29,7 @@
     <!-- CK Editor -->
     <!-- Di dalam head -->
     <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
 

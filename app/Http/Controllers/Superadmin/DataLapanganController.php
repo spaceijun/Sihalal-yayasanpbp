@@ -11,6 +11,7 @@ use App\Http\Requests\DataLapanganRequest;
 use App\Models\DataEntryProgress;
 use App\Models\Enumerator;
 use App\Models\Verifikator;
+use App\Services\CpanelEmailService;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -275,12 +276,37 @@ class DataLapanganController extends Controller
     public function updateEmail(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
-            'email'              => 'required|email|max:255',
-            'verifikator_id'     => 'nullable|exists:verifikators,id',
-            'tanggal_verifikasi' => 'nullable|date',
+            'email'                      => 'required|email|max:255',
+            'email_password'             => 'required|string|min:8|confirmed',
+            'verifikator_id'             => 'nullable|exists:verifikators,id',
+            'tanggal_verifikasi'         => 'nullable|date',
         ]);
 
         $dlObjEmail = DataLapangan::findByHashedIdOrFail($hashedId);
+
+        // Ambil prefix email (sebelum @)
+        $emailPrefix = explode('@', $request->email)[0];
+
+        // ── CPANEL: Buat email ──
+        try {
+            $cpanel = app(CpanelEmailService::class);
+
+            Log::info('Controller: cek emailExists untuk ' . $emailPrefix);
+
+            if (!$cpanel->emailExists($emailPrefix)) {
+                Log::info('Controller: email belum ada, mulai buat...');
+                $cpanel->createEmailAccount($emailPrefix, $request->email_password);
+            } else {
+                Log::info('Controller: email sudah ada, skip pembuatan');
+            }
+        } catch (\Exception $e) {
+            Log::error('Controller: Exception - ' . $e->getMessage());
+            return redirect()->back()
+                ->withErrors(['email' => 'Gagal membuat email di cPanel: ' . $e->getMessage()])
+                ->withInput();
+        }
+
+        // ── DB: Simpan hanya email (tanpa password) ──
         $this->dataLapanganService->updateEmail(
             $dlObjEmail->id,
             $request->email,
@@ -288,9 +314,8 @@ class DataLapanganController extends Controller
             $request->tanggal_verifikasi
         );
 
-        return redirect()->back()->with('success', 'Email berhasil diperbarui');
+        return redirect()->back()->with('success', 'Email berhasil dibuat dan data diperbarui.');
     }
-
     /**
      * Upload gambar secara sekuensial (AJAX).
      */

@@ -51,4 +51,8 @@ return [
         'domain'    => env('CPANEL_DOMAIN'),
     ],
 
+    'app' => [
+        'name' => env('APP_NAME', 'Laravel'),
+    ],
+
 ];

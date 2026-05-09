@@ -24,6 +24,7 @@ use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
 use App\Http\Controllers\Superadmin\DataEntryProgressController as SuperadminDataEntryProgressController;
 use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
+use App\Http\Controllers\Superadmin\DiagnosticController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
@@ -89,8 +90,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::post('emails/reset-password', [CpanelEmailController::class, 'resetPassword'])->name('emails.reset-password');
             Route::get('emails/debug',         [CpanelEmailController::class, 'debug'])->name('emails.debug');
         });
-        // Human Resources
-        Route::resource('koordinators', KoordinatorController::class);
+        // Diagnostic
+        Route::get('/diagnostic',       [DiagnosticController::class, 'index'])->name('diagnostic.index');
+        Route::post('/diagnostic/run',  [DiagnosticController::class, 'run'])->name('diagnostic.run');
+
+    // Human Resources
+    Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);
         Route::resource('enumerators', EnumeratorController::class);
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');

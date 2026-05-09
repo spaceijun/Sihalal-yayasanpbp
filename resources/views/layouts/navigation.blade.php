@@ -118,13 +118,19 @@
                 <li class="nav-item">
                     <a href="{{ url('superadmin/server-info') }}"
                         class="nav-link {{ $current_url == 'superadmin/server-info' ? 'active' : '' }}">
-                        <i data-feather="cpu"></i>Server Info
+                        <i data-feather="cpu"></i>Server Manage
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/cpanel/emails') }}"
                         class="nav-link {{ $current_url == 'superadmin/cpanel/emails' ? 'active' : '' }}">
-                        <i data-feather="mail"></i>Email Info
+                        <i data-feather="mail"></i>Email Manage
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/diagnostic') }}"
+                        class="nav-link {{ $current_url == 'superadmin/diagnostic' ? 'active' : '' }}">
+                        <i data-feather="alert-triangle"></i>Troubleshooting
                     </a>
                 </li>
                 <li class="nav-item">

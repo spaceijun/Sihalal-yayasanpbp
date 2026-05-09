@@ -19,6 +19,12 @@
                         <i data-feather="cpu"></i>Server Info
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/cpanel/emails') }}"
+                        class="nav-link {{ $current_url == 'superadmin/cpanel/emails' ? 'active' : '' }}">
+                        <i data-feather="mail"></i>Email Info
+                    </a>
+                </li>
                 <li class="menu-title"><span data-key="t-menu">Management</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/verifikators') }}"

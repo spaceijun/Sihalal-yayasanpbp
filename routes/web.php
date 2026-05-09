@@ -158,13 +158,15 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Resep Makanan 
         Route::resource('resep-makanans', ResepMakananController::class);
         // Pengumuman
-        Route::get('pengumumen', [PengumumanController::class, 'index'])->name('pengumumen.index');
-        Route::get('pengumumen/create', [PengumumanController::class, 'create'])->name('pengumumen.create');
-        Route::post('pengumumen', [PengumumanController::class, 'store'])->name('pengumumen.store');
-        Route::get('pengumumen/{hashedId}', [PengumumanController::class, 'show'])->name('pengumumen.show');
-        Route::get('pengumumen/{hashedId}/edit', [PengumumanController::class, 'edit'])->name('pengumumen.edit');
-        Route::put('pengumumen/{pengumuman}', [PengumumanController::class, 'update'])->name('pengumumen.update');
-        Route::delete('pengumumen/{id}', [PengumumanController::class, 'destroy'])->name('pengumumen.destroy');
+        Route::prefix('pengumumen')->name('pengumumen.')->group(function () {
+            Route::get('/', [PengumumanController::class, 'index'])->name('index');
+            Route::get('/create', [PengumumanController::class, 'create'])->name('create');
+            Route::post('/', [PengumumanController::class, 'store'])->name('store');
+            Route::get('/{hashedId}', [PengumumanController::class, 'show'])->name('show');
+            Route::get('/{hashedId}/edit', [PengumumanController::class, 'edit'])->name('edit');
+            Route::put('/{pengumuman}', [PengumumanController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PengumumanController::class, 'destroy'])->name('destroy');
+        });
         // Management Users 
         Route::resource('users', UserController::class);
         // Ticket
@@ -172,12 +174,17 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
 
         // settings
-        Route::get('/settings', [SettingwebsiteController::class, 'index'])->name('settings.index');
-        Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [SettingwebsiteController::class, 'index'])->name('index');
+            Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('update');
+            Route::put('/settings/env', [SettingwebsiteController::class, 'updateEnv'])->name('env.update');
+        });
         // Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+            Route::patch('/', [ProfileController::class, 'update'])->name('update');
+            Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+        });
         // App Version 
         Route::resource('app-versions', SuperadminAppVersionController::class);
     });

@@ -3,28 +3,18 @@
         <div id="two-column-menu"></div>
         @php
             $current_url = Request::path();
-            $role = Auth::user()->role; // Mengambil role user yang login
+            $role = Auth::user()->role;
         @endphp
         <ul class="navbar-nav" id="navbar-nav">
             @if ($role == 'superadmin')
-                {{-- Menu Khusus Super Admin --}}
+                {{-- Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ url('superadmin') }}" class="nav-link {{ $current_url == 'superadmin' ? 'active' : '' }}">
                         <i data-feather="home"></i>Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url('superadmin/server-info') }}"
-                        class="nav-link {{ $current_url == 'superadmin/server-info' ? 'active' : '' }}">
-                        <i data-feather="cpu"></i>Server Info
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('superadmin/cpanel/emails') }}"
-                        class="nav-link {{ $current_url == 'superadmin/cpanel/emails' ? 'active' : '' }}">
-                        <i data-feather="mail"></i>Email Info
-                    </a>
-                </li>
+
+                {{-- Management --}}
                 <li class="menu-title"><span data-key="t-menu">Management</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/verifikators') }}"
@@ -38,6 +28,8 @@
                         <i data-feather="user"></i>Koordinator
                     </a>
                 </li>
+
+                {{-- Data Entry --}}
                 <li class="menu-title"><span data-key="t-menu">Data Entry</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/data-entries') }}"
@@ -58,7 +50,7 @@
                     </a>
                 </li>
 
-
+                {{-- Human Resources --}}
                 <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/recruitments') }}"
@@ -66,7 +58,6 @@
                         <i data-feather="user-plus"></i>Recruitment
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url('superadmin/enumerators') }}"
                         class="nav-link {{ $current_url == 'superadmin/enumerators' ? 'active' : '' }}">
@@ -91,6 +82,8 @@
                         <i data-feather="send"></i>Tickets
                     </a>
                 </li>
+
+                {{-- Finance Management --}}
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/penagihan') }}"
@@ -111,12 +104,27 @@
                     </a>
                 </li>
 
-
-                <li class="menu-title"><span data-key="t-menu">Settings</span></li>
+                {{-- Master Data --}}
+                <li class="menu-title"><span data-key="t-menu">Master Data</span></li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/resep-makanans') }}"
                         class="nav-link {{ $current_url == 'superadmin/resep-makanans' ? 'active' : '' }}">
                         <i data-feather="file-text"></i>Resep Makanan
+                    </a>
+                </li>
+
+                {{-- Settings --}}
+                <li class="menu-title"><span data-key="t-menu">Settings</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/server-info') }}"
+                        class="nav-link {{ $current_url == 'superadmin/server-info' ? 'active' : '' }}">
+                        <i data-feather="cpu"></i>Server Info
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/cpanel/emails') }}"
+                        class="nav-link {{ $current_url == 'superadmin/cpanel/emails' ? 'active' : '' }}">
+                        <i data-feather="mail"></i>Email Info
                     </a>
                 </li>
                 <li class="nav-item">
@@ -144,16 +152,6 @@
             @elseif ($role == 'enumerator')
                 @include('layouts.navigation-enumerator')
             @endif
-
-            {{-- Menu yang tersedia untuk semua role --}}
-            {{-- <li class="menu-title"><span data-key="t-menu">Umum</span></li>
-          <li class="nav-item">
-              <a href="{{ url('help') }}"
-                  class="nav-link {{ $current_url == 'help' ? 'active' : '' }}">
-                  <i data-feather="help-circle"></i>Bantuan
-              </a>
-          </li> --}}
         </ul>
     </div>
-    <!-- Sidebar -->
 </div>

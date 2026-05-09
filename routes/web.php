@@ -82,9 +82,13 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/server-info', [ServerInfoController::class, 'index'])->name('server-info');
         Route::get('/server-info/realtime', [ServerInfoController::class, 'realtime'])->name('server-info.realtime');
         // Email Info
-        Route::get('/cpanel/emails',      [CpanelEmailController::class, 'index'])->name('cpanel.emails');
-        Route::get('/cpanel/emails/api',  [CpanelEmailController::class, 'apiEmails'])->name('cpanel.emails.api');
-
+        Route::prefix('cpanel')->name('cpanel.')->group(function () {
+            Route::get('emails',               [CpanelEmailController::class, 'index'])->name('emails.index');
+            Route::get('emails/api',           [CpanelEmailController::class, 'apiEmails'])->name('emails.api');
+            Route::post('emails/add',          [CpanelEmailController::class, 'addEmail'])->name('emails.add');
+            Route::post('emails/reset-password', [CpanelEmailController::class, 'resetPassword'])->name('emails.reset-password');
+            Route::get('emails/debug',         [CpanelEmailController::class, 'debug'])->name('emails.debug');
+        });
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);

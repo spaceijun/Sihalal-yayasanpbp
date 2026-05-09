@@ -6,6 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * CpanelEmailController
+ *
+ * Mengambil daftar email account dari cPanel via UAPI (Token-based auth).
+ * Kredensial dibaca dari .env:
+ *   CPANEL_HOST        = localhost  (atau IP/domain server)
+ *   CPANEL_USERNAME    = cpanel_username
+ *   CPANEL_API_TOKEN   = xxxx
+ *   CPANEL_DOMAIN      = yourdomain.com
+ */
 class CpanelEmailController extends Controller
 {
     private string $host;
@@ -109,9 +119,11 @@ class CpanelEmailController extends Controller
     private function uapiCall(string $module, string $function, array $params = []): array
     {
         // cPanel UAPI: port 2083 (SSL) atau 2082 (non-SSL)
-        $port     = 2083;
-        $scheme   = 'https';
-        $base     = "{$scheme}://{$this->host}:{$port}/execute/{$module}/{$function}";
+        $port = 2083;
+
+        // Strip scheme dari host jika sudah mengandung http:// atau https://
+        $host = preg_replace('#^https?://#', '', trim($this->host));
+        $base = "https://{$host}:{$port}/execute/{$module}/{$function}";
 
         $response = Http::withHeaders([
             'Authorization' => "cpanel {$this->username}:{$this->token}",

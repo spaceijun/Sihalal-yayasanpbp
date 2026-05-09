@@ -375,6 +375,72 @@
         </div>
     </div>
 
+
+    {{-- ─── STACK VERSIONS ─── --}}
+    <div class="section-label">Stack Versions</div>
+    <div class="row g-4 mb-4" id="stackVersionsRow">
+        {{-- Cards will be rendered by JS --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="stack-card" id="stack-php">
+                <div class="stack-icon-wrap" style="background:rgba(119,123,180,0.12)">
+                    <svg width="28" height="28" viewBox="0 0 50 50" fill="#777BB4">
+                        <path
+                            d="M25 3C12.85 3 3 13.3 3 26s9.85 23 22 23 22-10.3 22-23S37.15 3 25 3zm-4.4 30.3H18l.9-5h-3.5l-.9 5H12l2.4-13.6h2.5l-.9 5h3.5l.9-5h2.5L20.6 33.3zm9.6 0h-2.3l.2-1.2c-.7.9-1.6 1.4-2.8 1.4-1.9 0-3-1.4-2.5-4l.9-5.1h2.5l-.9 4.8c-.2 1.3.2 2 1.1 2s1.7-.7 2-2l.9-4.8h2.5l-1.6 8.9zm7.9-6.8h-1.6l-.9 5h-2.5l.9-5h-1l.4-2h1l.3-1.6c.4-2 1.6-2.9 3.5-2.9.5 0 1 .1 1.4.2l-.5 2.1c-.2-.1-.5-.1-.8-.1-.6 0-1 .3-1.1 1l-.2 1.3h1.6l-.5 2z" />
+                    </svg>
+                </div>
+                <div class="stack-label" id="stack-php-label">PHP</div>
+                <div class="stack-version" id="stack-php-version">
+                    <span class="sv-loading"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stack-card" id="stack-laravel">
+                <div class="stack-icon-wrap" style="background:rgba(255,45,32,0.1)">
+                    <svg width="28" height="28" viewBox="0 0 50 50" fill="#FF2D20">
+                        <path
+                            d="M49.626 11.564a.809.809 0 0 1 .028.209v10.972a.8.8 0 0 1-.402.694l-9.209 5.302-.032.018v10.509a.8.8 0 0 1-.402.694L20.42 49.811a.752.752 0 0 1-.119.048.688.688 0 0 1-.128.02.8.8 0 0 1-.2-.02.725.725 0 0 1-.118-.048L.402 39.963A.8.8 0 0 1 0 39.27V7.558a.809.809 0 0 1 .028-.209.786.786 0 0 1 .056-.16.769.769 0 0 1 .086-.134.8.8 0 0 1 .114-.115 1 1 0 0 1 .1-.06L9.572.101a.8.8 0 0 1 .8 0l9.188 5.298a.998.998 0 0 1 .1.06.8.8 0 0 1 .113.115.76.76 0 0 1 .087.134.786.786 0 0 1 .056.16.809.809 0 0 1 .028.209v20.7l8.008-4.614V11.772a.809.809 0 0 1 .028-.208.786.786 0 0 1 .056-.161.755.755 0 0 1 .087-.133.8.8 0 0 1 .114-.115 1 1 0 0 1 .1-.06l9.188-5.298a.8.8 0 0 1 .8 0l9.191 5.298a.999.999 0 0 1 .1.06.8.8 0 0 1 .114.115.755.755 0 0 1 .087.133.786.786 0 0 1 .056.161zm-1.591 10.753v-9.457l-3.364 1.936-4.645 2.677v9.457l8.009-4.613zm-9.61 16.533v-9.458l-4.571 2.625-13.059 7.483v9.535zm-36.84-31.15v31.011l17.618 10.157v-9.534l-9.208-5.229-.02-.013-.019-.015a.802.802 0 0 1-.114-.115.755.755 0 0 1-.087-.134.786.786 0 0 1-.056-.16.809.809 0 0 1-.028-.209V17.383l-4.643-2.677-3.443-1.976zm8.81-5.994L2.395 7.719l8.007 4.614 8.005-4.614-8.005-4.614zm4.164 28.764l4.645-2.678V7.719l-3.364 1.936-4.645 2.678v20.688l3.364-1.936zm24.667-23.325l-8.006 4.614 8.006 4.613 8.005-4.613-8.005-4.614zm-.801 10.605l-4.646-2.678-3.363-1.936v9.457l4.645 2.678 3.364 1.936v-9.457zm-18.011 3.269l13.058-7.512-6.53-3.764-13.056 7.512 6.528 3.764z" />
+                    </svg>
+                </div>
+                <div class="stack-label" id="stack-laravel-label">Laravel</div>
+                <div class="stack-version" id="stack-laravel-version">
+                    <span class="sv-loading"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stack-card" id="stack-mysql">
+                <div class="stack-icon-wrap" style="background:rgba(0,117,143,0.1)">
+                    <svg width="28" height="28" viewBox="0 0 50 50">
+                        <path fill="#00758F" d="M25 3C12.85 3 3 13.3 3 26s9.85 23 22 23 22-10.3 22-23S37.15 3 25 3z" />
+                        <path fill="#fff" d="M14 19h4v12h-4zm6 0h4v5l3-5h4.5l-3.5 5.5L32 31h-4.5l-3-5v5H18V19h2z" />
+                    </svg>
+                </div>
+                <div class="stack-label" id="stack-mysql-label">MySQL</div>
+                <div class="stack-version" id="stack-mysql-version">
+                    <span class="sv-loading"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stack-card" id="stack-server">
+                <div class="stack-icon-wrap" style="background:rgba(210,33,40,0.1)">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D22128"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" />
+                        <rect x="2" y="14" width="20" height="8" rx="2" />
+                        <line x1="6" y1="6" x2="6.01" y2="6" />
+                        <line x1="6" y1="18" x2="6.01" y2="18" />
+                    </svg>
+                </div>
+                <div class="stack-label" id="stack-server-label">Web Server</div>
+                <div class="stack-version" id="stack-server-version">
+                    <span class="sv-loading"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ─────────────────────── STYLES ─────────────────────── --}}
     <style>
         :root {
@@ -1016,6 +1082,80 @@
             font-weight: 800;
         }
 
+
+        /* ── STACK VERSION CARDS ─────────────────────────────────── */
+        .stack-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            transition: transform .25s, box-shadow .25s, border-color .25s;
+            height: 100%;
+        }
+
+        .stack-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-bright);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stack-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .stack-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stack-version {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sv-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: svSpin .8s linear infinite;
+        }
+
+        @keyframes svSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stack-version-badge {
+            display: inline-block;
+            padding: 2px 10px 3px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
         /* ── SCROLLBAR ─────────────────────── */
         ::-webkit-scrollbar {
             width: 4px;
@@ -1271,6 +1411,50 @@
                     txt('phpExec', php.max_exec ?? '—');
                     txt('phpUpload', php.upload_max ?? '—');
                     txt('phpExt', php.extensions ?? '—');
+
+
+                    // ─ Stack Versions
+                    const stack = d.stack ?? {};
+                    const stackMap = [{
+                            key: 'php',
+                            labelId: 'stack-php-label',
+                            verId: 'stack-php-version'
+                        },
+                        {
+                            key: 'laravel',
+                            labelId: 'stack-laravel-label',
+                            verId: 'stack-laravel-version'
+                        },
+                        {
+                            key: 'mysql',
+                            labelId: 'stack-mysql-label',
+                            verId: 'stack-mysql-version'
+                        },
+                        {
+                            key: 'server',
+                            labelId: 'stack-server-label',
+                            verId: 'stack-server-version'
+                        },
+                    ];
+                    stackMap.forEach(({
+                        key,
+                        labelId,
+                        verId
+                    }) => {
+                        const item = stack[key] ?? {};
+                        txt(labelId, item.label ?? key.toUpperCase());
+                        const verEl = document.getElementById(verId);
+                        if (verEl && item.version) {
+                            verEl.innerHTML =
+                                `<span class="stack-version-badge" style="background:${item.bg ?? 'transparent'};color:${item.color ?? 'inherit'}">${item.version}</span>`;
+                        }
+                        // Update icon wrap color
+                        const card = document.getElementById('stack-' + key);
+                        if (card && item.bg) {
+                            const iconWrap = card.querySelector('.stack-icon-wrap');
+                            if (iconWrap) iconWrap.style.background = item.bg;
+                        }
+                    });
 
                 } catch (err) {
                     console.warn('[ServerInfo] fetch error:', err);

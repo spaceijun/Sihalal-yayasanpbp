@@ -5,30 +5,27 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * ServerInfoController
+ *
+ *     Semua data dibaca langsung dari /proc/* via file_get_contents()
+ *     agar kompatibel dengan shared hosting yang menonaktifkan shell functions.
+ */
 class ServerInfoController extends Controller
 {
-    /**
-     * Tampilkan halaman Server Info.
-     */
     public function index()
     {
         return view('superadmin.home.server-info');
     }
 
-    /**
-     * API endpoint: kembalikan data real-time server (JSON).
-     * Dipanggil oleh JavaScript setiap beberapa detik.
-     */
     public function realtime(Request $request)
     {
         return response()->json($this->collectMetrics());
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // Private helpers
-    // ──────────────────────────────────────────────────────────────────
-
     private function collectMetrics(): array
     {
         return [
@@ -40,7 +37,8 @@ class ServerInfoController extends Controller
             'server'    => $this->serverInfo(),
             'php'       => $this->phpInfo(),
             'network'   => $this->networkInfo(),
-            'timestamp' => now()->format('H:i:s'),
+            'stack'     => $this->stackVersions(),
+            'timestamp' => \now()->format('H:i:s'),
         ];
     }
 
@@ -48,136 +46,140 @@ class ServerInfoController extends Controller
 
     private function cpuUsage(): array
     {
-        $cores    = (int) shell_exec('nproc 2>/dev/null') ?: 1;
-        $percent  = $this->getCpuPercent();
-        $model    = trim(shell_exec("cat /proc/cpuinfo 2>/dev/null | grep 'model name' | head -1 | cut -d: -f2") ?: 'Unknown CPU');
-        $freq     = $this->getCpuFrequency();
-        $temp     = $this->getCpuTemp();
-
         return [
-            'percent' => $percent,
-            'cores'   => $cores,
-            'model'   => $model,
-            'freq'    => $freq,
-            'temp'    => $temp,
+            'percent'  => $this->getCpuPercent(),
+            'cores'    => $this->getCpuCores(),
+            'model'    => $this->getCpuModel(),
+            'freq'     => $this->getCpuFrequency(),
+            'temp'     => $this->getCpuTemp(),
             'per_core' => $this->getPerCoreCpu(),
         ];
     }
 
     private function getCpuPercent(): float
     {
-        // Ambil dua snapshot /proc/stat dengan jeda singkat
-        $stat1 = $this->readCpuStat();
-        usleep(200000); // 200ms
-        $stat2 = $this->readCpuStat();
+        $s1 = $this->readCpuStat('cpu');
+        \usleep(200000);
+        $s2 = $this->readCpuStat('cpu');
 
-        if (!$stat1 || !$stat2) {
-            // Fallback: top
-            $top = shell_exec("top -bn1 2>/dev/null | grep 'Cpu(s)' | awk '{print $2+$4}'");
-            return $top ? round((float)$top, 1) : 0.0;
-        }
+        if (!$s1 || !$s2) return 0.0;
 
-        $diff = [];
-        foreach ($stat1 as $k => $v) {
-            $diff[$k] = ($stat2[$k] ?? 0) - $v;
-        }
+        $total = \array_sum($s2) - \array_sum($s1);
+        $idle  = ($s2[3] - $s1[3]) + ($s2[4] - $s1[4]);
 
-        $total = array_sum($diff);
-        $idle  = $diff['idle'] + ($diff['iowait'] ?? 0);
-
-        return $total > 0 ? round((1 - $idle / $total) * 100, 1) : 0.0;
+        return $total > 0 ? \round((1 - $idle / $total) * 100, 1) : 0.0;
     }
 
-    private function readCpuStat(): ?array
+    private function readCpuStat(string $key): ?array
     {
-        $line = @file('/proc/stat')[0] ?? null;
-        if (!$line || !str_starts_with($line, 'cpu ')) return null;
+        $content = @\file_get_contents('/proc/stat');
+        if (!$content) return null;
 
-        $parts = preg_split('/\s+/', trim($line));
-        $keys  = ['_', 'user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal'];
-        $out   = [];
-        foreach ($keys as $i => $k) {
-            if ($k !== '_') $out[$k] = (int)($parts[$i] ?? 0);
+        foreach (\explode("\n", $content) as $line) {
+            if (\str_starts_with($line, $key . ' ')) {
+                $parts = \preg_split('/\s+/', \trim($line));
+                \array_shift($parts);
+                return \array_map('intval', $parts);
+            }
         }
-        return $out;
+        return null;
+    }
+
+    private function getCpuCores(): int
+    {
+        $content = @\file_get_contents('/proc/cpuinfo');
+        if (!$content) return 1;
+        return \substr_count($content, "processor\t:");
+    }
+
+    private function getCpuModel(): string
+    {
+        $content = @\file_get_contents('/proc/cpuinfo');
+        if ($content && \preg_match('/model name\s*:\s*(.+)/i', $content, $m)) {
+            return \trim($m[1]);
+        }
+        return 'Unknown CPU';
     }
 
     private function getCpuFrequency(): string
     {
-        $freq = shell_exec("cat /proc/cpuinfo 2>/dev/null | grep 'cpu MHz' | head -1 | awk '{print $4}'");
-        if ($freq) {
-            $mhz = round((float)$freq);
-            return $mhz >= 1000 ? round($mhz / 1000, 2) . ' GHz' : $mhz . ' MHz';
+        $content = @\file_get_contents('/proc/cpuinfo');
+        if ($content && \preg_match('/cpu MHz\s*:\s*([\d.]+)/i', $content, $m)) {
+            $mhz = \round((float)$m[1]);
+            return $mhz >= 1000 ? \round($mhz / 1000, 2) . ' GHz' : $mhz . ' MHz';
         }
         return 'N/A';
     }
 
     private function getCpuTemp(): ?float
     {
-        // lm-sensors atau thermal_zone
-        $temp = shell_exec("cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null");
-        if ($temp) return round((int)$temp / 1000, 1);
-
-        $sensors = shell_exec("sensors 2>/dev/null | grep 'Core 0' | awk '{print $3}' | tr -d '+°C'");
-        return $sensors ? round((float)$sensors, 1) : null;
+        $raw = @\file_get_contents('/sys/class/thermal/thermal_zone0/temp');
+        if ($raw !== false && \is_numeric(\trim($raw))) {
+            return \round((int)\trim($raw) / 1000, 1);
+        }
+        return null;
     }
 
     private function getPerCoreCpu(): array
     {
-        $lines = file('/proc/stat') ?: [];
-        $cores = [];
-        $prev  = Cache::get('cpu_stat_cores', []);
-        $curr  = [];
+        $content = @\file_get_contents('/proc/stat');
+        if (!$content) return [];
 
-        foreach ($lines as $line) {
-            if (preg_match('/^cpu(\d+)\s+(.+)/', $line, $m)) {
-                $id    = (int)$m[1];
-                $parts = array_map('intval', preg_split('/\s+/', trim($m[2])));
-                $curr[$id] = $parts;
+        $prev = Cache::get('cpu_stat_cores', []);
+        $curr = [];
+
+        foreach (\explode("\n", $content) as $line) {
+            if (\preg_match('/^cpu(\d+)\s+(.+)/', $line, $m)) {
+                $id        = (int)$m[1];
+                $curr[$id] = \array_map('intval', \preg_split('/\s+/', \trim($m[2])));
             }
         }
 
         Cache::put('cpu_stat_cores', $curr, 5);
 
+        $result = [];
         foreach ($curr as $id => $parts) {
-            $p = $prev[$id] ?? array_fill(0, count($parts), 0);
-            $dtotal = array_sum($parts) - array_sum($p);
+            $p      = $prev[$id] ?? \array_fill(0, \count($parts), 0);
+            $dtotal = \array_sum($parts) - \array_sum($p);
             $didle  = ($parts[3] - ($p[3] ?? 0)) + ($parts[4] - ($p[4] ?? 0));
-            $cores[$id] = $dtotal > 0 ? round((1 - $didle / $dtotal) * 100, 1) : 0.0;
+            $result[$id] = $dtotal > 0 ? \round((1 - $didle / $dtotal) * 100, 1) : 0.0;
         }
 
-        return $cores;
+        return $result;
     }
 
     // ── MEMORY ──────────────────────────────────────────────────────
 
     private function memoryInfo(): array
     {
+        $raw  = @\file_get_contents('/proc/meminfo');
         $data = [];
-        $lines = file('/proc/meminfo') ?: [];
-        foreach ($lines as $line) {
-            if (preg_match('/^(\w+):\s+(\d+)/', $line, $m)) {
-                $data[$m[1]] = (int)$m[2]; // kB
+
+        if ($raw) {
+            foreach (\explode("\n", $raw) as $line) {
+                if (\preg_match('/^(\w+):\s+(\d+)/', $line, $m)) {
+                    $data[$m[1]] = (int)$m[2];
+                }
             }
         }
 
         $total     = $data['MemTotal']     ?? 0;
-        $available = $data['MemAvailable'] ?? 0;
+        $available = $data['MemAvailable'] ?? ($data['MemFree'] ?? 0);
         $used      = $total - $available;
         $cached    = ($data['Cached'] ?? 0) + ($data['Buffers'] ?? 0);
-        $swap_total = $data['SwapTotal'] ?? 0;
-        $swap_free  = $data['SwapFree']  ?? 0;
-        $swap_used  = $swap_total - $swap_free;
+        $swapTotal = $data['SwapTotal'] ?? 0;
+        $swapFree  = $data['SwapFree']  ?? 0;
+        $swapUsed  = $swapTotal - $swapFree;
 
         return [
             'total'      => $this->bytesToHuman($total * 1024),
             'used'       => $this->bytesToHuman($used * 1024),
             'available'  => $this->bytesToHuman($available * 1024),
             'cached'     => $this->bytesToHuman($cached * 1024),
-            'percent'    => $total > 0 ? round($used / $total * 100, 1) : 0,
-            'swap_total' => $this->bytesToHuman($swap_total * 1024),
-            'swap_used'  => $this->bytesToHuman($swap_used * 1024),
-            'swap_pct'   => $swap_total > 0 ? round($swap_used / $swap_total * 100, 1) : 0,
+            'percent'    => $total > 0 ? \round($used / $total * 100, 1) : 0,
+            'swap_total' => $this->bytesToHuman($swapTotal * 1024),
+            'swap_used'  => $this->bytesToHuman($swapUsed * 1024),
+            'swap_pct'   => $swapTotal > 0 ? \round($swapUsed / $swapTotal * 100, 1) : 0,
         ];
     }
 
@@ -185,15 +187,15 @@ class ServerInfoController extends Controller
 
     private function diskInfo(): array
     {
-        $total = disk_total_space('/');
-        $free  = disk_free_space('/');
+        $total = (int)@\disk_total_space('/');
+        $free  = (int)@\disk_free_space('/');
         $used  = $total - $free;
 
         return [
             'total'   => $this->bytesToHuman($total),
             'used'    => $this->bytesToHuman($used),
             'free'    => $this->bytesToHuman($free),
-            'percent' => $total > 0 ? round($used / $total * 100, 1) : 0,
+            'percent' => $total > 0 ? \round($used / $total * 100, 1) : 0,
         ];
     }
 
@@ -201,11 +203,11 @@ class ServerInfoController extends Controller
 
     private function systemLoad(): array
     {
-        $load = sys_getloadavg() ?: [0, 0, 0];
+        $load = @\sys_getloadavg() ?: [0, 0, 0];
         return [
-            '1'  => round($load[0], 2),
-            '5'  => round($load[1], 2),
-            '15' => round($load[2], 2),
+            '1'  => \round($load[0], 2),
+            '5'  => \round($load[1], 2),
+            '15' => \round($load[2], 2),
         ];
     }
 
@@ -213,10 +215,12 @@ class ServerInfoController extends Controller
 
     private function uptime(): string
     {
-        $seconds = (int)(file_get_contents('/proc/uptime') ?: '0');
-        $d = intdiv($seconds, 86400);
-        $h = intdiv($seconds % 86400, 3600);
-        $m = intdiv($seconds % 3600, 60);
+        $raw     = @\file_get_contents('/proc/uptime');
+        $seconds = $raw ? (int)\explode(' ', \trim($raw))[0] : 0;
+
+        $d = \intdiv($seconds, 86400);
+        $h = \intdiv($seconds % 86400, 3600);
+        $m = \intdiv($seconds % 3600, 60);
         $s = $seconds % 60;
 
         $parts = [];
@@ -225,23 +229,22 @@ class ServerInfoController extends Controller
         if ($m > 0) $parts[] = "{$m}m";
         $parts[] = "{$s}s";
 
-        return implode(' ', $parts);
+        return \implode(' ', $parts);
     }
 
     // ── SERVER INFO ─────────────────────────────────────────────────
 
     private function serverInfo(): array
     {
-        $os   = php_uname('s') . ' ' . php_uname('r');
-        $host = gethostname() ?: config('CPANEL_DOMAIN', 'localhost');
+        $host = @\gethostname() ?: 'localhost';
 
         return [
-            'os'       => $os,
+            'os'       => \php_uname('s') . ' ' . \php_uname('r'),
             'hostname' => $host,
-            'domain'   => env('CPANEL_DOMAIN', $host),
-            'kernel'   => php_uname('r'),
-            'arch'     => php_uname('m'),
-            'ip'       => $_SERVER['SERVER_ADDR'] ?? gethostbyname($host),
+            'domain'   => \env('CPANEL_DOMAIN', $host),
+            'kernel'   => \php_uname('r'),
+            'arch'     => \php_uname('m'),
+            'ip'       => $_SERVER['SERVER_ADDR'] ?? @\gethostbyname($host) ?? 'N/A',
             'web'      => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
         ];
     }
@@ -252,12 +255,12 @@ class ServerInfoController extends Controller
     {
         return [
             'version'      => PHP_VERSION,
-            'memory_limit' => ini_get('memory_limit'),
-            'max_exec'     => ini_get('max_execution_time') . 's',
-            'upload_max'   => ini_get('upload_max_filesize'),
-            'extensions'   => count(get_loaded_extensions()),
+            'memory_limit' => \ini_get('memory_limit'),
+            'max_exec'     => \ini_get('max_execution_time') . 's',
+            'upload_max'   => \ini_get('upload_max_filesize'),
+            'extensions'   => \count(\get_loaded_extensions()),
             'sapi'         => PHP_SAPI,
-            'zend'         => zend_version(),
+            'zend'         => \zend_version(),
         ];
     }
 
@@ -265,17 +268,132 @@ class ServerInfoController extends Controller
 
     private function networkInfo(): array
     {
-        $rx = $tx = 0;
-        $lines = file('/proc/net/dev') ?: [];
-        foreach ($lines as $line) {
-            if (preg_match('/^\s*(eth\d|ens\d+|enp\d|eno\d|wlan\d):\s+(\d+)(?:\s+\d+){7}\s+(\d+)/', $line, $m)) {
-                $rx += (int)$m[2];
-                $tx += (int)$m[3];
+        $rx  = $tx = 0;
+        $raw = @\file_get_contents('/proc/net/dev');
+
+        if ($raw) {
+            foreach (\explode("\n", $raw) as $line) {
+                if (\preg_match(
+                    '/^\s*(eth\d+|ens\d+|enp\d+\w*|eno\d+|wlan\d+|venet\d+):\s+(\d+)(?:\s+\d+){7}\s+(\d+)/',
+                    $line,
+                    $m
+                )) {
+                    $rx += (int)$m[2];
+                    $tx += (int)$m[3];
+                }
             }
         }
+
         return [
             'rx' => $this->bytesToHuman($rx),
             'tx' => $this->bytesToHuman($tx),
+        ];
+    }
+
+
+    // ── STACK VERSIONS ──────────────────────────────────────────────
+
+    private function stackVersions(): array
+    {
+        return [
+            'php'     => $this->versionPhp(),
+            'laravel' => $this->versionLaravel(),
+            'mysql'   => $this->versionMysql(),
+            'server'  => $this->versionWebServer(),
+        ];
+    }
+
+    private function versionPhp(): array
+    {
+        return [
+            'label'   => 'PHP',
+            'version' => PHP_VERSION,
+            'icon'    => 'php',
+            'color'   => '#777BB4',
+            'bg'      => 'rgba(119,123,180,0.1)',
+        ];
+    }
+
+    private function versionLaravel(): array
+    {
+        $version = 'N/A';
+        try {
+            $lockPath = \base_path('composer.lock');
+            if (\file_exists($lockPath)) {
+                $lock = \json_decode(\file_get_contents($lockPath), true);
+                foreach ($lock['packages'] ?? [] as $pkg) {
+                    if ($pkg['name'] === 'laravel/framework') {
+                        $version = \ltrim($pkg['version'], 'v');
+                        break;
+                    }
+                }
+            }
+            if ($version === 'N/A') {
+                $version = \Illuminate\Foundation\Application::VERSION;
+            }
+        } catch (\Throwable $e) {
+            $version = 'N/A';
+        }
+        return [
+            'label'   => 'Laravel',
+            'version' => $version,
+            'icon'    => 'laravel',
+            'color'   => '#FF2D20',
+            'bg'      => 'rgba(255,45,32,0.1)',
+        ];
+    }
+
+    private function versionMysql(): array
+    {
+        $version = 'N/A';
+        $label   = 'MySQL';
+        try {
+            $result  = DB::selectOne('SELECT VERSION() as v');
+            $version = $result->v ?? 'N/A';
+            $label   = \str_contains(\strtolower($version), 'mariadb') ? 'MariaDB' : 'MySQL';
+        } catch (\Throwable $e) {
+            $version = 'N/A';
+        }
+        return [
+            'label'   => $label,
+            'version' => $version,
+            'icon'    => 'mysql',
+            'color'   => '#00758F',
+            'bg'      => 'rgba(0,117,143,0.1)',
+        ];
+    }
+
+    private function versionWebServer(): array
+    {
+        $software = $_SERVER['SERVER_SOFTWARE'] ?? '';
+        $label = 'Web Server';
+        $color = '#E44D26';
+        $bg = 'rgba(228,77,38,0.1)';
+        $icon = 'server';
+        if (\str_contains(\strtolower($software), 'apache')) {
+            $label = 'Apache';
+            $color = '#D22128';
+            $bg = 'rgba(210,33,40,0.1)';
+            $icon = 'apache';
+        } elseif (\str_contains(\strtolower($software), 'nginx')) {
+            $label = 'Nginx';
+            $color = '#009900';
+            $bg = 'rgba(0,153,0,0.1)';
+            $icon = 'nginx';
+        } elseif (\str_contains(\strtolower($software), 'litespeed')) {
+            $label = 'LiteSpeed';
+            $color = '#0095D9';
+            $bg = 'rgba(0,149,217,0.1)';
+            $icon = 'server';
+        }
+        $version = 'N/A';
+        if (\preg_match('/[\\w]+\/([\\d.]+)/i', $software, $m)) $version = $m[1];
+        return [
+            'label'   => $label,
+            'version' => $version ?: ($software ?: 'N/A'),
+            'icon'    => $icon,
+            'color'   => $color,
+            'bg'      => $bg,
         ];
     }
 
@@ -285,7 +403,8 @@ class ServerInfoController extends Controller
     {
         if ($bytes <= 0) return '0 B';
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $i = floor(log($bytes, 1024));
-        return round($bytes / (1024 ** $i), 2) . ' ' . ($units[$i] ?? 'TB');
+        $i     = (int)\floor(\log($bytes, 1024));
+        $i     = \min($i, \count($units) - 1);
+        return \round($bytes / (1024 ** $i), 2) . ' ' . $units[$i];
     }
 }

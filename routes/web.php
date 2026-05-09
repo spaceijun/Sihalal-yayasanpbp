@@ -17,6 +17,7 @@ use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruit
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
+use App\Http\Controllers\Superadmin\CpanelEmailController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
@@ -78,10 +79,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         // Server Info
-        Route::get('/server-info', [ServerInfoController::class, 'index'])
-            ->name('server-info');
-        Route::get('/server-info/realtime', [ServerInfoController::class, 'realtime'])
-            ->name('server-info.realtime');
+        Route::get('/server-info', [ServerInfoController::class, 'index'])->name('server-info');
+        Route::get('/server-info/realtime', [ServerInfoController::class, 'realtime'])->name('server-info.realtime');
+        // Email Info
+        Route::get('/cpanel/emails',      [CpanelEmailController::class, 'index'])->name('cpanel.emails');
+        Route::get('/cpanel/emails/api',  [CpanelEmailController::class, 'apiEmails'])->name('cpanel.emails.api');
+
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);

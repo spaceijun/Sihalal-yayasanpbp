@@ -1,9 +1,7 @@
 @extends('layouts.app')
-
 @section('template_title')
     {{ $dataLapangan->nama_pu ?? __('Show') . ' ' . __('Data Lapangan') }}
 @endsection
-
 @section('content')
     @php
         $statusBadgeMap = [
@@ -17,7 +15,6 @@
         ];
         $statusBadge = $statusBadgeMap[$dataLapangan->status] ?? 'dl-badge-ditolak';
         $hasPendingProgress = $latestProgress?->status === 'PENDING';
-
         $allProducts = [];
         $productFields = [
             1 => ['nama' => $dataLapangan->nama_produk, 'foto' => $dataLapangan->foto_produk],
@@ -31,16 +28,13 @@
                 $allProducts[$idx] = $p;
             }
         }
-
         $steps = ['PENDING', 'TERVERIFIKASI', 'PROGRESS OSS', 'PROGRESS SIHALAL', 'TERBIT SH'];
         $currentIdx = array_search($dataLapangan->status, $steps);
         if ($currentIdx === false) {
             $currentIdx = -1;
         }
     @endphp
-
     <div class="dl-page" data-lock-id="{{ $dataLapangan->id }}">
-
         {{-- ── ALERTS ── --}}
         @if (session('success'))
             <div class="dl-alert dl-alert-success">
@@ -70,7 +64,6 @@
                 </ul>
             </div>
         @endif
-
         {{-- ── HEADER ── --}}
         <div class="dl-header">
             <div>
@@ -85,13 +78,11 @@
                 <span class="dl-badge {{ $statusBadge }}">
                     <span class="dl-badge-dot"></span>{{ $dataLapangan->status }}
                 </span>
-
                 @php
                     $isPendingStatusUpdate =
                         $latestProgress?->status === 'PENDING' &&
                         ($latestProgress?->new_data['file_type'] ?? null) === 'status_update';
                 @endphp
-
                 @if ($dataLapangan->status == 'PROGRESS OSS' || $dataLapangan->status == 'DITOLAK')
                     @if (!$hasPendingProgress && !$dataLapangan->email_sihalal && !$isPendingStatusUpdate)
                         <button type="button" class="dl-btn dl-btn-success" data-bs-toggle="modal"
@@ -104,13 +95,11 @@
                         </span>
                     @endif
                 @endif
-
                 <a href="{{ route('data-entry.data-lapangan.index') }}" class="dl-back">
                     <i class="las la-arrow-left"></i> Kembali
                 </a>
             </div>
         </div>
-
         {{-- ── STEPPER ── --}}
         <div class="dl-stepper">
             <div class="dl-stepper-inner">
@@ -129,13 +118,10 @@
                 @endforeach
             </div>
         </div>
-
         {{-- ── MAIN GRID ── --}}
         <div class="dl-grid">
-
             {{-- ══ KOLOM KIRI — Info + File ══ --}}
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
                 {{-- Card: Informasi Pelaku Usaha --}}
                 <div class="dl-card">
                     <div class="dl-card-head">
@@ -184,7 +170,6 @@
                         </table>
                     </div>
                 </div>
-
                 {{-- Card: Dokumentasi File --}}
                 <div class="dl-card">
                     <div class="dl-card-head">
@@ -200,7 +185,6 @@
                             <span class="dl-divider-label">File OSS / NIB</span>
                             <div class="dl-divider-line"></div>
                         </div>
-
                         @if ($dataLapangan->file_oss)
                             <div class="dl-file-row available" style="margin-bottom:10px;">
                                 <div class="dl-file-icon">PDF</div>
@@ -216,7 +200,6 @@
                                 <div class="dl-file-label">File OSS belum tersedia</div>
                             </div>
                         @endif
-
                         @if ($entryType === 'OSS' && !$dataLapangan->file_oss)
                             <form action="{{ route('data-entry.data-lapangan.upload-file', $dataLapangan->hashed_id) }}"
                                 method="POST" enctype="multipart/form-data">
@@ -233,12 +216,9 @@
                         @endif
                     </div>
                 </div>
-
             </div>
-
             {{-- ══ KOLOM KANAN — Produk + Foto ══ --}}
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
                 {{-- Card: Produk Terdaftar --}}
                 <div class="dl-card">
                     <div class="dl-card-head">
@@ -273,21 +253,11 @@
                                         <div class="dl-produk-card-body">
                                             <div class="dl-produk-num">Produk {{ $idx }}</div>
                                             <div class="dl-produk-name">{{ $prod['nama'] }}</div>
-                                            {{-- Tombol Analisis Halal untuk SEMUA produk yang punya foto --}}
-                                            @if (!empty($prod['foto']))
-                                                <button type="button"
-                                                    class="dl-btn dl-btn-amber dl-btn-sm dl-btn-analisis"
-                                                    style="margin-top:8px;width:100%;justify-content:center;"
-                                                    onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
-                                                    <i class="las la-search"></i> Analisis Halal
-                                                </button>
-                                            @else
-                                                <button type="button" class="dl-btn dl-btn-ghost dl-btn-sm"
-                                                    style="margin-top:8px;width:100%;justify-content:center;opacity:.5;cursor:not-allowed;"
-                                                    disabled>
-                                                    <i class="las la-image"></i> Foto belum ada
-                                                </button>
-                                            @endif
+                                            <button type="button" class="dl-btn dl-btn-amber dl-btn-sm dl-btn-analisis"
+                                                style="margin-top:8px;width:100%;justify-content:center;"
+                                                onclick="openPanduanHalal('{{ asset('storage/' . ($prod['foto'] ?? '')) }}', '{{ addslashes($prod['nama']) }}')">
+                                                <i class="las la-book-open"></i> Panduan Halal
+                                            </button>
                                         </div>
                                     </div>
                                 @endforeach
@@ -300,7 +270,6 @@
                         @endif
                     </div>
                 </div>
-
                 {{-- Card: Dokumentasi Foto --}}
                 <div class="dl-card">
                     <div class="dl-card-head">
@@ -317,9 +286,7 @@
                             </button>
                         @endif
                     </div>
-
                     @if ($entryType == 'OSS')
-                        {{-- Foto Rumah --}}
                         <div class="dl-photo-row">
                             <div class="dl-photo-label">
                                 <div class="dl-photo-thumb-placeholder"><i class="las la-home"></i></div>
@@ -336,7 +303,6 @@
                                 </a>
                             </div>
                         </div>
-                        {{-- Foto KTP --}}
                         <div class="dl-photo-row">
                             <div class="dl-photo-label">
                                 <div class="dl-photo-thumb-placeholder"><i class="las la-id-card"></i></div>
@@ -354,7 +320,6 @@
                             </div>
                         </div>
                     @elseif ($entryType == 'SIHALAL')
-                        {{-- Foto KTP --}}
                         <div class="dl-photo-row">
                             <div class="dl-photo-label">
                                 @if (!empty($dataLapangan->foto_ktp))
@@ -376,8 +341,6 @@
                                 </a>
                             </div>
                         </div>
-
-                        {{-- Foto semua Produk dengan tombol Analisis Halal --}}
                         @foreach ($allProducts as $idx => $prod)
                             @if (!empty($prod['foto']))
                                 <div class="dl-photo-row">
@@ -397,10 +360,9 @@
                                             class="dl-btn dl-btn-success dl-btn-sm">
                                             <i class="las la-download"></i> Download
                                         </a>
-                                        {{-- Analisis Halal untuk SEMUA produk --}}
                                         <button type="button" class="dl-btn dl-btn-amber dl-btn-sm"
-                                            onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
-                                            <i class="las la-search"></i> Analisis Halal
+                                            onclick="openPanduanHalal('{{ asset('storage/' . $prod['foto']) }}', '{{ addslashes($prod['nama']) }}')">
+                                            <i class="las la-book-open"></i> Panduan Halal
                                         </button>
                                     </div>
                                 </div>
@@ -408,16 +370,13 @@
                         @endforeach
                     @endif
                 </div>
-
             </div>
         </div>
     </div>
-
     {{-- ══════════════════════════════════════ --}}
     {{-- INCLUDE MODAL STATUS                  --}}
     {{-- ══════════════════════════════════════ --}}
     @include('data-entry.data-lapangan.partials.status-modal')
-
     {{-- ══════════════════════════════════════ --}}
     {{-- MODAL PERATURAN                       --}}
     {{-- ══════════════════════════════════════ --}}
@@ -501,7 +460,6 @@
             </div>
         </div>
     </div>
-
     {{-- ══════════════════════════════════════ --}}
     {{-- MODAL KOLASE FOTO (SIHALAL only)      --}}
     {{-- ══════════════════════════════════════ --}}
@@ -551,7 +509,6 @@
             </div>
         </div>
     </div>
-
     {{-- ══════════════════════════════════════ --}}
     {{-- MODAL FULL IMAGE                      --}}
     {{-- ══════════════════════════════════════ --}}
@@ -574,7 +531,6 @@
             </div>
         </div>
     </div>
-
     {{-- Modals Foto Individual --}}
     @foreach ([['id' => 'modalFotoKTP', 'title' => 'Foto KTP', 'src' => asset('storage/' . $dataLapangan->foto_ktp)], ['id' => 'modalFotoRumah', 'title' => 'Foto Rumah', 'src' => asset('storage/' . $dataLapangan->foto_rumah)], ['id' => 'modalFotoPendamping', 'title' => 'Foto Pendamping', 'src' => asset('storage/' . $dataLapangan->foto_pendamping)], ['id' => 'modalFotoProduk', 'title' => 'Foto Produk', 'src' => asset('storage/' . $dataLapangan->foto_produk)]] as $modal)
         <div class="modal fade dl-modal" id="{{ $modal['id'] }}" tabindex="-1" aria-hidden="true">
@@ -596,185 +552,159 @@
         </div>
     @endforeach
 
-    {{-- ══════════════════════════════════════ --}}
-    {{-- MODAL ANALISIS HALAL — CLAUDE API     --}}
-    {{-- ══════════════════════════════════════ --}}
-    <div class="modal fade dl-modal" id="modalAnalisisHalal" tabindex="-1" aria-hidden="true">
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- MODAL PANDUAN PROSES HALAL                                            --}}
+    {{-- REVISI:                                                               --}}
+    {{--   1. Spinner tidak lagi tampil saat hasil sudah muncul               --}}
+    {{--   2. Tombol "Salin Langkah" di card Langkah-Langkah Proses           --}}
+    {{--   3. Modal tidak bisa ditutup kecuali tombol X / Close               --}}
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    <div class="modal fade dl-modal" id="modalAnalisisHalal" tabindex="-1" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="las la-microscope" style="color:var(--dl-green);"></i>
-                        Analisis Bahan &amp; Proses Halal
+                        <i class="las la-book-open" style="color:var(--dl-green);"></i>
+                        Panduan Bahan &amp; Proses Halal
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    {{-- [REVISI 3] btn-close hanya tampil saat tidak loading --}}
+                    <button type="button" class="btn-close" id="btnClosePanduan" data-bs-dismiss="modal"
+                        style="display:none;"></button>
                 </div>
                 <div class="modal-body p-0">
-
                     {{-- Image Preview Strip --}}
                     <div id="analisisImageStrip"
                         style="background:#F8FAFC;border-bottom:1px solid var(--dl-border);padding:14px 20px;display:flex;align-items:center;gap:14px;">
                         <img id="analisisPreviewImg" src="" alt=""
-                            style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1.5px solid var(--dl-border);flex-shrink:0;">
+                            style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1.5px solid var(--dl-border);flex-shrink:0;">
                         <div>
                             <div id="analisisProductName"
                                 style="font-family:'Sora',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">
                             </div>
-                            <div style="font-size:12px;color:var(--dl-muted);">Analisis menggunakan Claude Vision AI</div>
+                            <div style="font-size:12px;color:var(--dl-muted);">Panduan bahan &amp; proses produksi halal
+                            </div>
                             <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
                                 <span class="dl-badge dl-badge-verif" style="font-size:10px;">
                                     <i class="las la-robot" style="font-size:11px;"></i> Claude Sonnet
                                 </span>
-                                <span class="dl-badge dl-badge-pending" style="font-size:10px;">
-                                    <i class="las la-shield-alt" style="font-size:11px;"></i> Analisis Kehalalan
+                                <span class="dl-badge dl-badge-terbit" style="font-size:10px;">
+                                    <i class="las la-book-open" style="font-size:11px;"></i> Panduan Proses
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Loading State --}}
-                    <div id="analisisLoading"
+                    {{-- [REVISI 1] Loading — hanya tampil saat state = loading, tidak ada !important override --}}
+                    <div id="panduanLoading"
                         style="display:none;padding:48px 24px;text-align:center;flex-direction:column;align-items:center;gap:12px;">
-                        <div class="analisis-spinner"></div>
-                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-top:8px;">Menganalisis foto
-                            produk...</div>
-                        <div style="font-size:12px;color:var(--dl-muted);">Claude sedang mendeteksi bahan &amp; proses
-                        </div>
+                        <div class="panduan-spinner"></div>
+                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-top:8px;">Menyusun panduan
+                            proses...</div>
+                        <div style="font-size:12px;color:var(--dl-muted);">Claude sedang menganalisis bahan &amp; proses
+                            produksi</div>
                     </div>
 
-                    {{-- Error State --}}
-                    <div id="analisisError" style="display:none;padding:32px 24px;text-align:center;">
+                    {{-- Error --}}
+                    <div id="panduanError" style="display:none;padding:32px 24px;text-align:center;">
                         <div
                             style="width:52px;height:52px;border-radius:50%;background:var(--dl-rose-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
                             <i class="las la-exclamation-circle" style="font-size:24px;color:var(--dl-rose);"></i>
                         </div>
-                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-bottom:6px;">Analisis Gagal
-                        </div>
-                        <div id="analisisErrorMsg" style="font-size:13px;color:var(--dl-muted);"></div>
+                        <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-bottom:6px;">Gagal Memuat
+                            Panduan</div>
+                        <div id="panduanErrorMsg" style="font-size:13px;color:var(--dl-muted);"></div>
                         <button type="button" class="dl-btn dl-btn-primary dl-btn-sm" style="margin-top:14px;"
-                            onclick="retryAnalisis()">
+                            onclick="retryPanduan()">
                             <i class="las la-redo-alt"></i> Coba Lagi
                         </button>
                     </div>
 
-                    {{-- Result State --}}
-                    <div id="analisisResult" style="display:none;padding:20px 24px;">
-
-                        {{-- Verdict Banner --}}
-                        <div id="analisisVerdictBanner"
-                            style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;margin-bottom:20px;border:1.5px solid;">
-                            <div id="analisisVerdictIcon"
-                                style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
-                            </div>
-                            <div>
-                                <div id="analisisVerdictTitle"
-                                    style="font-family:'Sora',sans-serif;font-weight:700;font-size:15px;"></div>
-                                <div id="analisisVerdictDesc" style="font-size:12.5px;margin-top:2px;opacity:.75;"></div>
-                            </div>
-                            <div id="analisisVerdictScore"
-                                style="margin-left:auto;font-size:24px;font-weight:700;font-family:monospace;flex-shrink:0;">
-                            </div>
-                        </div>
-
-                        {{-- Two-col grid --}}
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-                            {{-- Bahan Terdeteksi --}}
-                            <div class="dl-card" style="box-shadow:none;border:1.5px solid var(--dl-border);">
-                                <div class="dl-card-head"
-                                    style="padding:.65rem 1rem;background:#F5F0FF;border-bottom:1px solid #E9D5FF;">
-                                    <div class="dl-card-head-left">
-                                        <div class="dl-card-icon"
-                                            style="background:#fff;width:26px;height:26px;border-radius:7px;">
-                                            <i class="las la-list" style="color:#7C3AED;font-size:13px;"></i>
-                                        </div>
-                                        <span class="dl-card-title" style="font-size:12px;color:#5B21B6;">Bahan
-                                            Terdeteksi</span>
-                                    </div>
-                                </div>
-                                <div class="dl-card-body" style="padding:.85rem 1rem;">
-                                    <ul id="analisisBahanList"
-                                        style="margin:0;padding-left:16px;font-size:13px;color:var(--dl-text);line-height:1.8;">
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {{-- Proses Produksi --}}
-                            <div class="dl-card" style="box-shadow:none;border:1.5px solid var(--dl-border);">
-                                <div class="dl-card-head"
-                                    style="padding:.65rem 1rem;background:#F0FDFA;border-bottom:1px solid #99F6E4;">
-                                    <div class="dl-card-head-left">
-                                        <div class="dl-card-icon"
-                                            style="background:#fff;width:26px;height:26px;border-radius:7px;">
-                                            <i class="las la-cogs" style="color:#0D9488;font-size:13px;"></i>
-                                        </div>
-                                        <span class="dl-card-title" style="font-size:12px;color:#0F766E;">Proses
-                                            Produksi</span>
-                                    </div>
-                                </div>
-                                <div class="dl-card-body" style="padding:.85rem 1rem;">
-                                    <ul id="analisisProsesList"
-                                        style="margin:0;padding-left:16px;font-size:13px;color:var(--dl-text);line-height:1.8;">
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Potensi Risiko --}}
-                        <div id="analisisRisikoSection" class="dl-card"
-                            style="box-shadow:none;border:1.5px solid #FECDD3;margin-bottom:16px;display:none;">
+                    {{-- Result --}}
+                    <div id="panduanResult" style="display:none;padding:20px 24px;">
+                        {{-- Bahan --}}
+                        <div class="dl-card"
+                            style="box-shadow:none;border:1.5px solid var(--dl-border);margin-bottom:16px;">
                             <div class="dl-card-head"
-                                style="padding:.65rem 1rem;background:#FFF1F2;border-bottom:1px solid #FECDD3;">
+                                style="padding:.65rem 1rem;background:#F5F0FF;border-bottom:1px solid #E9D5FF;">
                                 <div class="dl-card-head-left">
                                     <div class="dl-card-icon"
                                         style="background:#fff;width:26px;height:26px;border-radius:7px;">
-                                        <i class="las la-exclamation-triangle" style="color:#E11D48;font-size:13px;"></i>
+                                        <i class="las la-flask" style="color:#7C3AED;font-size:13px;"></i>
                                     </div>
-                                    <span class="dl-card-title" style="font-size:12px;color:#9F1239;">Potensi Risiko
-                                        Kehalalan</span>
+                                    <span class="dl-card-title" style="font-size:12px;color:#5B21B6;">Bahan-Bahan</span>
                                 </div>
+                                <span id="panduanJumlahBahan" class="dl-badge dl-badge-sihalal"
+                                    style="font-size:10px;"></span>
                             </div>
                             <div class="dl-card-body" style="padding:.85rem 1rem;">
-                                <ul id="analisisRisikoList"
-                                    style="margin:0;padding-left:16px;font-size:13px;color:#9F1239;line-height:1.8;"></ul>
+                                <div id="panduanBahanList" style="display:flex;flex-direction:column;gap:6px;"></div>
                             </div>
                         </div>
 
-                        {{-- Rekomendasi --}}
+                        {{-- [REVISI 2] Proses — tambah tombol Salin Langkah di header card --}}
+                        <div class="dl-card"
+                            style="box-shadow:none;border:1.5px solid var(--dl-border);margin-bottom:16px;">
+                            <div class="dl-card-head"
+                                style="padding:.65rem 1rem;background:#F0FDFA;border-bottom:1px solid #99F6E4;">
+                                <div class="dl-card-head-left">
+                                    <div class="dl-card-icon"
+                                        style="background:#fff;width:26px;height:26px;border-radius:7px;">
+                                        <i class="las la-list-ol" style="color:#0D9488;font-size:13px;"></i>
+                                    </div>
+                                    <span class="dl-card-title" style="font-size:12px;color:#0F766E;">Langkah-Langkah
+                                        Proses</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span id="panduanJumlahProses" class="dl-badge dl-badge-oss"
+                                        style="font-size:10px;"></span>
+                                    <button type="button" id="btnSalinLangkah" class="dl-btn dl-btn-ghost dl-btn-sm"
+                                        style="font-size:11px;padding:4px 10px;" onclick="salinLangkahProses()">
+                                        <i class="las la-copy"></i> Salin Langkah
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dl-card-body" style="padding:.85rem 1rem;">
+                                <div id="panduanProsesList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Titik Kritis Halal --}}
                         <div class="dl-card"
                             style="box-shadow:none;border:1.5px solid #A7F3D0;background:var(--dl-green-lt);">
                             <div class="dl-card-body"
                                 style="padding:.85rem 1rem;display:flex;gap:10px;align-items:flex-start;">
-                                <i class="las la-lightbulb"
+                                <i class="las la-shield-alt"
                                     style="color:var(--dl-green);font-size:20px;flex-shrink:0;margin-top:1px;"></i>
                                 <div>
                                     <div
                                         style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dl-green);margin-bottom:4px;">
-                                        Rekomendasi</div>
-                                    <div id="analisisRekomendasi" style="font-size:13px;color:#065F46;line-height:1.6;">
+                                        Titik Kritis Halal
+                                    </div>
+                                    <div id="panduanCatatanHalal" style="font-size:13px;color:#065F46;line-height:1.6;">
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {{-- Timestamp --}}
                         <div
                             style="margin-top:14px;font-size:11px;color:var(--dl-muted);text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:5px;">
                             <i class="las la-robot" style="font-size:13px;"></i>
-                            Dianalisis oleh Claude Sonnet &nbsp;·&nbsp;
-                            <span id="analisisTimestamp"></span>
+                            Panduan oleh Claude Sonnet &nbsp;·&nbsp;
+                            <span id="panduanTimestamp"></span>
                         </div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                    {{-- [REVISI 3] Tombol Close di footer selalu tampil --}}
+                    <button type="button" class="dl-btn dl-btn-ghost" id="btnClosePanduanFooter"
+                        data-bs-dismiss="modal" style="display:none;">Tutup</button>
                     <button type="button" class="dl-btn dl-btn-success" id="btnCopyAnalisis" style="display:none;"
-                        onclick="copyAnalisisResult()">
+                        onclick="copyPanduanResult()">
                         <i class="las la-copy"></i> Salin Hasil
                     </button>
                     <button type="button" class="dl-btn dl-btn-primary" id="btnReanalisis" style="display:none;"
-                        onclick="retryAnalisis()">
-                        <i class="las la-redo-alt"></i> Analisis Ulang
+                        onclick="retryPanduan()">
+                        <i class="las la-redo-alt"></i> Muat Ulang
                     </button>
                 </div>
             </div>
@@ -815,7 +745,6 @@
             </div>
         </div>
     </div>
-
     {{-- ══════════════════════════════════════ --}}
     {{-- STYLES                                --}}
     {{-- ══════════════════════════════════════ --}}
@@ -852,14 +781,12 @@
             color: var(--dl-text);
         }
 
-        /* PAGE */
         .dl-page {
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* HEADER */
         .dl-header {
             display: flex;
             align-items: flex-start;
@@ -890,7 +817,6 @@
             font-weight: 600;
         }
 
-        /* BADGES */
         .dl-badge {
             display: inline-flex;
             align-items: center;
@@ -945,7 +871,6 @@
             color: #9F1239;
         }
 
-        /* STEPPER */
         .dl-stepper {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1037,7 +962,6 @@
             font-weight: 700;
         }
 
-        /* GRID */
         .dl-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1050,7 +974,6 @@
             }
         }
 
-        /* CARD */
         .dl-card {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1100,7 +1023,6 @@
             padding: 1.25rem;
         }
 
-        /* INFO TABLE */
         .dl-info-table {
             width: 100%;
             border-collapse: collapse;
@@ -1135,7 +1057,6 @@
             color: var(--dl-text);
         }
 
-        /* DIVIDER */
         .dl-divider {
             display: flex;
             align-items: center;
@@ -1158,7 +1079,6 @@
             background: var(--dl-border);
         }
 
-        /* BUTTONS */
         .dl-btn {
             display: inline-flex;
             align-items: center;
@@ -1248,7 +1168,6 @@
             width: 100%;
         }
 
-        /* PRODUK GRID */
         .dl-produk-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -1310,13 +1229,11 @@
             line-height: 1.4;
         }
 
-        /* Tombol analisis di produk card */
         .dl-btn-analisis {
             font-size: 11px !important;
             padding: 4px 8px !important;
         }
 
-        /* PHOTO ROW */
         .dl-photo-row {
             display: flex;
             align-items: center;
@@ -1372,7 +1289,6 @@
             flex-wrap: wrap;
         }
 
-        /* FILE ROW */
         .dl-file-row {
             display: flex;
             align-items: center;
@@ -1428,7 +1344,6 @@
             color: var(--dl-rose);
         }
 
-        /* UPLOAD */
         .dl-upload-group {
             display: flex;
             gap: 8px;
@@ -1453,7 +1368,6 @@
             border-color: var(--dl-blue);
         }
 
-        /* ALERTS */
         .dl-alert {
             display: flex;
             align-items: flex-start;
@@ -1481,7 +1395,6 @@
             margin-top: 1px;
         }
 
-        /* BACK */
         .dl-back {
             display: inline-flex;
             align-items: center;
@@ -1503,7 +1416,6 @@
             transform: translateX(-2px);
         }
 
-        /* MODAL */
         .dl-modal .modal-content {
             border: none;
             border-radius: 16px;
@@ -1537,7 +1449,6 @@
             padding: 1rem 1.5rem;
         }
 
-        /* COLLAGE */
         .dl-collage-img {
             height: 260px;
             object-fit: cover;
@@ -1546,7 +1457,6 @@
             border-radius: 0 0 10px 10px;
         }
 
-        /* EMPTY */
         .dl-empty {
             text-align: center;
             padding: 1.5rem;
@@ -1561,7 +1471,6 @@
             opacity: .4;
         }
 
-        /* ANIMATIONS */
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -1590,12 +1499,12 @@
             animation-delay: .15s
         }
 
-        /* ANALISIS SPINNER */
-        .analisis-spinner {
+        /* [REVISI 1] Spinner — hapus display:flex !important yang override _showPanduanState */
+        .panduan-spinner {
             width: 48px;
             height: 48px;
             border: 4px solid var(--dl-border);
-            border-top-color: var(--dl-green);
+            border-top-color: var(--dl-blue);
             border-radius: 50%;
             animation: spin .8s linear infinite;
         }
@@ -1606,13 +1515,8 @@
             }
         }
 
-        #analisisLoading {
-            display: flex !important;
-            flex-direction: column;
-            align-items: center;
-        }
+        /* #panduanLoading — TIDAK ada display:flex !important di sini */
     </style>
-
     {{-- ══════════════════════════════════════ --}}
     {{-- SCRIPTS                               --}}
     {{-- ══════════════════════════════════════ --}}
@@ -1687,89 +1591,94 @@
         }
 
         // ══════════════════════════════════════════════════════════════
-        // ANALISIS HALAL — CLAUDE VISION API
+        // PANDUAN PROSES HALAL — CLAUDE API
         // ══════════════════════════════════════════════════════════════
-        let _currentAnalisisUrl = '';
         let _currentAnalisisName = '';
 
-        function _showAnalisisState(state) {
-            ['analisisLoading', 'analisisError', 'analisisResult'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
-            });
+        /**
+         * [REVISI 1] _showPanduanState — mengontrol tampilan state dengan benar.
+         * [REVISI 3] Visibilitas tombol X dan Close bergantung pada state.
+         */
+        function _showPanduanState(state) {
+            // Sembunyikan semua panel terlebih dahulu
+            document.getElementById('panduanLoading').style.display = 'none';
+            document.getElementById('panduanError').style.display = 'none';
+            document.getElementById('panduanResult').style.display = 'none';
+
+            // Tampilkan sesuai state
             if (state === 'loading') {
-                document.getElementById('analisisLoading').style.display = 'flex';
+                document.getElementById('panduanLoading').style.display = 'flex';
             } else if (state === 'error') {
-                document.getElementById('analisisError').style.display = 'block';
+                document.getElementById('panduanError').style.display = 'block';
             } else if (state === 'result') {
-                document.getElementById('analisisResult').style.display = 'block';
+                document.getElementById('panduanResult').style.display = 'block';
             }
+
+            // [REVISI 3] Tombol X (header) dan Close (footer) hanya aktif jika bukan loading
+            const canClose = (state !== 'loading');
+            document.getElementById('btnClosePanduan').style.display = canClose ? 'block' : 'none';
+            document.getElementById('btnClosePanduanFooter').style.display = canClose ? 'inline-flex' : 'none';
         }
 
-        function openAnalisisHalal(imgUrl, productName) {
-            _currentAnalisisUrl = imgUrl;
+        function openPanduanHalal(imgUrl, productName) {
             _currentAnalisisName = productName;
-
-            document.getElementById('analisisPreviewImg').src = imgUrl;
             document.getElementById('analisisProductName').textContent = productName;
+            document.getElementById('analisisPreviewImg').src = imgUrl || '';
 
-            _showAnalisisState('loading');
+            // Reset tombol action
             document.getElementById('btnCopyAnalisis').style.display = 'none';
             document.getElementById('btnReanalisis').style.display = 'none';
+            document.getElementById('btnSalinLangkah').style.display = 'none';
 
+            _showPanduanState('loading');
             new bootstrap.Modal(document.getElementById('modalAnalisisHalal')).show();
-            runClaudeAnalisis(imgUrl);
+            runPanduanProses(productName);
         }
 
-        function retryAnalisis() {
-            _showAnalisisState('loading');
-            runClaudeAnalisis(_currentAnalisisUrl);
+        // Alias backward-compat
+        function openAnalisisHalal(imgUrl, productName) {
+            openPanduanHalal(imgUrl, productName);
         }
 
-        async function imageUrlToBase64(url) {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve({
-                    base64: reader.result.split(',')[1],
-                    mimeType: blob.type || 'image/jpeg'
-                });
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
+        function retryPanduan() {
+            document.getElementById('btnCopyAnalisis').style.display = 'none';
+            document.getElementById('btnReanalisis').style.display = 'none';
+            document.getElementById('btnSalinLangkah').style.display = 'none';
+            _showPanduanState('loading');
+            runPanduanProses(_currentAnalisisName);
         }
 
-        async function runClaudeAnalisis(imgUrl) {
-            try {
-                const {
-                    base64,
-                    mimeType
-                } = await imageUrlToBase64(imgUrl);
-
-                const prompt = `Kamu adalah ahli sertifikasi halal MUI Indonesia yang berpengalaman.
-
-Analisis foto produk makanan/minuman berikut secara mendetail untuk keperluan sertifikasi halal.
-
-Berikan analisis dalam format JSON SAJA (tanpa markdown, tanpa kode blok, tanpa penjelasan tambahan) dengan struktur berikut:
+        async function runPanduanProses(productName) {
+            const prompt = `Kamu adalah ahli teknologi pangan dan sertifikasi halal MUI Indonesia.
+Produk: "${productName}"
+Berikan informasi faktual bahan-bahan dan proses pembuatan produk ini.
+Sertakan pula jenis kemasan yang digunakan untuk produk ini (contoh: plastik, kertas, botol kaca, kaleng, dll).
+Pada bagian bahan, WAJIB sertakan Sunlight (sabun cuci piring) sebagai CLEANING_AGENT dengan status_halal PERLU_VERIFIKASI.
+Balas HANYA dengan JSON murni tanpa markdown, tanpa kode blok, tanpa teks apapun sebelum atau sesudah JSON:
 {
-  "verdict": "HALAL" | "PERLU_VERIFIKASI" | "BERISIKO",
-  "confidence_score": <angka 0-100>,
-  "verdict_desc": "<deskripsi singkat 1 kalimat>",
-  "bahan_terdeteksi": ["<bahan1>", "<bahan2>"],
-  "proses_produksi": ["<proses1>", "<proses2>"],
-  "potensi_risiko": ["<risiko1>"],
-  "rekomendasi": "<rekomendasi tindak lanjut untuk proses sertifikasi halal>"
+  "kemasan": "<jenis kemasan yang umum digunakan>",
+  "bahan": [
+    {
+      "nama": "<nama bahan>",
+      "kategori": "UTAMA" | "PEMBANTU" | "CLEANING_AGENT",
+      "status_halal": "AMAN" | "PERLU_VERIFIKASI" | "BERISIKO",
+      "keterangan": "<penjelasan singkat kenapa status tersebut>"
+    }
+  ],
+  "proses": [
+    {
+      "langkah": <nomor>,
+      "nama": "<nama tahap singkat>",
+      "deskripsi": "<penjelasan 1-2 kalimat>",
+      "titik_kritis": true | false
+    }
+  ],
+  "catatan_halal": "<ringkasan titik kritis halal yang wajib diperhatikan>"
 }
+Tandai titik_kritis: true pada langkah yang berpotensi mempengaruhi kehalalan produk.
+PENTING: Balas JSON saja, tidak ada teks lain, tidak ada markdown, tidak ada backtick.`;
 
-Fokus pada:
-1. Bahan-bahan yang terlihat atau dapat diduga dari foto (kemasan, label, tampilan produk)
-2. Proses produksi yang terlihat (peralatan, metode, lingkungan)
-3. Risiko kontaminasi atau bahan haram (babi, alkohol, darah, dll)
-4. Kesesuaian proses dengan standar halal MUI
-
-PENTING: Balas dengan JSON saja, tidak ada teks lain.`;
-
-                // Kirim ke backend Laravel (proxy aman — API key tidak terekspos)
+            try {
                 const response = await fetch('/api/analisis-halal', {
                     method: 'POST',
                     headers: {
@@ -1780,9 +1689,10 @@ PENTING: Balas dengan JSON saja, tidak ada teks lain.`;
                     },
                     credentials: 'same-origin',
                     body: JSON.stringify({
-                        base64,
-                        mimeType,
-                        prompt
+                        base64: '',
+                        mimeType: '',
+                        prompt,
+                        textOnly: true
                     }),
                 });
 
@@ -1792,125 +1702,178 @@ PENTING: Balas dengan JSON saja, tidak ada teks lain.`;
                 }
 
                 const data = await response.json();
-                // Claude API: data.content[0].text
                 const rawText = data?.content?.[0]?.text ?? '';
-                const cleaned = rawText.replace(/```json|```/g, '').trim();
+
+                // Agresif cleaning: strip markdown fence lalu ekstrak { ... }
+                let cleaned = rawText
+                    .replace(/```json\s*/gi, '')
+                .replace(/```\s*/g, '')
+                    .trim();
+
+                const jsonStart = cleaned.indexOf('{');
+                const jsonEnd = cleaned.lastIndexOf('}');
+                if (jsonStart !== -1 && jsonEnd !== -1) {
+                    cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+                }
 
                 let parsed;
                 try {
                     parsed = JSON.parse(cleaned);
-                } catch {
+                } catch (parseErr) {
+                    console.error('Parse error:', parseErr, '\nRaw:', rawText, '\nCleaned:', cleaned);
                     throw new Error('Respons AI tidak dapat diparse. Coba lagi.');
                 }
 
-                renderAnalisisResult(parsed);
+                // Pastikan Sunlight selalu ada
+                const hasSunlight = (parsed.bahan ?? []).some(b => b.nama.toLowerCase().includes('sunlight'));
+                if (!hasSunlight) {
+                    parsed.bahan = parsed.bahan ?? [];
+                    parsed.bahan.push({
+                        nama: 'Sunlight (Sabun Cuci Piring)',
+                        kategori: 'CLEANING_AGENT',
+                        status_halal: 'PERLU_VERIFIKASI',
+                        keterangan: 'Digunakan untuk membersihkan peralatan produksi. Perlu verifikasi kandungan turunan hewan pada formulasi deterjen.'
+                    });
+                }
+
+                renderPanduanResult(parsed);
 
             } catch (err) {
-                _showAnalisisState('error');
-                document.getElementById('analisisErrorMsg').textContent =
-                    err.message || 'Terjadi kesalahan tidak terduga.';
+                _showPanduanState('error');
+                document.getElementById('panduanErrorMsg').textContent = err.message || 'Terjadi kesalahan.';
                 document.getElementById('btnReanalisis').style.display = 'inline-flex';
             }
         }
 
-        function renderAnalisisResult(data) {
-            const VC = {
-                HALAL: {
+        // Menyimpan data proses untuk fungsi salin langkah
+        let _currentProsesData = [];
+
+        function renderPanduanResult(data) {
+            const statusStyle = {
+                AMAN: {
                     bg: 'var(--dl-green-lt)',
+                    color: 'var(--dl-green)',
                     border: '#A7F3D0',
-                    iconBg: 'var(--dl-green)',
-                    icon: 'la-check-circle',
-                    titleColor: '#065F46',
-                    descColor: '#059669',
-                    scoreColor: '#059669'
+                    label: 'Aman'
                 },
                 PERLU_VERIFIKASI: {
                     bg: '#FFFBEB',
+                    color: 'var(--dl-amber)',
                     border: '#FDE68A',
-                    iconBg: 'var(--dl-amber)',
-                    icon: 'la-exclamation-circle',
-                    titleColor: '#92400E',
-                    descColor: '#D97706',
-                    scoreColor: '#D97706'
+                    label: 'Perlu Verifikasi'
                 },
                 BERISIKO: {
                     bg: 'var(--dl-rose-lt)',
+                    color: 'var(--dl-rose)',
                     border: '#FECDD3',
-                    iconBg: 'var(--dl-rose)',
-                    icon: 'la-times-circle',
-                    titleColor: '#9F1239',
-                    descColor: '#E11D48',
-                    scoreColor: '#E11D48'
+                    label: 'Berisiko'
                 },
             };
-            const vc = VC[data.verdict] ?? VC['PERLU_VERIFIKASI'];
-            const banner = document.getElementById('analisisVerdictBanner');
-            banner.style.background = vc.bg;
-            banner.style.borderColor = vc.border;
-
-            const iconEl = document.getElementById('analisisVerdictIcon');
-            iconEl.style.background = vc.iconBg;
-            iconEl.innerHTML = `<i class="las ${vc.icon}" style="color:#fff;font-size:22px;"></i>`;
-
-            const titleMap = {
-                HALAL: 'Terindikasi HALAL',
-                PERLU_VERIFIKASI: 'Perlu Verifikasi Lebih Lanjut',
-                BERISIKO: 'Terdeteksi Risiko Kehalalan'
+            const kategoriLabel = {
+                UTAMA: 'Utama',
+                PEMBANTU: 'Pembantu',
+                CLEANING_AGENT: 'Cleaning Agent'
             };
-            const titleEl = document.getElementById('analisisVerdictTitle');
-            titleEl.textContent = titleMap[data.verdict] ?? data.verdict;
-            titleEl.style.color = vc.titleColor;
-            const descEl = document.getElementById('analisisVerdictDesc');
-            descEl.textContent = data.verdict_desc ?? '';
-            descEl.style.color = vc.descColor;
-            const scoreEl = document.getElementById('analisisVerdictScore');
-            scoreEl.textContent = (data.confidence_score ?? 0) + '%';
-            scoreEl.style.color = vc.scoreColor;
 
-            const bahanList = document.getElementById('analisisBahanList');
-            bahanList.innerHTML = '';
-            (data.bahan_terdeteksi ?? []).forEach(b => {
-                const li = document.createElement('li');
-                li.textContent = b;
-                bahanList.appendChild(li);
-            });
-            if (!data.bahan_terdeteksi?.length) bahanList.innerHTML =
-                '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
-
-            const prosesList = document.getElementById('analisisProsesList');
-            prosesList.innerHTML = '';
-            (data.proses_produksi ?? []).forEach(p => {
-                const li = document.createElement('li');
-                li.textContent = p;
-                prosesList.appendChild(li);
-            });
-            if (!data.proses_produksi?.length) prosesList.innerHTML =
-                '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
-
-            const risikoSection = document.getElementById('analisisRisikoSection');
-            const risikoList = document.getElementById('analisisRisikoList');
-            risikoList.innerHTML = '';
-            if (data.potensi_risiko?.length) {
-                risikoSection.style.display = 'block';
-                data.potensi_risiko.forEach(r => {
-                    const li = document.createElement('li');
-                    li.textContent = r;
-                    risikoList.appendChild(li);
-                });
-            } else {
-                risikoSection.style.display = 'none';
+            // ── Kemasan ──
+            const kemasanVal = data.kemasan ?? null;
+            let kemasanEl = document.getElementById('panduanKemasan');
+            if (!kemasanEl) {
+                kemasanEl = document.createElement('div');
+                kemasanEl.id = 'panduanKemasan';
+                kemasanEl.style.cssText =
+                    'display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid #BFDBFE;background:var(--dl-blue-lt);margin-bottom:16px;';
+                const bahanCard = document.querySelector('#panduanResult .dl-card');
+                if (bahanCard) bahanCard.parentNode.insertBefore(kemasanEl, bahanCard);
             }
+            kemasanEl.innerHTML = kemasanVal ?
+                `<i class="las la-box" style="font-size:20px;color:var(--dl-blue);flex-shrink:0;"></i>
+                   <div>
+                     <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dl-blue);margin-bottom:2px;">Jenis Kemasan</div>
+                     <div style="font-size:13px;font-weight:600;color:var(--dl-text);">${kemasanVal}</div>
+                   </div>` :
+                '';
+            kemasanEl.style.display = kemasanVal ? 'flex' : 'none';
 
-            document.getElementById('analisisRekomendasi').textContent = data.rekomendasi ?? '—';
-            document.getElementById('analisisTimestamp').textContent = new Date().toLocaleString('id-ID');
+            // ── Bahan ──
+            const bahanContainer = document.getElementById('panduanBahanList');
+            bahanContainer.innerHTML = '';
+            (data.bahan ?? []).forEach(b => {
+                const st = statusStyle[b.status_halal] ?? statusStyle['PERLU_VERIFIKASI'];
+                const div = document.createElement('div');
+                div.style.cssText =
+                    `display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid ${st.border};background:${st.bg};`;
+                div.innerHTML = `
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:${b.keterangan ? '3px' : '0'};">
+                            <span style="font-size:13px;font-weight:700;color:var(--dl-text);">${b.nama}</span>
+                            <span style="font-size:10px;color:var(--dl-muted);font-weight:500;padding:1px 6px;background:rgba(0,0,0,.05);border-radius:4px;">${kategoriLabel[b.kategori] ?? b.kategori}</span>
+                        </div>
+                        ${b.keterangan ? `<div style="font-size:11.5px;color:var(--dl-muted);line-height:1.4;">${b.keterangan}</div>` : ''}
+                    </div>
+                    <span style="font-size:10.5px;font-weight:700;color:${st.color};padding:3px 9px;border-radius:99px;border:1px solid ${st.border};white-space:nowrap;flex-shrink:0;">${st.label}</span>
+                `;
+                bahanContainer.appendChild(div);
+            });
+            document.getElementById('panduanJumlahBahan').textContent = (data.bahan?.length ?? 0) + ' bahan';
 
-            _showAnalisisState('result');
+            // ── Proses ──
+            _currentProsesData = data.proses ?? []; // simpan untuk fungsi salin
+            const prosesContainer = document.getElementById('panduanProsesList');
+            prosesContainer.innerHTML = '';
+            _currentProsesData.forEach(p => {
+                const div = document.createElement('div');
+                div.style.cssText =
+                    `display:flex;gap:12px;padding:10px 12px;border-radius:8px;border:1px solid ${p.titik_kritis ? '#FDE68A' : 'var(--dl-border)'};background:${p.titik_kritis ? '#FFFBEB' : '#FAFBFF'};`;
+                div.innerHTML = `
+                    <div style="width:28px;height:28px;border-radius:50%;background:${p.titik_kritis ? 'var(--dl-amber)' : 'var(--dl-blue)'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;">${p.langkah}</div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+                            <span style="font-size:13px;font-weight:700;color:var(--dl-text);">${p.nama}</span>
+                        </div>
+                        <div style="font-size:12.5px;color:var(--dl-muted);line-height:1.5;">${p.deskripsi}</div>
+                    </div>
+                `;
+                prosesContainer.appendChild(div);
+            });
+            document.getElementById('panduanJumlahProses').textContent = (_currentProsesData.length) + ' langkah';
+
+            // ── Catatan ──
+            document.getElementById('panduanCatatanHalal').textContent = data.catatan_halal ?? '—';
+            document.getElementById('panduanTimestamp').textContent = new Date().toLocaleString('id-ID');
+
+            // Tampilkan result & tombol action
+            _showPanduanState('result');
             document.getElementById('btnCopyAnalisis').style.display = 'inline-flex';
             document.getElementById('btnReanalisis').style.display = 'inline-flex';
+            document.getElementById('btnSalinLangkah').style.display = 'inline-flex';
         }
 
-        function copyAnalisisResult() {
-            const text = document.getElementById('analisisResult').innerText;
+        /**
+         * [REVISI 2] Salin hanya teks langkah-langkah proses, tanpa label "Titik Kritis".
+         */
+        function salinLangkahProses() {
+            if (!_currentProsesData.length) return;
+
+            const lines = _currentProsesData.map(p =>
+                `${p.langkah}. ${p.nama}\n   ${p.deskripsi}`
+            );
+            const text = `Langkah-Langkah Proses — ${_currentAnalisisName}\n\n` + lines.join('\n\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('btnSalinLangkah');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="las la-check"></i> Tersalin!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }, 2000);
+            }).catch(() => alert('Gagal menyalin teks.'));
+        }
+
+        function copyPanduanResult() {
+            const text = document.getElementById('panduanResult').innerText;
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('btnCopyAnalisis');
                 const orig = btn.innerHTML;
@@ -1939,7 +1902,6 @@ PENTING: Balas dengan JSON saja, tidak ada teks lain.`;
             const LOCK_URL = '/api/data-entry/data-lapangans';
             const LIST_URL = '{{ route('data-entry.data-lapangan.index') }}';
             const DURATION = 50 * 60;
-
             const sectionEl = document.querySelector('.dl-page[data-lock-id]');
             const PAGE_ID = sectionEl ? sectionEl.dataset.lockId : null;
             let LOCK_ID = sessionStorage.getItem('currentLockId');

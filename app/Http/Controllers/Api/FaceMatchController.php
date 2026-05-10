@@ -16,69 +16,91 @@ class FaceMatchController extends Controller
     const MAX_IMAGE_SIZE = 768;
 
     // -------------------------------------------------------------------------
-    // Halaman utama — hanya upload foto, tanpa dropdown enumerator
+    // Halaman utama — upload foto + pilih enumerator (multi-select)
     // -------------------------------------------------------------------------
     public function index()
     {
-        $totalFoto = DataLapangan::whereNotNull('foto_pendamping')
-            ->where('foto_pendamping', '!=', '')
-            ->whereNotNull('enumerator_id')
-            ->count();
+        // Ambil enumerator yang punya foto pendamping, beserta jumlah fotonya
+        $enumerators = Enumerator::whereIn(
+            'id',
+            DataLapangan::whereNotNull('foto_pendamping')
+                ->where('foto_pendamping', '!=', '')
+                ->whereNotNull('enumerator_id')
+                ->pluck('enumerator_id')
+                ->unique()
+        )
+            ->withCount([
+                'dataLapangans as foto_count' => fn($q) =>
+                $q->whereNotNull('foto_pendamping')->where('foto_pendamping', '!=', '')
+            ])
+            ->orderBy('nama_lengkap')
+            ->get();
 
-        $totalEnumerator = DataLapangan::whereNotNull('foto_pendamping')
-            ->where('foto_pendamping', '!=', '')
-            ->whereNotNull('enumerator_id')
-            ->distinct('enumerator_id')
-            ->count('enumerator_id');
+        $totalFoto       = $enumerators->sum('foto_count');
+        $totalEnumerator = $enumerators->count();
 
-        return view('superadmin.face-match.index', compact('totalFoto', 'totalEnumerator'));
+        return view('superadmin.face-match.index', compact(
+            'enumerators',
+            'totalFoto',
+            'totalEnumerator',
+        ));
     }
 
     // -------------------------------------------------------------------------
-    // Terima upload foto → dispatch jobs untuk SEMUA enumerator → redirect status
+    // Terima upload foto + enumerator_ids yang dipilih → dispatch jobs → redirect
     // -------------------------------------------------------------------------
     public function match(Request $request)
     {
         $request->validate([
-            'foto_query' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'foto_query'      => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'enumerator_ids'  => 'required|array|min:1',
+            'enumerator_ids.*' => 'integer|exists:enumerators,id',
         ], [
-            'foto_query.required' => 'Foto wajah wajib diunggah.',
-            'foto_query.image'    => 'File harus berupa gambar.',
-            'foto_query.mimes'    => 'Format gambar harus JPG atau PNG.',
-            'foto_query.max'      => 'Ukuran gambar maksimal 5MB.',
+            'foto_query.required'     => 'Foto wajah wajib diunggah.',
+            'foto_query.image'        => 'File harus berupa gambar.',
+            'foto_query.mimes'        => 'Format gambar harus JPG atau PNG.',
+            'foto_query.max'          => 'Ukuran gambar maksimal 5MB.',
+            'enumerator_ids.required' => 'Pilih minimal 1 enumerator.',
+            'enumerator_ids.min'      => 'Pilih minimal 1 enumerator.',
         ]);
+
+        $selectedIds = $request->input('enumerator_ids');
 
         // Simpan foto query
         $tmpPath   = $request->file('foto_query')->store('tmp/face-match', 'public');
         $queryUrl  = asset('storage/' . $tmpPath);
         $queryPath = storage_path('app/public/' . $tmpPath);
 
-        // Ambil SEMUA data lapangan yang punya foto pendamping (semua enumerator)
+        // Ambil data lapangan hanya dari enumerator yang dipilih
         $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
             ->where('foto_pendamping', '!=', '')
             ->whereNotNull('enumerator_id')
+            ->whereIn('enumerator_id', $selectedIds)
             ->select('id', 'enumerator_id', 'nama_pu', 'nik', 'telephone', 'foto_pendamping')
             ->orderBy('enumerator_id')
             ->orderBy('id')
             ->get();
 
         if ($dataLapangans->isEmpty()) {
-            return back()->with('error', 'Tidak ada data foto pendamping yang tersedia.');
+            return back()->with('error', 'Tidak ada data foto pendamping untuk enumerator yang dipilih.');
         }
 
         $sessionKey = 'face_match_' . Str::uuid();
 
-        Cache::put($sessionKey . '_meta', [
-            'query_url'  => $queryUrl,
-            'total'      => $dataLapangans->count(),
-            'started_at' => now()->toDateTimeString(),
-        ], now()->addHours(2));
-
-        // Preload enumerator names agar tidak N+1 di loop
-        $enumeratorNames = Enumerator::whereIn('id', $dataLapangans->pluck('enumerator_id')->unique())
+        // Preload nama enumerator
+        $enumeratorNames = Enumerator::whereIn('id', collect($selectedIds))
             ->pluck('nama_lengkap', 'id');
 
-        // Buat jobs untuk SEMUA foto dari SEMUA enumerator
+        Cache::put($sessionKey . '_meta', [
+            'query_url'          => $queryUrl,
+            'total'              => $dataLapangans->count(),
+            'started_at'         => now()->toDateTimeString(),
+            'selected_enum_count' => count($selectedIds),
+            'selected_enum_names' => $enumeratorNames->values()->take(3)->implode(', ')
+                . (count($selectedIds) > 3 ? ', ...' : ''),
+        ], now()->addHours(2));
+
+        // Buat jobs untuk semua foto dari enumerator yang dipilih
         $jobs = [];
         foreach ($dataLapangans as $data) {
             $dbPath = storage_path('app/public/' . $data->foto_pendamping);
@@ -157,10 +179,8 @@ class FaceMatchController extends Controller
         $finished   = $batch->finished();
         $percentage = $total > 0 ? (int) round(($processed / $total) * 100) : 0;
 
-        // Ambil hasil terkini dari cache untuk ditampilkan live di status page
         $allResults = Cache::get($sessionKey, []);
 
-        // Urutan TIDAK diubah (append-only) supaya lastRendered di JS tetap akurat
         $recentActivity = collect($allResults)
             ->map(fn($r) => [
                 'nama_pu'         => $r['data']['nama_pu'] ?? '-',
@@ -198,18 +218,13 @@ class FaceMatchController extends Controller
                 ->with('error', 'Sesi tidak ditemukan atau sudah kadaluarsa.');
         }
 
-        // Filter hanya yang confidence ≥ 80%
         $filtered = array_values(array_filter($allResults, fn($r) => ($r['confidence'] ?? 0) >= 80));
-
-        // Urutkan: confidence tertinggi dulu
         usort($filtered, fn($a, $b) => $b['confidence'] - $a['confidence']);
-
-        // Ambil TOP 3 saja
         $results = array_slice($filtered, 0, 3);
 
-        $queryUrl       = $meta['query_url'];
+        $queryUrl        = $meta['query_url'];
         $totalDianalisis = count($allResults);
-        $totalDitemukan  = count($filtered); // total ≥80% sebelum dipotong 3
+        $totalDitemukan  = count($filtered);
 
         return view('superadmin.face-match.result', compact(
             'results',

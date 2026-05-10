@@ -157,12 +157,31 @@ class FaceMatchController extends Controller
         $finished   = $batch->finished();
         $percentage = $total > 0 ? (int) round(($processed / $total) * 100) : 0;
 
+        // Ambil hasil terkini dari cache untuk ditampilkan live di status page
+        $allResults = Cache::get($sessionKey, []);
+
+        $recentActivity = collect($allResults)
+            ->sortByDesc(fn($r) => $r['confidence'])
+            ->take(10)
+            ->map(fn($r) => [
+                'nama_pu'         => $r['data']['nama_pu'] ?? '-',
+                'nama_enumerator' => $r['data']['nama_enumerator'] ?? '-',
+                'confidence'      => $r['confidence'],
+                'match'           => ($r['confidence'] ?? 0) >= 80,
+            ])
+            ->values()
+            ->toArray();
+
+        $matchCount = count(array_filter($allResults, fn($r) => ($r['confidence'] ?? 0) >= 80));
+
         return response()->json([
-            'finished'   => $finished,
-            'processed'  => $processed,
-            'total'      => $total,
-            'percentage' => $percentage,
-            'failed'     => $batch->failedJobs,
+            'finished'        => $finished,
+            'processed'       => $processed,
+            'total'           => $total,
+            'percentage'      => $percentage,
+            'failed'          => $batch->failedJobs,
+            'match_count'     => $matchCount,
+            'recent_activity' => $recentActivity,
         ]);
     }
 

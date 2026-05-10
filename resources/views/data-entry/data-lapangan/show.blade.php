@@ -18,7 +18,6 @@
         $statusBadge = $statusBadgeMap[$dataLapangan->status] ?? 'dl-badge-ditolak';
         $hasPendingProgress = $latestProgress?->status === 'PENDING';
 
-        // Kumpulkan semua produk (utama + tambahan yang tidak null)
         $allProducts = [];
         $productFields = [
             1 => ['nama' => $dataLapangan->nama_produk, 'foto' => $dataLapangan->foto_produk],
@@ -134,7 +133,7 @@
         {{-- ── MAIN GRID ── --}}
         <div class="dl-grid">
 
-            {{-- ══════════ KOLOM KIRI — Info + File ══════════ --}}
+            {{-- ══ KOLOM KIRI — Info + File ══ --}}
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
                 {{-- Card: Informasi Pelaku Usaha --}}
@@ -166,7 +165,6 @@
                                     <td class="dl-val" style="padding-right:1.25rem;">{{ $f[1] }}</td>
                                 </tr>
                             @endforeach
-                            {{-- Password --}}
                             <tr>
                                 <td class="dl-key" style="padding-left:1.25rem;">Password</td>
                                 <td class="dl-val" style="padding-right:1.25rem;">
@@ -238,7 +236,7 @@
 
             </div>
 
-            {{-- ══════════ KOLOM KANAN — Produk + Foto ══════════ --}}
+            {{-- ══ KOLOM KANAN — Produk + Foto ══ --}}
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
                 {{-- Card: Produk Terdaftar --}}
@@ -275,6 +273,21 @@
                                         <div class="dl-produk-card-body">
                                             <div class="dl-produk-num">Produk {{ $idx }}</div>
                                             <div class="dl-produk-name">{{ $prod['nama'] }}</div>
+                                            {{-- Tombol Analisis Halal untuk SEMUA produk yang punya foto --}}
+                                            @if (!empty($prod['foto']))
+                                                <button type="button"
+                                                    class="dl-btn dl-btn-amber dl-btn-sm dl-btn-analisis"
+                                                    style="margin-top:8px;width:100%;justify-content:center;"
+                                                    onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
+                                                    <i class="las la-search"></i> Analisis Halal
+                                                </button>
+                                            @else
+                                                <button type="button" class="dl-btn dl-btn-ghost dl-btn-sm"
+                                                    style="margin-top:8px;width:100%;justify-content:center;opacity:.5;cursor:not-allowed;"
+                                                    disabled>
+                                                    <i class="las la-image"></i> Foto belum ada
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -363,7 +376,8 @@
                                 </a>
                             </div>
                         </div>
-                        {{-- Foto Produk — semua slot yang ada fotonya --}}
+
+                        {{-- Foto semua Produk dengan tombol Analisis Halal --}}
                         @foreach ($allProducts as $idx => $prod)
                             @if (!empty($prod['foto']))
                                 <div class="dl-photo-row">
@@ -379,21 +393,15 @@
                                             onclick="viewFullImage('{{ asset('storage/' . $prod['foto']) }}', 'Foto Produk {{ $idx }}: {{ $prod['nama'] }}')">
                                             <i class="las la-eye"></i>
                                         </button>
-                                        @if ($idx === 1)
-                                            <a href="{{ route('data-entry.datalapangan.download-foto-produk', $dataLapangan->hashed_id) }}"
-                                                class="dl-btn dl-btn-success dl-btn-sm">
-                                                <i class="las la-download"></i> Download
-                                            </a>
-                                            <button type="button" class="dl-btn dl-btn-amber dl-btn-sm"
-                                                onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
-                                                <i class="las la-search"></i> Analisis Halal
-                                            </button>
-                                        @else
-                                            <a href="{{ asset('storage/' . $prod['foto']) }}" download
-                                                class="dl-btn dl-btn-success dl-btn-sm">
-                                                <i class="las la-download"></i> Download
-                                            </a>
-                                        @endif
+                                        <a href="{{ asset('storage/' . $prod['foto']) }}" download
+                                            class="dl-btn dl-btn-success dl-btn-sm">
+                                            <i class="las la-download"></i> Download
+                                        </a>
+                                        {{-- Analisis Halal untuk SEMUA produk --}}
+                                        <button type="button" class="dl-btn dl-btn-amber dl-btn-sm"
+                                            onclick="openAnalisisHalal('{{ asset('storage/' . $prod['foto']) }}', 'Produk {{ $idx }}: {{ $prod['nama'] }}')">
+                                            <i class="las la-search"></i> Analisis Halal
+                                        </button>
                                     </div>
                                 </div>
                             @endif
@@ -410,12 +418,9 @@
     {{-- ══════════════════════════════════════ --}}
     @include('data-entry.data-lapangan.partials.status-modal')
 
-
     {{-- ══════════════════════════════════════ --}}
-    {{-- MODALS                                --}}
+    {{-- MODAL PERATURAN                       --}}
     {{-- ══════════════════════════════════════ --}}
-
-    {{-- Modal Peraturan --}}
     <div class="modal fade dl-modal" id="modalPeraturan" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
         data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered modal-md">
@@ -497,14 +502,15 @@
         </div>
     </div>
 
-    {{-- Modal Kolase Foto (SIHALAL only) --}}
+    {{-- ══════════════════════════════════════ --}}
+    {{-- MODAL KOLASE FOTO (SIHALAL only)      --}}
+    {{-- ══════════════════════════════════════ --}}
     <div class="modal fade dl-modal" id="modalKolaseFoto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="las la-th" style="color:var(--dl-amber);"></i> Kolase Dokumentasi Foto
-                    </h5>
+                    <h5 class="modal-title"><i class="las la-th" style="color:var(--dl-amber);"></i> Kolase Dokumentasi
+                        Foto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-3" id="collageContent">
@@ -518,14 +524,14 @@
                                     onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_pendamping) }}', 'Foto Pendamping')">
                             </div>
                         </div>
-                        {{-- Semua foto produk --}}
                         @foreach ($allProducts as $idx => $prod)
                             @if (!empty($prod['foto']))
                                 <div class="col-md-6">
                                     <div class="card border-0 shadow-sm">
                                         <div class="card-header bg-light py-2 px-3 border-bottom"
-                                            style="font-size:12px;font-weight:600;">Foto Produk {{ $idx }}:
-                                            {{ $prod['nama'] }}</div>
+                                            style="font-size:12px;font-weight:600;">
+                                            Foto Produk {{ $idx }}: {{ $prod['nama'] }}
+                                        </div>
                                         <img src="{{ asset('storage/' . $prod['foto']) }}"
                                             alt="Foto Produk {{ $idx }}" class="dl-collage-img"
                                             onclick="viewFullImage('{{ asset('storage/' . $prod['foto']) }}', 'Foto Produk {{ $idx }}: {{ $prod['nama'] }}')">
@@ -537,18 +543,18 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="dl-btn dl-btn-success" onclick="downloadCollage()">
-                        <i class="las la-download"></i> Download Kolase
-                    </button>
-                    <button type="button" class="dl-btn dl-btn-primary" onclick="printCollage()">
-                        <i class="las la-print"></i> Print
-                    </button>
+                    <button type="button" class="dl-btn dl-btn-success" onclick="downloadCollage()"><i
+                            class="las la-download"></i> Download Kolase</button>
+                    <button type="button" class="dl-btn dl-btn-primary" onclick="printCollage()"><i
+                            class="las la-print"></i> Print</button>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Modal Full Image --}}
+    {{-- ══════════════════════════════════════ --}}
+    {{-- MODAL FULL IMAGE                      --}}
+    {{-- ══════════════════════════════════════ --}}
     <div class="modal fade dl-modal" id="modalFullImage" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -562,9 +568,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="dl-btn dl-btn-success" onclick="downloadSingleImage()">
-                        <i class="las la-download"></i> Download
-                    </button>
+                    <button type="button" class="dl-btn dl-btn-success" onclick="downloadSingleImage()"><i
+                            class="las la-download"></i> Download</button>
                 </div>
             </div>
         </div>
@@ -592,7 +597,7 @@
     @endforeach
 
     {{-- ══════════════════════════════════════ --}}
-    {{-- MODAL ANALISIS HALAL (GEMINI)         --}}
+    {{-- MODAL ANALISIS HALAL — CLAUDE API     --}}
     {{-- ══════════════════════════════════════ --}}
     <div class="modal fade dl-modal" id="modalAnalisisHalal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -615,10 +620,10 @@
                             <div id="analisisProductName"
                                 style="font-family:'Sora',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">
                             </div>
-                            <div style="font-size:12px;color:var(--dl-muted);">Analisis menggunakan Gemini Vision AI</div>
+                            <div style="font-size:12px;color:var(--dl-muted);">Analisis menggunakan Claude Vision AI</div>
                             <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
                                 <span class="dl-badge dl-badge-verif" style="font-size:10px;">
-                                    <i class="las la-robot" style="font-size:11px;"></i> Gemini Flash
+                                    <i class="las la-robot" style="font-size:11px;"></i> Claude Sonnet
                                 </span>
                                 <span class="dl-badge dl-badge-pending" style="font-size:10px;">
                                     <i class="las la-shield-alt" style="font-size:11px;"></i> Analisis Kehalalan
@@ -633,7 +638,8 @@
                         <div class="analisis-spinner"></div>
                         <div style="font-size:14px;font-weight:600;color:var(--dl-text);margin-top:8px;">Menganalisis foto
                             produk...</div>
-                        <div style="font-size:12px;color:var(--dl-muted);">Gemini sedang mendeteksi bahan & proses</div>
+                        <div style="font-size:12px;color:var(--dl-muted);">Claude sedang mendeteksi bahan &amp; proses
+                        </div>
                     </div>
 
                     {{-- Error State --}}
@@ -672,7 +678,6 @@
 
                         {{-- Two-col grid --}}
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-
                             {{-- Bahan Terdeteksi --}}
                             <div class="dl-card" style="box-shadow:none;border:1.5px solid var(--dl-border);">
                                 <div class="dl-card-head"
@@ -755,7 +760,7 @@
                         <div
                             style="margin-top:14px;font-size:11px;color:var(--dl-muted);text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:5px;">
                             <i class="las la-robot" style="font-size:13px;"></i>
-                            Dianalisis oleh Gemini Flash &nbsp;·&nbsp;
+                            Dianalisis oleh Claude Sonnet &nbsp;·&nbsp;
                             <span id="analisisTimestamp"></span>
                         </div>
                     </div>
@@ -775,7 +780,6 @@
             </div>
         </div>
     </div>
-
 
     {{-- ══════════════════════════════════════ --}}
     {{-- LOCK TIMER WIDGET                     --}}
@@ -811,7 +815,6 @@
             </div>
         </div>
     </div>
-
 
     {{-- ══════════════════════════════════════ --}}
     {{-- STYLES                                --}}
@@ -849,14 +852,14 @@
             color: var(--dl-text);
         }
 
-        /* ── PAGE ── */
+        /* PAGE */
         .dl-page {
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* ── HEADER ── */
+        /* HEADER */
         .dl-header {
             display: flex;
             align-items: flex-start;
@@ -887,7 +890,7 @@
             font-weight: 600;
         }
 
-        /* ── BADGES ── */
+        /* BADGES */
         .dl-badge {
             display: inline-flex;
             align-items: center;
@@ -942,7 +945,7 @@
             color: #9F1239;
         }
 
-        /* ── STEPPER ── */
+        /* STEPPER */
         .dl-stepper {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1034,20 +1037,20 @@
             font-weight: 700;
         }
 
-        /* ── GRID ── */
+        /* GRID */
         .dl-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.25rem;
         }
 
-        @media (max-width: 992px) {
+        @media(max-width:992px) {
             .dl-grid {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* ── CARD ── */
+        /* CARD */
         .dl-card {
             background: var(--dl-card);
             border-radius: var(--dl-radius);
@@ -1097,7 +1100,7 @@
             padding: 1.25rem;
         }
 
-        /* ── INFO TABLE ── */
+        /* INFO TABLE */
         .dl-info-table {
             width: 100%;
             border-collapse: collapse;
@@ -1132,7 +1135,7 @@
             color: var(--dl-text);
         }
 
-        /* ── DIVIDER ── */
+        /* DIVIDER */
         .dl-divider {
             display: flex;
             align-items: center;
@@ -1155,7 +1158,7 @@
             background: var(--dl-border);
         }
 
-        /* ── BUTTONS ── */
+        /* BUTTONS */
         .dl-btn {
             display: inline-flex;
             align-items: center;
@@ -1245,236 +1248,7 @@
             width: 100%;
         }
 
-        /* ── PHOTO ROW ── */
-        .dl-photo-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 11px 14px;
-            border-bottom: 1px solid #F1F5F9;
-            transition: background .15s;
-        }
-
-        .dl-photo-row:last-child {
-            border-bottom: none;
-        }
-
-        .dl-photo-row:hover {
-            background: #FAFBFF;
-        }
-
-        .dl-photo-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: var(--dl-text);
-        }
-
-        .dl-photo-thumb {
-            width: 36px;
-            height: 36px;
-            border-radius: 7px;
-            object-fit: cover;
-            border: 1.5px solid var(--dl-border);
-            flex-shrink: 0;
-        }
-
-        .dl-photo-thumb-placeholder {
-            width: 36px;
-            height: 36px;
-            border-radius: 7px;
-            background: #F1F5F9;
-            border: 1.5px dashed var(--dl-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: var(--dl-muted);
-            flex-shrink: 0;
-        }
-
-        .dl-photo-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        /* ── FILE ROW ── */
-        .dl-file-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-        }
-
-        .dl-file-row.available {
-            background: var(--dl-green-lt);
-            border: 1px solid #A7F3D0;
-        }
-
-        .dl-file-row.missing {
-            background: #FFF1F2;
-            border: 1px solid #FECDD3;
-        }
-
-        .dl-file-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .available .dl-file-icon {
-            background: var(--dl-green);
-            color: #fff;
-        }
-
-        .missing .dl-file-icon {
-            background: var(--dl-rose);
-            color: #fff;
-        }
-
-        .dl-file-label {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .available .dl-file-label {
-            color: var(--dl-green);
-        }
-
-        .missing .dl-file-label {
-            color: var(--dl-rose);
-        }
-
-        /* ── UPLOAD GROUP ── */
-        .dl-upload-group {
-            display: flex;
-            gap: 8px;
-            align-items: stretch;
-            margin-top: 6px;
-        }
-
-        .dl-upload-group input[type="file"] {
-            flex: 1;
-            font-size: 12.5px;
-            padding: 6px 10px;
-            border: 1.5px solid var(--dl-border);
-            border-radius: var(--dl-radius-sm);
-            background: #F8FAFC;
-            color: var(--dl-text);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            min-width: 0;
-        }
-
-        .dl-upload-group input[type="file"]:focus {
-            outline: none;
-            border-color: var(--dl-blue);
-        }
-
-        /* ── ALERTS ── */
-        .dl-alert {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .dl-alert-success {
-            background: var(--dl-green-lt);
-            border: 1px solid #A7F3D0;
-            color: #065F46;
-        }
-
-        .dl-alert-danger {
-            background: var(--dl-rose-lt);
-            border: 1px solid #FECDD3;
-            color: #9F1239;
-        }
-
-        .dl-alert-icon {
-            font-size: 16px;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        /* ── BACK BUTTON ── */
-        .dl-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--dl-slate);
-            text-decoration: none;
-            padding: 6px 12px;
-            border: 1.5px solid var(--dl-border);
-            border-radius: var(--dl-radius-sm);
-            background: #fff;
-            transition: all .2s;
-        }
-
-        .dl-back:hover {
-            background: #F1F5F9;
-            color: var(--dl-text);
-            transform: translateX(-2px);
-        }
-
-        /* ── MODAL ── */
-        .dl-modal .modal-content {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .dl-modal .modal-header {
-            background: linear-gradient(135deg, #FAFBFF, #F0F4FF);
-            border-bottom: 1px solid var(--dl-border);
-            border-radius: 16px 16px 0 0;
-            padding: 1.1rem 1.5rem;
-        }
-
-        .dl-modal .modal-title {
-            font-family: 'Sora', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--dl-text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dl-modal .modal-body {
-            padding: 1.5rem;
-        }
-
-        .dl-modal .modal-footer {
-            border-top: 1px solid var(--dl-border);
-            padding: 1rem 1.5rem;
-        }
-
-        /* ── COLLAGE ── */
-        .dl-collage-img {
-            height: 260px;
-            object-fit: cover;
-            width: 100%;
-            cursor: pointer;
-            border-radius: 0 0 10px 10px;
-        }
-
-        /* ── PRODUK GRID ── */
+        /* PRODUK GRID */
         .dl-produk-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -1536,7 +1310,243 @@
             line-height: 1.4;
         }
 
-        /* ── EMPTY STATE ── */
+        /* Tombol analisis di produk card */
+        .dl-btn-analisis {
+            font-size: 11px !important;
+            padding: 4px 8px !important;
+        }
+
+        /* PHOTO ROW */
+        .dl-photo-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 14px;
+            border-bottom: 1px solid #F1F5F9;
+            transition: background .15s;
+        }
+
+        .dl-photo-row:last-child {
+            border-bottom: none;
+        }
+
+        .dl-photo-row:hover {
+            background: #FAFBFF;
+        }
+
+        .dl-photo-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--dl-text);
+        }
+
+        .dl-photo-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 7px;
+            object-fit: cover;
+            border: 1.5px solid var(--dl-border);
+            flex-shrink: 0;
+        }
+
+        .dl-photo-thumb-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 7px;
+            background: #F1F5F9;
+            border: 1.5px dashed var(--dl-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--dl-muted);
+            flex-shrink: 0;
+        }
+
+        .dl-photo-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* FILE ROW */
+        .dl-file-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .dl-file-row.available {
+            background: var(--dl-green-lt);
+            border: 1px solid #A7F3D0;
+        }
+
+        .dl-file-row.missing {
+            background: #FFF1F2;
+            border: 1px solid #FECDD3;
+        }
+
+        .dl-file-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .available .dl-file-icon {
+            background: var(--dl-green);
+            color: #fff;
+        }
+
+        .missing .dl-file-icon {
+            background: var(--dl-rose);
+            color: #fff;
+        }
+
+        .dl-file-label {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .available .dl-file-label {
+            color: var(--dl-green);
+        }
+
+        .missing .dl-file-label {
+            color: var(--dl-rose);
+        }
+
+        /* UPLOAD */
+        .dl-upload-group {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+            margin-top: 6px;
+        }
+
+        .dl-upload-group input[type="file"] {
+            flex: 1;
+            font-size: 12.5px;
+            padding: 6px 10px;
+            border: 1.5px solid var(--dl-border);
+            border-radius: var(--dl-radius-sm);
+            background: #F8FAFC;
+            color: var(--dl-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-width: 0;
+        }
+
+        .dl-upload-group input[type="file"]:focus {
+            outline: none;
+            border-color: var(--dl-blue);
+        }
+
+        /* ALERTS */
+        .dl-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .dl-alert-success {
+            background: var(--dl-green-lt);
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+
+        .dl-alert-danger {
+            background: var(--dl-rose-lt);
+            border: 1px solid #FECDD3;
+            color: #9F1239;
+        }
+
+        .dl-alert-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* BACK */
+        .dl-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dl-slate);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1.5px solid var(--dl-border);
+            border-radius: var(--dl-radius-sm);
+            background: #fff;
+            transition: all .2s;
+        }
+
+        .dl-back:hover {
+            background: #F1F5F9;
+            color: var(--dl-text);
+            transform: translateX(-2px);
+        }
+
+        /* MODAL */
+        .dl-modal .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .dl-modal .modal-header {
+            background: linear-gradient(135deg, #FAFBFF, #F0F4FF);
+            border-bottom: 1px solid var(--dl-border);
+            border-radius: 16px 16px 0 0;
+            padding: 1.1rem 1.5rem;
+        }
+
+        .dl-modal .modal-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dl-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dl-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .dl-modal .modal-footer {
+            border-top: 1px solid var(--dl-border);
+            padding: 1rem 1.5rem;
+        }
+
+        /* COLLAGE */
+        .dl-collage-img {
+            height: 260px;
+            object-fit: cover;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 0 0 10px 10px;
+        }
+
+        /* EMPTY */
         .dl-empty {
             text-align: center;
             padding: 1.5rem;
@@ -1551,16 +1561,16 @@
             opacity: .4;
         }
 
-        /* ── ANIMATIONS ── */
+        /* ANIMATIONS */
         @keyframes fadeUp {
             from {
                 opacity: 0;
-                transform: translateY(14px);
+                transform: translateY(14px)
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0)
             }
         }
 
@@ -1569,18 +1579,18 @@
         }
 
         .dl-card:nth-child(1) {
-            animation-delay: .05s;
+            animation-delay: .05s
         }
 
         .dl-card:nth-child(2) {
-            animation-delay: .10s;
+            animation-delay: .10s
         }
 
         .dl-card:nth-child(3) {
-            animation-delay: .15s;
+            animation-delay: .15s
         }
 
-        /* ── ANALISIS SPINNER ── */
+        /* ANALISIS SPINNER */
         .analisis-spinner {
             width: 48px;
             height: 48px;
@@ -1592,7 +1602,7 @@
 
         @keyframes spin {
             to {
-                transform: rotate(360deg);
+                transform: rotate(360deg)
             }
         }
 
@@ -1602,7 +1612,6 @@
             align-items: center;
         }
     </style>
-
 
     {{-- ══════════════════════════════════════ --}}
     {{-- SCRIPTS                               --}}
@@ -1665,10 +1674,10 @@
         function printCollage() {
             const w = window.open('', '', 'height=700,width=900');
             w.document.write(`<html><head><title>Kolase Foto</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>.dl-collage-img{height:260px;object-fit:cover;width:100%}@media print{body{-webkit-print-color-adjust:exact}}</style>
-        </head><body><h5 class="text-center my-4">Dokumentasi Foto — {{ $dataLapangan->nama_pu }}</h5>
-        ${document.getElementById('collageContent').innerHTML}</body></html>`);
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>.dl-collage-img{height:260px;object-fit:cover;width:100%}@media print{body{-webkit-print-color-adjust:exact}}</style>
+            </head><body><h5 class="text-center my-4">Dokumentasi Foto — {{ $dataLapangan->nama_pu }}</h5>
+            ${document.getElementById('collageContent').innerHTML}</body></html>`);
             w.document.close();
             setTimeout(() => {
                 w.focus();
@@ -1677,13 +1686,9 @@
             }, 300);
         }
 
-        // ══════════════════════════════════════
-        // ANALISIS HALAL — GEMINI VISION (GLOBAL)
-        // ══════════════════════════════════════
-        const GEMINI_KEY = 'AIzaSyAWbAG97-umbqMAcV6MXKkzAuUHkbyGTkc';
-        const GEMINI_URL =
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-
+        // ══════════════════════════════════════════════════════════════
+        // ANALISIS HALAL — CLAUDE VISION API
+        // ══════════════════════════════════════════════════════════════
         let _currentAnalisisUrl = '';
         let _currentAnalisisName = '';
 
@@ -1703,18 +1708,21 @@
         function openAnalisisHalal(imgUrl, productName) {
             _currentAnalisisUrl = imgUrl;
             _currentAnalisisName = productName;
+
             document.getElementById('analisisPreviewImg').src = imgUrl;
             document.getElementById('analisisProductName').textContent = productName;
+
             _showAnalisisState('loading');
             document.getElementById('btnCopyAnalisis').style.display = 'none';
             document.getElementById('btnReanalisis').style.display = 'none';
+
             new bootstrap.Modal(document.getElementById('modalAnalisisHalal')).show();
-            runGeminiAnalisis(imgUrl);
+            runClaudeAnalisis(imgUrl);
         }
 
         function retryAnalisis() {
             _showAnalisisState('loading');
-            runGeminiAnalisis(_currentAnalisisUrl);
+            runClaudeAnalisis(_currentAnalisisUrl);
         }
 
         async function imageUrlToBase64(url) {
@@ -1722,36 +1730,34 @@
             const blob = await response.blob();
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64 = reader.result.split(',')[1];
-                    resolve({
-                        base64,
-                        mimeType: blob.type || 'image/jpeg'
-                    });
-                };
+                reader.onloadend = () => resolve({
+                    base64: reader.result.split(',')[1],
+                    mimeType: blob.type || 'image/jpeg'
+                });
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
             });
         }
 
-        async function runGeminiAnalisis(imgUrl) {
+        async function runClaudeAnalisis(imgUrl) {
             try {
                 const {
                     base64,
                     mimeType
                 } = await imageUrlToBase64(imgUrl);
+
                 const prompt = `Kamu adalah ahli sertifikasi halal MUI Indonesia yang berpengalaman.
 
 Analisis foto produk makanan/minuman berikut secara mendetail untuk keperluan sertifikasi halal.
 
-Berikan analisis dalam format JSON SAJA (tanpa markdown, tanpa penjelasan tambahan) dengan struktur berikut:
+Berikan analisis dalam format JSON SAJA (tanpa markdown, tanpa kode blok, tanpa penjelasan tambahan) dengan struktur berikut:
 {
   "verdict": "HALAL" | "PERLU_VERIFIKASI" | "BERISIKO",
   "confidence_score": <angka 0-100>,
   "verdict_desc": "<deskripsi singkat 1 kalimat>",
-  "bahan_terdeteksi": ["<bahan1>", "<bahan2>", ...],
-  "proses_produksi": ["<proses1>", "<proses2>", ...],
-  "potensi_risiko": ["<risiko1>", ...],
+  "bahan_terdeteksi": ["<bahan1>", "<bahan2>"],
+  "proses_produksi": ["<proses1>", "<proses2>"],
+  "potensi_risiko": ["<risiko1>"],
   "rekomendasi": "<rekomendasi tindak lanjut untuk proses sertifikasi halal>"
 }
 
@@ -1759,43 +1765,37 @@ Fokus pada:
 1. Bahan-bahan yang terlihat atau dapat diduga dari foto (kemasan, label, tampilan produk)
 2. Proses produksi yang terlihat (peralatan, metode, lingkungan)
 3. Risiko kontaminasi atau bahan haram (babi, alkohol, darah, dll)
-4. Kesesuaian proses dengan standar halal MUI`;
+4. Kesesuaian proses dengan standar halal MUI
 
-                const requestBody = {
-                    contents: [{
-                        parts: [{
-                                inline_data: {
-                                    mime_type: mimeType,
-                                    data: base64
-                                }
-                            },
-                            {
-                                text: prompt
-                            }
-                        ]
-                    }],
-                    generationConfig: {
-                        temperature: 0.2,
-                        maxOutputTokens: 1024
-                    }
-                };
+PENTING: Balas dengan JSON saja, tidak ada teks lain.`;
 
-                const response = await fetch(GEMINI_URL, {
+                // Kirim ke backend Laravel (proxy aman — API key tidak terekspos)
+                const response = await fetch('/api/analisis-halal', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') ?? '',
+                        'Accept': 'application/json',
                     },
-                    body: JSON.stringify(requestBody)
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        base64,
+                        mimeType,
+                        prompt
+                    }),
                 });
 
                 if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData?.error?.message || `HTTP ${response.status}`);
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData?.message || `HTTP ${response.status}`);
                 }
 
                 const data = await response.json();
-                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+                // Claude API: data.content[0].text
+                const rawText = data?.content?.[0]?.text ?? '';
                 const cleaned = rawText.replace(/```json|```/g, '').trim();
+
                 let parsed;
                 try {
                     parsed = JSON.parse(cleaned);
@@ -1807,44 +1807,43 @@ Fokus pada:
 
             } catch (err) {
                 _showAnalisisState('error');
-                document.getElementById('analisisErrorMsg').textContent = err.message ||
-                    'Terjadi kesalahan tidak terduga.';
+                document.getElementById('analisisErrorMsg').textContent =
+                    err.message || 'Terjadi kesalahan tidak terduga.';
                 document.getElementById('btnReanalisis').style.display = 'inline-flex';
             }
         }
 
         function renderAnalisisResult(data) {
-            const verdictConfig = {
-                'HALAL': {
+            const VC = {
+                HALAL: {
                     bg: 'var(--dl-green-lt)',
                     border: '#A7F3D0',
                     iconBg: 'var(--dl-green)',
                     icon: 'la-check-circle',
                     titleColor: '#065F46',
                     descColor: '#059669',
-                    scoreColor: '#059669',
+                    scoreColor: '#059669'
                 },
-                'PERLU_VERIFIKASI': {
+                PERLU_VERIFIKASI: {
                     bg: '#FFFBEB',
                     border: '#FDE68A',
                     iconBg: 'var(--dl-amber)',
                     icon: 'la-exclamation-circle',
                     titleColor: '#92400E',
                     descColor: '#D97706',
-                    scoreColor: '#D97706',
+                    scoreColor: '#D97706'
                 },
-                'BERISIKO': {
+                BERISIKO: {
                     bg: 'var(--dl-rose-lt)',
                     border: '#FECDD3',
                     iconBg: 'var(--dl-rose)',
                     icon: 'la-times-circle',
                     titleColor: '#9F1239',
                     descColor: '#E11D48',
-                    scoreColor: '#E11D48',
-                }
+                    scoreColor: '#E11D48'
+                },
             };
-
-            const vc = verdictConfig[data.verdict] ?? verdictConfig['PERLU_VERIFIKASI'];
+            const vc = VC[data.verdict] ?? VC['PERLU_VERIFIKASI'];
             const banner = document.getElementById('analisisVerdictBanner');
             banner.style.background = vc.bg;
             banner.style.borderColor = vc.border;
@@ -1858,12 +1857,15 @@ Fokus pada:
                 PERLU_VERIFIKASI: 'Perlu Verifikasi Lebih Lanjut',
                 BERISIKO: 'Terdeteksi Risiko Kehalalan'
             };
-            document.getElementById('analisisVerdictTitle').textContent = titleMap[data.verdict] ?? data.verdict;
-            document.getElementById('analisisVerdictTitle').style.color = vc.titleColor;
-            document.getElementById('analisisVerdictDesc').textContent = data.verdict_desc ?? '';
-            document.getElementById('analisisVerdictDesc').style.color = vc.descColor;
-            document.getElementById('analisisVerdictScore').textContent = (data.confidence_score ?? 0) + '%';
-            document.getElementById('analisisVerdictScore').style.color = vc.scoreColor;
+            const titleEl = document.getElementById('analisisVerdictTitle');
+            titleEl.textContent = titleMap[data.verdict] ?? data.verdict;
+            titleEl.style.color = vc.titleColor;
+            const descEl = document.getElementById('analisisVerdictDesc');
+            descEl.textContent = data.verdict_desc ?? '';
+            descEl.style.color = vc.descColor;
+            const scoreEl = document.getElementById('analisisVerdictScore');
+            scoreEl.textContent = (data.confidence_score ?? 0) + '%';
+            scoreEl.style.color = vc.scoreColor;
 
             const bahanList = document.getElementById('analisisBahanList');
             bahanList.innerHTML = '';
@@ -1872,9 +1874,8 @@ Fokus pada:
                 li.textContent = b;
                 bahanList.appendChild(li);
             });
-            if (!data.bahan_terdeteksi?.length) {
-                bahanList.innerHTML = '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
-            }
+            if (!data.bahan_terdeteksi?.length) bahanList.innerHTML =
+                '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
 
             const prosesList = document.getElementById('analisisProsesList');
             prosesList.innerHTML = '';
@@ -1883,9 +1884,8 @@ Fokus pada:
                 li.textContent = p;
                 prosesList.appendChild(li);
             });
-            if (!data.proses_produksi?.length) {
-                prosesList.innerHTML = '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
-            }
+            if (!data.proses_produksi?.length) prosesList.innerHTML =
+                '<li style="color:var(--dl-muted);">Tidak terdeteksi</li>';
 
             const risikoSection = document.getElementById('analisisRisikoSection');
             const risikoList = document.getElementById('analisisRisikoList');
@@ -2030,7 +2030,6 @@ Fokus pada:
             }
 
             document.getElementById('lockTimerContainer').style.display = 'block';
-
             let timerInterval = null;
             let isExpired = false;
 
@@ -2069,7 +2068,7 @@ Fokus pada:
                 if (timeLeft <= 60) {
                     bar.style.background = 'var(--dl-rose)';
                     disp.style.color = 'var(--dl-rose)';
-                } else if (timeLeft <= 5 * 60) {
+                } else if (timeLeft <= 300) {
                     bar.style.background = 'var(--dl-amber)';
                     disp.style.color = 'var(--dl-amber)';
                 } else {

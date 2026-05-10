@@ -55,4 +55,9 @@ return [
         'name' => env('APP_NAME', 'Laravel'),
     ],
 
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+    ],
+
+
 ];

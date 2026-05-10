@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnalisisHalalController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\DatabankController;
 use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
@@ -31,6 +32,12 @@ Route::get('data-lapangan/by-enumerator/{enumeratorId}', function ($enumeratorId
 
     return response()->json($dataLapangan);
 });
+
+Route::middleware('auth:sanctum')->post(
+    '/analisis-halal',
+    [AnalisisHalalController::class, 'analyze']
+);
+
 Route::middleware('auth:sanctum')->post('/fcm-token', [FcmController::class, 'store']);
 Route::apiResource('data-banks', DatabankController::class);
 // =============================================

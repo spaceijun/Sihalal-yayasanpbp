@@ -196,8 +196,11 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
 
         // Face Match
         Route::prefix('face-match')->name('face-match.')->group(function () {
-            Route::get('/',       [FaceMatchController::class, 'index'])->name('index');
-            Route::post('/match', [FaceMatchController::class, 'match'])->name('match');
+            Route::get('/',        [FaceMatchController::class, 'index'])->name('index');
+            Route::post('/match',  [FaceMatchController::class, 'match'])->name('match');
+            Route::get('/status',  [FaceMatchController::class, 'status'])->name('status');
+            Route::get('/poll',    [FaceMatchController::class, 'poll'])->name('poll');
+            Route::get('/result',  [FaceMatchController::class, 'result'])->name('result');
         });
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');

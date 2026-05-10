@@ -46,6 +46,22 @@
                     </div>
                 </div>
                 <div style="padding:20px 24px;">
+
+                    {{-- Info jumlah data --}}
+                    <div class="fm-info-box" style="margin-bottom:20px;">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;color:var(--adm-blue);">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        <div style="font-size:13px;color:var(--adm-text-mid);">
+                            Akan mencocokkan dengan <strong>{{ $totalData }} foto pendamping</strong> di database.
+                            @if ($totalData > 30)
+                                Proses mungkin membutuhkan waktu beberapa menit.
+                            @endif
+                        </div>
+                    </div>
+
                     <form action="{{ route('superadmin.face-match.match') }}" method="POST" enctype="multipart/form-data"
                         id="faceMatchForm">
                         @csrf
@@ -89,7 +105,7 @@
                                     style="width:16px;height:16px;flex-shrink:0;color:var(--adm-blue);">
                                     <circle cx="12" cy="12" r="10" />
                                     <line x1="12" y1="16" x2="12" y2="12" />
-                                    <line x1="12" y1="8" x2="12" y2="8" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
                                 </svg>
                                 <div style="font-size:13px;color:var(--adm-text-mid);line-height:1.6;">
                                     <strong>Tips untuk hasil terbaik:</strong><br>
@@ -102,12 +118,16 @@
 
                         <button type="submit" class="adm-btn-primary" style="width:100%;justify-content:center;"
                             id="submitBtn">
-                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;">
+                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;" id="submitIcon">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
+                            <svg viewBox="0 0 24 24"
+                                style="width:16px;height:16px;display:none;animation:spin 1s linear infinite;"
+                                id="loadingIcon">
+                                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                            </svg>
                             <span id="submitText">Cari Kecocokan</span>
-                            <span id="loadingText" style="display:none;">Memproses...</span>
                         </button>
                     </form>
                 </div>
@@ -132,31 +152,31 @@
                             <div>
                                 <div class="fm-step-title">Upload Foto</div>
                                 <div class="fm-step-desc">Upload foto wajah yang ingin dicari. Bisa dari foto KTP atau foto
-                                    langsung.</div>
+                                    biasa.</div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">2</div>
                             <div>
-                                <div class="fm-step-title">Analisis AI</div>
-                                <div class="fm-step-desc">Claude AI membandingkan fitur wajah dengan setiap foto pendamping
-                                    di database.</div>
+                                <div class="fm-step-title">Resize Otomatis</div>
+                                <div class="fm-step-desc">Sistem mengecilkan foto secara otomatis agar proses hemat memori
+                                    dan tetap akurat.</div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">3</div>
                             <div>
-                                <div class="fm-step-title">Hasil Kecocokan</div>
-                                <div class="fm-step-desc">Sistem menampilkan daftar kecocokan diurutkan dari tingkat
-                                    kemiripan tertinggi.</div>
+                                <div class="fm-step-title">Analisis AI per Foto</div>
+                                <div class="fm-step-desc">Claude AI membandingkan fitur wajah satu per satu dengan setiap
+                                    foto pendamping di database.</div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">4</div>
                             <div>
-                                <div class="fm-step-title">Verifikasi Manual</div>
-                                <div class="fm-step-desc">Hasil AI bersifat indikatif. Selalu lakukan verifikasi manual
-                                    sebelum mengambil keputusan.</div>
+                                <div class="fm-step-title">Hasil Terurut</div>
+                                <div class="fm-step-desc">Hasil ditampilkan dari kemungkinan cocok tertinggi ke terendah
+                                    untuk memudahkan verifikasi.</div>
                             </div>
                         </div>
                     </div>
@@ -178,6 +198,12 @@
     </div>
 
     <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .fm-drop-zone {
             border: 2px dashed var(--adm-border);
             border-radius: 12px;
@@ -299,7 +325,8 @@
         const form = document.getElementById('faceMatchForm');
         const submitBtn = document.getElementById('submitBtn');
         const submitText = document.getElementById('submitText');
-        const loadingText = document.getElementById('loadingText');
+        const submitIcon = document.getElementById('submitIcon');
+        const loadingIcon = document.getElementById('loadingIcon');
 
         dropZone.addEventListener('click', () => fotoInput.click());
         dropZone.addEventListener('dragover', e => {
@@ -341,8 +368,9 @@
 
         form.addEventListener('submit', () => {
             submitBtn.disabled = true;
-            submitText.style.display = 'none';
-            loadingText.style.display = 'inline';
+            submitIcon.style.display = 'none';
+            loadingIcon.style.display = 'inline';
+            submitText.textContent = 'Memproses... harap tunggu';
         });
     </script>
 @endsection

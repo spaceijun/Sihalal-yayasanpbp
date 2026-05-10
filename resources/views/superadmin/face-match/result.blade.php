@@ -79,8 +79,9 @@
                             style="margin-top:14px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;text-align:left;">
                             <div style="font-size:11px;color:#166534;font-weight:600;margin-bottom:4px;">KEMUNGKINAN TERBAIK
                             </div>
-                            <div style="font-size:14px;font-weight:600;color:#15803d;">
-                                {{ $topMatch['data']->nama_pendamping }}</div>
+                            <div style="font-size:14px;font-weight:600;color:#15803d;">{{ $topMatch['data']->nama_pu }}
+                            </div>
+                            <div style="font-size:12px;color:#166534;">NIK: {{ $topMatch['data']->nik }}</div>
                             <div style="font-size:12px;color:#166534;">{{ $topMatch['confidence'] }}% kemiripan</div>
                         </div>
                     @else
@@ -95,17 +96,17 @@
             {{-- Hasil --}}
             <div>
                 {{-- Filter tab --}}
-                <div style="display:flex;gap:8px;margin-bottom:14px;">
-                    <button class="fm-filter-btn active" data-filter="all" onclick="filterResults('all', this)">
+                <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+                    <button class="fm-filter-btn active" onclick="filterResults('all', this)">
                         Semua ({{ count($results) }})
                     </button>
-                    <button class="fm-filter-btn" data-filter="match" onclick="filterResults('match', this)">
+                    <button class="fm-filter-btn" onclick="filterResults('match', this)">
                         <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
                         Cocok ({{ $matchCount }})
                     </button>
-                    <button class="fm-filter-btn" data-filter="nomatch" onclick="filterResults('nomatch', this)">
+                    <button class="fm-filter-btn" onclick="filterResults('nomatch', this)">
                         <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
@@ -120,23 +121,25 @@
                         <div class="fm-result-card {{ $result['match'] ? 'fm-match' : 'fm-nomatch' }}"
                             data-match="{{ $result['match'] ? 'match' : 'nomatch' }}">
 
+                            {{-- Foto pendamping --}}
                             <div class="fm-result-photo">
-                                <img src="{{ $result['foto_url'] }}" alt="{{ $result['data']->nama_pendamping }}"
-                                    onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\'><rect width=\'80\' height=\'80\' fill=\'%23f3f4f6\'/><text x=\'50%25\' y=\'50%25\' fill=\'%239ca3af\' text-anchor=\'middle\' dy=\'.3em\' font-size=\'24\'>?</text></svg>'">
+                                <img src="{{ $result['foto_url'] }}" alt="{{ $result['data']->nama_pu }}"
+                                    onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--adm-text-faint);\'>?</div>'">
                             </div>
 
+                            {{-- Info --}}
                             <div class="fm-result-info">
-                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-                                    <span class="fm-result-name">{{ $result['data']->nama_pendamping }}</span>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                                    <span class="fm-result-name">{{ $result['data']->nama_pu }}</span>
                                     @if ($result['match'])
-                                        <span class="adm-badge adm-badge-success">
+                                        <span class="adm-badge fm-badge-match">
                                             <svg viewBox="0 0 24 24" style="width:11px;height:11px;">
                                                 <polyline points="20 6 9 17 4 12" />
                                             </svg>
                                             Kemungkinan Cocok
                                         </span>
                                     @else
-                                        <span class="adm-badge" style="background:#fef2f2;color:#991b1b;">
+                                        <span class="adm-badge fm-badge-nomatch">
                                             <svg viewBox="0 0 24 24" style="width:11px;height:11px;">
                                                 <line x1="18" y1="6" x2="6" y2="18" />
                                                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -146,10 +149,24 @@
                                     @endif
                                 </div>
 
-                                <div style="font-size:12px;color:var(--adm-text-faint);margin-bottom:10px;">
-                                    {{ $result['data']->nama_usaha ?? '-' }}
-                                    @if ($result['data']->no_hp)
-                                        &nbsp;·&nbsp; {{ $result['data']->no_hp }}
+                                <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;">
+                                    @if ($result['data']->nik)
+                                        <span style="font-size:12px;color:var(--adm-text-faint);">
+                                            <svg viewBox="0 0 24 24" style="width:12px;height:12px;vertical-align:-1px;">
+                                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                                <line x1="2" y1="10" x2="22" y2="10" />
+                                            </svg>
+                                            NIK: {{ $result['data']->nik }}
+                                        </span>
+                                    @endif
+                                    @if ($result['data']->telephone)
+                                        <span style="font-size:12px;color:var(--adm-text-faint);">
+                                            <svg viewBox="0 0 24 24" style="width:12px;height:12px;vertical-align:-1px;">
+                                                <path
+                                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                                            </svg>
+                                            {{ $result['data']->telephone }}
+                                        </span>
                                     @endif
                                 </div>
 
@@ -174,14 +191,15 @@
                                 </div>
                             </div>
 
+                            {{-- Aksi --}}
                             <div class="fm-result-actions">
-                                <a href="{{ route('superadmin.data-lapangans.show', $result['data']->id) }}"
-                                    class="adm-btn-secondary" style="padding:6px 14px;font-size:12px;">
+                                <a href="{{ route('superadmin.data-lapangan.show', $result['data']->id) }}"
+                                    class="adm-btn-secondary" style="padding:6px 14px;font-size:12px;white-space:nowrap;">
                                     <svg viewBox="0 0 24 24" style="width:13px;height:13px;">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                         <circle cx="12" cy="12" r="3" />
                                     </svg>
-                                    Detail
+                                    Lihat Detail
                                 </a>
                             </div>
                         </div>
@@ -202,6 +220,7 @@
             </div>
         </div>
 
+        {{-- Disclaimer --}}
         <div
             style="margin-top:20px;padding:12px 16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;display:flex;gap:10px;align-items:flex-start;">
             <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;color:#92400e;margin-top:1px;">
@@ -222,9 +241,9 @@
         .adm-stat-card {
             background: var(--adm-card-bg);
             border: 1px solid var(--adm-border);
+            border-top: 3px solid var(--adm-blue);
             border-radius: 10px;
             padding: 16px 18px;
-            border-top: 3px solid var(--adm-blue);
         }
 
         .adm-stat-label {
@@ -234,7 +253,7 @@
         }
 
         .adm-stat-val {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--adm-text-dark);
         }
@@ -290,7 +309,7 @@
 
         .fm-result-photo {
             width: 72px;
-            height: 80px;
+            height: 84px;
             flex-shrink: 0;
             border-radius: 8px;
             overflow: hidden;
@@ -317,6 +336,8 @@
 
         .fm-result-actions {
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
         }
 
         .fm-conf-bar-bg {
@@ -332,9 +353,14 @@
             transition: width .6s ease;
         }
 
-        .adm-badge-success {
-            background: #f0fdf4;
-            color: #166534;
+        .fm-badge-match {
+            background: #f0fdf4 !important;
+            color: #166534 !important;
+        }
+
+        .fm-badge-nomatch {
+            background: #fef2f2 !important;
+            color: #991b1b !important;
         }
     </style>
 
@@ -342,13 +368,8 @@
         function filterResults(filter, btn) {
             document.querySelectorAll('.fm-filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
             document.querySelectorAll('.fm-result-card').forEach(card => {
-                if (filter === 'all') {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = card.dataset.match === filter ? 'flex' : 'none';
-                }
+                card.style.display = (filter === 'all' || card.dataset.match === filter) ? 'flex' : 'none';
             });
         }
     </script>

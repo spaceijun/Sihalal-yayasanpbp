@@ -160,9 +160,8 @@ class FaceMatchController extends Controller
         // Ambil hasil terkini dari cache untuk ditampilkan live di status page
         $allResults = Cache::get($sessionKey, []);
 
+        // Urutan TIDAK diubah (append-only) supaya lastRendered di JS tetap akurat
         $recentActivity = collect($allResults)
-            ->sortByDesc(fn($r) => $r['confidence'])
-            ->take(10)
             ->map(fn($r) => [
                 'nama_pu'         => $r['data']['nama_pu'] ?? '-',
                 'nama_enumerator' => $r['data']['nama_enumerator'] ?? '-',

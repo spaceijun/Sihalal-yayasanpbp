@@ -335,16 +335,22 @@
 
             let timer = null;
             let lastRendered = 0; // jumlah item yang sudah dirender
+            let emptyRemoved = false;
 
             // ── Render activity feed ──────────────────────────────────────────
             function renderActivity(items) {
                 if (!items || items.length === 0) return;
 
-                // Hanya render item baru (dibanding render terakhir)
+                // Hanya render item baru (append-only, urutan dari controller tidak diubah)
                 const newItems = items.slice(lastRendered);
                 if (newItems.length === 0) return;
 
-                if (elEmpty) elEmpty.remove();
+                // Hapus placeholder "menunggu" satu kali
+                if (!emptyRemoved) {
+                    const emptyEl = document.getElementById('activity-empty');
+                    if (emptyEl) emptyEl.remove();
+                    emptyRemoved = true;
+                }
 
                 newItems.forEach(item => {
                     const isMatch = item.match;
@@ -398,10 +404,19 @@
             function updateUI(data) {
                 const pct = data.percentage ?? 0;
 
-                elBar.style.width = pct + '%';
-                elPct.textContent = pct + '%';
+                // Pastikan elBar ada sebelum set style (guard null)
+                if (elBar) elBar.style.width = pct + '%';
+                if (elPct) elPct.textContent = pct + '%';
                 elProcessed.textContent = data.processed ?? 0;
                 elTotal.textContent = data.total ?? 0;
+
+                console.debug('[FaceMatch] poll →', {
+                    pct,
+                    processed: data.processed,
+                    total: data.total,
+                    matchCount: data.match_count,
+                    finished: data.finished
+                });
 
                 if ((data.failed ?? 0) > 0) {
                     elFailedCnt.textContent = data.failed;

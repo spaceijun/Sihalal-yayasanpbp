@@ -1,23 +1,21 @@
 @extends('layouts.app')
 @section('template_title')
-    Pencocokan Wajah
+    Deteksi Wajah Duplikat
 @endsection
 @section('content')
     <div class="adm-page">
 
         <div class="adm-header">
             <div class="adm-header-left">
-                <h1>Pencocokan Wajah</h1>
-                <p>Upload foto wajah untuk dicocokkan dengan data pendamping di database</p>
+                <h1>Deteksi Wajah Duplikat</h1>
+                <p>Scan seluruh enumerator untuk menemukan foto pendamping yang mirip (≥80%)</p>
             </div>
-            <div style="display:flex;gap:8px;">
-                <a href="{{ route('superadmin.dashboard') }}" class="adm-btn-secondary">
-                    <svg viewBox="0 0 24 24">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                    Kembali
-                </a>
-            </div>
+            <a href="{{ route('superadmin.dashboard') }}" class="adm-btn-secondary">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Kembali
+            </a>
         </div>
 
         @if (session('error'))
@@ -33,89 +31,90 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
-            {{-- Upload Form --}}
+            {{-- Stat cards --}}
+            <div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                <div class="adm-stat-card">
+                    <div class="adm-stat-label">Total Enumerator</div>
+                    <div class="adm-stat-val">{{ $totalEnumerator }}</div>
+                </div>
+                <div class="adm-stat-card">
+                    <div class="adm-stat-label">Total Foto Pendamping</div>
+                    <div class="adm-stat-val">{{ $totalFoto }}</div>
+                </div>
+                <div class="adm-stat-card">
+                    <div class="adm-stat-label">Total Kombinasi Perbandingan</div>
+                    <div class="adm-stat-val">{{ number_format($totalKombinasi) }}</div>
+                </div>
+            </div>
+
+            {{-- Mulai Scan --}}
             <div class="adm-card">
                 <div class="adm-card-header">
                     <div class="adm-card-title">
                         <svg viewBox="0 0 24 24">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="17 8 12 3 7 8" />
-                            <line x1="12" y1="3" x2="12" y2="15" />
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        Upload Foto Wajah
+                        Mulai Scan Duplikat
                     </div>
                 </div>
                 <div style="padding:20px 24px;">
 
-                    {{-- Info jumlah data --}}
                     <div class="fm-info-box" style="margin-bottom:20px;">
                         <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;color:var(--adm-blue);">
                             <circle cx="12" cy="12" r="10" />
                             <line x1="12" y1="16" x2="12" y2="12" />
                             <line x1="12" y1="8" x2="12.01" y2="8" />
                         </svg>
-                        <div style="font-size:13px;color:var(--adm-text-mid);">
-                            Akan mencocokkan dengan <strong>{{ $totalData }} foto pendamping</strong> di database.
-                            @if ($totalData > 30)
-                                Proses mungkin membutuhkan waktu beberapa menit.
-                            @endif
+                        <div style="font-size:13px;color:var(--adm-text-mid);line-height:1.6;">
+                            Sistem akan membandingkan <strong>semua kombinasi pasangan foto</strong> milik
+                            setiap enumerator. Pasangan dengan kemiripan <strong>≥80%</strong> akan ditandai
+                            sebagai duplikat.<br><br>
+                            Estimasi waktu: <strong>~{{ $estimasiMenit }} menit</strong>
+                            ({{ $totalKombinasi }} kombinasi, Tier 1 ~50 req/menit).
                         </div>
                     </div>
 
-                    <form action="{{ route('superadmin.face-match.match') }}" method="POST" enctype="multipart/form-data"
-                        id="faceMatchForm">
+                    {{-- Daftar enumerator --}}
+                    <div
+                        style="margin-bottom:20px;max-height:260px;overflow-y:auto;border:1px solid var(--adm-border);border-radius:8px;">
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:var(--adm-bg-faint);position:sticky;top:0;">
+                                    <th style="padding:8px 12px;text-align:left;font-weight:600;color:var(--adm-text-mid);">
+                                        Enumerator</th>
+                                    <th
+                                        style="padding:8px 12px;text-align:center;font-weight:600;color:var(--adm-text-mid);">
+                                        Foto</th>
+                                    <th
+                                        style="padding:8px 12px;text-align:center;font-weight:600;color:var(--adm-text-mid);">
+                                        Kombinasi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($enumerators as $enum)
+                                    <tr style="border-top:1px solid var(--adm-border);">
+                                        <td style="padding:8px 12px;color:var(--adm-text-dark);">{{ $enum->nama_lengkap }}
+                                        </td>
+                                        <td style="padding:8px 12px;text-align:center;color:var(--adm-text-mid);">
+                                            {{ $enum->foto_count }}</td>
+                                        <td style="padding:8px 12px;text-align:center;">
+                                            @php $k = $enum->foto_count * ($enum->foto_count - 1) / 2; @endphp
+                                            @if ($k > 0)
+                                                <span
+                                                    style="color:var(--adm-blue);font-weight:600;">{{ $k }}</span>
+                                            @else
+                                                <span style="color:var(--adm-text-faint);">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <form action="{{ route('superadmin.face-match.match') }}" method="POST" id="scanForm">
                         @csrf
-
-                        <div class="adm-form-group" style="margin-bottom:20px;">
-                            <label class="adm-label">Foto Wajah (KTP atau foto langsung)</label>
-                            <div class="fm-drop-zone" id="dropZone">
-                                <input type="file" name="foto_query" id="fotoInput" accept="image/jpeg,image/png"
-                                    style="display:none;">
-                                <div class="fm-drop-content" id="dropContent">
-                                    <svg viewBox="0 0 24 24"
-                                        style="width:40px;height:40px;color:var(--adm-text-faint);margin-bottom:12px;">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                                        <circle cx="8.5" cy="8.5" r="1.5" />
-                                        <polyline points="21 15 16 10 5 21" />
-                                    </svg>
-                                    <p style="color:var(--adm-text-mid);margin:0 0 8px;font-size:14px;">Klik atau seret foto
-                                        ke sini</p>
-                                    <p style="color:var(--adm-text-faint);margin:0;font-size:12px;">JPG, PNG · Maks. 5MB</p>
-                                </div>
-                                <div class="fm-preview" id="previewContainer" style="display:none;">
-                                    <img id="previewImg" src="" alt="Preview"
-                                        style="max-height:200px;border-radius:8px;object-fit:contain;">
-                                    <button type="button" class="fm-remove-btn" id="removeBtn">
-                                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
-                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                        </svg>
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
-                            @error('foto_query')
-                                <span class="adm-error-text">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="adm-form-group" style="margin-bottom:24px;">
-                            <div class="fm-info-box">
-                                <svg viewBox="0 0 24 24"
-                                    style="width:16px;height:16px;flex-shrink:0;color:var(--adm-blue);">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="12" y1="16" x2="12" y2="12" />
-                                    <line x1="12" y1="8" x2="12.01" y2="8" />
-                                </svg>
-                                <div style="font-size:13px;color:var(--adm-text-mid);line-height:1.6;">
-                                    <strong>Tips untuk hasil terbaik:</strong><br>
-                                    • Pastikan wajah terlihat jelas dan tidak buram<br>
-                                    • Foto KTP: area wajah akan diekstrak otomatis oleh AI<br>
-                                    • Gunakan foto dengan pencahayaan yang cukup
-                                </div>
-                            </div>
-                        </div>
-
                         <button type="submit" class="adm-btn-primary" style="width:100%;justify-content:center;"
                             id="submitBtn">
                             <svg viewBox="0 0 24 24" style="width:16px;height:16px;" id="submitIcon">
@@ -127,7 +126,7 @@
                                 id="loadingIcon">
                                 <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                             </svg>
-                            <span id="submitText">Cari Kecocokan</span>
+                            <span id="submitText">Mulai Scan Semua Enumerator</span>
                         </button>
                     </form>
                 </div>
@@ -150,33 +149,33 @@
                         <div class="fm-step">
                             <div class="fm-step-num">1</div>
                             <div>
-                                <div class="fm-step-title">Upload Foto</div>
-                                <div class="fm-step-desc">Upload foto wajah yang ingin dicari. Bisa dari foto KTP atau foto
-                                    biasa.</div>
+                                <div class="fm-step-title">Kelompokkan per Enumerator</div>
+                                <div class="fm-step-desc">Semua foto pendamping dikelompokkan berdasarkan enumerator_id.
+                                </div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">2</div>
                             <div>
-                                <div class="fm-step-title">Resize Otomatis</div>
-                                <div class="fm-step-desc">Sistem mengecilkan foto secara otomatis agar proses hemat memori
-                                    dan tetap akurat.</div>
+                                <div class="fm-step-title">Buat Kombinasi Pasangan</div>
+                                <div class="fm-step-desc">Setiap pasangan unik dalam 1 enumerator dibandingkan (A↔B, A↔C,
+                                    B↔C, dst).</div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">3</div>
                             <div>
-                                <div class="fm-step-title">Analisis AI per Foto</div>
-                                <div class="fm-step-desc">Claude AI membandingkan fitur wajah satu per satu dengan setiap
-                                    foto pendamping di database.</div>
+                                <div class="fm-step-title">Analisis AI per Pasangan</div>
+                                <div class="fm-step-desc">Claude AI menilai kemiripan wajah tiap pasangan secara paralel
+                                    lewat queue.</div>
                             </div>
                         </div>
                         <div class="fm-step">
                             <div class="fm-step-num">4</div>
                             <div>
-                                <div class="fm-step-title">Hasil Terurut</div>
-                                <div class="fm-step-desc">Hasil ditampilkan dari kemungkinan cocok tertinggi ke terendah
-                                    untuk memudahkan verifikasi.</div>
+                                <div class="fm-step-title">Tandai ≥80% sebagai Duplikat</div>
+                                <div class="fm-step-desc">Hasil dikelompokkan per enumerator, hanya pasangan ≥80% yang
+                                    ditampilkan.</div>
                             </div>
                         </div>
                     </div>
@@ -188,13 +187,13 @@
                             <line x1="12" y1="9" x2="12" y2="13" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
-                        <span>Hasil pencocokan merupakan estimasi AI dan bukan keputusan final. Gunakan sebagai alat bantu
-                            verifikasi saja.</span>
+                        <span>Hasil merupakan estimasi AI. Lakukan verifikasi manual sebelum mengambil keputusan
+                            resmi.</span>
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 
     <style>
@@ -204,50 +203,24 @@
             }
         }
 
-        .fm-drop-zone {
-            border: 2px dashed var(--adm-border);
-            border-radius: 12px;
-            padding: 32px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color .2s, background .2s;
-            background: var(--adm-bg-faint);
+        .adm-stat-card {
+            background: var(--adm-card-bg);
+            border: 1px solid var(--adm-border);
+            border-top: 3px solid var(--adm-blue);
+            border-radius: 10px;
+            padding: 16px 18px;
         }
 
-        .fm-drop-zone:hover,
-        .fm-drop-zone.dragover {
-            border-color: var(--adm-blue);
-            background: var(--adm-blue-lt);
-        }
-
-        .fm-drop-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .fm-preview {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .fm-remove-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .adm-stat-label {
             font-size: 12px;
-            color: #dc2626;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 6px;
-            padding: 5px 12px;
-            cursor: pointer;
+            color: var(--adm-text-faint);
+            margin-bottom: 6px;
         }
 
-        .fm-remove-btn:hover {
-            background: #fee2e2;
+        .adm-stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--adm-text-dark);
         }
 
         .fm-info-box {
@@ -316,61 +289,12 @@
     </style>
 
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fotoInput = document.getElementById('fotoInput');
-        const dropContent = document.getElementById('dropContent');
-        const previewContainer = document.getElementById('previewContainer');
-        const previewImg = document.getElementById('previewImg');
-        const removeBtn = document.getElementById('removeBtn');
-        const form = document.getElementById('faceMatchForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const submitText = document.getElementById('submitText');
-        const submitIcon = document.getElementById('submitIcon');
-        const loadingIcon = document.getElementById('loadingIcon');
-
-        dropZone.addEventListener('click', () => fotoInput.click());
-        dropZone.addEventListener('dragover', e => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', e => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) loadPreview(file);
-        });
-
-        fotoInput.addEventListener('change', () => {
-            if (fotoInput.files[0]) loadPreview(fotoInput.files[0]);
-        });
-
-        removeBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            fotoInput.value = '';
-            previewContainer.style.display = 'none';
-            dropContent.style.display = 'flex';
-        });
-
-        function loadPreview(file) {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                previewImg.src = ev.target.result;
-                dropContent.style.display = 'none';
-                previewContainer.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fotoInput.files = dt.files;
-        }
-
-        form.addEventListener('submit', () => {
-            submitBtn.disabled = true;
-            submitIcon.style.display = 'none';
-            loadingIcon.style.display = 'inline';
-            submitText.textContent = 'Memproses... harap tunggu';
+        document.getElementById('scanForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            document.getElementById('submitIcon').style.display = 'none';
+            document.getElementById('loadingIcon').style.display = 'inline';
+            document.getElementById('submitText').textContent = 'Mendispatch jobs... harap tunggu';
         });
     </script>
 @endsection

@@ -17,17 +17,25 @@ class FaceMatchJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 60;
-    public int $tries = 2;
+    public int $tries   = 2;
 
     public function __construct(
         private readonly string $sessionKey,
-        private readonly int    $dataId,
-        private readonly string $namaPu,
-        private readonly string $nik,
-        private readonly string $telephone,
-        private readonly string $fotoPendamping,
-        private readonly string $queryPath,  // ← path, bukan base64
-        private readonly string $dbPath,     // ← path, bukan base64
+        private readonly int    $enumeratorId,
+        // Data A
+        private readonly int    $dataIdA,
+        private readonly string $namaPuA,
+        private readonly string $nikA,
+        private readonly string $telephoneA,
+        private readonly string $fotoPendampingA,
+        private readonly string $pathA,
+        // Data B
+        private readonly int    $dataIdB,
+        private readonly string $namaPuB,
+        private readonly string $nikB,
+        private readonly string $telephoneB,
+        private readonly string $fotoPendampingB,
+        private readonly string $pathB,
     ) {}
 
     public function handle(): void
@@ -36,92 +44,119 @@ class FaceMatchJob implements ShouldQueue
             return;
         }
 
-        // Resize di sini — dijalankan oleh worker, bukan web process
-        $queryBase64 = $this->resizeAndEncode($this->queryPath);
-        $dbBase64    = $this->resizeAndEncode($this->dbPath);
+        // Resize kedua foto di worker
+        $base64A = $this->resizeAndEncode($this->pathA);
+        $base64B = $this->resizeAndEncode($this->pathB);
 
-        if (!$queryBase64 || !$dbBase64) {
+        if (!$base64A || !$base64B) {
             return;
         }
 
-        $result = $this->callClaude($queryBase64, $dbBase64);
+        $result = $this->callClaude($base64A, $base64B);
 
         if (!$result) {
             return;
         }
 
+        // Simpan dengan lock agar tidak race condition
         $lock = Cache::lock($this->sessionKey . '_lock', 5);
         try {
             $lock->block(5);
+
             $existing   = Cache::get($this->sessionKey, []);
             $existing[] = [
-                'data' => [
-                    'id'              => $this->dataId,
-                    'nama_pu'         => $this->namaPu,
-                    'nik'             => $this->nik,
-                    'telephone'       => $this->telephone,
-                    'foto_pendamping' => $this->fotoPendamping,
+                'enumerator_id' => $this->enumeratorId,
+                'data_a' => [
+                    'id'              => $this->dataIdA,
+                    'nama_pu'         => $this->namaPuA,
+                    'nik'             => $this->nikA,
+                    'telephone'       => $this->telephoneA,
+                    'foto_pendamping' => $this->fotoPendampingA,
                 ],
-                'match'      => (bool) ($result['match'] ?? false),
+                'data_b' => [
+                    'id'              => $this->dataIdB,
+                    'nama_pu'         => $this->namaPuB,
+                    'nik'             => $this->nikB,
+                    'telephone'       => $this->telephoneB,
+                    'foto_pendamping' => $this->fotoPendampingB,
+                ],
                 'confidence' => (int) ($result['confidence'] ?? 0),
+                'match'      => (bool) ($result['match'] ?? false),
                 'reason'     => $result['reason'] ?? '-',
-                'foto_pendamping' => $this->fotoPendamping, // path saja, URL di blade
             ];
-            Cache::put($this->sessionKey, $existing, now()->addHours(2));
+
+            Cache::put($this->sessionKey, $existing, now()->addHours(3));
         } finally {
             $lock->release();
         }
     }
 
-    private function callClaude(string $queryBase64, string $dbBase64): ?array
+    private function callClaude(string $base64A, string $base64B): ?array
     {
-        try {
-            $client   = new Client(['timeout' => 50]);
-            $response = $client->post('https://api.anthropic.com/v1/messages', [
-                'headers' => [
-                    'x-api-key'         => env('ANTHROPIC_API_KEY'),
-                    'anthropic-version' => '2023-06-01',
-                    'content-type'      => 'application/json',
-                ],
-                'json' => [
-                    'model'      => 'claude-sonnet-4-20250514',
-                    'max_tokens' => 128,
-                    'messages'   => [[
-                        'role'    => 'user',
-                        'content' => [
-                            [
-                                'type' => 'text',
-                                'text' => 'Bandingkan wajah GAMBAR 1 dan GAMBAR 2. Fokus hanya pada fitur wajah (bentuk, mata, hidung, mulut, alis, struktur tulang). Abaikan pencahayaan, sudut, usia, aksesori. Balas HANYA JSON tanpa teks lain: {"match":true/false,"confidence":0-100,"reason":"alasan singkat bahasa Indonesia"}',
-                            ],
-                            ['type' => 'text', 'text' => 'GAMBAR 1 (foto query):'],
-                            [
-                                'type'   => 'image',
-                                'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $queryBase64],
-                            ],
-                            ['type' => 'text', 'text' => 'GAMBAR 2 (foto pendamping):'],
-                            [
-                                'type'   => 'image',
-                                'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $dbBase64],
-                            ],
-                        ],
-                    ]],
-                ],
-            ]);
+        $maxRetry = 3;
 
-            $body    = json_decode($response->getBody()->getContents(), true);
-            $content = trim(preg_replace('/```json|```/', '', $body['content'][0]['text'] ?? ''));
+        for ($i = 0; $i < $maxRetry; $i++) {
+            try {
+                $client   = new Client(['timeout' => 50]);
+                $response = $client->post('https://api.anthropic.com/v1/messages', [
+                    'headers' => [
+                        'x-api-key'         => env('ANTHROPIC_API_KEY'),
+                        'anthropic-version' => '2023-06-01',
+                        'content-type'      => 'application/json',
+                    ],
+                    'json' => [
+                        'model'      => 'claude-sonnet-4-20250514',
+                        'max_tokens' => 128,
+                        'messages'   => [[
+                            'role'    => 'user',
+                            'content' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'Bandingkan wajah GAMBAR 1 dan GAMBAR 2. Fokus hanya pada fitur wajah (bentuk, mata, hidung, mulut, alis, struktur tulang). Abaikan pencahayaan, sudut, usia, aksesori. Balas HANYA JSON tanpa teks lain: {"match":true/false,"confidence":0-100,"reason":"alasan singkat bahasa Indonesia"}',
+                                ],
+                                ['type' => 'text', 'text' => 'GAMBAR 1:'],
+                                [
+                                    'type'   => 'image',
+                                    'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $base64A],
+                                ],
+                                ['type' => 'text', 'text' => 'GAMBAR 2:'],
+                                [
+                                    'type'   => 'image',
+                                    'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $base64B],
+                                ],
+                            ],
+                        ]],
+                    ],
+                ]);
 
-            return json_decode($content, true) ?: null;
-        } catch (\Throwable $e) {
-            Log::warning("FaceMatchJob ID {$this->dataId}: " . $e->getMessage());
-            return null;
+                $body    = json_decode($response->getBody()->getContents(), true);
+                $content = trim(preg_replace('/```json|```/', '', $body['content'][0]['text'] ?? ''));
+
+                return json_decode($content, true) ?: null;
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                if ($e->getResponse()->getStatusCode() === 429) {
+                    $wait = ($i + 1) * 20;
+                    Log::warning("FaceMatchJob [{$this->dataIdA}↔{$this->dataIdB}]: rate limited, tunggu {$wait}s");
+                    sleep($wait);
+                    continue;
+                }
+                Log::warning("FaceMatchJob [{$this->dataIdA}↔{$this->dataIdB}]: " . $e->getMessage());
+                return null;
+            } catch (\Throwable $e) {
+                Log::warning("FaceMatchJob [{$this->dataIdA}↔{$this->dataIdB}]: " . $e->getMessage());
+                return null;
+            }
         }
+
+        return null;
     }
 
     private function resizeAndEncode(string $filePath): ?string
     {
         $info = @getimagesize($filePath);
-        if (!$info) return null;
+        if (!$info) {
+            return null;
+        }
 
         [$origW, $origH, $type] = $info;
         $max   = 768;

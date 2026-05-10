@@ -27,8 +27,10 @@ class FaceMatchJob implements ShouldQueue
         private readonly string $nik,
         private readonly string $telephone,
         private readonly string $fotoPendamping,
-        private readonly string $queryPath,  // path absolut foto query
-        private readonly string $dbPath,     // path absolut foto pendamping
+        private readonly string $queryPath,      // path absolut foto query
+        private readonly string $dbPath,         // path absolut foto pendamping
+        private readonly int    $enumeratorId,   // ← BARU
+        private readonly string $namaEnumerator, // ← BARU
     ) {}
 
     public function handle(): void
@@ -55,7 +57,6 @@ class FaceMatchJob implements ShouldQueue
         $lock = Cache::lock($this->sessionKey . '_lock', 5);
         try {
             $lock->block(5);
-
             $existing   = Cache::get($this->sessionKey, []);
             $existing[] = [
                 'data' => [
@@ -64,12 +65,13 @@ class FaceMatchJob implements ShouldQueue
                     'nik'             => $this->nik,
                     'telephone'       => $this->telephone,
                     'foto_pendamping' => $this->fotoPendamping,
+                    'enumerator_id'   => $this->enumeratorId,   // ← BARU
+                    'nama_enumerator' => $this->namaEnumerator, // ← BARU
                 ],
                 'match'      => (bool) ($result['match'] ?? false),
                 'confidence' => (int) ($result['confidence'] ?? 0),
                 'reason'     => $result['reason'] ?? '-',
             ];
-
             Cache::put($this->sessionKey, $existing, now()->addHours(2));
         } finally {
             $lock->release();
@@ -79,7 +81,6 @@ class FaceMatchJob implements ShouldQueue
     private function callClaude(string $queryBase64, string $dbBase64): ?array
     {
         $maxRetry = 3;
-
         for ($i = 0; $i < $maxRetry; $i++) {
             try {
                 $client   = new Client(['timeout' => 50]);

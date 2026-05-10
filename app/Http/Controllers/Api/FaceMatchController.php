@@ -41,13 +41,11 @@ class FaceMatchController extends Controller
             'foto_query.max'      => 'Ukuran gambar maksimal 5MB.',
         ]);
 
-        // Resize & encode foto query
-        $queryBase64 = $this->resizeAndEncode($request->file('foto_query')->getRealPath());
-        if (!$queryBase64) {
-            return back()->with('error', 'Gagal memproses foto yang diupload.');
-        }
+        // Simpan foto query (jangan resize di sini)
+        $tmpPath = $request->file('foto_query')->store('tmp/face-match', 'public');
+        $queryUrl = asset('storage/' . $tmpPath);
+        $queryPath = storage_path('app/public/' . $tmpPath); // ← path absolut
 
-        // Ambil semua data yang punya foto pendamping
         $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
             ->where('foto_pendamping', '!=', '')
             ->select('id', 'nama_pu', 'nik', 'telephone', 'foto_pendamping')
@@ -58,60 +56,39 @@ class FaceMatchController extends Controller
             return back()->with('error', 'Tidak ada data foto pendamping di database.');
         }
 
-        // Key unik untuk sesi pencocokan ini
         $sessionKey = 'face_match_' . Str::uuid();
 
-        // Simpan foto query sementara untuk preview
-        $tmpPath  = $request->file('foto_query')->store('tmp/face-match', 'public');
-        $queryUrl = asset('storage/' . $tmpPath);
-
-        // Simpan metadata sesi ke cache
         Cache::put($sessionKey . '_meta', [
-            'query_url' => $queryUrl,
-            'total'     => $dataLapangans->count(),
+            'query_url'  => $queryUrl,
+            'total'      => $dataLapangans->count(),
             'started_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
 
-        // Buat jobs — resize tiap foto di sini (masih di web process tapi sekali jalan)
-        $jobs = [];
-        foreach ($dataLapangans as $data) {
-            $fotoPath = storage_path('app/public/' . $data->foto_pendamping);
-            if (!file_exists($fotoPath)) {
-                continue;
-            }
-
-            $dbBase64 = $this->resizeAndEncode($fotoPath);
-            if (!$dbBase64) {
-                continue;
-            }
-
-            $jobs[] = new FaceMatchJob(
+        // Dispatch job dengan PATH, bukan base64
+        $jobs = $dataLapangans
+            ->filter(fn($data) => file_exists(storage_path('app/public/' . $data->foto_pendamping)))
+            ->map(fn($data) => new FaceMatchJob(
                 sessionKey: $sessionKey,
                 dataId: $data->id,
                 namaPu: $data->nama_pu ?? '',
                 nik: $data->nik ?? '',
                 telephone: $data->telephone ?? '',
                 fotoPendamping: $data->foto_pendamping,
-                queryBase64: $queryBase64,
-                dbBase64: $dbBase64,
-            );
-
-            unset($dbBase64);
-        }
-
-        unset($queryBase64);
+                queryPath: $queryPath,   // ← path, bukan base64
+                dbPath: storage_path('app/public/' . $data->foto_pendamping),
+            ))
+            ->values()
+            ->all();
 
         if (empty($jobs)) {
             return back()->with('error', 'Tidak ada foto yang dapat diproses.');
         }
 
-        // Dispatch sebagai Batch
         $batch = Bus::batch($jobs)
             ->name('face-match:' . $sessionKey)
-            ->allowFailures()   // lanjut meski ada job yang gagal
+            ->allowFailures()
             ->dispatch();
 
-        // Simpan batch ID ke cache agar bisa dicek statusnya
         Cache::put($sessionKey . '_batch', $batch->id, now()->addHours(2));
 
         return redirect()->route('superadmin.face-match.status', ['key' => $sessionKey]);

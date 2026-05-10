@@ -20,7 +20,6 @@ class FaceMatchController extends Controller
     // -------------------------------------------------------------------------
     public function index()
     {
-        // Ambil enumerator yang punya foto pendamping, beserta jumlah fotonya
         $enumerators = Enumerator::whereIn(
             'id',
             DataLapangan::whereNotNull('foto_pendamping')
@@ -47,13 +46,13 @@ class FaceMatchController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Terima upload foto + enumerator_ids yang dipilih → dispatch jobs → redirect
+    // Terima upload foto + enumerator_ids → dispatch jobs → redirect
     // -------------------------------------------------------------------------
     public function match(Request $request)
     {
         $request->validate([
-            'foto_query'      => 'required|image|mimes:jpg,jpeg,png|max:5120',
-            'enumerator_ids'  => 'required|array|min:1',
+            'foto_query'       => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'enumerator_ids'   => 'required|array|min:1',
             'enumerator_ids.*' => 'integer|exists:enumerators,id',
         ], [
             'foto_query.required'     => 'Foto wajah wajib diunggah.',
@@ -66,12 +65,22 @@ class FaceMatchController extends Controller
 
         $selectedIds = $request->input('enumerator_ids');
 
-        // Simpan foto query
-        $tmpPath   = $request->file('foto_query')->store('tmp/face-match', 'public');
-        $queryUrl  = asset('storage/' . $tmpPath);
-        $queryPath = storage_path('app/public/' . $tmpPath);
+        // Simpan foto query dan hitung usianya
+        $tmpPath      = $request->file('foto_query')->store('tmp/face-match', 'public');
+        $queryUrl     = asset('storage/' . $tmpPath);
+        $queryPath    = storage_path('app/public/' . $tmpPath);
 
-        // Ambil data lapangan hanya dari enumerator yang dipilih
+        // Usia foto query = waktu upload (baru saja) → 0 bulan
+        // Catatan: foto query baru saja diupload, usianya 0.
+        // Jika ingin membaca metadata EXIF untuk tanggal asli kamera, lihat komentar di bawah.
+        $queryAgeMonths = 0;
+        // Opsional — baca tanggal EXIF kamera jika tersedia:
+        // $exif = @exif_read_data($queryPath);
+        // $takenAt = $exif['DateTimeOriginal'] ?? $exif['DateTime'] ?? null;
+        // if ($takenAt) {
+        //     $queryAgeMonths = (int) now()->diffInMonths(\Carbon\Carbon::createFromFormat('Y:m:d H:i:s', $takenAt));
+        // }
+
         $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
             ->where('foto_pendamping', '!=', '')
             ->whereNotNull('enumerator_id')
@@ -87,11 +96,9 @@ class FaceMatchController extends Controller
 
         $sessionKey = 'face_match_' . Str::uuid();
 
-        // Preload nama enumerator
         $enumeratorNames = Enumerator::whereIn('id', collect($selectedIds))
             ->pluck('nama_lengkap', 'id');
 
-        // ── Cache base64 foto query sekali di sini, tidak diulang per-job ──
         $queryBase64 = self::resizeAndEncode($queryPath);
         if (!$queryBase64) {
             return back()->with('error', 'Foto wajah tidak dapat diproses. Coba foto lain.');
@@ -99,21 +106,30 @@ class FaceMatchController extends Controller
         Cache::put($sessionKey . '_query_b64', $queryBase64, now()->addHours(2));
 
         Cache::put($sessionKey . '_meta', [
-            'query_url'          => $queryUrl,
-            'total'              => $dataLapangans->count(),
-            'started_at'         => now()->toDateTimeString(),
+            'query_url'           => $queryUrl,
+            'total'               => $dataLapangans->count(),
+            'started_at'          => now()->toDateTimeString(),
             'selected_enum_count' => count($selectedIds),
             'selected_enum_names' => $enumeratorNames->values()->take(3)->implode(', ')
                 . (count($selectedIds) > 3 ? ', ...' : ''),
+            'query_age_months'    => $queryAgeMonths,
         ], now()->addHours(2));
 
-        // Buat jobs untuk semua foto dari enumerator yang dipilih
         $jobs = [];
         foreach ($dataLapangans as $data) {
             $dbPath = storage_path('app/public/' . $data->foto_pendamping);
             if (!file_exists($dbPath)) {
                 continue;
             }
+
+            // Hitung usia foto DB dari mtime file (fallback jika tidak ada kolom tanggal)
+            $dbAgeMonths = 0;
+            $mtime = @filemtime($dbPath);
+            if ($mtime) {
+                $dbAgeMonths = (int) now()->diffInMonths(\Carbon\Carbon::createFromTimestamp($mtime));
+            }
+            // Jika model DataLapangan punya kolom tanggal upload / created_at, lebih akurat:
+            // $dbAgeMonths = (int) now()->diffInMonths($data->created_at);
 
             $namaEnumerator = $enumeratorNames[$data->enumerator_id]
                 ?? 'Enumerator #' . $data->enumerator_id;
@@ -128,6 +144,8 @@ class FaceMatchController extends Controller
                 dbPath: $dbPath,
                 enumeratorId: $data->enumerator_id,
                 namaEnumerator: $namaEnumerator,
+                queryAgeMonths: $queryAgeMonths,
+                dbAgeMonths: $dbAgeMonths,
             );
         }
 

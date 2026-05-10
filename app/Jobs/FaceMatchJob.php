@@ -17,8 +17,8 @@ class FaceMatchJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $timeout = 30; // diperpendek: 60 → 30 dtk
-    public int $tries   = 1;  // tidak retry: hemat waktu jika gagal
+    public int $timeout = 30;
+    public int $tries   = 1;
 
     public function __construct(
         private readonly string $sessionKey,
@@ -27,9 +27,12 @@ class FaceMatchJob implements ShouldQueue
         private readonly string $nik,
         private readonly string $telephone,
         private readonly string $fotoPendamping,
-        private readonly string $dbPath,         // path absolut foto pendamping (query sudah di-cache)
+        private readonly string $dbPath,
         private readonly int    $enumeratorId,
         private readonly string $namaEnumerator,
+        // Usia foto dalam bulan — dihitung dari mtime file saat dispatch
+        private readonly int    $queryAgeMonths = 0,
+        private readonly int    $dbAgeMonths    = 0,
     ) {}
 
     const MATCH_LIMIT = 3;
@@ -40,19 +43,16 @@ class FaceMatchJob implements ShouldQueue
             return;
         }
 
-        // Early exit tanpa lock — jika sudah cukup, batalkan batch sekalian
         if ($this->hasReachedLimit()) {
             $this->batch()?->cancel();
             return;
         }
 
-        // Ambil base64 foto query dari cache (di-encode 1x saat dispatch, bukan per-job)
         $queryBase64 = Cache::get($this->sessionKey . '_query_b64');
         if (!$queryBase64) {
             return;
         }
 
-        // Resize foto pendamping (ini memang harus per-job karena berbeda tiap job)
         $dbBase64 = FaceMatchController::resizeAndEncode($this->dbPath);
         if (!$dbBase64) {
             return;
@@ -63,7 +63,6 @@ class FaceMatchJob implements ShouldQueue
             return;
         }
 
-        // Simpan dengan lock agar tidak race condition
         $lock = Cache::lock($this->sessionKey . '_lock', 5);
         try {
             $lock->block(5);
@@ -71,7 +70,6 @@ class FaceMatchJob implements ShouldQueue
             $existing   = Cache::get($this->sessionKey, []);
             $matchCount = count(array_filter($existing, fn($r) => ($r['confidence'] ?? 0) >= 80));
 
-            // Cek ulang di dalam lock — slot mungkin sudah penuh
             if ($matchCount >= self::MATCH_LIMIT) {
                 $this->batch()?->cancel();
                 return;
@@ -87,14 +85,14 @@ class FaceMatchJob implements ShouldQueue
                     'enumerator_id'   => $this->enumeratorId,
                     'nama_enumerator' => $this->namaEnumerator,
                 ],
-                'match'      => (bool) ($result['match'] ?? false),
-                'confidence' => (int) ($result['confidence'] ?? 0),
-                'reason'     => $result['reason'] ?? '-',
+                'match'          => (bool) ($result['match'] ?? false),
+                'confidence'     => (int) ($result['confidence'] ?? 0),
+                'reason'         => $result['reason'] ?? '-',
+                'age_note'       => $result['age_note'] ?? null,
             ];
 
             Cache::put($this->sessionKey, $existing, now()->addHours(2));
 
-            // Hitung ulang setelah insert — jika sudah penuh, cancel batch
             $newMatchCount = count(array_filter($existing, fn($r) => ($r['confidence'] ?? 0) >= 80));
             if ($newMatchCount >= self::MATCH_LIMIT) {
                 $this->batch()?->cancel();
@@ -111,9 +109,68 @@ class FaceMatchJob implements ShouldQueue
         return $matchCount >= self::MATCH_LIMIT;
     }
 
+    private function buildAgeContext(): string
+    {
+        $parts = [];
+
+        if ($this->queryAgeMonths > 0) {
+            $parts[] = sprintf(
+                'GAMBAR 1 (foto query) diambil sekitar %s yang lalu.',
+                $this->formatMonths($this->queryAgeMonths)
+            );
+        }
+
+        if ($this->dbAgeMonths > 0) {
+            $parts[] = sprintf(
+                'GAMBAR 2 (foto pendamping) diambil sekitar %s yang lalu.',
+                $this->formatMonths($this->dbAgeMonths)
+            );
+        }
+
+        $ageDiff = abs($this->queryAgeMonths - $this->dbAgeMonths);
+        if ($ageDiff >= 6) {
+            $parts[] = sprintf(
+                'Selisih waktu antar foto sekitar %s — pertimbangkan kemungkinan perubahan penampilan (rambut, berat badan, wajah lebih tua/muda) dan tetap fokus pada struktur wajah yang tidak berubah.',
+                $this->formatMonths($ageDiff)
+            );
+        }
+
+        return $parts ? implode(' ', $parts) : '';
+    }
+
+    private function formatMonths(int $months): string
+    {
+        if ($months < 12) {
+            return "{$months} bulan";
+        }
+        $years  = intdiv($months, 12);
+        $remain = $months % 12;
+        $str    = "{$years} tahun";
+        if ($remain > 0) {
+            $str .= " {$remain} bulan";
+        }
+        return $str;
+    }
+
     private function callClaude(string $queryBase64, string $dbBase64): ?array
     {
         try {
+            $ageContext = $this->buildAgeContext();
+
+            // Bangun teks instruksi — sertakan konteks usia jika tersedia
+            $instruction = 'Bandingkan wajah GAMBAR 1 dan GAMBAR 2. '
+                . 'Fokus pada fitur wajah struktural yang tidak berubah seiring waktu: '
+                . 'bentuk wajah, proporsi mata-hidung-mulut, jarak antar mata, struktur tulang pipi dan rahang, bentuk alis. '
+                . 'Abaikan: pencahayaan, sudut pengambilan, aksesori (kacamata, topi, hijab), riasan, warna/gaya rambut. ';
+
+            if ($ageContext) {
+                $instruction .= $ageContext . ' ';
+            }
+
+            $instruction .= 'Jika ada selisih usia, sesuaikan toleransi untuk perubahan wajar (kerutan halus, perubahan berat badan ringan). '
+                . 'Balas HANYA JSON tanpa teks lain: '
+                . '{"match":true/false,"confidence":0-100,"reason":"alasan singkat bahasa Indonesia","age_note":"catatan singkat jika perbedaan usia mempengaruhi analisis, atau null"}';
+
             $client   = new Client(['timeout' => 25]);
             $response = $client->post('https://api.anthropic.com/v1/messages', [
                 'headers' => [
@@ -122,24 +179,33 @@ class FaceMatchJob implements ShouldQueue
                     'content-type'      => 'application/json',
                 ],
                 'json' => [
-                    'model'      => 'claude-haiku-4-5-20251001', // Haiku: lebih cepat & murah untuk vision task ini
-                    'max_tokens' => 128,
+                    // Claude Sonnet 4.6 — model terbaru per Mei 2026
+                    'model'      => 'claude-sonnet-4-6',
+                    'max_tokens' => 256,
                     'messages'   => [[
                         'role'    => 'user',
                         'content' => [
                             [
                                 'type' => 'text',
-                                'text' => 'Bandingkan wajah GAMBAR 1 dan GAMBAR 2. Fokus hanya pada fitur wajah (bentuk, mata, hidung, mulut, alis, struktur tulang). Abaikan pencahayaan, sudut, usia, aksesori. Balas HANYA JSON tanpa teks lain: {"match":true/false,"confidence":0-100,"reason":"alasan singkat bahasa Indonesia"}',
+                                'text' => $instruction,
                             ],
                             ['type' => 'text', 'text' => 'GAMBAR 1 (foto query):'],
                             [
                                 'type'   => 'image',
-                                'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $queryBase64],
+                                'source' => [
+                                    'type'       => 'base64',
+                                    'media_type' => 'image/jpeg',
+                                    'data'       => $queryBase64,
+                                ],
                             ],
                             ['type' => 'text', 'text' => 'GAMBAR 2 (foto pendamping):'],
                             [
                                 'type'   => 'image',
-                                'source' => ['type' => 'base64', 'media_type' => 'image/jpeg', 'data' => $dbBase64],
+                                'source' => [
+                                    'type'       => 'base64',
+                                    'media_type' => 'image/jpeg',
+                                    'data'       => $dbBase64,
+                                ],
                             ],
                         ],
                     ]],
@@ -153,7 +219,6 @@ class FaceMatchJob implements ShouldQueue
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $status = $e->getResponse()->getStatusCode();
             if ($status === 429) {
-                // Rate limit — release ke antrian supaya worker lain bisa ambil
                 $this->release(15);
             }
             Log::warning("FaceMatchJob ID {$this->dataId}: HTTP {$status} " . $e->getMessage());

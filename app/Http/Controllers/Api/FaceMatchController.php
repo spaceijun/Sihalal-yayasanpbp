@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\FaceMatchJob;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
+use App\Models\User; // sesuaikan jika model enumerator bukan User
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
@@ -13,12 +14,13 @@ use Illuminate\Support\Str;
 
 class FaceMatchController extends Controller
 {
+    const MAX_IMAGE_SIZE = 768;
+
     // -------------------------------------------------------------------------
-    // Halaman utama — tampilkan statistik enumerator
+    // Halaman utama — dropdown enumerator
     // -------------------------------------------------------------------------
     public function index()
     {
-        // Ambil enumerator yang punya minimal 2 foto (bisa dibandingkan)
         $enumerators = DataLapangan::whereNotNull('foto_pendamping')
             ->where('foto_pendamping', '!=', '')
             ->whereNotNull('enumerator_id')
@@ -27,124 +29,94 @@ class FaceMatchController extends Controller
             ->having('foto_count', '>=', 1)
             ->get()
             ->map(function ($row) {
-                // Ambil nama enumerator
-                $enumerator = Enumerator::find($row->enumerator_id);
+                $enumerator        = Enumerator::find($row->enumerator_id);
                 $row->nama_lengkap = $enumerator?->nama_lengkap ?? 'Enumerator #' . $row->enumerator_id;
                 return $row;
             })
-            ->sortByDesc('foto_count')
+            ->sortBy('nama_lengkap')
             ->values();
 
-        $totalEnumerator = $enumerators->count();
-        $totalFoto       = $enumerators->sum('foto_count');
-
-        // Hitung total kombinasi: n*(n-1)/2 per enumerator
-        $totalKombinasi = $enumerators->sum(function ($e) {
-            $n = $e->foto_count;
-            return $n * ($n - 1) / 2;
-        });
-
-        // Estimasi: 50 req/menit (Tier 1), ditambah buffer 20%
-        $estimasiMenit = $totalKombinasi > 0
-            ? (int) ceil(($totalKombinasi / 50) * 1.2)
-            : 0;
-
-        return view('superadmin.face-match.index', compact(
-            'enumerators',
-            'totalEnumerator',
-            'totalFoto',
-            'totalKombinasi',
-            'estimasiMenit',
-        ));
+        return view('superadmin.face-match.index', compact('enumerators'));
     }
 
     // -------------------------------------------------------------------------
-    // Dispatch batch jobs — semua kombinasi pasangan per enumerator
+    // Terima upload + enumerator_id → dispatch jobs → redirect status
     // -------------------------------------------------------------------------
     public function match(Request $request)
     {
-        // Ambil semua data yang punya foto, group per enumerator
-        $grouped = DataLapangan::whereNotNull('foto_pendamping')
-            ->where('foto_pendamping', '!=', '')
-            ->whereNotNull('enumerator_id')
-            ->select('id', 'enumerator_id', 'nama_pu', 'nik', 'telephone', 'foto_pendamping')
-            ->orderBy('enumerator_id')
-            ->orderBy('id')
-            ->get()
-            ->groupBy('enumerator_id');
+        $request->validate([
+            'foto_query'    => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'enumerator_id' => 'required|integer',
+        ], [
+            'foto_query.required'    => 'Foto wajah wajib diunggah.',
+            'foto_query.image'       => 'File harus berupa gambar.',
+            'foto_query.mimes'       => 'Format gambar harus JPG atau PNG.',
+            'foto_query.max'         => 'Ukuran gambar maksimal 5MB.',
+            'enumerator_id.required' => 'Pilih enumerator terlebih dahulu.',
+        ]);
 
-        if ($grouped->isEmpty()) {
-            return back()->with('error', 'Tidak ada data foto pendamping di database.');
+        $enumeratorId = (int) $request->enumerator_id;
+
+        // Simpan foto query
+        $tmpPath  = $request->file('foto_query')->store('tmp/face-match', 'public');
+        $queryUrl = asset('storage/' . $tmpPath);
+        $queryPath = storage_path('app/public/' . $tmpPath);
+
+        // Ambil data milik enumerator yang dipilih saja
+        $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
+            ->where('foto_pendamping', '!=', '')
+            ->where('enumerator_id', $enumeratorId)
+            ->select('id', 'enumerator_id', 'nama_pu', 'nik', 'telephone', 'foto_pendamping')
+            ->orderBy('id')
+            ->get();
+
+        if ($dataLapangans->isEmpty()) {
+            return back()->with('error', 'Enumerator ini tidak memiliki data foto pendamping.');
         }
 
-        $sessionKey = 'face_match_' . Str::uuid();
-        $jobs       = [];
-        $metaEnum   = []; // simpan info enumerator untuk ditampilkan di result
+        $enumerator     = Enumerator::find($enumeratorId);
+        $namaEnumerator = $enumerator?->nama_lengkap ?? 'Enumerator #' . $enumeratorId;
 
-        foreach ($grouped as $enumeratorId => $dataList) {
-            // Minimal 2 foto agar bisa dibandingkan
-            if ($dataList->count() < 2) {
+        $sessionKey = 'face_match_' . Str::uuid();
+
+        Cache::put($sessionKey . '_meta', [
+            'query_url'      => $queryUrl,
+            'total'          => $dataLapangans->count(),
+            'started_at'     => now()->toDateTimeString(),
+            'enumerator_id'  => $enumeratorId,
+            'nama_enumerator' => $namaEnumerator,
+        ], now()->addHours(2));
+
+        // Buat jobs — kirim path, resize dilakukan di worker
+        $jobs = [];
+        foreach ($dataLapangans as $data) {
+            $dbPath = storage_path('app/public/' . $data->foto_pendamping);
+            if (!file_exists($dbPath)) {
                 continue;
             }
 
-            $enumerator = Enumerator::find($enumeratorId);
-            $namaEnum   = $enumerator?->nama_lengkap ?? 'Enumerator #' . $enumeratorId;
-
-            $metaEnum[$enumeratorId] = $namaEnum;
-
-            $items = $dataList->values();
-
-            // Buat kombinasi pasangan unik: (i, j) where j > i
-            for ($i = 0; $i < $items->count(); $i++) {
-                for ($j = $i + 1; $j < $items->count(); $j++) {
-                    $dataA = $items[$i];
-                    $dataB = $items[$j];
-
-                    $pathA = storage_path('app/public/' . $dataA->foto_pendamping);
-                    $pathB = storage_path('app/public/' . $dataB->foto_pendamping);
-
-                    if (!file_exists($pathA) || !file_exists($pathB)) {
-                        continue;
-                    }
-
-                    $jobs[] = new FaceMatchJob(
-                        sessionKey: $sessionKey,
-                        enumeratorId: $enumeratorId,
-                        dataIdA: $dataA->id,
-                        namaPuA: $dataA->nama_pu ?? '',
-                        nikA: $dataA->nik ?? '',
-                        telephoneA: $dataA->telephone ?? '',
-                        fotoPendampingA: $dataA->foto_pendamping,
-                        pathA: $pathA,
-                        dataIdB: $dataB->id,
-                        namaPuB: $dataB->nama_pu ?? '',
-                        nikB: $dataB->nik ?? '',
-                        telephoneB: $dataB->telephone ?? '',
-                        fotoPendampingB: $dataB->foto_pendamping,
-                        pathB: $pathB,
-                    );
-                }
-            }
+            $jobs[] = new FaceMatchJob(
+                sessionKey: $sessionKey,
+                dataId: $data->id,
+                namaPu: $data->nama_pu ?? '',
+                nik: $data->nik ?? '',
+                telephone: $data->telephone ?? '',
+                fotoPendamping: $data->foto_pendamping,
+                queryPath: $queryPath,
+                dbPath: $dbPath,
+            );
         }
 
         if (empty($jobs)) {
-            return back()->with('error', 'Tidak ada kombinasi foto yang dapat diproses.');
+            return back()->with('error', 'Tidak ada foto yang dapat diproses.');
         }
 
-        // Simpan metadata sesi
-        Cache::put($sessionKey . '_meta', [
-            'total'      => count($jobs),
-            'started_at' => now()->toDateTimeString(),
-            'enumerators' => $metaEnum,
-        ], now()->addHours(3));
-
-        // Dispatch batch
         $batch = Bus::batch($jobs)
             ->name('face-match:' . $sessionKey)
             ->allowFailures()
             ->dispatch();
 
-        Cache::put($sessionKey . '_batch', $batch->id, now()->addHours(3));
+        Cache::put($sessionKey . '_batch', $batch->id, now()->addHours(2));
 
         return redirect()->route('superadmin.face-match.status', ['key' => $sessionKey]);
     }
@@ -199,53 +171,89 @@ class FaceMatchController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Halaman hasil
+    // Halaman hasil — filter hanya ≥80%
     // -------------------------------------------------------------------------
     public function result(Request $request)
     {
         $sessionKey = $request->query('key');
         $meta       = Cache::get($sessionKey . '_meta');
-        $results    = Cache::get($sessionKey, []);
+        $allResults = Cache::get($sessionKey, []);
 
         if (!$meta) {
             return redirect()->route('superadmin.face-match.index')
                 ->with('error', 'Sesi tidak ditemukan atau sudah kadaluarsa.');
         }
 
-        // Filter hanya yang ≥80% confidence
-        $filtered = array_filter($results, fn($r) => $r['confidence'] >= 80);
+        // Filter ≥80%
+        $results = array_values(array_filter($allResults, fn($r) => $r['confidence'] >= 80));
 
-        // Kelompokkan per enumerator
-        $grouped = [];
-        foreach ($filtered as $r) {
-            $eid = $r['enumerator_id'];
-            if (!isset($grouped[$eid])) {
-                $grouped[$eid] = [
-                    'nama'  => $meta['enumerators'][$eid] ?? 'Enumerator #' . $eid,
-                    'pairs' => [],
-                ];
-            }
-            $grouped[$eid]['pairs'][] = $r;
-        }
+        // Urutkan: confidence tertinggi dulu
+        usort($results, fn($a, $b) => $b['confidence'] - $a['confidence']);
 
-        // Urutkan tiap enumerator: confidence tertinggi dulu
-        foreach ($grouped as &$g) {
-            usort($g['pairs'], fn($a, $b) => $b['confidence'] - $a['confidence']);
-        }
-
-        // Urutkan enumerator: yang paling banyak duplikat dulu
-        uasort($grouped, fn($a, $b) => count($b['pairs']) - count($a['pairs']));
-
-        $totalDuplikat  = count($filtered);
-        $totalEnumerator = count($grouped);
-        $totalDianalisis = count($results);
+        $queryUrl        = $meta['query_url'];
+        $namaEnumerator  = $meta['nama_enumerator'] ?? '-';
+        $totalDianalisis = count($allResults);
 
         return view('superadmin.face-match.result', compact(
-            'grouped',
-            'totalDuplikat',
-            'totalEnumerator',
+            'results',
+            'queryUrl',
+            'namaEnumerator',
             'totalDianalisis',
-            'meta',
         ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Helper: resize & encode gambar ke base64 JPEG
+    // -------------------------------------------------------------------------
+    public static function resizeAndEncode(string $filePath): ?string
+    {
+        $info = @getimagesize($filePath);
+        if (!$info) {
+            return null;
+        }
+
+        [$origW, $origH, $type] = $info;
+        $max   = self::MAX_IMAGE_SIZE;
+        $ratio = max($origW, $origH) > $max ? $max / max($origW, $origH) : 1.0;
+        $newW  = (int) round($origW * $ratio);
+        $newH  = (int) round($origH * $ratio);
+
+        $src = match ($type) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($filePath),
+            IMAGETYPE_PNG  => @imagecreatefrompng($filePath),
+            IMAGETYPE_GIF  => @imagecreatefromgif($filePath),
+            IMAGETYPE_WEBP => @imagecreatefromwebp($filePath),
+            default        => null,
+        };
+
+        if (!$src) {
+            $raw = @file_get_contents($filePath);
+            return $raw ? base64_encode($raw) : null;
+        }
+
+        $dst = imagecreatetruecolor($newW, $newH);
+
+        if ($type === IMAGETYPE_PNG) {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            imagefilledrectangle(
+                $dst,
+                0,
+                0,
+                $newW,
+                $newH,
+                imagecolorallocatealpha($dst, 255, 255, 255, 127)
+            );
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        imagedestroy($src);
+
+        ob_start();
+        imagejpeg($dst, null, 80);
+        $jpeg = ob_get_clean();
+        imagedestroy($dst);
+
+        return $jpeg ? base64_encode($jpeg) : null;
     }
 }

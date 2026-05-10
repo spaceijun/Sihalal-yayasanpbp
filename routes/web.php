@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FaceMatchController;
 use App\Http\Controllers\AppVersionController;
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
@@ -94,8 +95,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/diagnostic',       [DiagnosticController::class, 'index'])->name('diagnostic.index');
         Route::post('/diagnostic/run',  [DiagnosticController::class, 'run'])->name('diagnostic.run');
 
-    // Human Resources
-    Route::resource('koordinators', KoordinatorController::class);
+        // Human Resources
+        Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);
         Route::resource('enumerators', EnumeratorController::class);
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
@@ -192,6 +193,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         });
         // App Version 
         Route::resource('app-versions', SuperadminAppVersionController::class);
+
+        // Face Match
+        Route::prefix('face-match')->name('face-match.')->group(function () {
+            Route::get('/',       [FaceMatchController::class, 'index'])->name('index');
+            Route::post('/match', [FaceMatchController::class, 'match'])->name('match');
+        });
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');
     // Route::get('/', function () {

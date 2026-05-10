@@ -33,9 +33,19 @@ class FaceMatchJob implements ShouldQueue
         private readonly string $namaEnumerator, // ← BARU
     ) {}
 
+    /** Jumlah hasil ≥80% yang menjadi batas stop */
+    const MATCH_LIMIT = 3;
+
     public function handle(): void
     {
         if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        // ── Early termination ────────────────────────────────────────────────
+        // Cek dulu tanpa lock (cepat). Jika sudah cukup hasil ≥80%, skip job ini
+        // tanpa membuang API call ke Claude sama sekali.
+        if ($this->hasReachedLimit()) {
             return;
         }
 
@@ -57,7 +67,16 @@ class FaceMatchJob implements ShouldQueue
         $lock = Cache::lock($this->sessionKey . '_lock', 5);
         try {
             $lock->block(5);
-            $existing   = Cache::get($this->sessionKey, []);
+
+            $existing = Cache::get($this->sessionKey, []);
+
+            // Cek ulang di dalam lock — ada job lain yang mungkin sudah mengisi
+            // slot terakhir tepat sebelum lock ini diperoleh.
+            $matchCount = count(array_filter($existing, fn($r) => ($r['confidence'] ?? 0) >= 80));
+            if ($matchCount >= self::MATCH_LIMIT) {
+                return; // slot sudah penuh, buang hasil ini
+            }
+
             $existing[] = [
                 'data' => [
                     'id'              => $this->dataId,
@@ -65,8 +84,8 @@ class FaceMatchJob implements ShouldQueue
                     'nik'             => $this->nik,
                     'telephone'       => $this->telephone,
                     'foto_pendamping' => $this->fotoPendamping,
-                    'enumerator_id'   => $this->enumeratorId,   // ← BARU
-                    'nama_enumerator' => $this->namaEnumerator, // ← BARU
+                    'enumerator_id'   => $this->enumeratorId,
+                    'nama_enumerator' => $this->namaEnumerator,
                 ],
                 'match'      => (bool) ($result['match'] ?? false),
                 'confidence' => (int) ($result['confidence'] ?? 0),
@@ -76,6 +95,17 @@ class FaceMatchJob implements ShouldQueue
         } finally {
             $lock->release();
         }
+    }
+
+    /**
+     * Cek apakah hasil ≥80% sudah mencapai batas tanpa menggunakan lock
+     * (baca cepat untuk early-exit sebelum resize & API call).
+     */
+    private function hasReachedLimit(): bool
+    {
+        $existing   = Cache::get($this->sessionKey, []);
+        $matchCount = count(array_filter($existing, fn($r) => ($r['confidence'] ?? 0) >= 80));
+        return $matchCount >= self::MATCH_LIMIT;
     }
 
     private function callClaude(string $queryBase64, string $dbBase64): ?array

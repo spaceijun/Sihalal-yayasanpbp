@@ -91,6 +91,13 @@ class FaceMatchController extends Controller
         $enumeratorNames = Enumerator::whereIn('id', collect($selectedIds))
             ->pluck('nama_lengkap', 'id');
 
+        // ── Cache base64 foto query sekali di sini, tidak diulang per-job ──
+        $queryBase64 = self::resizeAndEncode($queryPath);
+        if (!$queryBase64) {
+            return back()->with('error', 'Foto wajah tidak dapat diproses. Coba foto lain.');
+        }
+        Cache::put($sessionKey . '_query_b64', $queryBase64, now()->addHours(2));
+
         Cache::put($sessionKey . '_meta', [
             'query_url'          => $queryUrl,
             'total'              => $dataLapangans->count(),
@@ -118,7 +125,6 @@ class FaceMatchController extends Controller
                 nik: $data->nik ?? '',
                 telephone: $data->telephone ?? '',
                 fotoPendamping: $data->foto_pendamping,
-                queryPath: $queryPath,
                 dbPath: $dbPath,
                 enumeratorId: $data->enumerator_id,
                 namaEnumerator: $namaEnumerator,

@@ -248,11 +248,20 @@ class EnumeratorController extends Controller
     public function exportPdf(Request $request)
     {
         $target = 20;
-
         $bulan = (int) $request->input('bulan', now()->month);
         $tahun = (int) $request->input('tahun', now()->year);
 
-        // Ambil semua enumerator Aktif
+        // ── Hitung rentang tanggal 25 bulan sebelumnya s.d. 25 bulan ini ──
+        $periodeAkhir   = \Carbon\Carbon::create($tahun, $bulan, 25)->endOfDay();
+        $periodeAwal    = $periodeAkhir->copy()->subMonth()->addDay();
+        // = 26 bulan lalu s.d 25 bulan ini
+        // Agar tepat: 25 (bulan-1) 00:00:00  →  25 (bulan) 23:59:59
+        $periodeAwal    = \Carbon\Carbon::create($tahun, $bulan, 25)
+            ->subMonth()                 // mundur 1 bulan
+            ->startOfDay();              // 25 Apr 00:00:00
+        $periodeAkhir   = \Carbon\Carbon::create($tahun, $bulan, 25)
+            ->endOfDay();                // 25 Mei 23:59:59
+
         $query = Enumerator::with('koordinator')
             ->select('id', 'no_registrasi', 'nama_lengkap', 'status', 'created_at');
 
@@ -264,37 +273,47 @@ class EnumeratorController extends Controller
             });
         }
 
-        // Ambil semua enumerator (Aktif + Tidak Aktif yang punya data di bulan tersebut)
         $semuaEnumerator = $query->orderBy('nama_lengkap', 'asc')->get();
 
-        // Hitung data per bulan untuk setiap enumerator
-        $semuaEnumerator->each(function ($enumerator) use ($bulan, $tahun) {
-            $enumerator->data_per_bulan = DataLapangan::where('enumerator_id', $enumerator->id)
-                ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
-                ->whereYear('created_at', $tahun)
-                ->whereMonth('created_at', $bulan)
-                ->groupBy('bulan')
-                ->orderBy('bulan', 'desc')
-                ->get();
-
-            $enumerator->total_data_bulan = $enumerator->data_per_bulan->sum('total');
+        // ── Hitung data per rentang untuk setiap enumerator ──
+        $semuaEnumerator->each(function ($enumerator) use ($periodeAwal, $periodeAkhir) {
+            $enumerator->total_data_bulan = DataLapangan::where('enumerator_id', $enumerator->id)
+                ->whereBetween('created_at', [$periodeAwal, $periodeAkhir])
+                ->count();
         });
 
-        // Filter: Aktif ATAU (Tidak Aktif tapi punya data di bulan tsb)
+        // Filter: Aktif ATAU (Tidak Aktif tapi punya data di periode tsb)
         $enumerators = $semuaEnumerator->filter(function ($enumerator) {
             return $enumerator->status === 'Aktif'
                 || $enumerator->total_data_bulan > 0;
         })->values();
 
-        $periodeLabel = \Carbon\Carbon::create($tahun, $bulan, 1)
-            ->locale('id')
-            ->isoFormat('MMMM YYYY');
+        // ── Label periode ──
+        $labelAwal    = $periodeAwal->locale('id')->isoFormat('D MMMM YYYY');
+        $labelAkhir   = $periodeAkhir->locale('id')->isoFormat('D MMMM YYYY');
+        $periodeLabel = "{$labelAwal} – {$labelAkhir}";
 
         $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
 
+        // Bulan deadline = bulan yang dipilih (tanggal 25-nya)
+        $deadlineLabel = $periodeAkhir->locale('id')->isoFormat('D MMMM YYYY');
+        // Nama bulan akhir untuk keterangan tabel (mis. "Mei")
+        $namaBulanAkhir = $periodeAkhir->locale('id')->isoFormat('MMMM');
+
         $pdf = Pdf::loadView(
             'superadmin.enumerator.partials.export-pdf',
-            compact('enumerators', 'exportedAt', 'target', 'periodeLabel', 'bulan', 'tahun')
+            compact(
+                'enumerators',
+                'exportedAt',
+                'target',
+                'periodeLabel',
+                'deadlineLabel',
+                'namaBulanAkhir',
+                'bulan',
+                'tahun',
+                'periodeAwal',
+                'periodeAkhir'
+            )
         )
             ->setPaper('a4', 'portrait')
             ->setOptions([
@@ -305,7 +324,11 @@ class EnumeratorController extends Controller
                 'enable_css_float'     => true,
             ]);
 
-        $filename = 'laporan-enumerator-' . $tahun . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-' . now()->format('His') . '.pdf';
+        $filename = 'laporan-enumerator-'
+            . $tahun
+            . str_pad($bulan, 2, '0', STR_PAD_LEFT)
+            . '-' . now()->format('His') . '.pdf';
+
         return $pdf->download($filename);
     }
 }

@@ -258,11 +258,9 @@
             }
         }
 
-        // Fallback: coba beberapa kemungkinan path
         $logoKiriSrc = 'https://kawulohalal.id/assets/images/logo-pbp.png';
         $logoKananSrc = 'https://kawulohalal.id/assets/images/logo_kawulo_halal.png';
 
-        // Icon strip alamat
         function fetchIconBase64(string $url): string
         {
             try {
@@ -280,13 +278,13 @@
         $iconTelp = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/597/597177.png');
         $iconWeb = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/364/364089.png');
 
-        $periodeCarbon = \Carbon\Carbon::create($tahun, $bulan, 1)->locale('id');
+        // ── Variabel ringkasan ─────────────────────────────────────────────────
         $totalData = $enumerators->count();
-        $target_val = $target;
-        $memenuhinya = $enumerators->filter(fn($e) => $e->total_data_bulan >= $target_val)->count();
+        $memenuhinya = $enumerators->filter(fn($e) => $e->total_data_bulan >= $target)->count();
         $belumMemenuhi = $totalData - $memenuhinya;
     @endphp
 
+    {{-- ── HEADER / KOP ── --}}
     <table style="width:100%; border-collapse:collapse; padding-bottom:6px; margin-bottom:4px;">
         <tr>
             {{-- Logo Kiri --}}
@@ -322,15 +320,8 @@
         <tr>
             <td colspan="3" style="padding-top:7px;">
                 <div
-                    style="
-                background: #1e3a8a;
-                border-radius: 4px;
-                padding: 5px 14px;
-                text-align: center;
-                font-size: 8px;
-                color: #ffffff;
-                font-weight: 600;
-            ">
+                    style="background:#1e3a8a; border-radius:4px; padding:5px 14px;
+                           text-align:center; font-size:8px; color:#ffffff; font-weight:600;">
                     <table style="width:100%; border-collapse:collapse;">
                         <tr>
                             <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
@@ -346,7 +337,7 @@
                                 </span>
                             </td>
                             <td
-                                style="text-align:center; vertical-align:middle; padding:0 8px; color:#ffff; font-weight:800; white-space:nowrap;">
+                                style="text-align:center; vertical-align:middle; padding:0 8px; font-weight:800; white-space:nowrap;">
                                 |</td>
                             <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
                                 @if ($iconTelp)
@@ -358,7 +349,7 @@
                                 <span style="vertical-align:middle;">Telp : 0897 6774 482</span>
                             </td>
                             <td
-                                style="text-align:center; vertical-align:middle; padding:0 8px; color:#ffff; font-weight:800; white-space:nowrap;">
+                                style="text-align:center; vertical-align:middle; padding:0 8px; font-weight:800; white-space:nowrap;">
                                 |</td>
                             <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
                                 @if ($iconWeb)
@@ -376,7 +367,7 @@
         </tr>
     </table>
 
-    <div style="margin-bottom: 10px;"></div>
+    <div style="margin-bottom:10px;"></div>
 
     {{-- ── JUDUL LAPORAN ── --}}
     <div class="report-title-wrap">
@@ -412,7 +403,7 @@
             <td class="gap"></td>
             <td class="key">Batas Nonaktif</td>
             <td class="sep">:</td>
-            <td>25 {{ $periodeLabel }}</td>
+            <td>{{ $deadlineLabel }}</td> {{-- mis. "25 Mei 2025" --}}
         </tr>
     </table>
 
@@ -436,11 +427,11 @@
             </td>
             <td style="width:33.33%;">
                 <span class="ring-val" style="color:#15803d;">{{ $memenuhinya }}</span>
-                <span class="ring-desc">≥ {{ $target }} data bulan ini</span>
+                <span class="ring-desc">≥ {{ $target }} data periode ini</span>
             </td>
             <td style="width:33.33%;">
                 <span class="ring-val" style="color:#b91c1c;">{{ $belumMemenuhi }}</span>
-                <span class="ring-desc">Akan dinonaktifkan tgl 25</span>
+                <span class="ring-desc">Akan dinonaktifkan {{ $deadlineLabel }}</span>
             </td>
         </tr>
     </table>
@@ -452,9 +443,9 @@
                 <th class="tc" style="width:72px;">No Registrasi</th>
                 <th>Nama Lengkap</th>
                 <th class="tc" style="width:52px;">Target<br>Data</th>
-                <th class="tc" style="width:62px;">Data Masuk<br>({{ $periodeCarbon->isoFormat('MMM YYYY') }})</th>
+                <th class="tc" style="width:70px;">Data Masuk<br>(Periode)</th>
                 <th class="tc" style="width:40px;">Kurang</th>
-                <th style="width:150px;">Keterangan</th>
+                <th style="width:160px;">Keterangan</th>
                 <th class="tc" style="width:55px;">Status</th>
             </tr>
         </thead>
@@ -464,7 +455,6 @@
                     $dataMasuk = $enumerator->total_data_bulan;
                     $kurang = max(0, $target - $dataMasuk);
                     $sudahCukup = $dataMasuk >= $target;
-                    $namaBulan = $periodeCarbon->isoFormat('MMMM');
                 @endphp
                 <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
                     <td class="mono">KH-{{ $enumerator->no_registrasi }}</td>
@@ -487,11 +477,11 @@
                     <td>
                         @if ($sudahCukup)
                             <span class="badge badge-aman">
-                                Tidak dinonaktifkan tgl 25 {{ $namaBulan }}
+                                Tidak dinonaktifkan tgl 25 {{ $namaBulanAkhir }}
                             </span>
                         @else
                             <span class="badge badge-warning">
-                                Dinonaktifkan tgl 25 {{ $namaBulan }}
+                                Dinonaktifkan tgl 25 {{ $namaBulanAkhir }}
                             </span>
                         @endif
                     </td>
@@ -505,7 +495,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="no-data">Tidak ada data enumerator yang ditemukan.</td>
+                    <td colspan="7" class="no-data">Tidak ada data enumerator yang ditemukan.</td>
                 </tr>
             @endforelse
         </tbody>

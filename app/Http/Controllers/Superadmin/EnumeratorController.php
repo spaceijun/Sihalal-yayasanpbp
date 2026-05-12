@@ -247,6 +247,8 @@ class EnumeratorController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        $target = 20;
+
         $query = Enumerator::with('koordinator')
             ->select('id', 'no_registrasi', 'nama_lengkap', 'status', 'created_at')
             ->where('status', 'Aktif');
@@ -259,9 +261,10 @@ class EnumeratorController extends Controller
             });
         }
 
-        $enumerators = $query->orderBy('no_registrasi')->get();
+        // Urut A-Z nama lengkap
+        $enumerators = $query->orderBy('nama_lengkap', 'asc')->get();
 
-        // Data masuk bulan ini saja
+        // Hitung total data masuk bulan ini per enumerator
         $enumerators->each(function ($enumerator) {
             $enumerator->data_per_bulan = DataLapangan::where('enumerator_id', $enumerator->id)
                 ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
@@ -270,25 +273,27 @@ class EnumeratorController extends Controller
                 ->groupBy('bulan')
                 ->orderBy('bulan', 'desc')
                 ->get();
+
+            // Total data masuk bulan ini (sum semua bulan dalam filter = 1 bulan, jadi cukup sum)
+            $enumerator->total_data_bulan = $enumerator->data_per_bulan->sum('total');
         });
 
         $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
 
         $pdf = Pdf::loadView(
             'superadmin.enumerator.partials.export-pdf',
-            compact('enumerators', 'exportedAt')
+            compact('enumerators', 'exportedAt', 'target')
         )
             ->setPaper('a4', 'portrait')
             ->setOptions([
                 'defaultFont'          => 'DejaVu Sans',
                 'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled'      => false,
+                'isRemoteEnabled'      => true,
                 'dpi'                  => 96,
                 'enable_css_float'     => true,
             ]);
 
         $filename = 'laporan-enumerator-' . now()->format('Ymd-His') . '.pdf';
-
         return $pdf->download($filename);
     }
 }

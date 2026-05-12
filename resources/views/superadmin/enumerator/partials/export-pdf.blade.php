@@ -18,10 +18,8 @@
             background: #fff;
             line-height: 1.4;
             padding: 20px 28px;
-            /* ← margin kiri kanan diatur di sini */
         }
 
-        /* ── KOP SURAT ── */
         .kop-table {
             width: 100%;
             border-bottom: 3px solid #1e3a8a;
@@ -65,19 +63,12 @@
             line-height: 1.2;
         }
 
-        .kop-sub {
-            font-size: 8.5px;
-            color: #475569;
-            margin-top: 2px;
-        }
-
         .kop-sub2 {
             font-size: 8px;
             color: #64748b;
             margin-top: 1px;
         }
 
-        /* ── JUDUL ── */
         .report-title-wrap {
             text-align: center;
             margin: 10px 0 3px;
@@ -103,7 +94,6 @@
             margin: 6px 0 10px;
         }
 
-        /* ── INFO LAPORAN ── */
         .info-table {
             width: 100%;
             margin-bottom: 10px;
@@ -131,7 +121,6 @@
             width: 24px;
         }
 
-        /* ── RINGKASAN ── */
         .ringkasan-table {
             width: 100%;
             border-collapse: collapse;
@@ -150,10 +139,6 @@
 
         .ring-head td.h-aktif {
             background: #15803d;
-        }
-
-        .ring-head td.h-nonaktif {
-            background: #b91c1c;
         }
 
         .ring-lbl {
@@ -181,14 +166,6 @@
             color: #1e3a8a;
         }
 
-        .ring-val.green {
-            color: #15803d;
-        }
-
-        .ring-val.red {
-            color: #b91c1c;
-        }
-
         .ring-desc {
             font-size: 7.5px;
             color: #64748b;
@@ -196,7 +173,6 @@
             margin-top: 2px;
         }
 
-        /* ── MAIN TABLE ── */
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -243,7 +219,6 @@
             text-align: center;
         }
 
-        /* ── BADGE ── */
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -265,7 +240,18 @@
             border: 1px solid #fca5a5;
         }
 
-        /* ── DATA BULAN ── */
+        .badge-aman {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .badge-warning {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
         .bulan-chip {
             display: inline-block;
             background: #eff6ff;
@@ -283,7 +269,6 @@
             font-size: 9px;
         }
 
-        /* ── NO DATA ── */
         .no-data {
             text-align: center;
             padding: 20px;
@@ -292,7 +277,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ── TANDA TANGAN ── */
         .ttd-table {
             width: 100%;
             margin-top: 20px;
@@ -308,27 +292,6 @@
             text-align: right;
         }
 
-        .ttd-space {
-            height: 48px;
-        }
-
-        .ttd-name {
-            font-weight: 700;
-            font-size: 9.5px;
-            color: #1e293b;
-            border-top: 1px solid #334155;
-            padding-top: 4px;
-            display: inline-block;
-            min-width: 140px;
-            text-align: center;
-        }
-
-        .ttd-role {
-            font-size: 8px;
-            color: #64748b;
-        }
-
-        /* ── FOOTER ── */
         .footer-wrap {
             border-top: 1px solid #cbd5e1;
             padding-top: 5px;
@@ -351,7 +314,6 @@
         @page {
             size: A4 portrait;
             margin: 0;
-            /* biar padding di body yang control */
         }
     </style>
 </head>
@@ -360,31 +322,135 @@
 
     {{-- ── KOP SURAT ── --}}
     @php
-        $logoPath = public_path('assets/images/logo_kawulo_halal.png');
-        $logoSrc = '';
-        if (file_exists($logoPath)) {
-            $logoData = base64_encode(file_get_contents($logoPath));
-            $logoMime = mime_content_type($logoPath);
-            $logoSrc = 'data:' . $logoMime . ';base64,' . $logoData;
+        $logoKiriPath = public_path('assets/images/logo-pbp.png');
+        $logoKiriSrc = '';
+        if (file_exists($logoKiriPath)) {
+            $logoKiriData = base64_encode(file_get_contents($logoKiriPath));
+            $logoKiriMime = mime_content_type($logoKiriPath);
+            $logoKiriSrc = 'data:' . $logoKiriMime . ';base64,' . $logoKiriData;
+        }
+
+        $logoKananPath = public_path('assets/images/logo_kawulo_halal.png');
+        $logoKananSrc = '';
+        if (file_exists($logoKananPath)) {
+            $logoKananData = base64_encode(file_get_contents($logoKananPath));
+            $logoKananMime = mime_content_type($logoKananPath);
+            $logoKananSrc = 'data:' . $logoKananMime . ';base64,' . $logoKananData;
         }
     @endphp
-    <table class="kop-table">
+
+    <table style="width:100%; border-collapse:collapse; padding-bottom:6px; margin-bottom:4px;">
         <tr>
-            <td class="kop-logo">
-                @if ($logoSrc)
-                    <img src="{{ $logoSrc }}" alt="Logo">
+            {{-- Logo Kiri --}}
+            <td style="width:70px; text-align:center; vertical-align:middle;">
+                @if ($logoKiriSrc)
+                    <img src="{{ $logoKiriSrc }}" alt="Logo Yayasan" style="width:62px; height:62px; object-fit:contain;">
                 @else
-                    <div class="kop-fallback"><span>KH</span></div>
+                    <div
+                        style="width:52px;height:52px;background:#1e3a8a;border-radius:7px;text-align:center;padding-top:11px;">
+                        <span style="color:#fff;font-size:17px;font-weight:800;">YP</span>
+                    </div>
                 @endif
             </td>
-            <td style="padding-left:12px;">
-                <div class="kop-org">KAWULO HALAL</div>
-                <div class="kop-sub2">Nouble House 18th Floor, Kuningan, Jakarta Selatan 12950 | www.kawulohalal.id | +62
-                    897-6774-482</div>
+
+            {{-- Teks Tengah --}}
+            <td style="text-align:center; vertical-align:middle; padding:0 12px;">
+                <div
+                    style="font-size:16px; font-weight:800; color:#1e3a8a; letter-spacing:1px; line-height:1.3; text-transform:uppercase;">
+                    Yayasan Permata Bakti Pertiwi
+                </div>
+                <div style="font-size:16px; font-weight:800; color:#1e3a8a; letter-spacing:0.8px; line-height:1.3;">
+                    "KAWULO HALAL"
+                </div>
+                <div style="font-size:11px; color:#475569; margin-top:4px;">
+                    Menyelenggarakan Pelayanan :
+                </div>
+                <div style="font-size:11px; color:#334155; font-style:italic;">
+                    Jasa Konsultasi Sertifikasi Produk Halal Untuk UMKM <em>Low-Risk</em>
+                </div>
+            </td>
+
+            {{-- Logo Kanan --}}
+            <td style="width:85px; text-align:center; vertical-align:middle;">
+                @if ($logoKananSrc)
+                    <img src="{{ $logoKananSrc }}" alt="Logo Kawulo Halal"
+                        style="width:65px; height:65px; object-fit:contain;">
+                @else
+                    <div
+                        style="width:52px;height:52px;background:#1e3a8a;border-radius:7px;text-align:center;padding-top:11px;margin:0 auto;">
+                        <span style="color:#fff;font-size:17px;font-weight:800;">KH</span>
+                    </div>
+                @endif
+            </td>
+        </tr>
+
+        @php
+            // Fetch icon dari internet -> base64 (agar DomPDF bisa render)
+            function fetchIconBase64(string $url): string
+            {
+                try {
+                    $data = @file_get_contents($url);
+                    if (!$data) {
+                        return '';
+                    }
+                    $mime = 'image/png';
+                    return 'data:' . $mime . ';base64,' . base64_encode($data);
+                } catch (\Exception $e) {
+                    return '';
+                }
+            }
+
+            // Icon dari flaticon / icons8 CDN (PNG transparan, ukuran kecil)
+            $iconLokasi = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/684/684908.png');
+            $iconTelp = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/597/597177.png');
+            $iconWeb = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/364/364089.png');
+        @endphp
+
+        {{-- Strip info alamat --}}
+        <tr>
+            <td colspan="3" style="padding-top:7px;">
+                <div
+                    style="
+            background: #1e3a8a;
+            border-radius: 4px;
+            padding: 5px 14px;
+            text-align: center;
+            font-size: 8px;
+            color: #ffffff;
+            font-weight: 600;
+        ">
+                    @if ($iconLokasi)
+                        <img src="{{ $iconLokasi }}"
+                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
+                    @else
+                        &#9679;
+                    @endif
+                    Nouble House 18<sup style="font-size:6px;">th</sup> Floor, Kuningan, Jakarta Selatan 12950
+
+                    &nbsp;&nbsp;<span style="color:#ffffff;font-weight:800;">|</span>&nbsp;&nbsp;
+
+                    @if ($iconTelp)
+                        <img src="{{ $iconTelp }}"
+                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
+                    @else
+                        &#9679;
+                    @endif
+                    Telp : 0897 6774 482
+
+                    &nbsp;&nbsp;<span style="color:#ffffff;font-weight:800;">|</span>&nbsp;&nbsp;
+
+                    @if ($iconWeb)
+                        <img src="{{ $iconWeb }}"
+                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
+                    @else
+                        &#9679;
+                    @endif
+                    www.kawulohalal.id
+                </div>
             </td>
         </tr>
     </table>
-
+    <div style="margin-bottom: 10px;"></div>
     {{-- ── JUDUL LAPORAN ── --}}
     <div class="report-title-wrap">
         <div class="report-title">Laporan Pendamping Kawulo Halal</div>
@@ -395,15 +461,14 @@
     {{-- ── INFO LAPORAN ── --}}
     @php
         $total = $enumerators->count();
-        $aktif = $enumerators->where('status', 'Aktif')->count();
-        $nonAktif = $enumerators->where('status', 'Tidak Aktif')->count();
+        $target = 20;
+        $cutoffTgl = '25 ' . now()->locale('id')->isoFormat('MMMM YYYY');
     @endphp
     <table class="info-table">
         <tr>
             <td class="key">Nomor Laporan</td>
             <td class="sep">:</td>
             <td>{{ str_pad($total, 3, '0', STR_PAD_LEFT) }}/YPBP-KH/{{ now()->year }}</td>
-            </td>
             <td class="gap"></td>
             <td class="key">Tanggal Cetak</td>
             <td class="sep">:</td>
@@ -418,27 +483,40 @@
             <td class="sep">:</td>
             <td>{{ now()->locale('id')->isoFormat('MMMM YYYY') }}</td>
         </tr>
+        <tr>
+            <td class="key">Target Data</td>
+            <td class="sep">:</td>
+            <td>{{ $target }} data / pendamping</td>
+            <td class="gap"></td>
+            <td class="key">Batas Nonaktif</td>
+            <td class="sep">:</td>
+            <td>{{ $cutoffTgl }}</td>
+        </tr>
     </table>
 
     {{-- ── RINGKASAN ── --}}
     @php
-        $total = $enumerators->count();
+        $memenuhi = $enumerators->filter(fn($e) => $e->total_data_bulan >= $target)->count();
+        $belumMemenuhi = $total - $memenuhi;
     @endphp
     <table class="ringkasan-table">
         <tr class="ring-head">
-            <td class="h-total" style="width:50%;"><span class="ring-lbl">Total Enumerator Aktif</span></td>
-            <td class="h-aktif" style="width:50%;"><span class="ring-lbl">Periode Data</span></td>
+            <td class="h-total" style="width:33.33%;"><span class="ring-lbl">Total Pendamping</span></td>
+            <td class="h-aktif" style="width:33.33%;"><span class="ring-lbl">Memenuhi Target</span></td>
+            <td style="background:#b91c1c;width:33.33%;"><span class="ring-lbl">Belum Memenuhi</span></td>
         </tr>
         <tr class="ring-val-row">
-            <td style="width:50%;">
+            <td style="width:33.33%;">
                 <span class="ring-val blue">{{ $total }}</span>
-                <span class="ring-desc">Enumerator aktif bertugas</span>
+                <span class="ring-desc">Pendamping aktif bertugas</span>
             </td>
-            <td style="width:50%;">
-                <span class="ring-val" style="font-size:14px;color:#15803d;">
-                    {{ now()->locale('id')->isoFormat('MMMM YYYY') }}
-                </span>
-                <span class="ring-desc">Bulan laporan</span>
+            <td style="width:33.33%;">
+                <span class="ring-val" style="color:#15803d;">{{ $memenuhi }}</span>
+                <span class="ring-desc">≥ {{ $target }} data bulan ini</span>
+            </td>
+            <td style="width:33.33%;">
+                <span class="ring-val" style="color:#b91c1c;">{{ $belumMemenuhi }}</span>
+                <span class="ring-desc">Akan dinonaktifkan tanggal 25</span>
             </td>
         </tr>
     </table>
@@ -447,27 +525,51 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th class="tc" style="width:26px;">No</th>
+                <th class="tc" style="width:22px;">No</th>
                 <th class="tc" style="width:72px;">No Registrasi</th>
                 <th>Nama Lengkap</th>
-                <th class="tc" style="width:95px;">Data Masuk<br>({{ now()->locale('id')->isoFormat('MMM YYYY') }})
-                </th>
-                <th class="tc" style="width:65px;">Status</th>
+                <th class="tc" style="width:58px;">Target<br>Data</th>
+                <th class="tc" style="width:58px;">Data<br>Masuk</th>
+                <th class="tc" style="width:42px;">Kurang</th>
+                <th style="width:145px;">Keterangan</th>
+                <th class="tc" style="width:55px;">Status</th>
             </tr>
         </thead>
         <tbody>
             @forelse($enumerators as $i => $enumerator)
+                @php
+                    $dataMasuk = $enumerator->total_data_bulan;
+                    $kurang = max(0, $target - $dataMasuk);
+                    $memenuhi = $dataMasuk >= $target;
+                @endphp
                 <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
                     <td class="tc">{{ $i + 1 }}</td>
                     <td class="mono">{{ $enumerator->no_registrasi }}</td>
                     <td>{{ $enumerator->nama_lengkap }}</td>
+                    <td class="tc">{{ $target }}</td>
                     <td class="tc">
-                        @if ($enumerator->data_per_bulan->isNotEmpty())
-                            @foreach ($enumerator->data_per_bulan as $dp)
-                                <span class="bulan-chip">{{ $dp->total }} data</span>
-                            @endforeach
+                        @if ($dataMasuk > 0)
+                            <span class="bulan-chip">{{ $dataMasuk }} data</span>
                         @else
                             <span class="bulan-empty">—</span>
+                        @endif
+                    </td>
+                    <td class="tc">
+                        @if ($kurang > 0)
+                            <span style="color:#b91c1c;font-weight:700;">{{ $kurang }}</span>
+                        @else
+                            <span style="color:#15803d;font-weight:700;">—</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if ($memenuhi)
+                            <span class="badge badge-aman">
+                                Tidak dinonaktifkan tanggal 25 {{ now()->locale('id')->isoFormat('MMMM') }}
+                            </span>
+                        @else
+                            <span class="badge badge-warning">
+                                Dinonaktifkan tanggal 25 {{ now()->locale('id')->isoFormat('MMMM') }}
+                            </span>
                         @endif
                     </td>
                     <td class="tc">
@@ -480,7 +582,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="no-data">Tidak ada data enumerator yang ditemukan.</td>
+                    <td colspan="8" class="no-data">Tidak ada data enumerator yang ditemukan.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -501,8 +603,8 @@
     <div class="footer-wrap">
         <table class="footer-table">
             <tr>
-                <td>Dokumen ini digenerate secara otomatis oleh sistem informasi Kawulo Halal.</td>
-                <td class="right">&copy; {{ date('Y') }} Kawulo Halal. Semua hak dilindungi.</td>
+                <td>Dokumen ini digenerate secara otomatis oleh Kawulo Halal Super Apps.</td>
+                <td class="right">&copy; {{ date('Y') }} Kawulo Halal.</td>
             </tr>
         </table>
     </div>

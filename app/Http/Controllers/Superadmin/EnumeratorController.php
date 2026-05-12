@@ -249,9 +249,12 @@ class EnumeratorController extends Controller
     {
         $target = 20;
 
+        $bulan = (int) $request->input('bulan', now()->month);
+        $tahun = (int) $request->input('tahun', now()->year);
+
+        // Ambil semua enumerator Aktif
         $query = Enumerator::with('koordinator')
-            ->select('id', 'no_registrasi', 'nama_lengkap', 'status', 'created_at')
-            ->where('status', 'Aktif');
+            ->select('id', 'no_registrasi', 'nama_lengkap', 'status', 'created_at');
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -261,28 +264,37 @@ class EnumeratorController extends Controller
             });
         }
 
-        // Urut A-Z nama lengkap
-        $enumerators = $query->orderBy('nama_lengkap', 'asc')->get();
+        // Ambil semua enumerator (Aktif + Tidak Aktif yang punya data di bulan tersebut)
+        $semuaEnumerator = $query->orderBy('nama_lengkap', 'asc')->get();
 
-        // Hitung total data masuk bulan ini per enumerator
-        $enumerators->each(function ($enumerator) {
+        // Hitung data per bulan untuk setiap enumerator
+        $semuaEnumerator->each(function ($enumerator) use ($bulan, $tahun) {
             $enumerator->data_per_bulan = DataLapangan::where('enumerator_id', $enumerator->id)
                 ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
-                ->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', $tahun)
+                ->whereMonth('created_at', $bulan)
                 ->groupBy('bulan')
                 ->orderBy('bulan', 'desc')
                 ->get();
 
-            // Total data masuk bulan ini (sum semua bulan dalam filter = 1 bulan, jadi cukup sum)
             $enumerator->total_data_bulan = $enumerator->data_per_bulan->sum('total');
         });
+
+        // Filter: Aktif ATAU (Tidak Aktif tapi punya data di bulan tsb)
+        $enumerators = $semuaEnumerator->filter(function ($enumerator) {
+            return $enumerator->status === 'Aktif'
+                || $enumerator->total_data_bulan > 0;
+        })->values();
+
+        $periodeLabel = \Carbon\Carbon::create($tahun, $bulan, 1)
+            ->locale('id')
+            ->isoFormat('MMMM YYYY');
 
         $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
 
         $pdf = Pdf::loadView(
             'superadmin.enumerator.partials.export-pdf',
-            compact('enumerators', 'exportedAt', 'target')
+            compact('enumerators', 'exportedAt', 'target', 'periodeLabel', 'bulan', 'tahun')
         )
             ->setPaper('a4', 'portrait')
             ->setOptions([
@@ -293,7 +305,7 @@ class EnumeratorController extends Controller
                 'enable_css_float'     => true,
             ]);
 
-        $filename = 'laporan-enumerator-' . now()->format('Ymd-His') . '.pdf';
+        $filename = 'laporan-enumerator-' . $tahun . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-' . now()->format('His') . '.pdf';
         return $pdf->download($filename);
     }
 }

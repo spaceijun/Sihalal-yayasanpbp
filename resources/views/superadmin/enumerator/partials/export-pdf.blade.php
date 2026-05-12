@@ -20,55 +20,6 @@
             padding: 20px 28px;
         }
 
-        .kop-table {
-            width: 100%;
-            border-bottom: 3px solid #1e3a8a;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .kop-table td {
-            vertical-align: middle;
-        }
-
-        .kop-logo {
-            width: 66px;
-        }
-
-        .kop-logo img {
-            width: 56px;
-            height: 56px;
-        }
-
-        .kop-fallback {
-            width: 52px;
-            height: 52px;
-            background: #1e3a8a;
-            border-radius: 7px;
-            text-align: center;
-            padding-top: 11px;
-        }
-
-        .kop-fallback span {
-            color: #fff;
-            font-size: 17px;
-            font-weight: 800;
-        }
-
-        .kop-org {
-            font-size: 15px;
-            font-weight: 800;
-            color: #1e3a8a;
-            letter-spacing: 0.3px;
-            line-height: 1.2;
-        }
-
-        .kop-sub2 {
-            font-size: 8px;
-            color: #64748b;
-            margin-top: 1px;
-        }
-
         .report-title-wrap {
             text-align: center;
             margin: 10px 0 3px;
@@ -128,17 +79,8 @@
         }
 
         .ring-head td {
-            width: 33.33%;
             padding: 5px 10px;
             text-align: center;
-        }
-
-        .ring-head td.h-total {
-            background: #1e3a8a;
-        }
-
-        .ring-head td.h-aktif {
-            background: #15803d;
         }
 
         .ring-lbl {
@@ -160,10 +102,6 @@
             font-weight: 800;
             line-height: 1;
             display: block;
-        }
-
-        .ring-val.blue {
-            color: #1e3a8a;
         }
 
         .ring-desc {
@@ -277,21 +215,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        .ttd-table {
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .ttd-table td {
-            font-size: 9px;
-            color: #334155;
-            vertical-align: top;
-        }
-
-        .ttd-right {
-            text-align: right;
-        }
-
         .footer-wrap {
             border-top: 1px solid #cbd5e1;
             padding-top: 5px;
@@ -322,140 +245,137 @@
 
     {{-- ── KOP SURAT ── --}}
     @php
-        $logoKiriSrc = 'https://kawulohalal.id/assets/images/logo-pbp.png';
-        $logoKananSrc = 'https://kawulohalal.id/assets/images/logo_kawulo_halal.png';
+        $logoKiriSrc = 'https://yourdomain.com/assets/images/logo-pbp.png';
+        $logoKananSrc = 'https://yourdomain.com/assets/images/logo_kawulo_halal.png';
+
+        function fetchIconBase64(string $url): string
+        {
+            try {
+                $data = @file_get_contents($url);
+                if (!$data) {
+                    return '';
+                }
+                return 'data:image/png;base64,' . base64_encode($data);
+            } catch (\Exception $e) {
+                return '';
+            }
+        }
+
+        $iconKantor = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/1378/1378884.png');
+        $iconTelp = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/597/597177.png');
+        $iconWeb = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/364/364089.png');
+
+        $periodeCarbon = \Carbon\Carbon::create($tahun, $bulan, 1)->locale('id');
+        $totalData = $enumerators->count();
+        $target_val = $target;
+        $memenuhinya = $enumerators->filter(fn($e) => $e->total_data_bulan >= $target_val)->count();
+        $belumMemenuhi = $totalData - $memenuhinya;
     @endphp
 
     <table style="width:100%; border-collapse:collapse; padding-bottom:6px; margin-bottom:4px;">
         <tr>
             {{-- Logo Kiri --}}
             <td style="width:70px; text-align:center; vertical-align:middle;">
-                @if ($logoKiriSrc)
-                    <img src="{{ $logoKiriSrc }}" alt="Logo Yayasan" style="width:62px; height:62px; object-fit:contain;">
-                @else
-                    <div
-                        style="width:52px;height:52px;background:#1e3a8a;border-radius:7px;text-align:center;padding-top:11px;">
-                        <span style="color:#fff;font-size:17px;font-weight:800;">YP</span>
-                    </div>
-                @endif
+                <img src="{{ $logoKiriSrc }}" alt="Logo Yayasan" style="width:62px; height:62px; object-fit:contain;">
             </td>
 
             {{-- Teks Tengah --}}
             <td style="text-align:center; vertical-align:middle; padding:0 12px;">
                 <div
-                    style="font-size:16px; font-weight:800; color:#1e3a8a; letter-spacing:1px; line-height:1.3; text-transform:uppercase;">
+                    style="font-size:14px; font-weight:800; color:#1e3a8a; letter-spacing:1px; line-height:1.3; text-transform:uppercase;">
                     Yayasan Permata Bakti Pertiwi
                 </div>
-                <div style="font-size:16px; font-weight:800; color:#1e3a8a; letter-spacing:0.8px; line-height:1.3;">
+                <div style="font-size:13px; font-weight:800; color:#1e3a8a; letter-spacing:0.8px; line-height:1.3;">
                     "KAWULO HALAL"
                 </div>
-                <div style="font-size:11px; color:#475569; margin-top:4px;">
+                <div style="font-size:8px; color:#475569; margin-top:4px;">
                     Menyelenggarakan Pelayanan :
                 </div>
-                <div style="font-size:11px; color:#334155; font-style:italic;">
+                <div style="font-size:8px; color:#334155; font-style:italic;">
                     Jasa Konsultasi Sertifikasi Produk Halal Untuk UMKM <em>Low-Risk</em>
                 </div>
             </td>
 
             {{-- Logo Kanan --}}
             <td style="width:85px; text-align:center; vertical-align:middle;">
-                @if ($logoKananSrc)
-                    <img src="{{ $logoKananSrc }}" alt="Logo Kawulo Halal"
-                        style="width:65px; height:65px; object-fit:contain;">
-                @else
-                    <div
-                        style="width:52px;height:52px;background:#1e3a8a;border-radius:7px;text-align:center;padding-top:11px;margin:0 auto;">
-                        <span style="color:#fff;font-size:17px;font-weight:800;">KH</span>
-                    </div>
-                @endif
+                <img src="{{ $logoKananSrc }}" alt="Logo Kawulo Halal"
+                    style="width:56px; height:56px; object-fit:contain;">
             </td>
         </tr>
-
-        @php
-            // Fetch icon dari internet -> base64 (agar DomPDF bisa render)
-            function fetchIconBase64(string $url): string
-            {
-                try {
-                    $data = @file_get_contents($url);
-                    if (!$data) {
-                        return '';
-                    }
-                    $mime = 'image/png';
-                    return 'data:' . $mime . ';base64,' . base64_encode($data);
-                } catch (\Exception $e) {
-                    return '';
-                }
-            }
-
-            // Icon dari flaticon / icons8 CDN (PNG transparan, ukuran kecil)
-            $iconLokasi = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/684/684908.png');
-            $iconTelp = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/597/597177.png');
-            $iconWeb = fetchIconBase64('https://cdn-icons-png.flaticon.com/16/364/364089.png');
-        @endphp
 
         {{-- Strip info alamat --}}
         <tr>
             <td colspan="3" style="padding-top:7px;">
                 <div
                     style="
-            background: #1e3a8a;
-            border-radius: 4px;
-            padding: 5px 14px;
-            text-align: center;
-            font-size: 8px;
-            color: #ffffff;
-            font-weight: 600;
-        ">
-                    @if ($iconLokasi)
-                        <img src="{{ $iconLokasi }}"
-                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
-                    @else
-                        &#9679;
-                    @endif
-                    Nouble House 18<sup style="font-size:6px;">th</sup> Floor, Kuningan, Jakarta Selatan 12950
-
-                    &nbsp;&nbsp;<span style="color:#ffffff;font-weight:800;">|</span>&nbsp;&nbsp;
-
-                    @if ($iconTelp)
-                        <img src="{{ $iconTelp }}"
-                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
-                    @else
-                        &#9679;
-                    @endif
-                    Telp : 0897 6774 482
-
-                    &nbsp;&nbsp;<span style="color:#ffffff;font-weight:800;">|</span>&nbsp;&nbsp;
-
-                    @if ($iconWeb)
-                        <img src="{{ $iconWeb }}"
-                            style="width:10px;height:10px;vertical-align:middle;margin-right:2px;">
-                    @else
-                        &#9679;
-                    @endif
-                    www.kawulohalal.id
+                background: #1e3a8a;
+                border-radius: 4px;
+                padding: 5px 14px;
+                text-align: center;
+                font-size: 8px;
+                color: #ffffff;
+                font-weight: 600;
+            ">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
+                                @if ($iconKantor)
+                                    <img src="{{ $iconKantor }}"
+                                        style="width:11px;height:11px;vertical-align:middle;margin-right:3px;">
+                                @else
+                                    &#9679;&nbsp;
+                                @endif
+                                <span style="vertical-align:middle;">
+                                    Nouble House 18<sup style="font-size:6px;">th</sup> Floor, Kuningan, Jakarta Selatan
+                                    12950
+                                </span>
+                            </td>
+                            <td
+                                style="text-align:center; vertical-align:middle; padding:0 8px; color:#ffff; font-weight:800; white-space:nowrap;">
+                                |</td>
+                            <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
+                                @if ($iconTelp)
+                                    <img src="{{ $iconTelp }}"
+                                        style="width:11px;height:11px;vertical-align:middle;margin-right:3px;">
+                                @else
+                                    &#9679;&nbsp;
+                                @endif
+                                <span style="vertical-align:middle;">Telp : 0897 6774 482</span>
+                            </td>
+                            <td
+                                style="text-align:center; vertical-align:middle; padding:0 8px; color:#ffff; font-weight:800; white-space:nowrap;">
+                                |</td>
+                            <td style="text-align:center; vertical-align:middle; white-space:nowrap;">
+                                @if ($iconWeb)
+                                    <img src="{{ $iconWeb }}"
+                                        style="width:11px;height:11px;vertical-align:middle;margin-right:3px;">
+                                @else
+                                    &#9679;&nbsp;
+                                @endif
+                                <span style="vertical-align:middle;">www.kawulohalal.id</span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </td>
         </tr>
     </table>
+
     <div style="margin-bottom: 10px;"></div>
+
     {{-- ── JUDUL LAPORAN ── --}}
     <div class="report-title-wrap">
         <div class="report-title">Laporan Pendamping Kawulo Halal</div>
-        <div class="report-subtitle">Periode: {{ now()->locale('id')->isoFormat('MMMM YYYY') }}</div>
+        <div class="report-subtitle">Periode: {{ $periodeLabel }}</div>
     </div>
     <hr class="report-divider">
 
     {{-- ── INFO LAPORAN ── --}}
-    @php
-        $total = $enumerators->count();
-        $target = 20;
-        $cutoffTgl = '25 ' . now()->locale('id')->isoFormat('MMMM YYYY');
-    @endphp
     <table class="info-table">
         <tr>
             <td class="key">Nomor Laporan</td>
             <td class="sep">:</td>
-            <td>{{ str_pad($total, 3, '0', STR_PAD_LEFT) }}/YPBP-KH/{{ now()->year }}</td>
+            <td>{{ str_pad($totalData, 3, '0', STR_PAD_LEFT) }}/YPBP-KH/{{ $tahun }}</td>
             <td class="gap"></td>
             <td class="key">Tanggal Cetak</td>
             <td class="sep">:</td>
@@ -468,7 +388,7 @@
             <td class="gap"></td>
             <td class="key">Periode Data</td>
             <td class="sep">:</td>
-            <td>{{ now()->locale('id')->isoFormat('MMMM YYYY') }}</td>
+            <td>{{ $periodeLabel }}</td>
         </tr>
         <tr>
             <td class="key">Target Data</td>
@@ -477,33 +397,35 @@
             <td class="gap"></td>
             <td class="key">Batas Nonaktif</td>
             <td class="sep">:</td>
-            <td>{{ $cutoffTgl }}</td>
+            <td>25 {{ $periodeLabel }}</td>
         </tr>
     </table>
 
     {{-- ── RINGKASAN ── --}}
-    @php
-        $memenuhi = $enumerators->filter(fn($e) => $e->total_data_bulan >= $target)->count();
-        $belumMemenuhi = $total - $memenuhi;
-    @endphp
     <table class="ringkasan-table">
         <tr class="ring-head">
-            <td class="h-total" style="width:33.33%;"><span class="ring-lbl">Total Pendamping</span></td>
-            <td class="h-aktif" style="width:33.33%;"><span class="ring-lbl">Memenuhi Target</span></td>
-            <td style="background:#b91c1c;width:33.33%;"><span class="ring-lbl">Belum Memenuhi</span></td>
+            <td style="width:33.33%; background:#1e3a8a; padding:5px 10px; text-align:center;">
+                <span class="ring-lbl">Total Pendamping</span>
+            </td>
+            <td style="width:33.33%; background:#15803d; padding:5px 10px; text-align:center;">
+                <span class="ring-lbl">Memenuhi Target</span>
+            </td>
+            <td style="width:33.33%; background:#b91c1c; padding:5px 10px; text-align:center;">
+                <span class="ring-lbl">Belum Memenuhi</span>
+            </td>
         </tr>
         <tr class="ring-val-row">
             <td style="width:33.33%;">
-                <span class="ring-val blue">{{ $total }}</span>
-                <span class="ring-desc">Pendamping aktif bertugas</span>
+                <span class="ring-val" style="color:#1e3a8a;">{{ $totalData }}</span>
+                <span class="ring-desc">Pendamping periode ini</span>
             </td>
             <td style="width:33.33%;">
-                <span class="ring-val" style="color:#15803d;">{{ $memenuhi }}</span>
+                <span class="ring-val" style="color:#15803d;">{{ $memenuhinya }}</span>
                 <span class="ring-desc">≥ {{ $target }} data bulan ini</span>
             </td>
             <td style="width:33.33%;">
                 <span class="ring-val" style="color:#b91c1c;">{{ $belumMemenuhi }}</span>
-                <span class="ring-desc">Akan dinonaktifkan tanggal 25</span>
+                <span class="ring-desc">Akan dinonaktifkan tgl 25</span>
             </td>
         </tr>
     </table>
@@ -514,10 +436,10 @@
             <tr>
                 <th class="tc" style="width:72px;">No Registrasi</th>
                 <th>Nama Lengkap</th>
-                <th class="tc" style="width:58px;">Target<br>Data</th>
-                <th class="tc" style="width:58px;">Data<br>Masuk</th>
-                <th class="tc" style="width:42px;">Kurang</th>
-                <th style="width:145px;">Keterangan</th>
+                <th class="tc" style="width:52px;">Target<br>Data</th>
+                <th class="tc" style="width:62px;">Data Masuk<br>({{ $periodeCarbon->isoFormat('MMM YYYY') }})</th>
+                <th class="tc" style="width:40px;">Kurang</th>
+                <th style="width:150px;">Keterangan</th>
                 <th class="tc" style="width:55px;">Status</th>
             </tr>
         </thead>
@@ -526,7 +448,8 @@
                 @php
                     $dataMasuk = $enumerator->total_data_bulan;
                     $kurang = max(0, $target - $dataMasuk);
-                    $memenuhi = $dataMasuk >= $target;
+                    $sudahCukup = $dataMasuk >= $target;
+                    $namaBulan = $periodeCarbon->isoFormat('MMMM');
                 @endphp
                 <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
                     <td class="mono">KH-{{ $enumerator->no_registrasi }}</td>
@@ -541,19 +464,19 @@
                     </td>
                     <td class="tc">
                         @if ($kurang > 0)
-                            <span style="color:#b91c1c;font-weight:700;">{{ $kurang }} Data</span>
+                            <span style="color:#b91c1c; font-weight:700;">{{ $kurang }} Data</span>
                         @else
-                            <span style="color:#15803d;font-weight:700;">—</span>
+                            <span style="color:#15803d; font-weight:700;">—</span>
                         @endif
                     </td>
                     <td>
-                        @if ($memenuhi)
+                        @if ($sudahCukup)
                             <span class="badge badge-aman">
-                                Tidak dinonaktifkan tanggal 25 {{ now()->locale('id')->isoFormat('MMMM') }}
+                                Tidak dinonaktifkan tgl 25 {{ $namaBulan }}
                             </span>
                         @else
                             <span class="badge badge-warning">
-                                Dinonaktifkan tanggal 25 {{ now()->locale('id')->isoFormat('MMMM') }}
+                                Dinonaktifkan tgl 25 {{ $namaBulan }}
                             </span>
                         @endif
                     </td>
@@ -574,10 +497,10 @@
     </table>
 
     {{-- ── TANDA TANGAN ── --}}
-    <table class="ttd-table">
+    <table style="width:100%; margin-top:20px;">
         <tr>
             <td></td>
-            <td class="ttd-right">
+            <td style="text-align:right; font-size:9px; color:#334155; vertical-align:top;">
                 <div>Dibuat di: Jakarta</div>
                 <div>Pada tanggal: {{ now()->locale('id')->isoFormat('D MMMM YYYY') }}</div>
             </td>
@@ -588,8 +511,8 @@
     <div class="footer-wrap">
         <table class="footer-table">
             <tr>
-                <td>Dokumen ini digenerate secara otomatis oleh Kawulo Halal Super Apps.</td>
-                <td class="right">&copy; {{ date('Y') }} Kawulo Halal.</td>
+                <td>Dokumen ini digenerate secara otomatis oleh sistem informasi Kawulo Halal.</td>
+                <td class="right">&copy; {{ date('Y') }} Kawulo Halal. Semua hak dilindungi.</td>
             </tr>
         </table>
     </div>

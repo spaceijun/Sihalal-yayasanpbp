@@ -98,15 +98,15 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::resource('data-entries', DataEntryController::class);
+        Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');
         Route::resource('enumerators', EnumeratorController::class);
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
-        Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])
-            ->name('enumerators.gallery');
-        Route::get('superadmin/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
-        Route::get('superadmin/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
+        Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
+        Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
+        Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
         // Data Lapangan
         Route::resource('data-lapangans', DataLapanganController::class);
         Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');

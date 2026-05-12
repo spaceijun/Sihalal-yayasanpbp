@@ -8,7 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\EnumeratorRequest;
 use App\Models\DataBank;
+use App\Models\DataLapangan;
 use App\Models\Superadmin\Koordinator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -238,5 +240,55 @@ class EnumeratorController extends Controller
 
         return Redirect::route('superadmin.enumerators.index')
             ->with('success', 'Enumerator deleted successfully');
+    }
+
+    /**
+     * Export daftar enumerator ke PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Enumerator::with('koordinator')
+            ->select('id', 'no_registrasi', 'nama_lengkap', 'status', 'created_at')
+            ->where('status', 'Aktif');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                    ->orWhereHas('koordinator', fn($q2) => $q2->where('nama_lengkap', 'like', "%{$search}%"));
+            });
+        }
+
+        $enumerators = $query->orderBy('no_registrasi')->get();
+
+        // Data masuk bulan ini saja
+        $enumerators->each(function ($enumerator) {
+            $enumerator->data_per_bulan = DataLapangan::where('enumerator_id', $enumerator->id)
+                ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', now()->month)
+                ->groupBy('bulan')
+                ->orderBy('bulan', 'desc')
+                ->get();
+        });
+
+        $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
+
+        $pdf = Pdf::loadView(
+            'superadmin.enumerator.partials.export-pdf',
+            compact('enumerators', 'exportedAt')
+        )
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont'          => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled'      => false,
+                'dpi'                  => 96,
+                'enable_css_float'     => true,
+            ]);
+
+        $filename = 'laporan-enumerator-' . now()->format('Ymd-His') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

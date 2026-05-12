@@ -259,10 +259,8 @@
         }
 
         // Fallback: coba beberapa kemungkinan path
-        $logoKiriSrc = logoToBase64('assets/images/logo-pbp.png') ?: logoToBase64('images/logo-pbp.png') ?: '';
-
-        $logoKananSrc =
-            logoToBase64('assets/images/logo_kawulo_halal.png') ?: logoToBase64('images/logo_kawulo_halal.png') ?: '';
+        $logoKiriSrc = 'https://kawulohalal.id/assets/images/logo-pbp.png';
+        $logoKananSrc = 'https://kawulohalal.id/assets/images/logo_kawulo_halal.png';
 
         // Icon strip alamat
         function fetchIconBase64(string $url): string

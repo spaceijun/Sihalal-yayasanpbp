@@ -17,7 +17,16 @@ class EnumeratorApi extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Enumerator::with('koordinator');
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
+
+            $query = Enumerator::with('koordinator')
+                ->withCount([
+                    'dataLapangans as data_bulan_ini' => function ($q) use ($currentMonth, $currentYear) {
+                        $q->whereMonth('created_at', $currentMonth)
+                            ->whereYear('created_at', $currentYear);
+                    }
+                ]);
 
             // Search filter (nama enumerator dan koordinator)
             if ($request->has('search') && $request->search != '') {

@@ -3,7 +3,10 @@
 
         {{-- Checkbox untuk bulk payment --}}
         <td style="width:40px;text-align:center;">
-            @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
+            @if (
+                $dataLapangan->status == 'TERBIT SH' &&
+                    $dataLapangan->status_pembayaran == 'PENDING' &&
+                    optional($dataLapangan->enumerator)->status === 'Aktif')
                 <input type="checkbox" class="row-checkbox adm-checkbox" value="{{ $dataLapangan->hashed_id }}"
                     data-id="{{ $dataLapangan->hashed_id }}">
             @endif
@@ -69,20 +72,6 @@
         </td>
 
         <td class="tc">
-            @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)
-                <span class="adm-badge adm-badge-success">
-                    <svg viewBox="0 0 24 24"
-                        style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Sudah
-                </span>
-            @else
-                <span class="adm-badge" style="background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1;">Belum</span>
-            @endif
-        </td>
-
-        <td class="tc">
             <div class="adm-actions" style="justify-content:center;gap:4px;">
                 <a class="adm-btn primary icon-only"
                     href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"
@@ -93,7 +82,10 @@
                     </svg>
                 </a>
 
-                @if ($dataLapangan->status == 'TERBIT SH' && $dataLapangan->status_pembayaran == 'PENDING')
+                @if (
+                    $dataLapangan->status == 'TERBIT SH' &&
+                        $dataLapangan->status_pembayaran == 'PENDING' &&
+                        optional($dataLapangan->enumerator)->status === 'Aktif')
                     <form
                         action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                         method="POST" class="d-inline">

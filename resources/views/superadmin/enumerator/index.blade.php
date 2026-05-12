@@ -60,9 +60,9 @@
                 <table class="adm-table">
                     <thead>
                         <tr>
-                            <th>No Regis</th>
                             <th>Koordinator</th>
                             <th>Nama Lengkap</th>
+                            <th>Data Masuk (By Month)</th>
                             <th>Rekening</th>
                             <th class="tc">Status</th>
                             <th class="tc" style="width:200px;">Aksi</th>

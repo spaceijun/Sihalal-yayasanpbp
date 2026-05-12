@@ -322,21 +322,8 @@
 
     {{-- ── KOP SURAT ── --}}
     @php
-        $logoKiriPath = public_path('assets/images/logo-pbp.png');
-        $logoKiriSrc = '';
-        if (file_exists($logoKiriPath)) {
-            $logoKiriData = base64_encode(file_get_contents($logoKiriPath));
-            $logoKiriMime = mime_content_type($logoKiriPath);
-            $logoKiriSrc = 'data:' . $logoKiriMime . ';base64,' . $logoKiriData;
-        }
-
-        $logoKananPath = public_path('assets/images/logo_kawulo_halal.png');
-        $logoKananSrc = '';
-        if (file_exists($logoKananPath)) {
-            $logoKananData = base64_encode(file_get_contents($logoKananPath));
-            $logoKananMime = mime_content_type($logoKananPath);
-            $logoKananSrc = 'data:' . $logoKananMime . ';base64,' . $logoKananData;
-        }
+        $logoKiriSrc = 'https://kawulohalal.id/assets/images/logo-pbp.png';
+        $logoKananSrc = 'https://kawulohalal.id/assets/images/logo_kawulo_halal.png';
     @endphp
 
     <table style="width:100%; border-collapse:collapse; padding-bottom:6px; margin-bottom:4px;">
@@ -525,7 +512,6 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th class="tc" style="width:22px;">No</th>
                 <th class="tc" style="width:72px;">No Registrasi</th>
                 <th>Nama Lengkap</th>
                 <th class="tc" style="width:58px;">Target<br>Data</th>
@@ -543,20 +529,19 @@
                     $memenuhi = $dataMasuk >= $target;
                 @endphp
                 <tr class="{{ $i % 2 === 1 ? 'even' : '' }}">
-                    <td class="tc">{{ $i + 1 }}</td>
-                    <td class="mono">{{ $enumerator->no_registrasi }}</td>
+                    <td class="mono">KH-{{ $enumerator->no_registrasi }}</td>
                     <td>{{ $enumerator->nama_lengkap }}</td>
                     <td class="tc">{{ $target }}</td>
                     <td class="tc">
                         @if ($dataMasuk > 0)
-                            <span class="bulan-chip">{{ $dataMasuk }} data</span>
+                            <span class="bulan-chip">{{ $dataMasuk }} Data</span>
                         @else
                             <span class="bulan-empty">—</span>
                         @endif
                     </td>
                     <td class="tc">
                         @if ($kurang > 0)
-                            <span style="color:#b91c1c;font-weight:700;">{{ $kurang }}</span>
+                            <span style="color:#b91c1c;font-weight:700;">{{ $kurang }} Data</span>
                         @else
                             <span style="color:#15803d;font-weight:700;">—</span>
                         @endif

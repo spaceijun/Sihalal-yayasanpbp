@@ -245,9 +245,26 @@
 
     {{-- ── KOP SURAT ── --}}
     @php
-        $logoKiriSrc = 'https://yourdomain.com/assets/images/logo-pbp.png';
-        $logoKananSrc = 'https://yourdomain.com/assets/images/logo_kawulo_halal.png';
+        function logoToBase64(string $path): string
+        {
+            try {
+                $full = public_path($path);
+                if (!file_exists($full) || !is_readable($full)) {
+                    return '';
+                }
+                return 'data:' . mime_content_type($full) . ';base64,' . base64_encode(file_get_contents($full));
+            } catch (\Exception $e) {
+                return '';
+            }
+        }
 
+        // Fallback: coba beberapa kemungkinan path
+        $logoKiriSrc = logoToBase64('assets/images/logo-pbp.png') ?: logoToBase64('images/logo-pbp.png') ?: '';
+
+        $logoKananSrc =
+            logoToBase64('assets/images/logo_kawulo_halal.png') ?: logoToBase64('images/logo_kawulo_halal.png') ?: '';
+
+        // Icon strip alamat
         function fetchIconBase64(string $url): string
         {
             try {

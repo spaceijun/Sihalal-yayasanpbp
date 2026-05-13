@@ -512,7 +512,7 @@
                         <div class="group-meta">
                             No. Registrasi: KH-{{ $enumerator->no_registrasi ?? '-' }}
                             &nbsp;&nbsp;|&nbsp;&nbsp;
-                            Wilayah: {{ $enumerator->wilayah ?? '-' }}
+                            Wilayah: Jawa Tengah SEHATI 2026
                         </div>
                     </td>
                     <td style="text-align:right; vertical-align:middle; white-space:nowrap;">

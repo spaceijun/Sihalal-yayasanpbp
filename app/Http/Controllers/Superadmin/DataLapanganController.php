@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Log;
 
 class DataLapanganController extends Controller
 {
+
     public function __construct(
         private DataLapanganService $dataLapanganService,
         private StatusService $statusService,
@@ -79,15 +80,30 @@ class DataLapanganController extends Controller
 
         $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
         $tahun      = now()->year;
+        $bulan      = now()->month;
 
         $pdf = Pdf::loadView('superadmin.data-lapangan.partials.data-revisi-pdf', compact(
             'grouped',
             'dataLapangans',
             'exportedAt',
             'tahun',
-        ))->setPaper('a4', 'portrait');
+            'bulan',
+        ))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont'          => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled'      => true,
+                'dpi'                  => 96,
+                'enable_css_float'     => true,
+            ]);
 
-        return $pdf->download('data-revisi-' . now()->format('Ymd-His') . '.pdf');
+        $filename = 'data-revisi-'
+            . $tahun
+            . str_pad($bulan, 2, '0', STR_PAD_LEFT)
+            . '-' . now()->format('His') . '.pdf';
+
+        return $pdf->download($filename);
     }
     /**
      * Kirim notifikasi revisi untuk satu data — pakai hashedId

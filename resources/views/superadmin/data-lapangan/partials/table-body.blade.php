@@ -15,13 +15,16 @@
         <td><span class="adm-rownum">{{ ++$i }}</span></td>
 
         <td class="adm-mono" style="font-size:11.5px;white-space:nowrap;">
-            {{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y H:i') }}
+            {{ \Carbon\Carbon::parse($dataLapangan->created_at)->translatedFormat('d M Y') }}
+        </td>
+
+        <td class="adm-mono" style="font-size:12px;white-space:nowrap;">
+            {{ $dataLapangan->no_registrasi ?? '—' }}
         </td>
 
         <td style="font-size:12.5px;color:var(--adm-text-muted);">
             {{ $dataLapangan->enumerator->nama_lengkap ?? '—' }}
         </td>
-
         <td>
             <div style="font-weight:600;font-size:13px;color:var(--adm-text-dark);">
                 <a href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"

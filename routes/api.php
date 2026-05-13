@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DataLapanganController;
 use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
+use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
 use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\KoorDataLapanganController;
@@ -148,5 +149,8 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
             Route::get('/',     [CashflowEnumeratorController::class, 'index'])->name('index');
             Route::get('/{id}', [CashflowEnumeratorController::class, 'show'])->name('show');
         });
+        // Pengumuman
+        Route::get('/pengumuman', [PengumumanEnumController::class, 'index'])->name('pengumuman.index');
+        Route::get('/pengumuman/{id}', [PengumumanEnumController::class, 'show'])->name('pengumuman.show');
     });
 });

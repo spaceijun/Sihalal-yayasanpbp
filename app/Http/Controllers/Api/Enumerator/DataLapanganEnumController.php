@@ -453,6 +453,7 @@ class DataLapanganEnumController extends Controller
     {
         return [
             'id'                  => $item->id,
+            'no_registrasi'       => $item->no_registrasi,
             'enumerator_id'       => $item->enumerator_id,
             'nama_pu'             => $item->nama_pu,
             'nik'                 => $item->nik,

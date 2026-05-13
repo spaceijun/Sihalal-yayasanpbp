@@ -63,7 +63,7 @@
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <input type="text" id="search" name="search" class="adm-search-input"
-                                style="width:220px;" placeholder="Nama PU atau pendamping..."
+                                style="width:220px;" placeholder="Nama PU/No Registrasi/Pendamping..."
                                 value="{{ request('search') }}">
                         </div>
                     </div>
@@ -170,7 +170,8 @@
                                     <input type="checkbox" id="checkAll" title="Pilih semua" style="cursor:pointer;">
                                 </th>
                                 <th style="width:44px">#</th>
-                                <th>Waktu</th>
+                                <th>Tanggal</th>
+                                <th>No Registrasi</th>
                                 <th>Pendamping</th>
                                 <th>Nama PU</th>
                                 <th>NIK</th>
@@ -289,7 +290,7 @@
                     .value.trim());
                 if (tanggalDariInput.value.trim()) params.append('tanggal_dari', tanggalDariInput.value.trim());
                 if (tanggalSampaiInput.value.trim()) params.append('tanggal_sampai', tanggalSampaiInput.value
-                .trim());
+                    .trim());
                 if (url) {
                     try {
                         const page = new URL(url, window.location.origin).searchParams.get('page');

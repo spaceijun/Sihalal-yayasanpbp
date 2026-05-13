@@ -448,13 +448,13 @@ class DataLapanganController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nama_pu', 'like', "%{$searchTerm}%")
                     ->orWhere('nama_produk', 'like', "%{$searchTerm}%")
+                    ->orWhere('no_registrasi', 'like', "%{$searchTerm}%") // ← tambahkan ini
                     ->orWhereHas('enumerator', function ($subQ) use ($searchTerm) {
                         $subQ->where('nama_lengkap', 'like', "%{$searchTerm}%");
                     });
             });
         }
     }
-
     /**
      * Apply status filter
      */

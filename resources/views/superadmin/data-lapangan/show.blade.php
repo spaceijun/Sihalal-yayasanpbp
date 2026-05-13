@@ -82,11 +82,7 @@
             <div>
                 <div class="dl-header-title">{{ $dataLapangan->nama_pu }}</div>
                 <div class="dl-header-meta">
-                    NIK <strong>{{ $dataLapangan->nik }}</strong>
-                    &nbsp;·&nbsp;
-                    Pendamping: <strong>{{ $dataLapangan->enumerator->nama_lengkap }}</strong>
-                    &nbsp;·&nbsp;
-                    <strong>{{ count($allProducts) }}</strong> produk terdaftar
+                    No Registrasi : <strong>{{ $dataLapangan->no_registrasi }}</strong>
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">

@@ -18,6 +18,8 @@
         <option value="">-- Pilih Jenis --</option>
         <option value="SIHALAL" {{ old('jenis', $pengumuman?->jenis) == 'SIHALAL' ? 'selected' : '' }}>SIHALAL</option>
         <option value="OSS" {{ old('jenis', $pengumuman?->jenis) == 'OSS' ? 'selected' : '' }}>OSS</option>
+        <option value="PENDAMPING" {{ old('jenis', $pengumuman?->jenis) == 'PENDAMPING' ? 'selected' : '' }}>PENDAMPING
+        </option>
     </select>
     @error('jenis')
         <span class="adm-error-msg">{{ $message }}</span>

@@ -45,6 +45,7 @@ class DataLapangan extends Model
      */
     protected $fillable = [
         'enumerator_id',
+        'no_registrasi',
         'nama_pu',
         'nik',
         'email',
@@ -158,12 +159,22 @@ class DataLapangan extends Model
      */
     protected static function booted()
     {
+        // Auto-generate no_registrasi 
+        static::creating(function ($dataLapangan) {
+            if (empty($dataLapangan->no_registrasi)) {
+                $tahun = date('Y');
+                $count = static::whereYear('created_at', $tahun)->count();
+                $urutan = str_pad($count + 1, 5, '0', STR_PAD_LEFT);
+                $dataLapangan->no_registrasi = 'KH' . $tahun . '-' . $urutan;
+            }
+        });
+
+        // Logika Pembayaran
         static::updated(function ($dataLapangan) {
             if (
                 $dataLapangan->isDirty('status_pembayaran') &&
                 $dataLapangan->status_pembayaran === 'DIBAYAR'
             ) {
-                // Hitung fee berdasarkan tanggal data dibuat
                 $fee = self::resolveFee($dataLapangan);
 
                 $existingCashflowPemasukan = CashflowsKoordinator::where('data_lapangan_id', $dataLapangan->id)
@@ -202,7 +213,6 @@ class DataLapangan extends Model
             }
         });
     }
-
     /**
      * Hitung fee berdasarkan tanggal data dibuat.
      * Tambahkan entri baru di array $feeSchedule saat harga naik,

@@ -119,6 +119,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
         Route::get('data-revisi', [DataLapanganController::class, 'dataRevisi'])->name('data-lapangans.data-revisi');
+        Route::get('/data-revisi/export-pdf', [DataLapanganController::class, 'exportRevisiPdf'])->name('data-revisi.export-pdf');
         Route::post('/data-revisi/{id}/send-notification', [DataLapanganController::class, 'sendRevisiNotification'])->name('data-revisi.send-notification');
         Route::post('/data-revisi/send-all-notifications', [DataLapanganController::class, 'sendAllRevisiNotifications'])->name('data-revisi.send-all-notifications');
         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');

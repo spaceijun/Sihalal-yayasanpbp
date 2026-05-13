@@ -22,6 +22,10 @@
                                     data-bs-target="#sendAllModal">
                                     <i class="las la-paper-plane"></i> Kirim Semua Notifikasi
                                 </button>
+                                <a href="{{ route('superadmin.data-revisi.export-pdf') }}"
+                                    class="btn btn-danger btn-sm ms-2" target="_blank">
+                                    <i class="las la-file-pdf"></i> Export PDF
+                                </a>
                             </div>
                         </div>
                     </div>

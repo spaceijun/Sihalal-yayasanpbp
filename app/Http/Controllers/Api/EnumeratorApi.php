@@ -17,14 +17,16 @@ class EnumeratorApi extends Controller
     public function index(Request $request)
     {
         try {
-            $currentMonth = now()->month;
-            $currentYear = now()->year;
-
             $query = Enumerator::with('koordinator')
                 ->withCount([
-                    'dataLapangans as data_bulan_ini' => function ($q) use ($currentMonth, $currentYear) {
-                        $q->whereMonth('created_at', $currentMonth)
-                            ->whereYear('created_at', $currentYear);
+                    'dataLapangans as data_bulan_ini' => function ($q) {
+                        $startDate = now()->day >= 25
+                            ? now()->startOfDay()->day(25)
+                            : now()->subMonth()->day(25)->startOfDay();
+
+                        $endDate = $startDate->copy()->addMonth();
+
+                        $q->whereBetween('created_at', [$startDate, $endDate]);
                     }
                 ]);
 

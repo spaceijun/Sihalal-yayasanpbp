@@ -276,6 +276,91 @@ class NotificationService
         }
     }
 
+    /**
+     * Kirim notifikasi WhatsApp untuk pembayaran enumerator
+     */
+    public function sendPembayaranEnumeratorNotification(DataLapangan $dataLapangan): bool
+    {
+        try {
+            $dataLapangan->loadMissing('enumerator.koordinator');
+
+            $phone = $this->resolvePhone($dataLapangan->enumerator?->telephone ?? null);
+            if (!$phone) {
+                Log::warning('NotificationService: telephone enumerator tidak tersedia', [
+                    'data_lapangan_id' => $dataLapangan->id,
+                ]);
+                return false;
+            }
+
+            $caption = $this->buildPembayaranEnumeratorCaption(
+                $dataLapangan->enumerator->nama_lengkap,
+                $dataLapangan->nama_pu,
+                $dataLapangan->nik,
+                $dataLapangan->enumerator->koordinator->fee_enum ?? 0,
+            );
+
+            $response = $this->kawuloHalal->sendMedia(
+                number: $phone,
+                mediaType: 'image',
+                url: env('KAWULOHALAL_DEFAULT_MEDIA_URL', 'https://kawulohalal.id/assets/logo.png'),
+                caption: $caption,
+                footer: 'TIM KAWULO HALAL | +62 897-6774-482',
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('NotificationService: pembayaran enumerator notification error', [
+                'data_lapangan_id' => $dataLapangan->id,
+                'message'          => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Kirim notifikasi WhatsApp untuk pembayaran data entry
+     */
+    public function sendPembayaranDataEntryNotification(
+        string $namaDataEntry,
+        string $telephone,
+        int    $jumlahData,
+        int    $jumlahPaket,
+        int    $nominal
+    ): bool {
+        try {
+            $phone = $this->resolvePhone($telephone);
+            if (!$phone) {
+                Log::warning('NotificationService: telephone data entry tidak tersedia', [
+                    'nama_data_entry' => $namaDataEntry,
+                ]);
+                return false;
+            }
+
+            $caption = $this->buildPembayaranDataEntryCaption(
+                $namaDataEntry,
+                $jumlahData,
+                $jumlahPaket,
+                $nominal
+            );
+
+            $response = $this->kawuloHalal->sendMedia(
+                number: $phone,
+                mediaType: 'image',
+                url: env('KAWULOHALAL_DEFAULT_MEDIA_URL', 'https://kawulohalal.id/assets/logo.png'),
+                caption: $caption,
+                footer: 'TIM KAWULO HALAL | +62 897-6774-482',
+            );
+
+            return $response['status'] ?? false;
+        } catch (\Exception $e) {
+            Log::error('NotificationService: pembayaran data entry notification error', [
+                'nama_data_entry' => $namaDataEntry,
+                'message'         => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Internal Helpers
     // ─────────────────────────────────────────────────────────────────────────
@@ -419,5 +504,51 @@ class NotificationService
             "Best Regards,\n" .
             "*TIM KAWULO HALAL*\n" .
             "+62 897-6774-482 (CS)";
+    }
+
+    private function buildPembayaranEnumeratorCaption(
+        string $namaEnumerator,
+        string $namaPU,
+        string $nik,
+        mixed  $feeEnum,
+    ): string {
+        $feeFormatted = 'Rp ' . number_format((float) $feeEnum, 0, ',', '.');
+
+        return "💰 *NOTIFIKASI PEMBAYARAN PENDAMPING*\n\n" .
+            "Halo *{$namaEnumerator}*!\n\n" .
+            "Pembayaran atas pendampingan Anda telah diproses.\n\n" .
+            "📋 *Detail Data:*\n" .
+            "• Nama PU  : *{$namaPU}*\n" .
+            "• NIK      : *{$nik}*\n" .
+            "• Fee      : *{$feeFormatted}*\n\n" .
+            "✅ *Pembayaran telah dikonfirmasi.*\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*\n" .
+            "+62 897-6774-482 (CS)";
+    }
+
+    private function buildPembayaranDataEntryCaption(
+        string $namaDataEntry,
+        int    $jumlahData,
+        int    $jumlahPaket,
+        int    $nominal
+    ): string {
+        $nominalFormatted = 'Rp ' . number_format($nominal, 0, ',', '.');
+        $perPaket         = 'Rp ' . number_format(150000, 0, ',', '.');
+
+        return "💰 *NOTIFIKASI PEMBAYARAN DATA ENTRY*\n\n" .
+            "Halo *{$namaDataEntry}*!\n\n" .
+            "Pembayaran untuk Data Entry Anda telah disetujui dan sedang diproses.\n\n" .
+            "📊 *Detail Pembayaran:*\n" .
+            "• Jumlah Data  : *{$jumlahData} data*\n" .
+            "• Jumlah Paket : *{$jumlahPaket} paket*\n" .
+            "• Tarif/Paket  : *{$perPaket}*\n" .
+            "• Total        : *{$nominalFormatted}*\n\n" .
+            "✅ *Pembayaran telah dikonfirmasi.*\n\n" .
+            "_Dikirim otomatis oleh sistem._\n" .
+            "Best Regards,\n" .
+            "*TIM KAWULO HALAL*\n" .
+            "+62 897-6774-482";
     }
 }

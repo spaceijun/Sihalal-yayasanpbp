@@ -145,4 +145,12 @@ class DataLapanganService
         $dataLapangan->update(['email_sihalal' => $emailSihalal]);
         return $dataLapangan;
     }
+
+    public function getDataRevisiAll()
+    {
+        return DataLapangan::with('enumerator')
+            ->where('status', 'Revisi')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 }

@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Models\Cashflow;
 use App\Models\DataEntryPenagihan;
+use App\Services\Superadmin\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 
 class DataEntryPenagihanController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     public function index()
     {
         $penagihans = DataEntryPenagihan::with(['dataEntry', 'user'])
@@ -82,7 +89,7 @@ class DataEntryPenagihanController extends Controller
         $notificationSent = false;
 
         if ($dataEntry && $dataEntry->telephone) {
-            $notificationSent = $penagihan->sendPembayaranDataEntryNotification(
+            $notificationSent = $this->notificationService->sendPembayaranDataEntryNotification(
                 $dataEntry->nama_lengkap,
                 $dataEntry->telephone,
                 $penagihan->jumlah_data,

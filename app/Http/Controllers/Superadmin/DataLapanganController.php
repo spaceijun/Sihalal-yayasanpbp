@@ -23,6 +23,8 @@ use App\Services\Superadmin\ImageService;
 use App\Services\Superadmin\ImageDownloadService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\PdfService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class DataLapanganController extends Controller
@@ -65,6 +67,28 @@ class DataLapanganController extends Controller
             ->with('i', ($request->input('page', 1) - 1) * $dataLapangans->perPage());
     }
 
+    /**
+     * Export Data Revisi ke PDF
+     */
+    public function exportRevisiPdf(): Response
+    {
+        $dataLapangans = $this->dataLapanganService->getDataRevisiAll();
+
+        // Group berdasarkan enumerator
+        $grouped = $dataLapangans->groupBy(fn($item) => $item->enumerator->nama_lengkap ?? 'Tidak Diketahui');
+
+        $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
+        $tahun      = now()->year;
+
+        $pdf = Pdf::loadView('superadmin.data-lapangan.partials.data-revisi-pdf', compact(
+            'grouped',
+            'dataLapangans',
+            'exportedAt',
+            'tahun',
+        ))->setPaper('a4', 'portrait');
+
+        return $pdf->download('data-revisi-' . now()->format('Ymd-His') . '.pdf');
+    }
     /**
      * Kirim notifikasi revisi untuk satu data — pakai hashedId
      */
@@ -460,8 +484,9 @@ class DataLapanganController extends Controller
         $dataLapangan->update([
             'status_pembayaran' => 'DIBAYAR',
         ]);
-    }
 
+        $this->notificationService->sendPembayaranEnumeratorNotification($dataLapangan);
+    }
     /**
      * Display the specified resource.
      */

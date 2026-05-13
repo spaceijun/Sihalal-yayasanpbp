@@ -97,9 +97,9 @@ class DataLapanganObserver
 
     private function handleStatusNotification(DataLapangan $dataLapangan): void
     {
-        if (!$dataLapangan->wasChanged('status')) return;
+        if (!$dataLapangan->wasChanged('status_pembayaran')) return;
 
-        if (strtoupper(trim($dataLapangan->status)) === 'DIBAYAR') {
+        if (strtoupper(trim($dataLapangan->status_pembayaran)) === 'DIBAYAR') {
             $this->notifyDibayar($dataLapangan);
         }
     }

@@ -47,7 +47,7 @@ class DashboardController extends Controller
             ->get();
 
         // Data Terbit SH per bulan (semua data status Terbit SH)
-        $dataTerbitSHPerBulan = DataLapangan::selectRaw("DATE_FORMAT(updated_at, '%Y-%m') as bulan, COUNT(*) as total")
+        $dataTerbitSHPerBulan = DataLapangan::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
             ->where('status', 'Terbit SH')
             ->groupBy('bulan')
             ->orderBy('bulan', 'asc')

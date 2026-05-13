@@ -162,7 +162,7 @@
     {{-- ─── SECTION 4: PEMBAYARAN ─── --}}
     <div class="section-label">Status Pembayaran</div>
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="pay-card pay-pending">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -175,7 +175,20 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4"> {{-- ← BARU --}}
+            <div class="pay-card pay-pengajuan"> {{-- ← BARU --}}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="pay-label">Pembayaran Pengajuan</div>
+                        <div class="pay-value">
+                            <span class="counter-value" data-target="{{ $totalPembayaranPengajuan ?? 0 }}">0</span>
+                        </div>
+                    </div>
+                    <div class="pay-icon"><i class="bx bx-send"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
             <div class="pay-card pay-paid">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -310,7 +323,7 @@
                                 <th>Pendamping</th>
                                 <th>Nama PU</th>
                                 <th>Status</th>
-                                <th>Update</th>
+                                <th>Tanggal Pengajuan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -332,7 +345,7 @@
                                             <span class="status-badge badge-terbit">TERBIT SH</span>
                                         @endif
                                     </td>
-                                    <td>{{ $data->updated_at->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $data->created_at->format('d/m/Y H:i') }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -646,6 +659,11 @@
             font-weight: 700;
             color: #fff;
             letter-spacing: -1px;
+        }
+
+        .pay-card.pay-pengajuan {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            border-color: rgba(217, 119, 6, 0.2);
         }
 
         /* ─── CHART CARD ─── */

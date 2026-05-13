@@ -71,7 +71,8 @@ class FcmService
                         ],
                     ],
                     // ── Data payload (tersedia saat app foreground/background) ─
-                    'data' => array_map('strval', $data), // FCM: semua value harus string
+                    'data' => (object) array_map('strval', $data),
+                    // FCM: semua value harus string
                 ],
             ]);
 

@@ -52,6 +52,8 @@ class FcmService
                             'channel_id'    => 'cashflow_channel', // sesuai channel Flutter
                             'sound'         => 'default',
                             'default_sound' => true,
+                            'icon'          => 'ic_notification',  // drawable di res/drawable
+                            'color'         => '#005FA3',          // warna brand biru
                         ],
                     ],
                     // ── iOS (APNs) config ────────────────────────────────────

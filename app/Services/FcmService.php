@@ -49,7 +49,7 @@ class FcmService
                     'android' => [
                         'priority'     => 'high',
                         'notification' => [
-                            'channel_id'    => 'cashflow_channel', // sesuai channel Flutter
+                            'channel_id'    => 'kawalakufcm_v1', // sesuai channel Flutter
                             'sound'         => 'default',
                             'default_sound' => true,
                             'icon'          => 'ic_notification',  // drawable di res/drawable

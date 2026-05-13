@@ -6,6 +6,7 @@ use App\Models\Superadmin\Koordinator;
 use App\Models\CashflowsKoordinator;
 use App\Models\Cashflow;
 use App\Models\User;
+use App\Observers\DataLapanganObserver;
 use App\Traits\HasHashedId;
 use App\Traits\SendsWhatsAppNotification;
 use Illuminate\Database\Eloquent\Model;
@@ -159,6 +160,8 @@ class DataLapangan extends Model
      */
     protected static function booted()
     {
+        // Observer (progress log + FCM notification)
+        static::observe(DataLapanganObserver::class);
         // Auto-generate no_registrasi 
         static::creating(function ($dataLapangan) {
             if (empty($dataLapangan->no_registrasi)) {

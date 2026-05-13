@@ -106,20 +106,23 @@ class DataLapanganObserver
 
     private function notifyDibayar(DataLapangan $dataLapangan): void
     {
-        $user = $dataLapangan->enumerator ?? $dataLapangan->user ?? null;
+        $user = $dataLapangan->enumerator?->user ?? null;
 
-        if (!$user?->fcm_token) {
+        if (!$user || !$user->fcm_token) {
             Log::warning('[FCM] FCM token tidak ditemukan', [
                 'data_lapangan_id' => $dataLapangan->id,
+                'enumerator_id'    => $dataLapangan->enumerator_id,
                 'user_id'          => $user?->id,
             ]);
             return;
         }
 
+        $namaPu = $dataLapangan->nama_pu ?? 'Pelaku Usaha';
+
         FcmService::send(
             fcmToken: $user->fcm_token,
             title: '💰 Pembayaran Dikonfirmasi!',
-            body: "Pembayaran untuk {$dataLapangan->nama_pu} telah berhasil dikonfirmasi.",
+            body: "Pembayaran untuk {$namaPu} telah berhasil dikonfirmasi.",
             data: [
                 'type'             => 'status_dibayar',
                 'data_lapangan_id' => (string) $dataLapangan->id,

@@ -8,6 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Cek aktivitas enumerator setiap hari tengah malam
-Schedule::command('enumerator:check-activity')->daily();
 Schedule::command('data-lapangan:clean-locks')->everyFiveMinutes();
+// Schedule::command('enumerator:check-activity')->monthlyOn(25, '00:00');
+Schedule::command('status:update-pembayaran')->daily();

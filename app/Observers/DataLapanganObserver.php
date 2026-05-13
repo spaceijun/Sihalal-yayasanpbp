@@ -106,6 +106,9 @@ class DataLapanganObserver
 
     private function notifyDibayar(DataLapangan $dataLapangan): void
     {
+        // Pastikan relasi ter-load agar tidak terjadi N+1 query
+        $dataLapangan->loadMissing('enumerator.user');
+
         $user = $dataLapangan->enumerator?->user ?? null;
 
         if (!$user || !$user->fcm_token) {

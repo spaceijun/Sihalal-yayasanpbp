@@ -36,6 +36,10 @@ class HomeApiController extends Controller
             ->where('status', 'REVISI')
             ->count();
 
+        $pendingPayment = DataLapangan::where('enumerator_id', $enumeratorId)
+            ->where('status_pembayaran', 'PENDING')
+            ->count();
+
         $pengajuan = DataLapangan::where('enumerator_id', $enumeratorId)
             ->where('status_pembayaran', 'PENGAJUAN')
             ->count();
@@ -74,6 +78,7 @@ class HomeApiController extends Controller
                     'progress'        => $progress,
                     'terbit_sh'       => $terbitSH,
                     'revisi'          => $revisi,
+                    'pending_pembayaran'         => $pendingPayment,
                     'pengajuan'       => $pengajuan,
                     'data_masuk'      => $dataMasuk,
                     'dibayar'         => $dibayar,

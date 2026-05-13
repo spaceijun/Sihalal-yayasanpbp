@@ -37,14 +37,17 @@ class HomeApiController extends Controller
             ->count();
 
         $pendingPayment = DataLapangan::where('enumerator_id', $enumeratorId)
+            ->where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'PENDING')
             ->count();
 
         $pengajuan = DataLapangan::where('enumerator_id', $enumeratorId)
+            ->where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'PENGAJUAN')
             ->count();
 
         $dibayar = DataLapangan::where('enumerator_id', $enumeratorId)
+            ->where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'DIBAYAR')
             ->count();
 

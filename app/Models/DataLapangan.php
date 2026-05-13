@@ -162,10 +162,7 @@ class DataLapangan extends Model
         // Auto-generate no_registrasi 
         static::creating(function ($dataLapangan) {
             if (empty($dataLapangan->no_registrasi)) {
-                $tahun = date('Y');
-                $count = static::whereYear('created_at', $tahun)->count();
-                $urutan = str_pad($count + 1, 5, '0', STR_PAD_LEFT);
-                $dataLapangan->no_registrasi = 'KH' . $tahun . '-' . $urutan;
+                $dataLapangan->no_registrasi = static::generateNoRegistrasi();
             }
         });
 
@@ -267,5 +264,25 @@ class DataLapangan extends Model
             'id',               // PK di data_lapangans
             'data_entry_id'     // FK di data_entry_progress
         );
+    }
+
+    private static function generateNoRegistrasi(): string
+    {
+        $tahun = date('Y');
+        $prefix = 'KH' . $tahun . '-';
+
+        // Ambil nomor urut terbesar yang sudah ada, bukan count
+        $last = static::where('no_registrasi', 'like', $prefix . '%')
+            ->lockForUpdate()  // ← lock row agar tidak race condition
+            ->max('no_registrasi');
+
+        if ($last) {
+            $lastUrutan = (int) substr($last, strlen($prefix));
+            $urutan = $lastUrutan + 1;
+        } else {
+            $urutan = 1;
+        }
+
+        return $prefix . str_pad($urutan, 5, '0', STR_PAD_LEFT);
     }
 }

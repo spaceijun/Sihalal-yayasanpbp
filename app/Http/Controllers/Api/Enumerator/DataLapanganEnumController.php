@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -425,28 +426,30 @@ class DataLapanganEnumController extends Controller
             $data['nama_pu'] = strtoupper($data['nama_pu']);
         }
 
-        return DataLapangan::create([
-            'enumerator_id'   => $data['enumerator_id'],
-            'nama_pu'         => $data['nama_pu'],
-            'nik'             => $data['nik'],
-            'telephone'       => $data['telephone'],
-            'nama_produk'     => $data['nama_produk'],
-            'nama_produk_2'   => $data['nama_produk_2'] ?? null,
-            'nama_produk_3'   => $data['nama_produk_3'] ?? null,
-            'nama_produk_4'   => $data['nama_produk_4'] ?? null,
-            'nama_produk_5'   => $data['nama_produk_5'] ?? null,
-            'alamat'          => $data['alamat'],
-            'foto_ktp'        => $data['foto_ktp'],
-            'foto_rumah'      => $data['foto_rumah'],
-            'foto_pendamping' => $data['foto_pendamping'],
-            'foto_produk'     => $data['foto_produk'],
-            'foto_produk_2'   => $data['foto_produk_2'] ?? null,
-            'foto_produk_3'   => $data['foto_produk_3'] ?? null,
-            'foto_produk_4'   => $data['foto_produk_4'] ?? null,
-            'foto_produk_5'   => $data['foto_produk_5'] ?? null,
-            'file_oss'        => $data['file_oss'] ?? null,
-            'has_nib'         => $data['has_nib'] ?? false, // ← simpan pilihan user
-        ]);
+        return DB::transaction(function () use ($data) {
+            return DataLapangan::create([
+                'enumerator_id'   => $data['enumerator_id'],
+                'nama_pu'         => $data['nama_pu'],
+                'nik'             => $data['nik'],
+                'telephone'       => $data['telephone'],
+                'nama_produk'     => $data['nama_produk'],
+                'nama_produk_2'   => $data['nama_produk_2'] ?? null,
+                'nama_produk_3'   => $data['nama_produk_3'] ?? null,
+                'nama_produk_4'   => $data['nama_produk_4'] ?? null,
+                'nama_produk_5'   => $data['nama_produk_5'] ?? null,
+                'alamat'          => $data['alamat'],
+                'foto_ktp'        => $data['foto_ktp'],
+                'foto_rumah'      => $data['foto_rumah'],
+                'foto_pendamping' => $data['foto_pendamping'],
+                'foto_produk'     => $data['foto_produk'],
+                'foto_produk_2'   => $data['foto_produk_2'] ?? null,
+                'foto_produk_3'   => $data['foto_produk_3'] ?? null,
+                'foto_produk_4'   => $data['foto_produk_4'] ?? null,
+                'foto_produk_5'   => $data['foto_produk_5'] ?? null,
+                'file_oss'        => $data['file_oss'] ?? null,
+                'has_nib'         => $data['has_nib'] ?? false,
+            ]);
+        });
     }
 
     private function formatData(DataLapangan $item): array

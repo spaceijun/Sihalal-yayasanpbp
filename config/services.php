@@ -59,5 +59,12 @@ return [
         'api_key' => env('ANTHROPIC_API_KEY'),
     ],
 
+    'oss' => [
+        'tarif_per_paket_oss' => env('TARIF_OSS_PER_PAKET', 0),
+    ],
+
+    'sihalal' => [
+        'tarif_per_paket_sihalal' => env('TARIF_SIHALAL_PER_PAKET', 0),
+    ],
 
 ];

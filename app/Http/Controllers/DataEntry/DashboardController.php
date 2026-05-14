@@ -17,7 +17,9 @@ class DashboardController extends Controller
         $dataEntry = DataEntry::where('user_id', Auth::id())->firstOrFail();
 
         // Tarif sesuai entry_type
-        $tarifPer15   = $dataEntry->entry_type === 'SIHALAL' ? 200000 : 150000;
+        $tarifPer15 = $dataEntry->entry_type === 'SIHALAL'
+            ? config('services.sihalal.tarif_per_paket_sihalal')
+            : config('services.oss.tarif_per_paket_oss');
         $kelipatanPer = 15;
 
         // Total semua data yang pernah dientry (action created)

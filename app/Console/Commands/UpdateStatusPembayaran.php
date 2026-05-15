@@ -15,7 +15,7 @@ class UpdateStatusPembayaran extends Command
         $duaHariLalu = Carbon::now()->subDays(2);
         $updated = DataLapangan::where('status', 'TERBIT SH')
             ->where('status_pembayaran', 'PENDING')
-            ->where('tanggal_verifikasi', '<=', $duaHariLalu)
+            ->where('updated_at', '<=', $duaHariLalu)
             ->update(['status_pembayaran' => 'PENGAJUAN']);
         $this->info("Updated {$updated} records.");
     }

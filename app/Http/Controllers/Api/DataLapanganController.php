@@ -52,7 +52,9 @@ class DataLapanganController extends Controller
 
             // Hitung ulang payment stats (global, bukan filtered)
             $cutoff = Carbon::create(2026, 5, 1);
-            $allData = DataLapangan::select('id', 'status_pembayaran', 'created_at')->get();
+            $allData = DataLapangan::select('id', 'status_pembayaran', 'created_at')
+                ->where('status', 'TERBIT SH')
+                ->get();
             $stats = ['pending_count' => 0, 'pending_total' => 0, 'pengajuan_count' => 0, 'pengajuan_total' => 0, 'dibayar_count' => 0, 'dibayar_total' => 0];
             foreach ($allData as $item) {
                 $tagihan = Carbon::parse($item->created_at)->lt($cutoff) ? 50000 : 60000;

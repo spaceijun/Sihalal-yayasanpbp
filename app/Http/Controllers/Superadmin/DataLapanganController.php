@@ -57,7 +57,9 @@ class DataLapanganController extends Controller
         // Hitung statistik pembayaran + total tagihan per status
         $cutoff = Carbon::create(2026, 5, 1);
 
-        $allData = DataLapangan::select('id', 'status_pembayaran', 'created_at')->get();
+        $allData = \App\Models\DataLapangan::select('id', 'status_pembayaran', 'created_at')
+            ->where('status', 'TERBIT SH')
+            ->get();
 
         $paymentStats = [
             'pending_count'    => 0,

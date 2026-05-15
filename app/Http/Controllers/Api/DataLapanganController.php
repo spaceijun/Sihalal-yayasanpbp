@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -46,15 +47,29 @@ class DataLapanganController extends Controller
             $dataLapangans = $this->getDataLapangans($request);
             $i = $this->calculateStartingIndex($dataLapangans);
 
-            $tableHtml = $this->renderTableBody($dataLapangans, $i);
+            $tableHtml      = $this->renderTableBody($dataLapangans, $i);
             $paginationHtml = $this->renderPagination($dataLapangans);
 
+            // Hitung ulang payment stats (global, bukan filtered)
+            $cutoff = Carbon::create(2026, 5, 1);
+            $allData = DataLapangan::select('id', 'status_pembayaran', 'created_at')->get();
+            $stats = ['pending_count' => 0, 'pending_total' => 0, 'pengajuan_count' => 0, 'pengajuan_total' => 0, 'dibayar_count' => 0, 'dibayar_total' => 0];
+            foreach ($allData as $item) {
+                $tagihan = Carbon::parse($item->created_at)->lt($cutoff) ? 50000 : 60000;
+                $key = strtolower($item->status_pembayaran);
+                if (isset($stats["{$key}_count"])) {
+                    $stats["{$key}_count"]++;
+                    $stats["{$key}_total"] += $tagihan;
+                }
+            }
+
             return $this->successResponse([
-                'table' => $tableHtml,
-                'pagination' => $paginationHtml,
-                'total' => $dataLapangans->total(),
+                'table'        => $tableHtml,
+                'pagination'   => $paginationHtml,
+                'total'        => $dataLapangans->total(),
                 'current_page' => $dataLapangans->currentPage(),
-                'last_page' => $dataLapangans->lastPage(),
+                'last_page'    => $dataLapangans->lastPage(),
+                'payment_stats' => $stats,
             ]);
         } catch (\Exception $e) {
             return $this->errorResponse('Terjadi kesalahan: ' . $e->getMessage(), 500);

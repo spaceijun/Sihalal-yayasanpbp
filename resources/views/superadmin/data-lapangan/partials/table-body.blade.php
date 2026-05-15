@@ -75,6 +75,21 @@
         </td>
 
         <td class="tc">
+            @php
+                $tagihan = \Carbon\Carbon::parse($dataLapangan->created_at)->lt(\Carbon\Carbon::create(2026, 5, 1))
+                    ? 50000
+                    : 60000;
+            @endphp
+            @if ($dataLapangan->status_pembayaran === 'DIBAYAR')
+                <span style="font-size:13px;color:var(--adm-text-muted);letter-spacing:1px;">—</span>
+            @else
+                <span style="font-size:12.5px;font-weight:600;color:var(--adm-text-dark);">
+                    Rp {{ number_format($tagihan, 0, ',', '.') }}
+                </span>
+            @endif
+        </td>
+
+        <td class="tc">
             <div class="adm-actions" style="justify-content:center;gap:4px;">
                 <a class="adm-btn primary icon-only"
                     href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"
@@ -87,7 +102,7 @@
 
                 @if (
                     $dataLapangan->status == 'TERBIT SH' &&
-                        $dataLapangan->status_pembayaran == 'PENDING' &&
+                        $dataLapangan->status_pembayaran == 'PENGAJUAN' &&
                         optional($dataLapangan->enumerator)->status === 'Aktif')
                     <form
                         action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"

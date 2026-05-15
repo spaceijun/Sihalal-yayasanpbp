@@ -38,6 +38,79 @@
             </div>
         </div>
 
+        {{-- ── PAYMENT SUMMARY CARDS ── --}}
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
+
+            {{-- PENDING --}}
+            <div
+                style="background:#fff;border:1px solid #FDE68A;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+                <div
+                    style="width:44px;height:44px;border-radius:10px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24"
+                        style="width:22px;height:22px;fill:none;stroke:#D97706;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                </div>
+                <div>
+                    <p
+                        style="margin:0;font-size:11px;font-weight:600;color:#92400E;text-transform:uppercase;letter-spacing:.5px;">
+                        Pending</p>
+                    <p id="card-pending-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#B45309;">
+                        {{ $paymentStats['pending_count'] }}</p>
+                    <p id="card-pending-total" style="margin:2px 0 0;font-size:12px;color:#D97706;">Rp
+                        {{ number_format($paymentStats['pending_total'], 0, ',', '.') }}</p>
+                </div>
+            </div>
+
+            {{-- PENGAJUAN --}}
+            <div
+                style="background:#fff;border:1px solid #BAE6FD;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+                <div
+                    style="width:44px;height:44px;border-radius:10px;background:#F0F9FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24"
+                        style="width:22px;height:22px;fill:none;stroke:#0284C7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                </div>
+                <div>
+                    <p
+                        style="margin:0;font-size:11px;font-weight:600;color:#0C4A6E;text-transform:uppercase;letter-spacing:.5px;">
+                        Pengajuan</p>
+                    <p id="card-pengajuan-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#0369A1;">
+                        {{ $paymentStats['pengajuan_count'] }}</p>
+                    <p id="card-pengajuan-total" style="margin:2px 0 0;font-size:12px;color:#0284C7;">Rp
+                        {{ number_format($paymentStats['pengajuan_total'], 0, ',', '.') }}</p>
+                </div>
+            </div>
+
+            {{-- DIBAYAR --}}
+            <div
+                style="background:#fff;border:1px solid #BBF7D0;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+                <div
+                    style="width:44px;height:44px;border-radius:10px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24"
+                        style="width:22px;height:22px;fill:none;stroke:#16A34A;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <div>
+                    <p
+                        style="margin:0;font-size:11px;font-weight:600;color:#14532D;text-transform:uppercase;letter-spacing:.5px;">
+                        Dibayar</p>
+                    <p id="card-dibayar-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#15803D;">
+                        {{ $paymentStats['dibayar_count'] }}</p>
+                    <p id="card-dibayar-total" style="margin:2px 0 0;font-size:12px;color:#16A34A;">Rp
+                        {{ number_format($paymentStats['dibayar_total'], 0, ',', '.') }}</p>
+                </div>
+            </div>
+
+        </div>
+
         {{-- ── BULK ACTION BAR ── --}}
         <div id="bulkActionBar" class="d-none"
             style="display:none;align-items:center;gap:12px;padding:10px 16px;background:var(--adm-blue-lt);border:1px solid var(--adm-blue);border-radius:var(--adm-radius);margin-bottom:14px;">
@@ -177,6 +250,7 @@
                                 <th>NIK</th>
                                 <th class="tc">Status</th>
                                 <th class="tc">Payment</th>
+                                <th class="tc">Tagihan</th>
                                 <th class="tc" style="width:110px">Aksi</th>
                             </tr>
                         </thead>
@@ -226,6 +300,27 @@
             function getCsrfToken() {
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
                     document.querySelector('input[name="_token"]')?.value;
+            }
+
+            // ── Update Payment Stats Cards ──
+            function formatRupiah(amount) {
+                return 'Rp ' + Number(amount).toLocaleString('id-ID');
+            }
+
+            function updatePaymentCards(stats) {
+                if (!stats) return;
+                const map = {
+                    'card-pending-count': stats.pending_count,
+                    'card-pending-total': formatRupiah(stats.pending_total),
+                    'card-pengajuan-count': stats.pengajuan_count,
+                    'card-pengajuan-total': formatRupiah(stats.pengajuan_total),
+                    'card-dibayar-count': stats.dibayar_count,
+                    'card-dibayar-total': formatRupiah(stats.dibayar_total),
+                };
+                Object.entries(map).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val;
+                });
             }
 
             // ── Force Unlock ──
@@ -315,6 +410,7 @@
                         if (data.success) {
                             tableBody.innerHTML = data.table;
                             paginationWrapper.innerHTML = data.pagination;
+                            updatePaymentCards(data.payment_stats);
                             attachDeleteHandlers();
                             attachPaginationHandlers();
                             attachForceUnlockHandlers();

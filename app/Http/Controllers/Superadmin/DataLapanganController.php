@@ -24,6 +24,7 @@ use App\Services\Superadmin\ImageDownloadService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\PdfService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
@@ -46,17 +47,38 @@ class DataLapanganController extends Controller
     public function index(Request $request): View
     {
         $filters = [
-            'nama_pu'       => $request->nama_pu,
-            'enumerator_id' => $request->enumerator_id,
-            'status'        => $request->status,
+            'nama_pu'           => $request->nama_pu,
+            'enumerator_id'     => $request->enumerator_id,
+            'status'            => $request->status,
         ];
-
         $dataLapangans = $this->dataLapanganService->getFilteredData($filters, 20);
         $i = ($dataLapangans->currentPage() - 1) * $dataLapangans->perPage();
 
-        return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i'));
-    }
+        // Hitung statistik pembayaran + total tagihan per status
+        $cutoff = Carbon::create(2026, 5, 1);
 
+        $allData = DataLapangan::select('id', 'status_pembayaran', 'created_at')->get();
+
+        $paymentStats = [
+            'pending_count'    => 0,
+            'pending_total'    => 0,
+            'pengajuan_count'  => 0,
+            'pengajuan_total'  => 0,
+            'dibayar_count'    => 0,
+            'dibayar_total'    => 0,
+        ];
+
+        foreach ($allData as $item) {
+            $tagihan = Carbon::parse($item->created_at)->lt($cutoff) ? 50000 : 60000;
+            $key = strtolower($item->status_pembayaran);
+            if (isset($paymentStats["{$key}_count"])) {
+                $paymentStats["{$key}_count"]++;
+                $paymentStats["{$key}_total"] += $tagihan;
+            }
+        }
+
+        return view('superadmin.data-lapangan.index', compact('dataLapangans', 'i', 'paymentStats'));
+    }
     /**
      * Show Data Revisi
      */

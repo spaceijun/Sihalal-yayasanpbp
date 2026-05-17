@@ -3,10 +3,10 @@
 use App\Http\Controllers\Api\AnalisisHalalController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\DatabankController;
-use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\DataEntryLapanganController;
 use App\Http\Controllers\Api\DataEntryProgressController;
 use App\Http\Controllers\Api\DataLapanganController;
+use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\KoorDataLapanganController;
 use App\Http\Controllers\Api\RecruitmentApi;
+use App\Http\Controllers\Api\RingkasanController;
 use App\Models\DataLapangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,10 @@ Route::middleware('auth:sanctum')->post(
 
 Route::middleware('auth:sanctum')->post('/fcm-token', [FcmController::class, 'store']);
 Route::apiResource('data-banks', DatabankController::class);
+
+// Public Ringkasan API
+Route::get('/ringkasan', [RingkasanController::class, 'index'])->name('api.ringkasan');
+
 // =============================================
 // SUPERADMIN ROUTES
 // ============================================
@@ -119,12 +124,12 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
 
         // Profile
         Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/',         [EnumeratorController::class, 'index'])->name('index');
-            Route::post('/',        [EnumeratorController::class, 'store'])->name('store');
-            Route::get('/{id}',     [EnumeratorController::class, 'show'])->name('show');
-            Route::put('/{id}',     [EnumeratorController::class, 'update'])->name('update');
-            Route::patch('/{id}',   [EnumeratorController::class, 'update'])->name('update.patch');
-            Route::delete('/{id}',  [EnumeratorController::class, 'destroy'])->name('destroy');
+            Route::get('/', [EnumeratorController::class, 'index'])->name('index');
+            Route::post('/', [EnumeratorController::class, 'store'])->name('store');
+            Route::get('/{id}', [EnumeratorController::class, 'show'])->name('show');
+            Route::put('/{id}', [EnumeratorController::class, 'update'])->name('update');
+            Route::patch('/{id}', [EnumeratorController::class, 'update'])->name('update.patch');
+            Route::delete('/{id}', [EnumeratorController::class, 'destroy'])->name('destroy');
 
             // ROute Bank
             Route::get('/{id}/bank', [EnumeratorController::class, 'getBank'])->name('getBank');
@@ -133,20 +138,20 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
 
         // Data Lapangan
         Route::prefix('data-lapangan')->name('data-lapangan.')->group(function () {
-            Route::get('/',         [DataLapanganEnumController::class, 'index'])->name('index');
-            Route::get('/{id}',     [DataLapanganEnumController::class, 'show'])->name('show');
-            Route::delete('/{id}',  [DataLapanganEnumController::class, 'destroy'])->name('destroy');
-            Route::put('/{id}',     [DataLapanganEnumController::class, 'update'])->name('update');
-            Route::patch('/{id}',   [DataLapanganEnumController::class, 'update'])->name('update.patch');
+            Route::get('/', [DataLapanganEnumController::class, 'index'])->name('index');
+            Route::get('/{id}', [DataLapanganEnumController::class, 'show'])->name('show');
+            Route::delete('/{id}', [DataLapanganEnumController::class, 'destroy'])->name('destroy');
+            Route::put('/{id}', [DataLapanganEnumController::class, 'update'])->name('update');
+            Route::patch('/{id}', [DataLapanganEnumController::class, 'update'])->name('update.patch');
         });
 
         Route::middleware(['enumerator.active'])
             ->prefix('data-lapangan')->name('data-lapangan.')->group(function () {
-                Route::post('/',        [DataLapanganEnumController::class, 'store'])->name('store');
+                Route::post('/', [DataLapanganEnumController::class, 'store'])->name('store');
             });
         // Cashflow
         Route::prefix('cashflow')->name('cashflow.')->group(function () {
-            Route::get('/',     [CashflowEnumeratorController::class, 'index'])->name('index');
+            Route::get('/', [CashflowEnumeratorController::class, 'index'])->name('index');
             Route::get('/{id}', [CashflowEnumeratorController::class, 'show'])->name('show');
         });
         // Pengumuman

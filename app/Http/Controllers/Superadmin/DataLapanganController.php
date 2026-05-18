@@ -480,7 +480,7 @@ class DataLapanganController extends Controller
 
         $dataLapangans = DataLapangan::whereIn('id', $realIds)
             ->where('status', 'TERBIT SH')
-            ->where('status_pembayaran', 'PENDING')
+            ->where('status_pembayaran', 'PENGAJUAN')
             ->get();
 
         if ($dataLapangans->isEmpty()) {

@@ -5,7 +5,7 @@
         <td style="width:40px;text-align:center;">
             @if (
                 $dataLapangan->status == 'TERBIT SH' &&
-                    $dataLapangan->status_pembayaran == 'PENDING' &&
+                    $dataLapangan->status_pembayaran == 'PENGAJUAN' &&
                     optional($dataLapangan->enumerator)->status === 'Aktif')
                 <input type="checkbox" class="row-checkbox adm-checkbox" value="{{ $dataLapangan->hashed_id }}"
                     data-id="{{ $dataLapangan->hashed_id }}">

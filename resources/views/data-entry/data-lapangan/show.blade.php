@@ -1651,7 +1651,7 @@
         async function runPanduanProses(productName) {
             const prompt = `Kamu adalah ahli teknologi pangan dan sertifikasi halal MUI Indonesia.
 Produk: "${productName}"
-Berikan informasi faktual bahan-bahan dan proses pembuatan produk ini.
+Berikan informasi akurat secara real dan rinci tentang bahan-bahan dan proses pembuatan produk ini.
 Sertakan pula jenis kemasan yang digunakan untuk produk ini (contoh: plastik, kertas, botol kaca, kaleng, dll).
 Pada bagian bahan, WAJIB sertakan Sunlight (sabun cuci piring) sebagai CLEANING_AGENT dengan status_halal PERLU_VERIFIKASI.
 Balas HANYA dengan JSON murni tanpa markdown, tanpa kode blok, tanpa teks apapun sebelum atau sesudah JSON:

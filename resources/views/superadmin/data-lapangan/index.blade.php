@@ -181,6 +181,15 @@
                             Reset
                         </button>
                     </div>
+                    <div class="adm-filter-group">
+                        <label class="adm-filter-label">Tampilkan</label>
+                        <select id="per_page" name="per_page" class="adm-select" style="width:80px;">
+                            <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page', 10) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page', 10) == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
                 </form>
             </div>
 
@@ -294,6 +303,7 @@
             const modalBulkPayment = new bootstrap.Modal(document.getElementById('modalBulkPayment'));
             const modalSelectedCount = document.getElementById('modalSelectedCount');
             const btnConfirmBulkDibayar = document.getElementById('btnConfirmBulkDibayar');
+            const perPageSelect = document.getElementById('per_page'); // ← BARU
             const API_BASE_URL = '/api/superadmin/data-lapangans';
             let searchTimeout;
 
@@ -378,6 +388,7 @@
                 tableLoading.style.display = 'block';
                 const formInputs = searchForm.querySelectorAll('input, select');
                 formInputs.forEach(i => i.disabled = true);
+
                 const params = new URLSearchParams();
                 if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
                 if (statusSelect.value.trim()) params.append('status', statusSelect.value.trim());
@@ -385,13 +396,15 @@
                     .value.trim());
                 if (tanggalDariInput.value.trim()) params.append('tanggal_dari', tanggalDariInput.value.trim());
                 if (tanggalSampaiInput.value.trim()) params.append('tanggal_sampai', tanggalSampaiInput.value
-                    .trim());
+                .trim());
+                if (perPageSelect?.value) params.append('per_page', perPageSelect.value); // ← BARU
                 if (url) {
                     try {
                         const page = new URL(url, window.location.origin).searchParams.get('page');
                         if (page) params.append('page', page);
                     } catch (e) {}
                 }
+
                 let fetchUrl = API_BASE_URL + (params.toString() ? '?' + params.toString() : '');
                 fetch(fetchUrl, {
                         method: 'GET',
@@ -434,12 +447,15 @@
             statusPembayaranSelect.addEventListener('change', () => loadData());
             tanggalDariInput.addEventListener('change', () => loadData());
             tanggalSampaiInput.addEventListener('change', () => loadData());
+            perPageSelect?.addEventListener('change', () => loadData()); // ← BARU
+
             resetBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 statusSelect.value = '';
                 statusPembayaranSelect.value = '';
                 tanggalDariInput.value = '';
                 tanggalSampaiInput.value = '';
+                if (perPageSelect) perPageSelect.value = '10'; // ← BARU
                 loadData();
             });
 

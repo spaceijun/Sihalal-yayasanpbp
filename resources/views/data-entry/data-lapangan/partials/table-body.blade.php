@@ -30,13 +30,9 @@
                 $status = $progress?->status;
             @endphp
 
-            @if ($status === 'PENDING')
-                <span class="badge bg-warning">
-                    <i class="las la-clock"></i> {{ __('WAIT REVIEW ADMIN') }}
-                </span>
-            @elseif ($status === 'REVISI')
+            @if ($dataLapangan->email_sihalal)
                 <span class="badge bg-danger">
-                    <i class="las la-edit"></i> {{ __('WAIT REVISION ENTRYS') }}
+                    <i class="las la-clock"></i> {{ __('DIVERIFIKASI ADMIN') }}
                 </span>
             @else
                 {{-- DITERIMA, DITOLAK, atau tidak ada data → tampilkan Show --}}

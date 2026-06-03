@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
 use App\Http\Controllers\Api\EnumeratorApi;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\KoorDataLapanganController;
+use App\Http\Controllers\Api\RankingPendampingApiController;
 use App\Http\Controllers\Api\RecruitmentApi;
 use App\Http\Controllers\Api\RingkasanController;
 use App\Models\DataLapangan;
@@ -42,7 +43,7 @@ Route::middleware('auth:sanctum')->post(
 
 Route::middleware('auth:sanctum')->post('/fcm-token', [FcmController::class, 'store']);
 Route::apiResource('data-banks', DatabankController::class);
-
+Route::get('ranking-pendamping', [RankingPendampingApiController::class, 'index'])->name('api.ranking-pendamping');
 // Public Ringkasan API
 Route::get('/ringkasan', [RingkasanController::class, 'index'])->name('api.ringkasan');
 

@@ -71,6 +71,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/ranking-pendamping') }}"
+                        class="nav-link {{ $current_url == 'superadmin/ranking-pendamping' ? 'active' : '' }}">
+                        <i data-feather="award"></i>Ranking Pendamping
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/laporan-harian') }}"
                         class="nav-link {{ $current_url == 'superadmin/laporan-harian' ? 'active' : '' }}">
                         <i data-feather="calendar"></i>Laporan Harian

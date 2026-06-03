@@ -30,6 +30,7 @@ use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\PengumumanController;
+use App\Http\Controllers\Superadmin\RankingPendampingController;
 use App\Http\Controllers\Superadmin\RecruitmentController;
 use App\Http\Controllers\Superadmin\ResepMakananController;
 use App\Http\Controllers\Superadmin\ServerInfoController;
@@ -94,6 +95,9 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Diagnostic
         Route::get('/diagnostic',       [DiagnosticController::class, 'index'])->name('diagnostic.index');
         Route::post('/diagnostic/run',  [DiagnosticController::class, 'run'])->name('diagnostic.run');
+
+        // Ranking Pendamping
+        Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');
 
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);

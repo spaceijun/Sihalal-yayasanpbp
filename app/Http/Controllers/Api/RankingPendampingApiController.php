@@ -33,12 +33,12 @@ class RankingPendampingApiController extends Controller
 
                 // sudah terbit SH
                 'dataLapangans as terbit_sh' => function ($q) {
-                    $q->where('status', 'TERBIT_SH');
+                    $q->where('status', 'TERBIT SH');
                 },
 
                 // masih dalam proses (bukan TERBIT_SH dan bukan DITOLAK)
                 'dataLapangans as progress' => function ($q) {
-                    $q->whereNotIn('status', ['TERBIT_SH', 'DITOLAK']);
+                    $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK']);
                 },
             ]);
 
@@ -62,10 +62,10 @@ class RankingPendampingApiController extends Controller
                 'dataLapangans as total_pengajuan' => fn($q) =>
                 $q->whereYear('created_at', now()->year),
                 'dataLapangans as terbit_sh' => fn($q) =>
-                $q->where('status', 'TERBIT_SH')
+                $q->where('status', 'TERBIT SH')
                     ->whereYear('created_at', now()->year),
                 'dataLapangans as progress' => fn($q) =>
-                $q->whereNotIn('status', ['TERBIT_SH', 'DITOLAK'])
+                $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK'])
                     ->whereYear('created_at', now()->year),
             ]);
         }

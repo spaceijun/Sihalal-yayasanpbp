@@ -23,9 +23,9 @@ class RankingPendampingController extends Controller
             ->withCount([
                 'dataLapangans as total_pengajuan',
                 'dataLapangans as terbit_sh' => fn($q) =>
-                $q->where('status', 'TERBIT_SH'),
+                $q->where('status', 'TERBIT SH'),
                 'dataLapangans as progress' => fn($q) =>
-                $q->whereNotIn('status', ['TERBIT_SH', 'DITOLAK']),
+                $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK']),
             ]);
 
         // ── Filter periode ────────────────────────────────────────────────
@@ -35,11 +35,11 @@ class RankingPendampingController extends Controller
                 $q->whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year),
                 'dataLapangans as terbit_sh' => fn($q) =>
-                $q->where('status', 'TERBIT_SH')
+                $q->where('status', 'TERBIT SH')
                     ->whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year),
                 'dataLapangans as progress' => fn($q) =>
-                $q->whereNotIn('status', ['TERBIT_SH', 'DITOLAK'])
+                $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK'])
                     ->whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year),
             ]);
@@ -48,10 +48,10 @@ class RankingPendampingController extends Controller
                 'dataLapangans as total_pengajuan' => fn($q) =>
                 $q->whereYear('created_at', now()->year),
                 'dataLapangans as terbit_sh' => fn($q) =>
-                $q->where('status', 'TERBIT_SH')
+                $q->where('status', 'TERBIT SH')
                     ->whereYear('created_at', now()->year),
                 'dataLapangans as progress' => fn($q) =>
-                $q->whereNotIn('status', ['TERBIT_SH', 'DITOLAK'])
+                $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK'])
                     ->whereYear('created_at', now()->year),
             ]);
         }

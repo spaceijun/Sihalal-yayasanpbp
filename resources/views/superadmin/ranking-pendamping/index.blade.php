@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('template_title')
     Ranking Pendamping
 @endsection
@@ -7,49 +8,46 @@
     <div class="adm-page">
         @include('layouts.messages')
 
-        {{-- ── Header ─────────────────────────────────────────────────────── --}}
+        {{-- Header --}}
         <div class="adm-header">
             <div class="adm-header-left">
                 <h1>Ranking Pendamping</h1>
-                <p>Top 10 pendamping (enumerator) berdasarkan total pengajuan yang berhasil diproses</p>
+                <p>Top 10 pendamping berdasarkan total pengajuan</p>
             </div>
             <div class="period-pills">
                 <a href="{{ route('superadmin.ranking-pendamping.index') }}"
-                    class="period-pill {{ $periode === 'all' ? 'active' : '' }}">Semua Waktu</a>
+                    class="period-pill {{ $periode === 'all' ? 'active' : '' }}">
+                    Semua Waktu
+                </a>
                 <a href="{{ route('superadmin.ranking-pendamping.index', ['periode' => 'bulan_ini']) }}"
-                    class="period-pill {{ $periode === 'bulan_ini' ? 'active' : '' }}">Bulan Ini</a>
-                <a href="{{ route('superadmin.ranking-pendamping.index', ['periode' => 'tahun_ini']) }}"
-                    class="period-pill {{ $periode === 'tahun_ini' ? 'active' : '' }}">Tahun Ini</a>
+                    class="period-pill {{ $periode === 'bulan_ini' ? 'active' : '' }}">
+                    Bulan Ini
+                </a>
             </div>
         </div>
 
-        {{-- ── Stat cards (pakai .adm-stats + .adm-stat dari design system) ── --}}
+        {{-- Stat cards --}}
         <div class="adm-stats">
-
             <div class="adm-stat">
                 <div class="adm-stat-label">Total Pendamping</div>
                 <div class="adm-stat-value">{{ number_format($stats['total_enumerator']) }}</div>
                 <div class="adm-stat-sub">Semua enumerator aktif</div>
             </div>
-
             <div class="adm-stat">
                 <div class="adm-stat-label">Total Pengajuan (Top 10)</div>
                 <div class="adm-stat-value">{{ number_format($stats['total_pengajuan']) }}</div>
                 <div class="adm-stat-sub">Gabungan 10 teratas</div>
             </div>
-
             <div class="adm-stat">
                 <div class="adm-stat-label">Terbit SH (Top 10)</div>
                 <div class="adm-stat-value is-success">{{ number_format($stats['total_terbit_sh']) }}</div>
                 <div class="adm-stat-sub">Sertifikat halal terbit</div>
             </div>
-
             <div class="adm-stat">
                 <div class="adm-stat-label">Sedang Diproses (Top 10)</div>
                 <div class="adm-stat-value is-warn">{{ number_format($stats['total_progress']) }}</div>
                 <div class="adm-stat-sub">Belum selesai</div>
             </div>
-
         </div>
 
         @if ($enumerators->isEmpty())
@@ -63,7 +61,7 @@
                 </div>
             </div>
         @else
-            {{-- ── Podium Top 3 ─────────────────────────────────────────────── --}}
+            {{-- Podium Top 3 --}}
             <div class="adm-card" style="margin-bottom:22px;">
                 <div class="adm-card-header">
                     <div class="adm-card-title">
@@ -79,7 +77,7 @@
                 @php
                     $medals = ['🥇', '🥈', '🥉'];
                     $podiumOrder = [1, 0, 2]; // kiri=rank2, tengah=rank1, kanan=rank3
-                    $top3Colors = ['#1a5fc8', '#6d28d9', '#0f6e56']; // sesuai --adm-blue/indigo/green
+                    $top3Colors = ['#1a5fc8', '#6d28d9', '#0f6e56'];
                 @endphp
 
                 <div style="padding:4px 20px 28px;">
@@ -91,40 +89,27 @@
                                     $r = $e->rank;
                                 @endphp
                                 <div class="podium-item pd-rank-{{ $r }}">
-
-                                    {{-- Avatar --}}
                                     <div class="podium-avatar" style="color:{{ $top3Colors[$eIdx] }};">
                                         {{ $e->inisial }}
                                     </div>
-
-                                    {{-- Medal --}}
                                     <div class="podium-medal">{{ $medals[$r - 1] }}</div>
-
-                                    {{-- Nama (kata pertama saja) --}}
                                     <div class="podium-name" title="{{ $e->nama_lengkap }}">
                                         {{ Str::before($e->nama_lengkap, ' ') }}
                                     </div>
-
-                                    {{-- Wilayah --}}
                                     <div class="podium-wilayah">
                                         {{ optional($e->koordinator)->wilayah ?? '-' }}
                                     </div>
-
-                                    {{-- Total --}}
                                     <div class="podium-total">{{ number_format($e->total_pengajuan) }}</div>
-
-                                    {{-- Podium bar --}}
                                     <div class="podium-bar">
                                         <span class="podium-rank-lbl">#{{ $r }}</span>
                                     </div>
-
                                 </div>
                             @endif
                         @endforeach
                     </div>
                 </div>
 
-                {{-- Mini stats row bawah podium --}}
+                {{-- Mini stats bawah podium --}}
                 <div style="display:flex;gap:0;border-top:1px solid var(--adm-border);">
                     @foreach ($podiumOrder as $pIdx => $eIdx)
                         @if (isset($enumerators[$eIdx]))
@@ -148,7 +133,7 @@
                 </div>
             </div>
 
-            {{-- ── Rank 4–10 ────────────────────────────────────────────────── --}}
+            {{-- Rank 4–10 --}}
             <div class="adm-card">
                 <div class="adm-card-header">
                     <div class="adm-card-title">
@@ -180,16 +165,10 @@
                 @foreach ($enumerators->slice(3)->values() as $idx => $e)
                     @php $c = $rowColors[$idx % count($rowColors)]; @endphp
                     <div class="rank-row">
-
-                        {{-- Nomor --}}
                         <div class="rank-num-badge">#{{ $e->rank }}</div>
-
-                        {{-- Avatar --}}
                         <div class="rank-avatar" style="background:{{ $c['bg'] }};color:{{ $c['fg'] }};">
                             {{ $e->inisial }}
                         </div>
-
-                        {{-- Info --}}
                         <div class="rank-body">
                             <div class="rank-name">{{ $e->nama_lengkap }}</div>
                             <div class="rank-sub">
@@ -210,15 +189,12 @@
                                 @endif
                             </div>
                         </div>
-
-                        {{-- Progress bar --}}
                         <div class="rank-progress">
                             <span class="rank-pct">{{ $e->progress_ratio }}%</span>
                             <div class="rank-bar-wrap">
                                 <div class="rank-bar-fill" style="width:{{ $e->progress_ratio }}%;"></div>
                             </div>
                         </div>
-
                     </div>
                 @endforeach
             </div>
@@ -226,7 +202,6 @@
     </div>
 
     <style>
-        /* ── Podium ─────────────────────────────────────────────────────────────── */
         .podium-wrap {
             display: flex;
             align-items: flex-end;
@@ -306,7 +281,6 @@
             font-family: "Sora", sans-serif;
         }
 
-        /* Gold */
         .pd-rank-1 .podium-avatar {
             border-color: #F59E0B;
             background: #FFFBEB;
@@ -327,7 +301,6 @@
             color: #D97706;
         }
 
-        /* Silver */
         .pd-rank-2 .podium-avatar {
             border-color: #94A3B8;
             background: #F8FAFC;
@@ -348,7 +321,6 @@
             color: #94A3B8;
         }
 
-        /* Bronze */
         .pd-rank-3 .podium-avatar {
             border-color: #CD7C2F;
             background: #FEF0E7;
@@ -369,7 +341,6 @@
             color: #CD7C2F;
         }
 
-        /* ── Rank list (4-10) ───────────────────────────────────────────────────── */
         .rank-row {
             display: flex;
             align-items: center;
@@ -439,10 +410,6 @@
             margin-top: 2px;
         }
 
-        .rank-sub svg {
-            flex-shrink: 0;
-        }
-
         .rank-badges {
             display: flex;
             gap: 6px;
@@ -478,7 +445,6 @@
             background: var(--adm-blue);
         }
 
-        /* ── Period pills ───────────────────────────────────────────────────────── */
         .period-pills {
             display: flex;
             gap: 6px;
@@ -516,5 +482,4 @@
             color: #fff;
         }
     </style>
-
 @endsection

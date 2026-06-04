@@ -12,43 +12,35 @@ class RankingPendampingApiController extends Controller
     /**
      * GET /api/ranking-pendamping
      *
-     * Mengembalikan top-10 enumerator berdasarkan total DataLapangan.
-     *
      * Query params (opsional):
      *   - limit  : jumlah data (default 10, max 50)
      *   - periode: 'all' | 'bulan_ini'  (default 'all')
      */
     public function index(Request $request): JsonResponse
     {
-        $limit   = min((int) $request->get('limit', 10), 50);
-        $periode = $request->get('periode', 'all');
+        $limite  = min((int) $request->get('limit', 10), 50);
+        $periode = in_array($request->get('periode'), ['all', 'bulan_ini'])
+            ? $request->get('periode')
+            : 'all';
 
-        // ── Base query ────────────────────────────────────────────────────
         $query = Enumerator::query()
             ->with(['koordinator:id,nama_lengkap'])
             ->withCount([
-                'dataLapangans as total_pengajuan',
+                'dataLapangans as total_pengajuan' => function ($q) use ($periode) {
+                    if ($periode === 'bulan_ini') {
+                        $q->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year);
+                    }
+                },
             ]);
 
-        // ── Filter periode ────────────────────────────────────────────────
-        if ($periode === 'bulan_ini') {
-            $query->withCount([
-                'dataLapangans as total_pengajuan' => fn($q) =>
-                $q->whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year),
-            ]);
-        }
-
-        // ── Urutkan dan ambil ─────────────────────────────────────────────
         $enumerators = $query
             ->orderByDesc('total_pengajuan')
-            ->limit($limit)
+            ->limit($limite)
             ->get();
 
-        // ── Nilai max untuk kalkulasi persentase di Flutter ───────────────
         $maxPengajuan = $enumerators->max('total_pengajuan') ?: 1;
 
-        // ── Format response ───────────────────────────────────────────────
         $data = $enumerators->map(function (Enumerator $e, int $index) use ($maxPengajuan) {
             $words   = explode(' ', trim($e->nama_lengkap));
             $inisial = strtoupper(
@@ -76,7 +68,6 @@ class RankingPendampingApiController extends Controller
                 'inisial'         => $inisial,
                 'avatar_color'    => $avatarColors[$index] ?? '#0043CE',
                 'total_pengajuan' => $e->total_pengajuan,
-                // 0.0 – 1.0, dipakai Flutter untuk LinearProgressIndicator
                 'progress_ratio'  => round($e->total_pengajuan / $maxPengajuan, 4),
             ];
         });

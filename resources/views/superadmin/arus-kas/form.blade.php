@@ -3,9 +3,9 @@
     <label class="adm-label" for="tipe">Tipe <span class="req">*</span></label>
     <select name="tipe" id="tipe" class="adm-field-select @error('tipe') is-invalid @enderror">
         <option value="">-- Pilih Tipe --</option>
-        <option value="Pemasukan" {{ old('tipe', $cashflow?->tipe) == 'Pemasukan' ? 'selected' : '' }}>Pemasukan</option>
-        <option value="Pengeluaran" {{ old('tipe', $cashflow?->tipe) == 'Pengeluaran' ? 'selected' : '' }}>Pengeluaran</option>
-        <option value="Kas" {{ old('tipe', $cashflow?->tipe) == 'Kas' ? 'selected' : '' }}>Kas</option>
+        <option value="Pemasukan" {{ old('tipe', $cashflows?->tipe) == 'Pemasukan' ? 'selected' : '' }}>Pemasukan</option>
+        <option value="Pengeluaran" {{ old('tipe', $cashflows?->tipe) == 'Pengeluaran' ? 'selected' : '' }}>Pengeluaran</option>
+        <option value="Kas" {{ old('tipe', $cashflows?->tipe) == 'Kas' ? 'selected' : '' }}>Kas</option>
     </select>
     @error('tipe') <span class="adm-error-msg">{{ $message }}</span> @enderror
 </div>

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data_entry_koordinator', function (Blueprint $table) {
+        Schema::create('data_entry_koordinators', function (Blueprint $table) {
             $table->id();
             $table->foreignId('data_entry_id')->constrained('data_entrys')->onDelete('cascade');
             $table->foreignId('koordinator_id')->constrained('koordinators')->onDelete('cascade');

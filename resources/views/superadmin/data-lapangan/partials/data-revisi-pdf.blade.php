@@ -527,9 +527,8 @@
             <thead>
                 <tr>
                     <th class="tc" style="width:28px;">No</th>
-                    <th style="width:75px;">Tanggal</th>
                     <th>Nama PU</th>
-                    <th class="tc" style="width:55px;">Status</th>
+                    <th>Alamat Lengkap</th>
                     <th>Keterangan</th>
                 </tr>
             </thead>
@@ -537,13 +536,8 @@
                 @foreach ($items as $j => $item)
                     <tr class="{{ $j % 2 === 1 ? 'even' : '' }}">
                         <td class="tc">{{ $noGlobal++ }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</td>
                         <td>{{ $item->nama_pu }}</td>
-                        <td class="tc">
-                            <span class="badge {{ $item->status === 'Revisi' ? 'badge-revisi' : 'badge-selesai' }}">
-                                {{ $item->status }}
-                            </span>
-                        </td>
+                        <td>{{ $item->alamat ?? '-' }}</td>
                         <td>{{ $item->keterangan ?? '-' }}</td>
                     </tr>
                 @endforeach

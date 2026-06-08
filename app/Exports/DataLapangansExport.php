@@ -29,7 +29,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
      */
     public function collection()
     {
-        $query = DataLapangan::with(['enumerator.koordinator', 'spotchecks']);
+        $query = DataLapangan::with(['enumerator.koordinator']);
 
         // Apply filters
         if (!empty($this->filters['search'])) {
@@ -71,7 +71,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             'Alamat',
             'Status',
             'Status Pembayaran',
-            'Spotcheck',
+            'Email SiHalal',
         ];
     }
 
@@ -83,11 +83,6 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
         static $rowNumber = 0;
         $rowNumber++;
 
-        // Cek apakah sudah ada spotcheck
-        $statusSpotcheck = $dataLapangan->spotchecks->count() > 0
-            ? 'Sudah Spotcheck'
-            : 'Belum Spotcheck';
-
         return [
             $rowNumber,
             \Carbon\Carbon::parse($dataLapangan->updated_at)->format('d/m/Y H:i'),
@@ -97,7 +92,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             $dataLapangan->alamat,
             $dataLapangan->status,
             $dataLapangan->status_pembayaran,
-            $statusSpotcheck,
+            $dataLapangan->email_sihalal,
         ];
     }
 
@@ -146,7 +141,6 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 for ($row = 2; $row <= $highestRow; $row++) {
                     $status = $sheet->getCell('G' . $row)->getValue();
                     $statusPembayaran = $sheet->getCell('H' . $row)->getValue();
-                    $statusSpotcheck = $sheet->getCell('I' . $row)->getValue();
 
                     // Styling untuk kolom Status (kolom G)
                     $statusColor = $this->getStatusColor($status);
@@ -178,25 +172,6 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                             'font' => [
                                 'bold' => true,
                                 'color' => ['rgb' => $this->getTextColorPembayaran($statusPembayaran)]
-                            ],
-                            'alignment' => [
-                                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                                'vertical' => Alignment::VERTICAL_CENTER,
-                            ],
-                        ]);
-                    }
-
-                    // Styling untuk kolom Spotcheck (kolom I)
-                    $spotcheckColor = $this->getSpotcheckColor($statusSpotcheck);
-                    if ($spotcheckColor) {
-                        $sheet->getStyle('I' . $row)->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => $spotcheckColor]
-                            ],
-                            'font' => [
-                                'bold' => true,
-                                'color' => ['rgb' => $this->getTextColorSpotcheck($statusSpotcheck)]
                             ],
                             'alignment' => [
                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -274,28 +249,6 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
     private function getTextColorPembayaran($statusPembayaran)
     {
         // Dark text for light backgrounds
-        return '000000';
-    }
-
-    /**
-     * Get color for spotcheck status field
-     */
-    private function getSpotcheckColor($statusSpotcheck)
-    {
-        $colors = [
-            'Sudah Spotcheck' => '00FF00',   // Hijau
-            'Belum Spotcheck' => 'FFFF00',   // Kuning
-        ];
-
-        return $colors[$statusSpotcheck] ?? null;
-    }
-
-    /**
-     * Get text color for spotcheck status field
-     */
-    private function getTextColorSpotcheck($statusSpotcheck)
-    {
-        // Dark text for both (green and yellow backgrounds)
         return '000000';
     }
 }

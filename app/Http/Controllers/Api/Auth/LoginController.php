@@ -43,20 +43,6 @@ class LoginController extends Controller
     }
 
     /**
-     * Destroy an authenticated session (API Logout).
-     */
-    // public function destroy(Request $request): JsonResponse
-    // {
-    //     // Revoke current token
-    //     $request->user()->currentAccessToken()->delete();
-
-    //     return response()->json([
-    //         'status'  => true,
-    //         'message' => 'Logout berhasil',
-    //     ], 200);
-    // }
-
-    /**
      * Get redirect URL based on role.
      */
     private function getRedirectUrl(string $role): string

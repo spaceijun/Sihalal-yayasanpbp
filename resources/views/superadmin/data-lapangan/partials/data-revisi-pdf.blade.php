@@ -527,6 +527,7 @@
             <thead>
                 <tr>
                     <th class="tc" style="width:28px;">No</th>
+                    <th>Tanggal Input</th>
                     <th>Nama PU</th>
                     <th>Alamat Lengkap</th>
                     <th>Keterangan</th>
@@ -536,6 +537,7 @@
                 @foreach ($items as $j => $item)
                     <tr class="{{ $j % 2 === 1 ? 'even' : '' }}">
                         <td class="tc">{{ $noGlobal++ }}</td>
+                        <td>{{ $item->created_at->locale('id')->isoFormat('D MMMM YYYY') }}</td>
                         <td>{{ $item->nama_pu }}</td>
                         <td>{{ $item->alamat ?? '-' }}</td>
                         <td>{{ $item->keterangan ?? '-' }}</td>

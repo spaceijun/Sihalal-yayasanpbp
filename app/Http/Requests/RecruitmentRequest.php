@@ -22,7 +22,7 @@ class RecruitmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recruit_type'       => 'required|in:PENDAMPING,DATA ENTRY',
+            'recruit_type'       => 'required|in:PENDAMPING,DATA ENTRY,ADMIN UMUM',
             'type_entry'         => 'required_if:recruit_type,DATA ENTRY|nullable|string',
             'nama_lengkap'        => 'required|string',
             'nik'                 => 'required|digits:16|unique:recruitments,nik',

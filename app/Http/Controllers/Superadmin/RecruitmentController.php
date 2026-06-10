@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Recruitment;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use App\Http\Requests\RecruitmentRequest;
 use App\Models\Enumerator;
+use App\Models\Recruitment;
 use App\Models\Superadmin\Koordinator;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -26,8 +26,8 @@ class RecruitmentController extends Controller
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('nama_lengkap', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('telephone', 'like', '%' . $searchTerm . '%');
+                $q->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('telephone', 'like', '%'.$searchTerm.'%');
             });
         }
 
@@ -47,7 +47,7 @@ class RecruitmentController extends Controller
             return response()->json([
                 'success' => true,
                 'table' => view('superadmin.recruitment.partials.table-body', compact('recruitments'))->render(),
-                'pagination' => view('layouts.pagination', ['paginator' => $recruitments])->render()
+                'pagination' => view('layouts.pagination', ['paginator' => $recruitments])->render(),
             ]);
         }
 
@@ -55,12 +55,13 @@ class RecruitmentController extends Controller
         return view('superadmin.recruitment.index', compact('recruitments'))
             ->with('i', ($request->input('page', 1) - 1) * $recruitments->perPage());
     }
+
     /**
      * Show the form for creating a new resource.
      */
     public function create(): View
     {
-        $recruitment = new Recruitment();
+        $recruitment = new Recruitment;
         $daftarRekomendasi = Koordinator::all();
 
         return view('publik.form-recruitment', compact('recruitment', 'daftarRekomendasi'));
@@ -79,33 +80,33 @@ class RecruitmentController extends Controller
         // Handle foto_ktp
         if ($request->hasFile('foto_ktp')) {
             $image = $request->file('foto_ktp');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imageName = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
             $image->storeAs('recruitment/foto-ktp', $imageName, 'public');
-            $validatedData['foto_ktp'] = 'recruitment/foto-ktp/' . $imageName;
+            $validatedData['foto_ktp'] = 'recruitment/foto-ktp/'.$imageName;
         }
 
         // Handle foto_diri
         if ($request->hasFile('foto_diri')) {
             $image = $request->file('foto_diri');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imageName = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
             $image->storeAs('recruitment/foto-diri', $imageName, 'public');
-            $validatedData['foto_diri'] = 'recruitment/foto-diri/' . $imageName;
+            $validatedData['foto_diri'] = 'recruitment/foto-diri/'.$imageName;
         }
 
         // Handle foto_ijasah
         if ($request->hasFile('foto_ijasah')) {
             $file = $request->file('foto_ijasah');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
             $file->storeAs('recruitment/foto-ijasah', $fileName, 'public');
-            $validatedData['foto_ijasah'] = 'recruitment/foto-ijasah/' . $fileName;
+            $validatedData['foto_ijasah'] = 'recruitment/foto-ijasah/'.$fileName;
         }
 
         // Handle pakta_integritas
         if ($request->hasFile('pakta_integritas')) {
             $file = $request->file('pakta_integritas');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
             $file->storeAs('recruitment/pakta-integritas', $fileName, 'public');
-            $validatedData['pakta_integritas'] = 'recruitment/pakta-integritas/' . $fileName;
+            $validatedData['pakta_integritas'] = 'recruitment/pakta-integritas/'.$fileName;
         }
 
         $recruitment = Recruitment::create($validatedData);
@@ -116,7 +117,7 @@ class RecruitmentController extends Controller
     public function updateStatus(Request $request, $hashedId)
     {
         $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
-        $recruitType = $recruitment->recruit_type; // PENDAMPING atau DATA ENTRY
+        $recruitType = $recruitment->recruit_type; // PENDAMPING, DATA ENTRY, atau ADMIN UMUM
 
         // Validasi dinamis berdasarkan recruit_type
         if ($recruitType == 'PENDAMPING') {
@@ -130,7 +131,7 @@ class RecruitmentController extends Controller
                 'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak',
             ]);
         } else {
-            // DATA ENTRY â€” hanya bisa Diterima/Ditolak/Melamar, tanpa koordinator
+            // DATA ENTRY / ADMIN UMUM – hanya bisa Diterima/Ditolak/Melamar, tanpa koordinator
             $request->validate([
                 'status' => 'required|in:Melamar,Diterima,Ditolak',
                 'alasan_penolakan' => 'required_if:status,Ditolak|nullable',
@@ -155,7 +156,7 @@ class RecruitmentController extends Controller
 
                     $existingEnumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
 
-                    if (!$existingEnumerator) {
+                    if (! $existingEnumerator) {
                         DB::transaction(function () use ($request, $recruitment) {
                             $lastNo = Enumerator::lockForUpdate()
                                 ->orderBy('no_registrasi', 'desc')
@@ -171,12 +172,12 @@ class RecruitmentController extends Controller
 
                             Enumerator::create([
                                 'koordinator_id' => $request->koordinator_id,
-                                'nama_lengkap'   => $recruitment->nama_lengkap,
-                                'telephone'      => $recruitment->telephone,
-                                'foto_diri'      => $recruitment->foto_diri,
-                                'no_registrasi'  => $noRegistrasi,
-                                'alamat'         => $recruitment->alamat_lengkap,
-                                'status'         => 'Aktif',
+                                'nama_lengkap' => $recruitment->nama_lengkap,
+                                'telephone' => $recruitment->telephone,
+                                'foto_diri' => $recruitment->foto_diri,
+                                'no_registrasi' => $noRegistrasi,
+                                'alamat' => $recruitment->alamat_lengkap,
+                                'status' => 'Aktif',
                             ]);
                         });
 
@@ -184,22 +185,22 @@ class RecruitmentController extends Controller
                     } else {
                         $existingEnumerator->update([
                             'koordinator_id' => $request->koordinator_id,
-                            'nama_lengkap'   => $recruitment->nama_lengkap,
-                            'alamat'         => $recruitment->alamat_lengkap,
-                            'status'         => 'Aktif',
+                            'nama_lengkap' => $recruitment->nama_lengkap,
+                            'alamat' => $recruitment->alamat_lengkap,
+                            'status' => 'Aktif',
                         ]);
 
                         $message = 'Status lamaran berhasil diperbarui dan data enumerator telah diupdate!';
                     }
                 } else {
-                    // â”€â”€ DATA ENTRY: tidak butuh koordinator, tidak buat Enumerator â”€â”€
+                    // DATA ENTRY / ADMIN UMUM: tidak butuh koordinator, tidak buat Enumerator
                     $recruitment->koordinator_id = null;
-                    $message = 'Status lamaran DATA ENTRY berhasil diperbarui menjadi diterima!';
+                    $message = 'Status lamaran ' . $recruitType . ' berhasil diperbarui menjadi diterima!';
                 }
             } elseif ($request->status == 'Ditolak') {
 
                 $recruitment->alasan_penolakan = $request->alasan_penolakan;
-                $recruitment->koordinator_id   = null;
+                $recruitment->koordinator_id = null;
 
                 if ($recruitType == 'PENDAMPING') {
                     $enumerator = Enumerator::where('telephone', $recruitment->telephone)->first();
@@ -211,12 +212,12 @@ class RecruitmentController extends Controller
                         $message = 'Status lamaran berhasil diperbarui menjadi ditolak!';
                     }
                 } else {
-                    // DATA ENTRY tidak punya enumerator
-                    $message = 'Status lamaran DATA ENTRY berhasil diperbarui menjadi ditolak!';
+                    // DATA ENTRY / ADMIN UMUM tidak punya enumerator
+                    $message = 'Status lamaran ' . $recruitType . ' berhasil diperbarui menjadi ditolak!';
                 }
             } else {
                 // Status: Melamar
-                $recruitment->koordinator_id   = null;
+                $recruitment->koordinator_id = null;
                 $recruitment->alasan_penolakan = null;
 
                 if ($recruitType == 'PENDAMPING') {
@@ -239,13 +240,15 @@ class RecruitmentController extends Controller
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
+
     public function downloadFoto($hashedId, $type)
     {
         $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
-        $filePath = storage_path('app/public/' . $recruitment->$type);
+        $filePath = storage_path('app/public/'.$recruitment->$type);
 
         if (file_exists($filePath)) {
             return response()->download($filePath);
@@ -297,9 +300,7 @@ class RecruitmentController extends Controller
     public function confirm($hashedId)
     {
         $recruitment = Recruitment::findByHashedIdOrFail($hashedId);
+
         return view('publik.confirm', compact('recruitment'));
     }
 }
-
-
-

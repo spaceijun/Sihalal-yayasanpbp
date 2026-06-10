@@ -433,6 +433,19 @@
             border-color: #3A4A6B;
         }
 
+        .rc-dl-btn.adminumum {
+            background: #F0FDF4;
+            color: #16A34A;
+            border-color: #BBF7D0;
+        }
+
+        .rc-dl-btn.adminumum:hover,
+        .rc-dl-btn.adminumum.active {
+            background: #16A34A;
+            color: #fff;
+            border-color: #16A34A;
+        }
+
         /* Submit */
         .rc-submit {
             width: 100%;
@@ -675,6 +688,11 @@
                                 <input type="radio" name="recruit_type" id="type_data_entry" value="DATA ENTRY">
                                 <span class="rc-radio-visual"></span>
                                 <span class="rc-radio-label">Data Entry</span>
+                            </label>
+                            <label class="rc-radio-option" id="lblAdminUmum">
+                                <input type="radio" name="recruit_type" id="type_admin_umum" value="ADMIN UMUM">
+                                <span class="rc-radio-visual"></span>
+                                <span class="rc-radio-label">Admin Umum</span>
                             </label>
                         </div>
                         <div class="rc-error-msg" id="errPosisi">
@@ -1036,6 +1054,15 @@
                                 </svg>
                                 Pakta — Data Entry
                             </a>
+                            <a href="{{ asset('assets/files/pakta-integritas-admin-umum.docx') }}" download
+                                class="rc-dl-btn adminumum" id="btnDownloadAdminUmum">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Pakta — Admin Umum
+                            </a>
                         </div>
                         <span class="rc-hint">Unduh sesuai posisi, tanda tangani, lalu upload di bawah</span>
                     </div>
@@ -1206,10 +1233,10 @@
                 // Highlight download buttons
                 const bp = $('btnDownloadPendamping');
                 const bd = $('btnDownloadDataEntry');
-                if (bp && bd) {
-                    bp.className = 'rc-dl-btn pendamping' + (sel?.value === 'PENDAMPING' ? ' active' : '');
-                    bd.className = 'rc-dl-btn dataentry' + (sel?.value === 'DATA ENTRY' ? ' active' : '');
-                }
+                const ba = $('btnDownloadAdminUmum');
+                if (bp) bp.className = 'rc-dl-btn pendamping' + (sel?.value === 'PENDAMPING' ? ' active' : '');
+                if (bd) bd.className = 'rc-dl-btn dataentry' + (sel?.value === 'DATA ENTRY' ? ' active' : '');
+                if (ba) ba.className = 'rc-dl-btn adminumum' + (sel?.value === 'ADMIN UMUM' ? ' active' : '');
                 updateProgress();
             }
 

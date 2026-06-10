@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recruitments', function (Blueprint $table) {
-            $table->enum('recruit_type', ['PENDAMPING', 'DATA ENTRY'])->after('koordinator_id');
+            $table->enum('recruit_type', ['PENDAMPING', 'DATA ENTRY', 'ADMIN UMUM'])->after('koordinator_id');
             $table->enum('type_entry', ['OSS', 'SIHALAL'])->nullable()->after('recruit_type');
         });
     }

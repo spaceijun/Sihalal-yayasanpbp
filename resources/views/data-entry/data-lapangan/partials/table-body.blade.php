@@ -5,20 +5,21 @@
         <td>{{ $dataLapangan->nama_pu }}</td>
         <td>{{ $dataLapangan->nama_produk }}</td>
         <td>
-            @if ($dataLapangan->status == 'PENDING')
-                <span class="badge bg-warning text-dark">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'TERVERIFIKASI')
-                <span class="badge bg-info">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'PROGRESS OSS')
-                <span class="badge bg-info">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'PROGRESS SIHALAL')
-                <span class="badge bg-primary">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'TERBIT SH')
-                <span class="badge bg-success">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'DITOLAK')
-                <span class="badge bg-dark">{{ $dataLapangan->status }}</span>
-            @elseif($dataLapangan->status == 'REVISI')
-                <span class="badge bg-danger">{{ $dataLapangan->status }}</span>
+            @php $s = $dataLapangan->status; @endphp
+            @if ($s === 'PENDING')
+                <span class="adm-badge adm-badge-pending"><span class="dot"></span>Pending</span>
+            @elseif ($s === 'TERVERIFIKASI')
+                <span class="adm-badge adm-badge-info"><span class="dot"></span>Terverifikasi</span>
+            @elseif ($s === 'PROGRESS OSS')
+                <span class="adm-badge adm-badge-oss"><span class="dot"></span>Progress OSS</span>
+            @elseif ($s === 'PROGRESS SIHALAL')
+                <span class="adm-badge adm-badge-sihalal"><span class="dot"></span>Progress SiHalal</span>
+            @elseif ($s === 'TERBIT SH')
+                <span class="adm-badge adm-badge-terbit"><span class="dot"></span>Terbit SH</span>
+            @elseif ($s === 'DITOLAK')
+                <span class="adm-badge adm-badge-ditolak"><span class="dot"></span>Ditolak</span>
+            @elseif ($s === 'REVISI')
+                <span class="adm-badge adm-badge-revisi"><span class="dot"></span>Revisi</span>
             @endif
         </td>
         <td>

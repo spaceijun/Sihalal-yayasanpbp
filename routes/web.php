@@ -32,6 +32,7 @@ use App\Http\Controllers\Superadmin\ServerInfoController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
 use App\Http\Controllers\Superadmin\SpotcheckController;
 use App\Http\Controllers\Superadmin\TicketController;
+use App\Http\Controllers\Superadmin\TicketPendampingController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
@@ -176,9 +177,16 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Management Users
         Route::resource('users', UserController::class);
         Route::get('/users-data', [UserController::class, 'data'])->name('users.data');
-        // Ticket
-        Route::resource('tickets', TicketController::class);
+        // Ticket (Data Entry)
+        Route::resource('tickets', TicketController::class)->only(['index', 'show', 'destroy']);
         Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
+
+        // Ticket Pendamping (Enumerator)
+        Route::get('ticket-pendampings-data', [TicketPendampingController::class, 'data'])->name('ticket-pendampings.data');
+        Route::get('ticket-pendampings', [TicketPendampingController::class, 'index'])->name('ticket-pendampings.index');
+        Route::get('ticket-pendampings/{id}', [TicketPendampingController::class, 'show'])->name('ticket-pendampings.show');
+        Route::patch('ticket-pendampings/{id}/status', [TicketPendampingController::class, 'updateStatus'])->name('ticket-pendampings.update-status');
+        Route::delete('ticket-pendampings/{id}', [TicketPendampingController::class, 'destroy'])->name('ticket-pendampings.destroy');
 
         // settings
         Route::prefix('settings')->name('settings.')->group(function () {

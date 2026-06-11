@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
+use App\Http\Controllers\Api\Enumerator\TicketController as EnumeratorTicketController;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\RankingPendampingApiController;
 use App\Http\Controllers\Api\RingkasanController;
@@ -86,5 +87,12 @@ Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
         // Pengumuman
         Route::get('/pengumuman', [PengumumanEnumController::class, 'index'])->name('pengumuman.index');
         Route::get('/pengumuman/{id}', [PengumumanEnumController::class, 'show'])->name('pengumuman.show');
+
+        // Tiket Keluhan
+        Route::prefix('tiket')->name('tiket.')->group(function () {
+            Route::get('/',    [EnumeratorTicketController::class, 'index'])->name('index');
+            Route::post('/',   [EnumeratorTicketController::class, 'store'])->name('store');
+            Route::get('/{id}', [EnumeratorTicketController::class, 'show'])->name('show');
+        });
     });
 });

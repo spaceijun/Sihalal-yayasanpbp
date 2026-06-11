@@ -88,6 +88,12 @@
                         <i data-feather="send"></i>Tickets
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/ticket-pendampings') }}"
+                        class="nav-link {{ Request::is('superadmin/ticket-pendampings*') ? 'active' : '' }}">
+                        <i data-feather="message-square"></i>Ticket Pendamping
+                    </a>
+                </li>
 
                 {{-- Finance Management --}}
                 <li class="menu-title"><span data-key="t-menu">Finance Management</span></li>

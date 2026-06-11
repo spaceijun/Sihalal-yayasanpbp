@@ -83,6 +83,10 @@ class DataLapangan extends Model
     ];
 
 
+    protected $attributes = [
+        'is_unlocked_for_data_entry' => true,
+    ];
+
     protected $casts = [
         'edit_expires_at' => 'datetime',
         'is_being_edited' => 'boolean',

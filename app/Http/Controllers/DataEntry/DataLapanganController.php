@@ -189,9 +189,17 @@ class DataLapanganController extends Controller
                 return e($produk ?: '-');
             })
             ->addColumn('status_badge', function ($dl) {
-                $color = $dl->status === 'PROGRESS OSS' ? 'bg-purple text-white' : 'bg-info text-dark';
-
-                return '<span class="badge '.$color.'">'.e($dl->status).'</span>';
+                $map = [
+                    'PENDING'          => 'adm-badge-pending',
+                    'TERVERIFIKASI'    => 'adm-badge-info',
+                    'PROGRESS OSS'     => 'adm-badge-oss',
+                    'PROGRESS SIHALAL' => 'adm-badge-sihalal',
+                    'TERBIT SH'        => 'adm-badge-terbit',
+                    'DITOLAK'          => 'adm-badge-ditolak',
+                    'REVISI'           => 'adm-badge-revisi',
+                ];
+                $cls = $map[$dl->status] ?? 'adm-badge-pending';
+                return '<span class="adm-badge '.$cls.'"><span class="dot"></span>'.e($dl->status).'</span>';
             })
             ->addColumn('old_email_sihalal_cell', function ($dl) {
                 if ($dl->old_email_sihalal) {

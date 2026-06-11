@@ -46,20 +46,17 @@
             @if ($s === 'PENDING')
                 <span class="adm-badge adm-badge-pending"><span class="dot"></span>Pending</span>
             @elseif ($s === 'TERVERIFIKASI')
-                <span class="adm-badge" style="background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;"><span
-                        class="dot" style="background:#64748B;"></span>Terverifikasi</span>
+                <span class="adm-badge adm-badge-info"><span class="dot"></span>Terverifikasi</span>
             @elseif ($s === 'PROGRESS OSS')
-                <span class="adm-badge adm-badge-info"><span class="dot"></span>Progress OSS</span>
+                <span class="adm-badge adm-badge-oss"><span class="dot"></span>Progress OSS</span>
             @elseif ($s === 'PROGRESS SIHALAL')
-                <span class="adm-badge" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;"><span
-                        class="dot" style="background:#2563EB;"></span>Progress SiHalal</span>
+                <span class="adm-badge adm-badge-sihalal"><span class="dot"></span>Progress SiHalal</span>
             @elseif ($s === 'TERBIT SH')
-                <span class="adm-badge adm-badge-success"><span class="dot"></span>Terbit SH</span>
+                <span class="adm-badge adm-badge-terbit"><span class="dot"></span>Terbit SH</span>
             @elseif ($s === 'DITOLAK')
-                <span class="adm-badge adm-badge-danger"><span class="dot"></span>Ditolak</span>
+                <span class="adm-badge adm-badge-ditolak"><span class="dot"></span>Ditolak</span>
             @elseif ($s === 'REVISI')
-                <span class="adm-badge" style="background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;"><span
-                        class="dot" style="background:#C2410C;"></span>Revisi</span>
+                <span class="adm-badge adm-badge-revisi"><span class="dot"></span>Revisi</span>
             @endif
         </td>
 

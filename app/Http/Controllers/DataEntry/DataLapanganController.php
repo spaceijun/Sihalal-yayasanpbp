@@ -139,14 +139,22 @@ class DataLapanganController extends Controller
 
         $koordinatorIds = $dataEntry->koordinators->pluck('id');
 
+        $currentUserId = Auth::id();
+
         $query = DataLapangan::query()
             ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
             ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id')
             ->where('data_lapangans.status', $targetStatus)
-            ->where(function ($q) {
-                // Otomatis terbuka jika belum ada progress; atau admin sudah buka paksa
-                $q->whereDoesntHave('dataEntryProgress')
-                  ->orWhere('data_lapangans.is_unlocked_for_data_entry', true);
+            // Tidak ada progress aktif (PENDING/DITERIMA) — termasuk data yg pernah ditolak/expired
+            ->whereDoesntHave('dataEntryProgress', fn ($q) =>
+                $q->whereIn('status', ['PENDING', 'DITERIMA'])
+            )
+            // Tidak sedang dikunci user lain
+            ->where(function ($q) use ($currentUserId) {
+                $q->where('data_lapangans.is_being_edited', false)
+                  ->orWhereNull('data_lapangans.edit_expires_at')
+                  ->orWhere('data_lapangans.edit_expires_at', '<', now())
+                  ->orWhere('data_lapangans.edited_by', $currentUserId);
             });
 
         // Filter berdasarkan koordinator yang di-assign ke user data_entry ini
@@ -181,14 +189,30 @@ class DataLapanganController extends Controller
 
                 return '<span class="badge '.$color.'">'.e($dl->status).'</span>';
             })
-            ->addColumn('aksi', function ($dl) {
-                $showUrl = route('data-entry.data-lapangan.show', $dl->hashed_id);
+            ->addColumn('old_email_sihalal_cell', function ($dl) {
+                if ($dl->old_email_sihalal) {
+                    return '<span style="font-size:11.5px;color:#DC2626;" title="Email sebelumnya yang ditolak/kedaluwarsa">
+                        <i class="las la-history"></i> '.e($dl->old_email_sihalal).'
+                    </span>';
+                }
+                return '<span style="color:#9CA3AF;font-size:11.5px;">—</span>';
+            })
+            ->addColumn('aksi', function ($dl) use ($dataEntry) {
+                $showUrl    = route('data-entry.data-lapangan.show', $dl->hashed_id);
+                $isSihalal  = $dataEntry->entry_type === 'SIHALAL';
+
+                // Jika SIHALAL dan email_sihalal sudah terisi → sedang direview admin
+                if ($isSihalal && !empty($dl->email_sihalal)) {
+                    return '<button class="btn btn-sm btn-secondary" disabled title="'.e($dl->email_sihalal).'">
+                        <i class="las la-clock"></i> Sedang Direview Admin
+                    </button>';
+                }
 
                 return '<a href="'.$showUrl.'" class="btn btn-sm btn-info btn-show-data" data-id="'.e($dl->hashed_id).'">
                     <i class="las la-eye"></i> Show
                 </a>';
             })
-            ->rawColumns(['status_badge', 'aksi'])
+            ->rawColumns(['status_badge', 'aksi', 'old_email_sihalal_cell'])
             ->make(true);
     }
 

@@ -79,6 +79,7 @@ class DataLapangan extends Model
         'edited_by',
         'edit_expires_at',
         'is_unlocked_for_data_entry',
+        'old_email_sihalal',
     ];
 
 

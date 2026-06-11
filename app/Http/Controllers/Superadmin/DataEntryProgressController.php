@@ -375,6 +375,25 @@ class DataEntryProgressController extends Controller
             $dataLapangan->update(['status' => $oldData['status']]);
         }
 
+        // Pindahkan email_sihalal ke old_email_sihalal, kosongkan email_sihalal
+        // agar data_entry berikutnya dapat mengisi ulang
+        if ($dataLapangan && $dataLapangan->email_sihalal) {
+            $dataLapangan->update([
+                'old_email_sihalal' => $dataLapangan->email_sihalal,
+                'email_sihalal'     => null,
+            ]);
+        }
+
+        // Lepas lock editing dan tandai data available kembali
+        if ($dataLapangan) {
+            $dataLapangan->update([
+                'is_being_edited'            => false,
+                'edited_by'                  => null,
+                'edit_expires_at'            => null,
+                'is_unlocked_for_data_entry' => true,
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Progress berhasil ditolak.');
     }
 

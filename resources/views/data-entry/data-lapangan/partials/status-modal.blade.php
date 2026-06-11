@@ -18,6 +18,14 @@
                         <strong>PROGRESS OSS</strong> menjadi <strong>PROGRESS SIHALAL</strong>
                     </div>
 
+                    {{-- Hint email lama jika ada --}}
+                    @if ($dataLapangan->old_email_sihalal)
+                        <div class="alert alert-warning py-2 px-3 mb-2" style="font-size:12.5px;">
+                            <i class="las la-history me-1"></i>
+                            Email SIHALAL sebelumnya: <strong>{{ $dataLapangan->old_email_sihalal }}</strong>
+                        </div>
+                    @endif
+
                     {{-- Field Email SIHALAL --}}
                     <div class="mb-3">
                         <label for="email_sihalal" class="form-label fw-semibold">
@@ -25,7 +33,7 @@
                         </label>
                         <input type="email" class="form-control @error('email_sihalal') is-invalid @enderror"
                             id="email_sihalal" name="email_sihalal"
-                            value="{{ old('email_sihalal', $dataLapangan->email_sihalal) }}"
+                            value="{{ old('email_sihalal') }}"
                             placeholder="Masukkan email yang didaftarkan di SIHALAL" required>
                         @error('email_sihalal')
                             <div class="invalid-feedback">{{ $message }}</div>

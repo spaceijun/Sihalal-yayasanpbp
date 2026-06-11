@@ -226,6 +226,15 @@
                             {{ $dataLapangan->email_sihalal ?? 'Data tidak tersedia' }}
                         </p>
 
+                        @if ($dataLapangan->old_email_sihalal)
+                            <div style="margin-top:6px;padding:6px 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;display:flex;align-items:center;gap:6px;">
+                                <i class="las la-history" style="color:#DC2626;font-size:14px;"></i>
+                                <span style="font-size:12px;color:#B91C1C;">
+                                    Email lama: <strong>{{ $dataLapangan->old_email_sihalal }}</strong>
+                                </span>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 

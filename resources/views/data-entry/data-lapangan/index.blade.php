@@ -46,6 +46,7 @@
                                     <th>Nama PU</th>
                                     <th>Nama Produk</th>
                                     <th>Status</th>
+                                    <th>Email Lama</th>
                                     <th style="text-align:center;">Aksi</th>
                                 </tr>
                             </thead>
@@ -189,6 +190,12 @@
                         name: 'status',
                         searchable: false,
                         className: 'text-center'
+                    },
+                    {
+                        data: 'old_email_sihalal_cell',
+                        name: 'old_email_sihalal',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'aksi',

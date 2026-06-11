@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('data-lapangan:clean-locks')->everyMinute();
 // Schedule::command('enumerator:check-activity')->monthlyOn(25, '00:00');
 Schedule::command('status:update-pembayaran')->everyMinute();
+Schedule::command('dataentry:expire-revisi')->dailyAt('02:00');

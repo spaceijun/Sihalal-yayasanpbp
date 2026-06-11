@@ -75,49 +75,53 @@ class DataLapanganController extends Controller
     {
         $cutoff = Carbon::create(2026, 5, 1);
 
-        $query = DataLapangan::with('enumerator')
-            ->select('data_lapangans.*');
+        // LEFT JOIN enumerators so Yajra can search/sort on enumerator name
+        $query = DataLapangan::query()
+            ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
+            ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id');
+
+        // Custom filters sent as extra AJAX params from the view
+        if ($request->filled('status_filter')) {
+            $query->where('data_lapangans.status', $request->status_filter);
+        }
+        if ($request->filled('payment_filter')) {
+            $query->where('data_lapangans.status_pembayaran', $request->payment_filter);
+        }
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->filterColumn('search', function ($query, $keyword) {
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('nama_pu', 'like', "%{$keyword}%")
-                        ->orWhere('no_registrasi', 'like', "%{$keyword}%")
-                        ->orWhere('nik', 'like', "%{$keyword}%")
-                        ->orWhereHas('enumerator', fn ($e) => $e->where('nama_lengkap', 'like', "%{$keyword}%"));
-                });
-            })
+            // Per-column filterColumn so global search works on each searchable column
+            ->filterColumn('nama_pu',        fn ($q, $k) => $q->where('data_lapangans.nama_pu',        'like', "%{$k}%"))
+            ->filterColumn('no_registrasi',  fn ($q, $k) => $q->where('data_lapangans.no_registrasi',  'like', "%{$k}%"))
+            ->filterColumn('nik',            fn ($q, $k) => $q->where('data_lapangans.nik',            'like', "%{$k}%"))
+            ->filterColumn('enumerator_nama',fn ($q, $k) => $q->where('enumerators.nama_lengkap',      'like', "%{$k}%"))
             ->addColumn('tanggal', fn ($dl) => $dl->created_at ? $dl->created_at->format('d/m/Y') : '-')
             ->addColumn('pendamping_cell', function ($dl) {
-                $nama = e($dl->enumerator->nama_lengkap ?? '-');
-
+                $nama = e($dl->enumerator_nama ?? '-');
                 return '<span style="font-size:12.5px;">'.$nama.'</span>';
             })
             ->addColumn('status_badge', function ($dl) {
                 $map = [
-                    'Pending' => '#F59E0B:#FEF3C7',
-                    'Terverifikasi' => '#2563EB:#DBEAFE',
-                    'Progress OSS' => '#7C3AED:#EDE9FE',
+                    'Pending'          => '#F59E0B:#FEF3C7',
+                    'Terverifikasi'    => '#2563EB:#DBEAFE',
+                    'Progress OSS'     => '#7C3AED:#EDE9FE',
                     'Progress SIHALAL' => '#0891B2:#CFFAFE',
-                    'Terbit SH' => '#16A34A:#DCFCE7',
-                    'Ditolak' => '#DC2626:#FEE2E2',
-                    'Revisi' => '#D97706:#FEF3C7',
+                    'Terbit SH'        => '#16A34A:#DCFCE7',
+                    'Ditolak'          => '#DC2626:#FEE2E2',
+                    'Revisi'           => '#D97706:#FEF3C7',
                 ];
                 $status = $dl->status ?? 'Pending';
                 [$color, $bg] = explode(':', $map[$status] ?? '#6B7280:#F3F4F6');
-
                 return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($status).'</span>';
             })
             ->addColumn('payment_badge', function ($dl) {
                 $map = [
-                    'PENDING' => '#D97706:#FEF3C7',
+                    'PENDING'   => '#D97706:#FEF3C7',
                     'PENGAJUAN' => '#2563EB:#DBEAFE',
-                    'DIBAYAR' => '#16A34A:#DCFCE7',
+                    'DIBAYAR'   => '#16A34A:#DCFCE7',
                 ];
                 $sp = strtoupper($dl->status_pembayaran ?? 'PENDING');
                 [$color, $bg] = explode(':', $map[$sp] ?? '#6B7280:#F3F4F6');
-
                 return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($sp).'</span>';
             })
             ->addColumn('tagihan_cell', function ($dl) use ($cutoff) {
@@ -125,7 +129,6 @@ class DataLapanganController extends Controller
                     return '-';
                 }
                 $tagihan = Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
-
                 return 'Rp '.number_format($tagihan, 0, ',', '.');
             })
             ->addColumn('locked_icon', function ($dl) {
@@ -134,13 +137,11 @@ class DataLapanganController extends Controller
                         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                     </button>';
                 }
-
                 return '';
             })
             ->addColumn('aksi', function ($dl) {
-                $showUrl = route('superadmin.data-lapangans.show', $dl->hashed_id);
-                $deleteUrl = route('superadmin.data-lapangans.destroy', $dl->hashed_id);
-
+                $showUrl   = route('superadmin.data-lapangans.show',    $dl->hashed_id);
+                $deleteUrl = route('superadmin.data-lapangans.destroy',  $dl->hashed_id);
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a class="adm-btn primary icon-only" href="'.$showUrl.'" title="Lihat">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -154,9 +155,8 @@ class DataLapanganController extends Controller
                     </form>
                 </div>';
             })
-            ->addColumn('checkbox', function ($dl) {
-                return '<input type="checkbox" class="row-checkbox" value="'.e($dl->hashed_id).'">';
-            })
+            ->addColumn('checkbox', fn ($dl) =>
+                '<input type="checkbox" class="row-checkbox" value="'.e($dl->hashed_id).'">')
             ->rawColumns(['pendamping_cell', 'status_badge', 'payment_badge', 'locked_icon', 'aksi', 'checkbox'])
             ->make(true);
     }

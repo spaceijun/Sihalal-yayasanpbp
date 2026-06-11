@@ -13,11 +13,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class DataLapanganController extends Controller
 {
     protected $fileService;
+
     protected $statusService;
+
     protected $notificationService;
 
     public function __construct(
@@ -25,8 +28,8 @@ class DataLapanganController extends Controller
         StatusService $statusService,
         NotificationService $notificationService
     ) {
-        $this->fileService         = $fileService;
-        $this->statusService       = $statusService;
+        $this->fileService = $fileService;
+        $this->statusService = $statusService;
         $this->notificationService = $notificationService;
     }
 
@@ -38,7 +41,7 @@ class DataLapanganController extends Controller
     {
         $dataEntry = DataEntry::where('user_id', Auth::id())->first();
 
-        if (!$dataEntry) {
+        if (! $dataEntry) {
             abort(403, 'Data entry tidak ditemukan untuk akun ini.');
         }
 
@@ -58,6 +61,7 @@ class DataLapanganController extends Controller
 
         return $latestProgress?->status === 'PENDING';
     }
+
     /**
      * Track progress data entry ketika upload file / update status.
      * Status default PENDING — menunggu review superadmin.
@@ -72,20 +76,20 @@ class DataLapanganController extends Controller
         string $fileName
     ): DataEntryProgress {
         return DataEntryProgress::create([
-            'user_id'          => Auth::id(),
-            'data_entry_id'    => $dataEntry->id,
+            'user_id' => Auth::id(),
+            'data_entry_id' => $dataEntry->id,
             'data_lapangan_id' => $dataLapangan->id,
-            'action'           => 'created',
-            'status'           => 'PENDING',
-            'old_data'         => [
+            'action' => 'created',
+            'status' => 'PENDING',
+            'old_data' => [
                 'status' => $dataLapangan->status,
             ],
-            'new_data'         => [
+            'new_data' => [
                 'file_type' => $fileType,
-                'status'    => $newStatus,
+                'status' => $newStatus,
                 'file_name' => $fileName,
             ],
-            'actioned_at'      => now(),
+            'actioned_at' => now(),
         ]);
     }
 
@@ -100,21 +104,136 @@ class DataLapanganController extends Controller
      *       return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id');
      *   }
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $enumerators = DataLapangan::where('status', 'TERVERIFIKASI')
-            ->whereDoesntHave('dataEntryProgress')
-            ->paginate();
+        return view('data-entry.data-lapangan.index');
+    }
 
-        return view('data-entry.data-lapangan.index', compact('enumerators'))
-            ->with('i', ($request->input('page', 1) - 1) * $enumerators->perPage());
+    /**
+     * Return Yajra DataTables JSON for data-lapangan listing (data_entry role).
+     * Shows only TERVERIFIKASI records that have not yet been picked up (no progress).
+     */
+    public function data(Request $request)
+    {
+        $query = DataLapangan::query()
+            ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
+            ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id')
+            ->where('data_lapangans.status', 'Terverifikasi')
+            ->whereDoesntHave('dataEntryProgress');
+
+        // Date range filter
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('data_lapangans.created_at', '>=', $request->tanggal_dari);
+        }
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('data_lapangans.created_at', '<=', $request->tanggal_sampai);
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->filterColumn('nama_pu', fn ($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
+            ->filterColumn('enumerator_nama', fn ($q, $k) => $q->where('enumerators.nama_lengkap', 'like', "%{$k}%"))
+            ->addColumn('pendamping_cell', fn ($dl) => e($dl->enumerator_nama ?? '-'))
+            ->addColumn('nama_produk_cell', function ($dl) {
+                $produk = collect([
+                    $dl->nama_produk, $dl->nama_produk_2, $dl->nama_produk_3,
+                    $dl->nama_produk_4, $dl->nama_produk_5,
+                ])->filter()->implode(', ');
+
+                return e($produk ?: '-');
+            })
+            ->addColumn('status_badge', function ($dl) {
+                return '<span class="badge bg-info text-dark">'.e($dl->status).'</span>';
+            })
+            ->addColumn('aksi', function ($dl) {
+                $showUrl = route('data-entry.data-lapangan.show', $dl->hashed_id);
+
+                return '<a href="'.$showUrl.'" class="btn btn-sm btn-info btn-show-data" data-id="'.e($dl->hashed_id).'">
+                    <i class="las la-eye"></i> Show
+                </a>';
+            })
+            ->rawColumns(['status_badge', 'aksi'])
+            ->make(true);
+    }
+
+    /**
+     * Acquire an editing lock on a DataLapangan record (web route, session-auth).
+     * Uses hashed ID — same format as what the JS views send.
+     */
+    public function lockData(string $hashedId): \Illuminate\Http\JsonResponse
+    {
+        $dataLapangan = DataLapangan::findByHashedId($hashedId);
+
+        if (! $dataLapangan) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan.'], 404);
+        }
+
+        // Reject if locked by someone else and not yet expired
+        if (
+            $dataLapangan->is_being_edited &&
+            $dataLapangan->edited_by !== Auth::id() &&
+            $dataLapangan->edit_expires_at?->isFuture()
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data sedang dikerjakan oleh pengguna lain.',
+            ], 423);
+        }
+
+        $dataLapangan->update([
+            'is_being_edited' => true,
+            'edited_by' => Auth::id(),
+            'edit_expires_at' => now()->addMinutes(50),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Data berhasil dikunci.']);
+    }
+
+    /**
+     * Release the editing lock (web route, session-auth).
+     */
+    public function unlockData(string $hashedId): \Illuminate\Http\JsonResponse
+    {
+        $dataLapangan = DataLapangan::findByHashedId($hashedId);
+
+        if ($dataLapangan) {
+            DataLapangan::where('id', $dataLapangan->id)
+                ->where('edited_by', Auth::id())
+                ->update([
+                    'is_being_edited' => false,
+                    'edited_by' => null,
+                    'edit_expires_at' => null,
+                ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Data dilepas.']);
+    }
+
+    /**
+     * Unlock via sendBeacon (browser close/navigate away).
+     */
+    public function unlockBeacon(string $hashedId): \Illuminate\Http\JsonResponse
+    {
+        $dataLapangan = DataLapangan::findByHashedId($hashedId);
+
+        if ($dataLapangan) {
+            DataLapangan::where('id', $dataLapangan->id)
+                ->where('edited_by', Auth::id())
+                ->update([
+                    'is_being_edited' => false,
+                    'edited_by' => null,
+                    'edit_expires_at' => null,
+                ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedId($hashedId);
-        $dataEntry    = DataEntry::where('user_id', Auth::id())->first();
-        $entryType    = $dataEntry?->entry_type;
+        $dataEntry = DataEntry::where('user_id', Auth::id())->first();
+        $entryType = $dataEntry?->entry_type;
 
         $latestProgress = DataEntryProgress::where('data_lapangan_id', $dataLapangan->id)
             ->where('action', 'created')
@@ -148,7 +267,7 @@ class DataLapanganController extends Controller
     public function uploadFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
         $request->validate([
-            'file'      => 'required|mimes:pdf|max:5120',
+            'file' => 'required|mimes:pdf|max:5120',
             'file_type' => 'required|in:oss,sihalal',
         ]);
 
@@ -161,7 +280,7 @@ class DataLapanganController extends Controller
                 ->with('error', 'Masih ada progress yang menunggu review superadmin. Silakan tunggu sebelum upload ulang.');
         }
 
-        $fileType     = $request->file_type;
+        $fileType = $request->file_type;
         $uploadedFile = $request->file('file');
         $uploadResult = $this->fileService->uploadFile($dataLapangan, $uploadedFile, $fileType);
 
@@ -179,7 +298,7 @@ class DataLapanganController extends Controller
             $uploadedFile->getClientOriginalName()
         );
 
-        $message = 'File ' . strtoupper($fileType) . ' berhasil diupload. Menunggu review superadmin.';
+        $message = 'File '.strtoupper($fileType).' berhasil diupload. Menunggu review superadmin.';
 
         // Handle notifications
         if ($fileType === 'oss' && $uploadResult['is_first_upload']) {
@@ -195,6 +314,7 @@ class DataLapanganController extends Controller
                 $message .= ' Link sertifikat halal telah dikirim ke PU.';
             } else {
                 $message .= ' Namun notifikasi WhatsApp gagal dikirim.';
+
                 return redirect()
                     ->route('data-entry.data-lapangan.show', $dataLapangan->hashed_id)
                     ->with('warning', $message);
@@ -224,14 +344,14 @@ class DataLapanganController extends Controller
             ]);
 
             $dataLapangan = DataLapangan::findOrFail($id);
-            $dataEntry    = $this->getAuthDataEntry();
+            $dataEntry = $this->getAuthDataEntry();
 
             // Cegah double submit — tolak jika masih ada PENDING
             if ($this->hasPendingProgress($dataEntry->id, $dataLapangan->id)) {
                 return redirect()->back()->with('error', 'Permintaan sebelumnya masih menunggu review superadmin.');
             }
 
-            if (!in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
+            if (! in_array($dataLapangan->status, ['PROGRESS OSS', 'DITOLAK'])) {
                 return redirect()->back()->with('error', 'Update status hanya dapat dilakukan dari status PROGRESS OSS atau DITOLAK.');
             }
 
@@ -251,7 +371,7 @@ class DataLapanganController extends Controller
 
             return redirect()->back()->with('success', 'Permintaan update ke PROGRESS SIHALAL telah dikirim. Menunggu review superadmin.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengupdate status: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengupdate status: '.$e->getMessage());
         }
     }
 
@@ -278,15 +398,15 @@ class DataLapanganController extends Controller
             ->latest()
             ->first();
 
-        if (!$progressRevisi) {
+        if (! $progressRevisi) {
             return redirect()->back()->with('error', 'Tidak ada data revisi yang perlu diupdate.');
         }
 
         // Update record yang sama — REVISI kembali ke PENDING
         // Keterangan update disimpan di new_data, bukan kolom terpisah
         $progressRevisi->update([
-            'status'      => 'PENDING',
-            'new_data'    => array_merge($progressRevisi->new_data ?? [], [
+            'status' => 'PENDING',
+            'new_data' => array_merge($progressRevisi->new_data ?? [], [
                 'keterangan_update' => $request->keterangan_update,
             ]),
             'actioned_at' => now(),

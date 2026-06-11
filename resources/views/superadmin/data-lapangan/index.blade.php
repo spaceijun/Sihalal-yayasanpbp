@@ -1,19 +1,22 @@
 @extends('layouts.app')
+
 @section('template_title')
     Data Lapangan
 @endsection
+
 @section('content')
     <div class="adm-page">
         @include('layouts.messages')
 
+        {{-- ── PAGE HEADER ── --}}
         <div class="adm-header">
             <div class="adm-header-left">
                 <h1>Data Lapangan</h1>
-                <p>Kelola data survei pelaku usaha di lapangan</p>
+                <p>Kelola data survei pelaku usaha di lapangan secara real-time</p>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                 <button id="exportBtn" class="adm-btn success" style="gap:6px;">
-                    <svg viewBox="0 0 24 24">
+                    <svg viewBox="0 0 24 24" style="stroke-width:2.2;">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <polyline points="14 2 14 8 20 8" />
                         <line x1="16" y1="13" x2="8" y2="13" />
@@ -21,14 +24,14 @@
                     </svg>
                     Export Excel
                 </button>
-                <a href="{{ route('superadmin.data-lapangans.data-revisi') }}" class="adm-btn-secondary">
+                <a href="{{ route('superadmin.data-lapangans.data-revisi') }}" class="adm-btn-secondary" style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <polyline points="1 4 1 10 7 10" />
                         <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
                     </svg>
                     Data Revisi
                 </a>
-                <a href="{{ route('superadmin.data-lapangans.create') }}" class="adm-btn-primary">
+                <a href="{{ route('superadmin.data-lapangans.create') }}" class="adm-btn-primary" style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -38,158 +41,210 @@
             </div>
         </div>
 
-        {{-- ── PAYMENT SUMMARY CARDS ── --}}
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
-
+        {{-- ── STATS / SUMMARY CARDS ── --}}
+        <div class="adm-stats" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
             {{-- PENDING --}}
-            <div
-                style="background:#fff;border:1px solid #FDE68A;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
-                <div
-                    style="width:44px;height:44px;border-radius:10px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="adm-stat" style="border-top: 4px solid var(--adm-amber); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: var(--adm-amber);">
                     <svg viewBox="0 0 24 24"
-                        style="width:22px;height:22px;fill:none;stroke:#D97706;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        style="width: 54px; height: 54px; fill: none; stroke: currentColor; stroke-width: 2.5;">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
                 </div>
-                <div>
-                    <p
-                        style="margin:0;font-size:11px;font-weight:600;color:#92400E;text-transform:uppercase;letter-spacing:.5px;">
-                        Pending</p>
-                    <p id="card-pending-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#B45309;">
-                        {{ $paymentStats['pending_count'] }}</p>
-                    <p id="card-pending-total" style="margin:2px 0 0;font-size:12px;color:#D97706;">Rp
-                        {{ number_format($paymentStats['pending_total'], 0, ',', '.') }}</p>
+                <div class="adm-stat-label" style="color: var(--adm-amber); font-weight: 700;">Pending</div>
+                <div class="adm-stat-value is-warn" style="font-size: 28px;">{{ $paymentStats['pending_count'] }}</div>
+                <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
+                    Rp {{ number_format($paymentStats['pending_total'], 0, ',', '.') }}
                 </div>
             </div>
 
             {{-- PENGAJUAN --}}
-            <div
-                style="background:#fff;border:1px solid #BAE6FD;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
-                <div
-                    style="width:44px;height:44px;border-radius:10px;background:#F0F9FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="adm-stat" style="border-top: 4px solid var(--adm-blue); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: var(--adm-blue);">
                     <svg viewBox="0 0 24 24"
-                        style="width:22px;height:22px;fill:none;stroke:#0284C7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        style="width: 54px; height: 54px; fill: none; stroke: currentColor; stroke-width: 2.5;">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <polyline points="14 2 14 8 20 8" />
                         <line x1="16" y1="13" x2="8" y2="13" />
                         <line x1="16" y1="17" x2="8" y2="17" />
                     </svg>
                 </div>
-                <div>
-                    <p
-                        style="margin:0;font-size:11px;font-weight:600;color:#0C4A6E;text-transform:uppercase;letter-spacing:.5px;">
-                        Pengajuan</p>
-                    <p id="card-pengajuan-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#0369A1;">
-                        {{ $paymentStats['pengajuan_count'] }}</p>
-                    <p id="card-pengajuan-total" style="margin:2px 0 0;font-size:12px;color:#0284C7;">Rp
-                        {{ number_format($paymentStats['pengajuan_total'], 0, ',', '.') }}</p>
+                <div class="adm-stat-label" style="color: var(--adm-blue); font-weight: 700;">Pengajuan</div>
+                <div class="adm-stat-value" style="color: var(--adm-blue); font-size: 28px;">
+                    {{ $paymentStats['pengajuan_count'] }}</div>
+                <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
+                    Rp {{ number_format($paymentStats['pengajuan_total'], 0, ',', '.') }}
                 </div>
             </div>
 
             {{-- DIBAYAR --}}
-            <div
-                style="background:#fff;border:1px solid #BBF7D0;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
-                <div
-                    style="width:44px;height:44px;border-radius:10px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="adm-stat" style="border-top: 4px solid var(--adm-green); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: var(--adm-green);">
                     <svg viewBox="0 0 24 24"
-                        style="width:22px;height:22px;fill:none;stroke:#16A34A;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        style="width: 54px; height: 54px; fill: none; stroke: currentColor; stroke-width: 2.5;">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                 </div>
-                <div>
-                    <p
-                        style="margin:0;font-size:11px;font-weight:600;color:#14532D;text-transform:uppercase;letter-spacing:.5px;">
-                        Dibayar</p>
-                    <p id="card-dibayar-count" style="margin:2px 0 0;font-size:20px;font-weight:800;color:#15803D;">
-                        {{ $paymentStats['dibayar_count'] }}</p>
-                    <p id="card-dibayar-total" style="margin:2px 0 0;font-size:12px;color:#16A34A;">Rp
-                        {{ number_format($paymentStats['dibayar_total'], 0, ',', '.') }}</p>
+                <div class="adm-stat-label" style="color: var(--adm-green); font-weight: 700;">Dibayar</div>
+                <div class="adm-stat-value is-success" style="font-size: 28px;">{{ $paymentStats['dibayar_count'] }}</div>
+                <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
+                    Rp {{ number_format($paymentStats['dibayar_total'], 0, ',', '.') }}
                 </div>
             </div>
-
         </div>
 
         {{-- ── BULK ACTION BAR ── --}}
         <div id="bulkActionBar" class="d-none"
-            style="display:none;align-items:center;gap:12px;padding:10px 16px;background:var(--adm-blue-lt);border:1px solid var(--adm-blue);border-radius:var(--adm-radius);margin-bottom:14px;">
-            <span id="selectedCount" style="font-weight:700;color:var(--adm-blue);font-size:13px;">0 dipilih</span>
-            <button id="btnBulkDibayar" class="adm-btn success" style="font-size:12px;padding:5px 14px;">
-                <svg viewBox="0 0 24 24">
-                    <polyline points="20 6 9 17 4 12" />
-                </svg> Tandai Dibayar
-            </button>
-            <button id="btnCancelSelect" class="adm-btn-secondary" style="font-size:12px;padding:5px 12px;">Batal</button>
+            style="display:none;align-items:center;gap:12px;padding:12px 18px;background:var(--adm-blue-lt);border:1px solid rgba(26,95,200,0.2);border-radius:var(--adm-radius);margin-bottom:16px;box-shadow:var(--adm-shadow-sm);">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span class="adm-count-badge" id="selectedCount"
+                    style="min-width:24px;height:24px;border-radius:50%;font-size:12px;">0</span>
+                <span style="font-weight:600;color:var(--adm-text-dark);font-size:13px;">data terpilih</span>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+                <button id="btnCancelSelect" class="adm-btn-secondary"
+                    style="font-size:12px;padding:0 12px;height:32px;">Batal</button>
+                <button id="btnBulkDibayar" class="adm-btn success"
+                    style="font-size:12px;padding:0 14px;height:32px;background:linear-gradient(135deg,var(--adm-green),#127d62);border:none;box-shadow:none;">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Tandai Dibayar
+                </button>
+            </div>
         </div>
 
+        {{-- ── CARD CONTAINER ── --}}
         <div class="adm-card">
-            {{-- ── MODAL BULK PAYMENT ── --}}
-            <div id="modalBulkPayment" class="modal fade" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <svg viewBox="0 0 24 24"
-                                    style="width:18px;height:18px;stroke:var(--adm-green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px;vertical-align:-3px;">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                                Konfirmasi Tandai Dibayar
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body" style="padding:20px 24px;">
-                            <div class="adm-alert adm-alert-success" style="margin-bottom:0;">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                                <div>
-                                    <p style="margin:0;font-size:13px;">Anda akan menandai <strong
-                                            id="modalSelectedCount">0</strong> data sebagai <strong>DIBAYAR</strong>.</p>
-                                    <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);">Tindakan ini
-                                        tidak dapat dibatalkan. Pastikan data sudah benar.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="button" id="btnConfirmBulkDibayar" class="adm-btn-primary"
-                                style="background:linear-gradient(135deg,var(--adm-green),#15803d);">
-                                <svg viewBox="0 0 24 24">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                Ya, Tandai Dibayar
-                            </button>
-                        </div>
-                    </div>
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    Survei Pelaku Usaha
                 </div>
             </div>
 
-            {{-- Table wrapper --}}
-            <div id="tableWrapper">
-                <div class="table-responsive">
-                    <table id="dataLapanganTable" class="adm-table w-100">
-                        <thead>
-                            <tr>
-                                <th style="width:40px;text-align:center;">
-                                    <input type="checkbox" id="checkAll" title="Pilih semua" style="cursor:pointer;">
-                                </th>
-                                <th style="width:44px">#</th>
-                                <th>Tanggal</th>
-                                <th>No Registrasi</th>
-                                <th>Pendamping</th>
-                                <th>Nama PU</th>
-                                <th>NIK</th>
-                                <th class="tc">Status</th>
-                                <th class="tc">Payment</th>
-                                <th class="tc">Tagihan</th>
-                                <th class="tc" style="width:110px">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+            {{-- ── FILTER BAR ── --}}
+            <div class="adm-filter-bar">
+                {{-- Status --}}
+                <div class="adm-filter-group" style="min-width: 180px;">
+                    <label class="adm-filter-label">Status Survei</label>
+                    <select id="filterStatus" class="adm-select" style="width: 100%;">
+                        <option value="">Semua Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Terverifikasi">Terverifikasi</option>
+                        <option value="Progress OSS">Progress OSS</option>
+                        <option value="Progress SIHALAL">Progress SIHALAL</option>
+                        <option value="Terbit SH">Terbit SH</option>
+                        <option value="Ditolak">Ditolak</option>
+                        <option value="Revisi">Revisi</option>
+                    </select>
+                </div>
+                {{-- Status Pembayaran --}}
+                <div class="adm-filter-group" style="min-width: 150px;">
+                    <label class="adm-filter-label">Status Pembayaran</label>
+                    <select id="filterPayment" class="adm-select" style="width: 100%;">
+                        <option value="">Semua</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="PENGAJUAN">Pengajuan</option>
+                        <option value="DIBAYAR">Dibayar</option>
+                    </select>
+                </div>
+                {{-- Reset Button --}}
+                <div style="display:flex;align-items:flex-end;">
+                    <button id="resetFilters" class="adm-reset-btn" style="height: 34px;">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="1 4 1 10 7 10" />
+                            <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+                        </svg>
+                        Reset Filter
+                    </button>
+                </div>
+            </div>
+
+            {{-- ── TABLE ── --}}
+            <div class="table-responsive" style="padding: 0;">
+                <table id="dataLapanganTable" class="adm-table w-100" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;text-align:center;">
+                                <input type="checkbox" id="checkAll" title="Pilih semua"
+                                    style="cursor:pointer;transform:scale(1.15);">
+                            </th>
+                            <th style="width:44px" class="tc">#</th>
+                            <th>Tanggal</th>
+                            <th>No Registrasi</th>
+                            <th>Pendamping</th>
+                            <th>Nama PU</th>
+                            <th>NIK</th>
+                            <th class="tc">Status</th>
+                            <th class="tc">Payment</th>
+                            <th class="tc">Tagihan</th>
+                            <th class="tc" style="width:110px">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── MODAL BULK PAYMENT ── --}}
+    <div id="modalBulkPayment" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content"
+                style="border:none;border-radius:var(--adm-radius);box-shadow:0 15px 30px rgba(0,0,0,0.15);overflow:hidden;">
+                <div class="modal-header"
+                    style="background:#fff;border-bottom:1px solid var(--adm-border);padding:16px 20px;">
+                    <h5 class="modal-title"
+                        style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--adm-text-dark);display:flex;align-items:center;gap:8px;">
+                        <svg viewBox="0 0 24 24"
+                            style="width:20px;height:20px;stroke:var(--adm-green);fill:none;stroke-width:2.2;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        Konfirmasi Pembayaran
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        style="font-size:12px;opacity:0.6;"></button>
+                </div>
+                <div class="modal-body" style="padding:24px 20px;background:#fcfdfe;">
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div
+                            style="width:48px;height:48px;border-radius:50%;background:var(--adm-green-lt);color:var(--adm-green);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                            <svg viewBox="0 0 24 24"
+                                style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <line x1="12" y1="10" x2="12" y2="14" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
+                        </div>
+                        <p style="margin:0;font-size:14px;color:var(--adm-text-dark);font-weight:600;">Tandai Dibayar</p>
+                        <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);line-height:1.5;">
+                            Anda akan menandai <strong id="modalSelectedCount"
+                                style="color:var(--adm-green);font-size:13.5px;">0</strong> data pelaku usaha sebagai
+                            <strong>DIBAYAR</strong>.
+                        </p>
+                    </div>
+                    <div
+                        style="background:#fff;border:1px dashed var(--adm-border-mid);border-radius:8px;padding:12px 14px;font-size:11.5px;color:var(--adm-text-muted);line-height:1.6;">
+                        <span style="font-weight:700;color:var(--adm-text-dark);display:block;margin-bottom:2px;">Catatan
+                            Penting:</span>
+                        Proses ini akan mengaktifkan pembuatan cashflow pemasukan/pengeluaran otomatis dan mengirim
+                        notifikasi WhatsApp kepada masing-masing Pendamping.
+                    </div>
+                </div>
+                <div class="modal-footer"
+                    style="background:#fff;border-top:1px solid var(--adm-border);padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">
+                    <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
+                        style="height:34px;font-size:12.5px;">Batal</button>
+                    <button type="button" id="btnConfirmBulkDibayar" class="adm-btn-primary"
+                        style="background:linear-gradient(135deg,var(--adm-green),#0f6e56);box-shadow:0 2px 8px rgba(15,110,86,0.2);height:34px;font-size:12.5px;border:none;">
+                        Ya, Tandai Dibayar
+                    </button>
                 </div>
             </div>
         </div>
@@ -206,6 +261,9 @@
                     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
                 }
 
+                const filterStatus = document.getElementById('filterStatus');
+                const filterPayment = document.getElementById('filterPayment');
+
                 // ── Init DataTable ──
                 const table = $('#dataLapanganTable').DataTable({
                     processing: true,
@@ -215,6 +273,10 @@
                         type: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': getCsrfToken()
+                        },
+                        data: function(d) {
+                            d.status_filter = filterStatus.value;
+                            d.payment_filter = filterPayment.value;
                         }
                     },
                     columns: [{
@@ -243,8 +305,8 @@
                         },
                         {
                             data: 'pendamping_cell',
-                            name: 'pendamping_cell',
-                            orderable: false,
+                            name: 'enumerator_nama',
+                            orderable: true,
                             className: ''
                         },
                         {
@@ -307,11 +369,23 @@
                     },
                 });
 
+                // ── Filter dropdowns → reload table ──
+                filterStatus.addEventListener('change', () => table.ajax.reload(null, true));
+                filterPayment.addEventListener('change', () => table.ajax.reload(null, true));
+
+                document.getElementById('resetFilters').addEventListener('click', function() {
+                    filterStatus.value = '';
+                    filterPayment.value = '';
+                    table.search('').ajax.reload(null, true);
+                });
+
                 // ── Export Excel ──
                 document.getElementById('exportBtn').addEventListener('click', function() {
                     const params = new URLSearchParams();
-                    const search = table.search();
-                    if (search) params.append('search', search);
+                    const s = table.search();
+                    if (s) params.append('search', s);
+                    if (filterStatus.value) params.append('status', filterStatus.value);
+                    if (filterPayment.value) params.append('status_pembayaran', filterPayment.value);
                     window.location.href = EXPORT_URL + (params.toString() ? '?' + params.toString() : '');
                 });
 
@@ -365,7 +439,7 @@
                     if (checked.length > 0) {
                         bulkBar.classList.remove('d-none');
                         bulkBar.style.display = 'flex';
-                        selectedCountEl.textContent = `${checked.length} dipilih`;
+                        selectedCountEl.textContent = `${checked.length}`;
                     } else {
                         bulkBar.classList.add('d-none');
                         bulkBar.style.display = 'none';

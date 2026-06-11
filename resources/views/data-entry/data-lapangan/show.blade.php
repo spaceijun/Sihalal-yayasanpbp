@@ -1899,7 +1899,8 @@ PENTING: Balas JSON saja, tidak ada teks lain, tidak ada markdown, tidak ada bac
 
         // ── LOCK TIMER — 50 menit ──
         (function() {
-            const LOCK_URL = '/api/data-entry/data-lapangans';
+            const LOCK_URL = '/data-entry/data-lapangan';
+
             const LIST_URL = '{{ route('data-entry.data-lapangan.index') }}';
             const DURATION = 50 * 60;
             const sectionEl = document.querySelector('.dl-page[data-lock-id]');

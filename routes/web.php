@@ -264,13 +264,16 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
             ->name('markPengumumanRead');
 
         // Data Lapangan
+        Route::get('data-lapangan/data', [DataEntryDataLapanganController::class, 'data'])->name('data-lapangan.data');
         Route::get('data-lapangan', [DataEntryDataLapanganController::class, 'index'])->name('data-lapangan.index');
         Route::get('data-lapangan/{hashedId}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
         Route::put('data-lapangans/{id}/update-status', [DataEntryDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
         Route::patch('data-lapangan/{dataLapangan}/resubmit', [DataEntryDataLapanganController::class, 'resubmit'])->name('data-lapangan.resubmit');
-        Route::post('{id}/lock', [DataEntryDataLapanganController::class, 'lockData']);
-        Route::delete('{id}/lock', [DataEntryDataLapanganController::class, 'unlockData']);
+        Route::post('data-lapangan/{id}/lock', [DataEntryDataLapanganController::class, 'lockData'])->name('data-lapangan.lock');
+        Route::delete('data-lapangan/{id}/lock', [DataEntryDataLapanganController::class, 'unlockData'])->name('data-lapangan.unlock');
+        Route::post('data-lapangan/{id}/unlock-beacon', [DataEntryDataLapanganController::class, 'unlockBeacon'])->name('data-lapangan.unlock-beacon');
+
         // Download
         Route::get('datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
         Route::get('datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');

@@ -17,60 +17,40 @@
                     </div>
                 </div>
 
-                <!-- Form Search -->
+                {{-- Form Search / Filter --}}
                 <div class="card-body bg-white border-bottom">
-                    <form id="searchForm">
-                        @csrf
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="search" class="form-label">Cari Nama PU / Pendamping</label>
-                                <input type="text" class="form-control" id="search" name="search"
-                                    placeholder="Cari berdasarkan nama PU atau pendamping...">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="tanggal_dari" class="form-label">Tanggal Dari</label>
-                                <input type="date" class="form-control" id="tanggal_dari" name="tanggal_dari">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="tanggal_sampai" class="form-label">Tanggal Sampai</label>
-                                <input type="date" class="form-control" id="tanggal_sampai" name="tanggal_sampai">
-                            </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">Cari Nama PU / Pendamping</label>
+                            <input type="text" class="form-control" id="dtSearch"
+                                placeholder="Cari berdasarkan nama PU atau pendamping...">
                         </div>
-                    </form>
+                        <div class="col-md-3">
+                            <label for="tanggal_dari" class="form-label">Tanggal Dari</label>
+                            <input type="date" class="form-control" id="tanggal_dari">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="tanggal_sampai" class="form-label">Tanggal Sampai</label>
+                            <input type="date" class="form-control" id="tanggal_sampai">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="card-body bg-white">
-                    <!-- Loading indicator -->
-                    <div id="tableLoading" class="text-center py-5" style="display: none;">
-                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3 text-muted fw-bold">SABAR BOS...</p>
-                    </div>
-
-                    <!-- Table wrapper -->
-                    <div id="tableWrapper">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Pendamping</th>
-                                        <th>Nama PU</th>
-                                        <th>Nama Produk</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableBody">
-                                    {{-- Data will be loaded via AJAX --}}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {{-- Pagination wrapper --}}
-                        <div id="paginationWrapper">
-                            {{-- Pagination will be loaded via AJAX --}}
-                        </div>
+                    <div class="table-responsive">
+                        <table id="dataLapanganTable" class="table table-striped table-hover w-100">
+                            <thead class="thead">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Pendamping</th>
+                                    <th>Nama PU</th>
+                                    <th>Nama Produk</th>
+                                    <th>Status</th>
+                                    <th style="text-align:center;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -79,18 +59,15 @@
 
     <script>
         // ================================
-        // FUNGSI GLOBAL — di luar DOMContentLoaded
+        // LOCK MECHANISM
         // ================================
         function getCsrfToken() {
             return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
                 document.querySelector('input[name="_token"]')?.value;
         }
 
-        // ================================
-        // LOCK MECHANISM
-        // ================================
         let lockRenewer = null;
-        const LOCK_URL = '/api/data-entry/data-lapangans';
+        const LOCK_URL = '/data-entry/data-lapangan';
 
         function getCurrentLockId() {
             return sessionStorage.getItem('currentLockId');
@@ -148,7 +125,6 @@
                 return;
             }
 
-            // Simpan ke sessionStorage sebelum navigasi
             setCurrentLockId(id);
             lockRenewer = setInterval(() => acquireLock(id), 10 * 60 * 1000);
             window.location.href = href;
@@ -164,115 +140,106 @@
         });
 
         // ================================
-        // DOM CONTENT LOADED
+        // DATATABLES
         // ================================
         document.addEventListener('DOMContentLoaded', function() {
-            const searchForm = document.getElementById('searchForm');
-            const searchInput = document.getElementById('search');
-            const tanggalDariInput = document.getElementById('tanggal_dari');
-            const tanggalSampaiInput = document.getElementById('tanggal_sampai');
-            const tableBody = document.getElementById('tableBody');
-            const paginationWrapper = document.getElementById('paginationWrapper');
-            const tableLoading = document.getElementById('tableLoading');
-            const tableWrapper = document.getElementById('tableWrapper');
-
-            const API_BASE_URL = '/api/data-entry/data-lapangans';
+            const searchInput = document.getElementById('dtSearch');
+            const tanggalDari = document.getElementById('tanggal_dari');
+            const tanggalSampai = document.getElementById('tanggal_sampai');
             let searchTimeout;
 
-            function loadData(url = null) {
-                tableWrapper.style.display = 'none';
-                tableLoading.style.display = 'block';
-
-                const formInputs = searchForm.querySelectorAll('input, select');
-                formInputs.forEach(input => input.disabled = true);
-
-                let fetchUrl = API_BASE_URL;
-                const params = new URLSearchParams();
-
-                if (searchInput.value.trim()) {
-                    params.append('search', searchInput.value.trim());
-                }
-                if (tanggalDariInput.value.trim()) {
-                    params.append('tanggal_dari', tanggalDariInput.value.trim());
-                }
-                if (tanggalSampaiInput.value.trim()) {
-                    params.append('tanggal_sampai', tanggalSampaiInput.value.trim());
-                }
-
-                if (url) {
-                    const urlObj = new URL(url, window.location.origin);
-                    const page = urlObj.searchParams.get('page');
-                    if (page) params.append('page', page);
-                }
-
-                const queryString = params.toString();
-                if (queryString) fetchUrl += '?' + queryString;
-
-                fetch(fetchUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': getCsrfToken(),
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            tableBody.innerHTML = data.table;
-                            paginationWrapper.innerHTML = data.pagination;
-                            attachPaginationHandlers();
-                        } else {
-                            alert(data.message || 'Terjadi kesalahan saat memuat data');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading data:', error);
-                        tableBody.innerHTML =
-                            '<tr><td colspan="8" class="text-center text-danger">Terjadi kesalahan saat memuat data</td></tr>';
-                    })
-                    .finally(() => {
-                        tableLoading.style.display = 'none';
-                        tableWrapper.style.display = 'block';
-                        formInputs.forEach(input => input.disabled = false);
-                    });
-            }
-
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => loadData(), 500);
+            const table = $('#dataLapanganTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('data-entry.data-lapangan.data') }}',
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
+                    data: function(d) {
+                        // Pass date range filters as custom params
+                        d.tanggal_dari = tanggalDari.value;
+                        d.tanggal_sampai = tanggalSampai.value;
+                    }
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'pendamping_cell',
+                        name: 'enumerator_nama',
+                        searchable: true
+                    },
+                    {
+                        data: 'nama_pu',
+                        name: 'nama_pu',
+                        searchable: true
+                    },
+                    {
+                        data: 'nama_produk_cell',
+                        name: 'nama_produk',
+                        searchable: false
+                    },
+                    {
+                        data: 'status_badge',
+                        name: 'status',
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'aksi',
+                        name: 'aksi',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                ],
+                language: {
+                    search: '',
+                    searchPlaceholder: 'Cari...',
+                    lengthMenu: 'Tampilkan _MENU_ data',
+                    info: 'Menampilkan _START_ – _END_ dari _TOTAL_ data',
+                    infoEmpty: 'Tidak ada data',
+                    paginate: {
+                        previous: '&lsaquo;',
+                        next: '&rsaquo;'
+                    },
+                    zeroRecords: 'Tidak ada data ditemukan',
+                    emptyTable: 'Belum ada data lapangan berstatus Terverifikasi',
+                    processing: '<div class="text-center py-4"><div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"></div><p class="mt-3 text-muted fw-bold">SABAR BOS...</p></div>',
+                },
+                pageLength: 20,
+                order: [
+                    [0, 'asc']
+                ],
+                // Hide the built-in search box — we use our own inputs
+                dom: '<"row"<"col-sm-6"l><"col-sm-6">>rt<"row mt-2"<"col-sm-5"i><"col-sm-7"p>>',
             });
 
-            tanggalDariInput.addEventListener('change', () => loadData());
-            tanggalSampaiInput.addEventListener('change', () => loadData());
+            // ── Custom search input (debounced) ──
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    table.search(this.value).draw();
+                }, 450);
+            });
 
-            function attachPaginationHandlers() {
-                const paginationLinks = paginationWrapper.querySelectorAll('a.page-link');
-                paginationLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('href');
-                        if (url && url !== '#') loadData(url);
-                    });
-                });
-            }
+            // ── Date range → reload ──
+            tanggalDari.addEventListener('change', () => table.ajax.reload(null, true));
+            tanggalSampai.addEventListener('change', () => table.ajax.reload(null, true));
 
-            // Initial load
-            loadData();
-
-            // Release lock + refresh saat back button
+            // ── Release lock + refresh on back button ──
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted || performance.navigation?.type === 2) {
                     const lockId = getCurrentLockId();
                     if (lockId) {
-                        releaseLock(lockId).then(() => loadData());
+                        releaseLock(lockId).then(() => table.ajax.reload(null, false));
                     } else {
-                        loadData();
+                        table.ajax.reload(null, false);
                     }
                 }
             });

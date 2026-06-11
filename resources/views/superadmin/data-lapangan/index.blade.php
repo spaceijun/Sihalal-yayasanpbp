@@ -188,7 +188,6 @@
                             </th>
                             <th style="width:44px" class="tc">#</th>
                             <th>Tanggal</th>
-                            <th>No Registrasi</th>
                             <th>Pendamping</th>
                             <th>Nama PU</th>
                             <th>NIK</th>
@@ -268,6 +267,7 @@
                 const FORCE_UNLOCK_URL = '{{ url('superadmin/data-lapangans') }}';
                 const BULK_PAYMENT_URL = '{{ route('superadmin.data-lapangans.bulk-payment') }}';
                 const EXPORT_URL = '{{ route('superadmin.data-lapangans.export') }}';
+                const CSRF_TOKEN = '{{ csrf_token() }}';
 
                 function getCsrfToken() {
                     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -309,11 +309,6 @@
                             data: 'tanggal',
                             name: 'created_at',
                             className: ''
-                        },
-                        {
-                            data: 'no_registrasi',
-                            name: 'no_registrasi',
-                            className: 'adm-mono'
                         },
                         {
                             data: 'pendamping_cell',
@@ -375,6 +370,7 @@
                     responsive: true,
                     drawCallback: function() {
                         attachForceUnlockHandlers();
+                        attachToggleUnlockHandlers();
                         attachCheckboxHandlers();
                         updateBulkBar();
                     },
@@ -440,6 +436,42 @@
                             } catch {
                                 alert('Terjadi kesalahan saat unlock');
                                 this.disabled = false;
+                            }
+                        });
+                    });
+                }
+
+                // ── Toggle Unlock for Data Entry ──
+                function attachToggleUnlockHandlers() {
+                    document.querySelectorAll('.btn-toggle-unlock').forEach(btn => {
+                        const nb = btn.cloneNode(true);
+                        btn.parentNode.replaceChild(nb, btn);
+                        nb.addEventListener('click', async function() {
+                            const url = this.dataset.url;
+                            this.disabled = true;
+                            const origHtml = this.innerHTML;
+                            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                            try {
+                                const res = await fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': CSRF_TOKEN,
+                                        'Accept': 'application/json'
+                                    },
+                                    credentials: 'same-origin'
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    alert('Gagal: ' + data.message);
+                                    this.disabled = false;
+                                    this.innerHTML = origHtml;
+                                }
+                            } catch {
+                                alert('Terjadi kesalahan');
+                                this.disabled = false;
+                                this.innerHTML = origHtml;
                             }
                         });
                     });

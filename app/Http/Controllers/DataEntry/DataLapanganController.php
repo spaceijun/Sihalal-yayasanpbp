@@ -143,6 +143,7 @@ class DataLapanganController extends Controller
             ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
             ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id')
             ->where('data_lapangans.status', $targetStatus)
+            ->where('data_lapangans.is_unlocked_for_data_entry', true)
             ->whereDoesntHave('dataEntryProgress');
 
         // Filter berdasarkan koordinator yang di-assign ke user data_entry ini

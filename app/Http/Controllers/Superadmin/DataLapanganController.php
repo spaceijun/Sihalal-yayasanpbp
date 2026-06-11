@@ -140,12 +140,22 @@ class DataLapanganController extends Controller
                 return '';
             })
             ->addColumn('aksi', function ($dl) {
-                $showUrl   = route('superadmin.data-lapangans.show',    $dl->hashed_id);
-                $deleteUrl = route('superadmin.data-lapangans.destroy',  $dl->hashed_id);
+                $showUrl      = route('superadmin.data-lapangans.show',    $dl->hashed_id);
+                $deleteUrl    = route('superadmin.data-lapangans.destroy',  $dl->hashed_id);
+                $toggleUrl    = route('superadmin.data-lapangans.toggle-unlock', $dl->hashed_id);
+                $unlocked     = $dl->is_unlocked_for_data_entry;
+                $unlockClass  = $unlocked ? 'adm-btn success' : 'adm-btn warning';
+                $unlockTitle  = $unlocked ? 'Kunci dari Data Entry' : 'Buka untuk Data Entry';
+                $unlockIcon   = $unlocked
+                    ? '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+                    : '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a class="adm-btn primary icon-only" href="'.$showUrl.'" title="Lihat">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
+                    <button class="'.$unlockClass.' icon-only btn-toggle-unlock" data-id="'.e($dl->hashed_id).'" data-url="'.e($toggleUrl).'" title="'.$unlockTitle.'">
+                        '.$unlockIcon.'
+                    </button>
                     <form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data ini?\')">
                         <input type="hidden" name="_token" value="'.csrf_token().'">
                         <input type="hidden" name="_method" value="DELETE">
@@ -155,10 +165,38 @@ class DataLapanganController extends Controller
                     </form>
                 </div>';
             })
-            ->addColumn('checkbox', fn ($dl) =>
-                '<input type="checkbox" class="row-checkbox" value="'.e($dl->hashed_id).'">')
+            ->addColumn('checkbox', function ($dl) {
+                if ($dl->status_pembayaran === 'PENGAJUAN') {
+                    return '<input type="checkbox" class="row-checkbox adm-checkbox" value="'.e($dl->hashed_id).'">';
+                }
+                return '';
+            })
             ->rawColumns(['pendamping_cell', 'status_badge', 'payment_badge', 'locked_icon', 'aksi', 'checkbox'])
             ->make(true);
+    }
+
+    /**
+     * Toggle visibility of a DataLapangan record for the data_entry role.
+     */
+    public function toggleUnlockForDataEntry(string $id): JsonResponse
+    {
+        $dataLapangan = DataLapangan::findByHashedId($id);
+
+        if (! $dataLapangan) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan.'], 404);
+        }
+
+        $dataLapangan->update([
+            'is_unlocked_for_data_entry' => ! $dataLapangan->is_unlocked_for_data_entry,
+        ]);
+
+        $unlocked = $dataLapangan->is_unlocked_for_data_entry;
+
+        return response()->json([
+            'success'  => true,
+            'unlocked' => $unlocked,
+            'message'  => $unlocked ? 'Data dibuka untuk Data Entry.' : 'Data dikunci dari Data Entry.',
+        ]);
     }
 
     /**

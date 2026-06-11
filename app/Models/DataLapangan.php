@@ -78,6 +78,7 @@ class DataLapangan extends Model
         'is_being_edited',
         'edited_by',
         'edit_expires_at',
+        'is_unlocked_for_data_entry',
     ];
 
 
@@ -85,6 +86,7 @@ class DataLapangan extends Model
         'edit_expires_at' => 'datetime',
         'is_being_edited' => 'boolean',
         'has_nib' => 'boolean',
+        'is_unlocked_for_data_entry' => 'boolean',
     ];
 
     public function scopeAvailable($query)

@@ -93,7 +93,7 @@
                                             Nama Enumerator
                                         </div>
                                         <div style="font-size:14px;font-weight:700;color:var(--adm-text-dark);">
-                                            {{ $ticket->user?->enumerator?->nama_lengkap ?? ($ticket->user?->name ?? '—') }}
+                                            {{ $ticket->user?->enumerator?->nama_lengkap ?? ($ticket->user?->name ?? 'null') }}
                                         </div>
                                     </div>
                                 </div>
@@ -105,8 +105,8 @@
                                             No Registrasi / HP
                                         </div>
                                         <div style="font-size:13px;font-weight:600;color:var(--adm-text-dark);">
-                                            {{ $ticket->user?->enumerator?->no_reg ?? '—' }} / <span
-                                                class="adm-mono">{{ $ticket->user?->enumerator?->telephone ?? '—' }}</span>
+                                            {{ $ticket->user?->enumerator?->no_registrasi ?? 'null' }} / <span
+                                                class="adm-mono">{{ $ticket->user?->enumerator?->telephone ?? 'null' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@
                                         </div>
                                         <div class="adm-mono"
                                             style="font-size:13px;font-weight:600;color:var(--adm-text-dark);">
-                                            {{ $ticket->user?->email ?? '—' }}
+                                            {{ $ticket->user?->email ?? 'null' }}
                                         </div>
                                     </div>
                                 </div>
@@ -169,7 +169,7 @@
                                             NIK PU / NIB</div>
                                         <div style="font-size:13px;font-weight:600;color:var(--adm-text-dark);"
                                             class="adm-mono">
-                                            {{ $ticket->dataLapangan->nik ?? '—' }}
+                                            {{ $ticket->dataLapangan->nik ?? 'null' }}
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -177,16 +177,8 @@
                                             style="font-size:11px;font-weight:600;color:var(--adm-text-muted);margin-bottom:3px;">
                                             Status Pengajuan</div>
                                         <div>
-                                            @if ($ticket->dataLapangan->status === 'TERBIT SH')
-                                                <span class="adm-badge adm-badge-success">Terbit SH</span>
-                                            @elseif ($ticket->dataLapangan->status === 'REVISI')
-                                                <span class="adm-badge adm-badge-pending">Revisi</span>
-                                            @elseif ($ticket->dataLapangan->status === 'DITOLAK')
-                                                <span class="adm-badge adm-badge-danger">Ditolak</span>
-                                            @else
-                                                <span
-                                                    class="adm-badge adm-badge-info">{{ $ticket->dataLapangan->status }}</span>
-                                            @endif
+                                            <span
+                                                class="adm-badge adm-badge-success">{{ $ticket->dataLapangan->status }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -194,7 +186,7 @@
                                             style="font-size:11px;font-weight:600;color:var(--adm-text-muted);margin-bottom:3px;">
                                             Alamat PU</div>
                                         <div style="font-size:12.5px;color:var(--adm-text-mid);line-height:1.5;">
-                                            {{ $ticket->dataLapangan->alamat ?? '—' }}
+                                            {{ $ticket->dataLapangan->alamat ?? 'null' }}
                                         </div>
                                     </div>
                                 </div>
@@ -374,13 +366,13 @@
                             <div class="adm-info-row" style="padding:10px 16px;">
                                 <span class="adm-info-key">Dibuat Pada</span>
                                 <span class="adm-info-val" style="font-size:12.5px;font-weight:500;">
-                                    {{ $ticket->created_at?->format('d M Y, H:i') ?? '—' }}
+                                    {{ $ticket->created_at?->format('d M Y, H:i') ?? 'null' }}
                                 </span>
                             </div>
                             <div class="adm-info-row" style="padding:10px 16px;">
                                 <span class="adm-info-key">Terakhir Update</span>
                                 <span class="adm-info-val" style="font-size:12.5px;font-weight:500;">
-                                    {{ $ticket->updated_at?->format('d M Y, H:i') ?? '—' }}
+                                    {{ $ticket->updated_at?->format('d M Y, H:i') ?? 'null' }}
                                 </span>
                             </div>
                         </div>

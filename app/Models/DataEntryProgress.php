@@ -8,6 +8,7 @@ use App\Traits\HasHashedId;
 class DataEntryProgress extends Model
 {
     use HasHashedId;
+    protected $table = 'data_entry_progress';
     protected $fillable = [
         'user_id',
         'data_entry_id',

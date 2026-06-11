@@ -12,7 +12,7 @@
         <div class="adm-header">
             <div class="adm-header-left">
                 <h1>Data Lapangan</h1>
-                <p>Kelola data survei pelaku usaha di lapangan secara real-time</p>
+                <p>Kelola data lapangan pelaku usaha di lapangan secara real-time</p>
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                 <button id="exportBtn" class="adm-btn success" style="gap:6px;">
@@ -123,12 +123,24 @@
                     <svg viewBox="0 0 24 24">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                     </svg>
-                    Survei Pelaku Usaha
+                    Data Lapangan Sertifikasi Halal
                 </div>
             </div>
 
             {{-- ── FILTER BAR ── --}}
             <div class="adm-filter-bar">
+                {{-- Text Search --}}
+                <div class="adm-filter-group">
+                    <label class="adm-filter-label">Cari</label>
+                    <div class="adm-search-shell">
+                        <svg class="adm-search-icon" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" id="dtSearch" class="adm-search-input" style="width:220px;"
+                            placeholder="Nama PU, NIK, no. registrasi...">
+                    </div>
+                </div>
                 {{-- Status --}}
                 <div class="adm-filter-group" style="min-width: 180px;">
                     <label class="adm-filter-label">Status Survei</label>
@@ -344,18 +356,17 @@
                             className: 'tc'
                         },
                     ],
+                    dom: 'rt<"adm-card-footer"ip>',
                     language: {
-                        search: 'Cari:',
-                        lengthMenu: 'Tampilkan _MENU_ data',
-                        info: 'Menampilkan _START_ – _END_ dari _TOTAL_ data',
+                        info: 'Menampilkan _START_–_END_ dari _TOTAL_ data',
                         infoEmpty: 'Tidak ada data',
                         paginate: {
                             previous: '‹',
                             next: '›'
                         },
                         zeroRecords: 'Tidak ada data ditemukan',
-                        emptyTable: 'Belum ada data lapangan',
-                        processing: '<div class="spinner-border text-primary" role="status"></div>',
+                        emptyTable: '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Belum ada data lapangan.</p></div>',
+                        processing: '<div class="text-center py-3"><div class="spinner-border" style="color:var(--adm-blue);width:1.8rem;height:1.8rem;" role="status"></div></div>',
                     },
                     pageLength: 25,
                     order: [
@@ -369,6 +380,16 @@
                     },
                 });
 
+                // ── Search input — debounced ──
+                let _searchTimer;
+                document.getElementById('dtSearch').addEventListener('input', function() {
+                    clearTimeout(_searchTimer);
+                    const val = this.value;
+                    _searchTimer = setTimeout(function() {
+                        table.search(val).draw();
+                    }, 400);
+                });
+
                 // ── Filter dropdowns → reload table ──
                 filterStatus.addEventListener('change', () => table.ajax.reload(null, true));
                 filterPayment.addEventListener('change', () => table.ajax.reload(null, true));
@@ -376,6 +397,7 @@
                 document.getElementById('resetFilters').addEventListener('click', function() {
                     filterStatus.value = '';
                     filterPayment.value = '';
+                    document.getElementById('dtSearch').value = '';
                     table.search('').ajax.reload(null, true);
                 });
 

@@ -111,17 +111,47 @@ class DataLapanganController extends Controller
 
     /**
      * Return Yajra DataTables JSON for data-lapangan listing (data_entry role).
-     * Shows only TERVERIFIKASI records that have not yet been picked up (no progress).
+     *
+     * Filtering rules (mirroring original API logic):
+     *   - entry_type = OSS     → tampilkan status = 'Terverifikasi'   (belum diambil siapapun)
+     *   - entry_type = SIHALAL → tampilkan status = 'Progress OSS'    (belum diambil siapapun)
+     *   - selain itu           → tidak tampilkan apapun
+     *
+     * Juga filter berdasarkan koordinator yang di-assign ke user data_entry ini.
      */
     public function data(Request $request)
     {
+        // Ambil DataEntry milik user login beserta koordinator yang di-assign
+        $dataEntry = DataEntry::where('user_id', Auth::id())
+            ->with('koordinators')
+            ->first();
+
+        // Jika tidak ada DataEntry atau entry_type tidak dikenali → kembalikan data kosong
+        if (!$dataEntry || !in_array($dataEntry->entry_type, ['OSS', 'SIHALAL'])) {
+            return DataTables::of(DataLapangan::query()->whereRaw('1 = 0'))
+                ->make(true);
+        }
+
+        // Tentukan status yang boleh dilihat berdasarkan entry_type
+        $targetStatus = $dataEntry->entry_type === 'SIHALAL'
+            ? 'Progress OSS'
+            : 'Terverifikasi';
+
+        $koordinatorIds = $dataEntry->koordinators->pluck('id');
+
         $query = DataLapangan::query()
             ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
             ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id')
-            ->where('data_lapangans.status', 'Terverifikasi')
+            ->where('data_lapangans.status', $targetStatus)
             ->whereDoesntHave('dataEntryProgress');
 
-        // Date range filter
+        // Filter berdasarkan koordinator yang di-assign ke user data_entry ini
+        if ($koordinatorIds->isNotEmpty()) {
+            $query->whereHas('enumerator', fn ($q) =>
+                $q->whereIn('koordinator_id', $koordinatorIds));
+        }
+
+        // Custom filter: rentang tanggal
         if ($request->filled('tanggal_dari')) {
             $query->whereDate('data_lapangans.created_at', '>=', $request->tanggal_dari);
         }
@@ -131,8 +161,8 @@ class DataLapanganController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->filterColumn('nama_pu', fn ($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
-            ->filterColumn('enumerator_nama', fn ($q, $k) => $q->where('enumerators.nama_lengkap', 'like', "%{$k}%"))
+            ->filterColumn('nama_pu',         fn ($q, $k) => $q->where('data_lapangans.nama_pu',    'like', "%{$k}%"))
+            ->filterColumn('enumerator_nama',  fn ($q, $k) => $q->where('enumerators.nama_lengkap', 'like', "%{$k}%"))
             ->addColumn('pendamping_cell', fn ($dl) => e($dl->enumerator_nama ?? '-'))
             ->addColumn('nama_produk_cell', function ($dl) {
                 $produk = collect([
@@ -143,7 +173,9 @@ class DataLapanganController extends Controller
                 return e($produk ?: '-');
             })
             ->addColumn('status_badge', function ($dl) {
-                return '<span class="badge bg-info text-dark">'.e($dl->status).'</span>';
+                $color = $dl->status === 'Progress OSS' ? 'bg-purple text-white' : 'bg-info text-dark';
+
+                return '<span class="badge '.$color.'">'.e($dl->status).'</span>';
             })
             ->addColumn('aksi', function ($dl) {
                 $showUrl = route('data-entry.data-lapangan.show', $dl->hashed_id);

@@ -26,6 +26,9 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('storage/' . $settingWebsite->favicon) }}">
 
+    <!-- SweetAlert2 -->
+    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+
     <!-- jsvectormap css -->
     <link href="{{ asset('assets/libs/jsvectormap/css/jsvectormap.min.css') }}" rel="stylesheet" type="text/css" />
 
@@ -724,6 +727,9 @@
 
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <!-- aos js -->
     <script src="{{ asset('assets/libs/aos/aos.js') }}"></script>

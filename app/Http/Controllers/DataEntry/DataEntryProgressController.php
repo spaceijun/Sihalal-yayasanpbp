@@ -9,6 +9,7 @@ use App\Models\DataLapangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class DataEntryProgressController extends Controller
 {
@@ -17,15 +18,70 @@ class DataEntryProgressController extends Controller
      */
     public function index()
     {
-        $dataEntry = DataEntry::where('user_id', Auth::id())->firstOrFail();
+        return view('data-entry.progress.index');
+    }
 
-        $progress = DataEntryProgress::with('dataLapangan')
-            ->where('data_entry_id', $dataEntry->id)
-            ->where('action', 'created')
-            ->latest('actioned_at')
-            ->paginate(20);
+    /**
+     * Return Yajra DataTables JSON for the progress listing.
+     * Filters: search (nama_pu, nik), action type, date range.
+     */
+    public function data(Request $request)
+    {
+        $dataEntry = DataEntry::where('user_id', Auth::id())->first();
 
-        return view('data-entry.progress.index', compact('progress'));
+        if (!$dataEntry) {
+            return DataTables::of(DataEntryProgress::query()->whereRaw('1 = 0'))->make(true);
+        }
+
+        $query = DataEntryProgress::query()
+            ->select('data_entry_progress.*', 'data_lapangans.nama_pu', 'data_lapangans.nik')
+            ->join('data_lapangans', 'data_lapangans.id', '=', 'data_entry_progress.data_lapangan_id')
+            ->where('data_entry_progress.data_entry_id', $dataEntry->id)
+            ->where('data_entry_progress.action', 'created');
+
+        // Action filter
+        if ($request->filled('action_filter')) {
+            $query->where('data_entry_progress.action', $request->action_filter);
+        }
+
+        // Date range filter
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('data_entry_progress.actioned_at', '>=', $request->tanggal_dari);
+        }
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('data_entry_progress.actioned_at', '<=', $request->tanggal_sampai);
+        }
+
+        $statusColors = [
+            'PENDING' => 'bg-warning text-dark',
+            'DITERIMA' => 'bg-success text-white',
+            'REVISI'   => 'bg-info text-white',
+            'DITOLAK'  => 'bg-danger text-white',
+        ];
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->filterColumn('nama_pu', fn ($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
+            ->filterColumn('nik',     fn ($q, $k) => $q->where('data_lapangans.nik',    'like', "%{$k}%"))
+            ->addColumn(
+                'waktu_aksi',
+                fn($p) => $p->actioned_at
+                    ? \Carbon\Carbon::parse($p->actioned_at)->isoFormat('D MMM YYYY, HH:mm')
+                    : '-'
+            )
+            ->addColumn('action_badge', fn($p) => '<span class="badge bg-secondary">' . e($p->action) . '</span>')
+            ->addColumn('status_badge', function ($p) use ($statusColors) {
+                $cls = $statusColors[$p->status] ?? 'bg-secondary text-white';
+                return '<span class="badge ' . $cls . '">' . e($p->status) . '</span>';
+            })
+            ->addColumn('aksi', function ($p) {
+                $showUrl = route('data-entry.progress.show', $p->data_lapangan_id);
+                return '<a href="' . $showUrl . '" class="btn btn-sm btn-primary">
+                    <i class="las la-eye"></i> Detail
+                </a>';
+            })
+            ->rawColumns(['action_badge', 'status_badge', 'aksi'])
+            ->make(true);
     }
 
     /**

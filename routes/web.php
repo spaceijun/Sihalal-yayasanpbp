@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\FaceMatchController;
 use App\Http\Controllers\AppVersionController;
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
+use App\Http\Controllers\Api\DataEntryProgressController as DataEntryProgressApiController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
@@ -10,11 +11,6 @@ use App\Http\Controllers\DataEntry\SettingAkunController;
 use App\Http\Controllers\DataEntry\TicketsEntryController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Koordinator\CashflowKoordinatorController;
-use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
-use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
-use App\Http\Controllers\Koordinator\DataPendampingController;
-use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruitmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
@@ -156,11 +152,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('devices/disconnect', [DeviceController::class, 'disconnect'])->name('devices.disconnect');
         // Data Entry Progress
         Route::prefix('data-entry-progress')->name('data-entry-progress.')->group(function () {
-            Route::get('/', [SuperadminDataEntryProgressController::class, 'index'])->name('index');
+            Route::get('/',       [SuperadminDataEntryProgressController::class, 'index'])->name('index');
+            Route::get('/data',   [SuperadminDataEntryProgressController::class, 'data'])->name('data');
             Route::get('/{progress}', [SuperadminDataEntryProgressController::class, 'show'])->name('show');
             Route::patch('/{progress}/terima', [SuperadminDataEntryProgressController::class, 'terima'])->name('terima');
             Route::patch('/{progress}/revisi', [SuperadminDataEntryProgressController::class, 'revisi'])->name('revisi');
-            Route::patch('/{progress}/tolak', [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
+            Route::patch('/{progress}/tolak',  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
             Route::post('/bulk-terima', [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
         });
         // Resep Makanan
@@ -211,52 +208,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
     //     return view('superadmin.home.index')->name('superadmin.index');
     // });
 });
-/**
- * Koordinator Routes
- */
-// Route::middleware('auth', 'role:koordinator')->group(function () {
-//     Route::prefix('koordinator')->name('koordinator.')->group(function () {
-//         Route::get('dashboard', [KoordinatorDashboardController::class, 'index']);
-//         Route::get('/', [KoordinatorDashboardController::class, 'index'])->name('dashboard');
-
-//         // Data Lapangan
-//         Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
-//         Route::get('data-lapangan/{id}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
-//         Route::put('data-lapangans/{id}/update-status', [KoordinatorDataLapanganController::class, 'updateStatus'])->name('datalapangan.update-status');
-//         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
-//         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
-//         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
-
-//         // Data Pendamping
-//         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
-//         Route::get('data-pendamping/{id}', [DataPendampingController::class, 'show'])->name('data-pendamping.show');
-//         Route::get('data-pendamping/{id}/surat-tugas', [DataPendampingController::class, 'suratTugas'])->name('data-pendamping.surat-tugas');
-//         Route::get('data-pendamping/{id}/id-card', [DataPendampingController::class, 'idCard'])->name('data-pendamping.id-card');
-//         Route::get('data-pendamping/{id}/data-lapangan', [DataPendampingController::class, 'dataLapangan'])->name('data-pendamping.data-lapangan');
-//         Route::get('/cashflow', [CashflowKoordinatorController::class, 'index'])->name('cashflow.index');
-
-//         // Recruitments
-//         Route::resource('recruitments', KoordinatorRecruitmentController::class);
-//         Route::post('recruitments/{id}/update-status', [KoordinatorRecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
-//         Route::get('recruitments/{id}/download-foto/{type}', [KoordinatorRecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
-
-//         // settings
-//         Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('settings.update');
-//         // Profile
-//         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-//     });
-//     Route::view('superadmin/dashboard', 'superadmin.home.index');
-//     // Route::get('/', function () {
-//     //     return view('superadmin.home.index')->name('superadmin.index');
-//     // });
-// });
 
 /**
  * DATA ENTRY ROUTES
  */
 Route::middleware('auth', 'role:data_entry')->group(function () {
+    Route::get('/api/data-entry/progress', [DataEntryProgressApiController::class, 'index']);
     Route::prefix('data-entry')->name('data-entry.')->group(function () {
         Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
@@ -284,8 +241,10 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('pengumumen/{hashedId}', [PengumumanDataEntryController::class, 'show'])->name('pengumumen.show');
 
         // Progress
+        Route::get('progress/data', [DataEntryProgressController::class, 'data'])->name('progress.data');
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
+
 
         // Ticket
         Route::resource('tickets', TicketsEntryController::class);
@@ -311,6 +270,7 @@ Route::middleware('auth', 'role:enumerator')->group(function () {
         Route::get('datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
         Route::get('data-lapangan/{id}', [DataEntryDataLapanganController::class, 'show'])->name('data-lapangan.show');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataEntryDataLapanganController::class, 'uploadFile'])->name('data-lapangan.upload-file');
+        Route::get('progress/data', [DataEntryProgressController::class, 'data'])->name('progress.data');
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
     });

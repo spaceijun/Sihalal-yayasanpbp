@@ -24,45 +24,40 @@
 
         {{-- STAT TABS --}}
         <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
-            <a href="{{ request()->fullUrlWithQuery(['status' => '']) }}"
-                class="adm-btn {{ !request('status') || in_array(request('status'), ['PENDING', 'REVISI']) ? 'primary' : '' }}">
+            <button type="button" class="adm-btn primary" id="tab-default" onclick="setTab('')">
                 Butuh Review
                 @if ($countPending + $countRevisi > 0)
-                    <span class="adm-count-badge">{{ $countPending + $countRevisi }}</span>
+                    <span class="adm-count-badge" id="badge-default">{{ $countPending + $countRevisi }}</span>
                 @endif
-            </a>
-            <a href="{{ request()->fullUrlWithQuery(['status' => 'PENDING']) }}"
-                class="adm-btn {{ request('status') === 'PENDING' ? 'warning' : '' }}">
+            </button>
+            <button type="button" class="adm-btn" id="tab-PENDING" onclick="setTab('PENDING')">
                 Pending
                 @if ($countPending > 0)
-                    <span class="adm-count-badge"
-                        style="background:var(--adm-amber-lt);color:var(--adm-amber);">{{ $countPending }}</span>
+                    <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
+                        id="badge-PENDING">{{ $countPending }}</span>
                 @endif
-            </a>
-            <a href="{{ request()->fullUrlWithQuery(['status' => 'REVISI']) }}"
-                class="adm-btn {{ request('status') === 'REVISI' ? 'warning' : '' }}">
+            </button>
+            <button type="button" class="adm-btn" id="tab-REVISI" onclick="setTab('REVISI')">
                 Revisi
                 @if ($countRevisi > 0)
-                    <span class="adm-count-badge"
-                        style="background:var(--adm-amber-lt);color:var(--adm-amber);">{{ $countRevisi }}</span>
+                    <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
+                        id="badge-REVISI">{{ $countRevisi }}</span>
                 @endif
-            </a>
-            <a href="{{ request()->fullUrlWithQuery(['status' => 'DITERIMA']) }}"
-                class="adm-btn {{ request('status') === 'DITERIMA' ? 'success' : '' }}">
+            </button>
+            <button type="button" class="adm-btn" id="tab-DITERIMA" onclick="setTab('DITERIMA')">
                 Diterima
                 @if ($countDiterima > 0)
-                    <span class="adm-count-badge"
-                        style="background:var(--adm-green-lt);color:var(--adm-green);">{{ $countDiterima }}</span>
+                    <span class="adm-count-badge" style="background:var(--adm-green-lt);color:var(--adm-green);"
+                        id="badge-DITERIMA">{{ $countDiterima }}</span>
                 @endif
-            </a>
-            <a href="{{ request()->fullUrlWithQuery(['status' => 'DITOLAK']) }}"
-                class="adm-btn {{ request('status') === 'DITOLAK' ? 'danger' : '' }}">
+            </button>
+            <button type="button" class="adm-btn" id="tab-DITOLAK" onclick="setTab('DITOLAK')">
                 Ditolak
                 @if ($countDitolak > 0)
-                    <span class="adm-count-badge"
-                        style="background:var(--adm-red-lt);color:var(--adm-red);">{{ $countDitolak }}</span>
+                    <span class="adm-count-badge" style="background:var(--adm-red-lt);color:var(--adm-red);"
+                        id="badge-DITOLAK">{{ $countDitolak }}</span>
                 @endif
-            </a>
+            </button>
         </div>
 
         {{-- MAIN CARD --}}
@@ -70,46 +65,34 @@
 
             {{-- FILTER BAR --}}
             <div class="adm-filter-bar">
-                <form method="GET" action="{{ route('superadmin.data-entry-progress.index') }}" id="filterForm"
-                    style="display:contents;">
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                    <div class="adm-filter-group">
-                        <label class="adm-filter-label">Cari</label>
-                        <div class="adm-search-shell">
-                            <svg class="adm-search-icon" viewBox="0 0 24 24">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            <input type="text" name="search" class="adm-search-input" style="width:260px;"
-                                placeholder="Cari nama PU atau data entry..." value="{{ request('search') }}">
-                        </div>
+                <div class="adm-filter-group">
+                    <label class="adm-filter-label">Cari</label>
+                    <div class="adm-search-shell">
+                        <svg class="adm-search-icon" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" id="dtSearch" class="adm-search-input" style="width:260px;"
+                            placeholder="Cari nama PU atau data entry...">
                     </div>
-                    <div class="adm-filter-group">
-                        <label class="adm-filter-label">Entry Type</label>
-                        <select name="entry_type" class="adm-select">
-                            <option value="">Semua Type</option>
-                            <option value="OSS" {{ request('entry_type') === 'OSS' ? 'selected' : '' }}>OSS</option>
-                            <option value="SIHALAL" {{ request('entry_type') === 'SIHALAL' ? 'selected' : '' }}>SIHALAL
-                            </option>
-                        </select>
-                    </div>
-                    <div style="display:flex;gap:6px;align-items:flex-end;">
-                        <button type="submit" class="adm-btn-primary" style="height:34px;">
-                            <svg viewBox="0 0 24 24">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            Filter
-                        </button>
-                        <a href="{{ route('superadmin.data-entry-progress.index') }}" class="adm-reset-btn">
-                            <svg viewBox="0 0 24 24">
-                                <polyline points="1 4 1 10 7 10" />
-                                <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
-                            </svg>
-                            Reset
-                        </a>
-                    </div>
-                </form>
+                </div>
+                <div class="adm-filter-group">
+                    <label class="adm-filter-label">Entry Type</label>
+                    <select id="filterEntryType" class="adm-select">
+                        <option value="">Semua Type</option>
+                        <option value="OSS">OSS</option>
+                        <option value="SIHALAL">SIHALAL</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:6px;align-items:flex-end;">
+                    <button type="button" class="adm-btn-primary" style="height:34px;" onclick="resetFilter()">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="1 4 1 10 7 10" />
+                            <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+                        </svg>
+                        Reset
+                    </button>
+                </div>
             </div>
 
             {{-- TABLE --}}
@@ -118,7 +101,7 @@
                 <input type="hidden" name="verifikator_id" id="bulkVerifikatorId">
                 <input type="hidden" name="tanggal_verifikasi" id="bulkTanggalVerifikasi">
                 <div class="table-responsive">
-                    <table class="adm-table">
+                    <table id="progressTable" class="adm-table w-100">
                         <thead>
                             <tr>
                                 <th style="width:40px"><input type="checkbox" id="checkAll" class="form-check-input"
@@ -134,149 +117,8 @@
                                 <th class="tc" style="width:120px">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse ($progresses as $i => $progress)
-                                <tr>
-                                    <td>
-                                        @if ($progress->status === 'PENDING')
-                                            {{-- Gunakan hashed_id sebagai value checkbox untuk bulk action --}}
-                                            <input type="checkbox" name="progress_ids[]"
-                                                value="{{ $progress->hashed_id }}" class="form-check-input row-check">
-                                        @endif
-                                    </td>
-                                    <td><span class="adm-rownum">{{ $progresses->firstItem() + $i }}</span></td>
-                                    <td style="font-size:12px;color:var(--adm-text-muted);">
-                                        {{ $progress->actioned_at?->format('d/m/Y H:i') ?? '-' }}
-                                    </td>
-                                    <td>
-                                        <div class="adm-name-cell">
-                                            <div class="adm-avatar"
-                                                style="background:var(--adm-blue-lt);color:var(--adm-blue);font-size:11px;">
-                                                {{ strtoupper(substr($progress->dataEntry?->user?->name ?? 'U', 0, 2)) }}
-                                            </div>
-                                            <strong
-                                                style="font-size:13px;">{{ $progress->dataEntry?->user?->name ?? '-' }}</strong>
-                                        </div>
-                                    </td>
-                                    <td class="tc">
-                                        @if ($progress->dataEntry?->entry_type === 'OSS')
-                                            <span class="adm-badge adm-badge-oss">OSS</span>
-                                        @elseif ($progress->dataEntry?->entry_type === 'SIHALAL')
-                                            <span class="adm-badge adm-badge-sihalal">SIHALAL</span>
-                                        @else
-                                            <span class="adm-badge adm-badge-nonaktif">—</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('superadmin.data-entry-progress.show', $progress->hashed_id) }}"
-                                            style="font-weight:600;font-size:13px;color:var(--adm-blue);text-decoration:none;">
-                                            {{ $progress->dataLapangan?->nama_pu ?? '-' }}
-                                        </a>
-                                        <div style="font-size:11px;color:var(--adm-text-muted);">
-                                            {{ $progress->dataLapangan?->nik ?? '' }}</div>
-                                    </td>
-                                    <td class="tc">
-                                        @if ($progress->status === 'PENDING')
-                                            <span class="adm-badge adm-badge-pending"><span
-                                                    class="dot"></span>PENDING</span>
-                                        @elseif ($progress->status === 'DITERIMA')
-                                            <span class="adm-badge adm-badge-success"><span
-                                                    class="dot"></span>DITERIMA</span>
-                                        @elseif ($progress->status === 'REVISI')
-                                            <span class="adm-badge adm-badge-revisi"><span
-                                                    class="dot"></span>REVISI</span>
-                                        @elseif ($progress->status === 'DITOLAK')
-                                            <span class="adm-badge adm-badge-danger"><span
-                                                    class="dot"></span>DITOLAK</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($progress->verifikator)
-                                            <div style="font-weight:600;font-size:13px;">
-                                                {{ $progress->verifikator->nama_lengkap }}</div>
-                                            <div style="font-size:11px;color:var(--adm-text-muted);">
-                                                {{ $progress->tanggal_verifikasi?->format('d/m/Y') }}</div>
-                                        @else
-                                            <span style="color:var(--adm-text-faint);">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="tc">
-                                        @if ($progress->keterangan_revisi || $progress->keterangan_update)
-                                            <button type="button"
-                                                class="adm-btn {{ $progress->keterangan_update ? 'success' : 'danger' }}"
-                                                onclick="lihatKeterangan(
-                                                {{ $progress->keterangan_revisi ? '\'' . addslashes(e($progress->keterangan_revisi)) . '\'' : 'null' }},
-                                                {{ $progress->keterangan_update ? '\'' . addslashes(e($progress->keterangan_update)) . '\'' : 'null' }}
-                                            )">
-                                                {{ $progress->keterangan_update ? 'Sudah Direvisi' : 'Perlu Revisi' }}
-                                            </button>
-                                        @else
-                                            <span style="color:var(--adm-text-faint);">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="tc">
-                                        <div class="adm-actions">
-                                            @if ($progress->status === 'PENDING')
-                                                {{-- Semua tombol aksi pakai hashed_id --}}
-                                                <button type="button" class="adm-btn success icon-only" title="Terima"
-                                                    onclick="submitTerima('{{ $progress->hashed_id }}', '{{ $progress->dataEntry?->entry_type }}')">
-                                                    <svg viewBox="0 0 24 24">
-                                                        <polyline points="20 6 9 17 4 12" />
-                                                    </svg>
-                                                </button>
-                                                <button type="button" class="adm-btn warning icon-only"
-                                                    title="Minta Revisi"
-                                                    onclick="bukaModalRevisi('{{ $progress->hashed_id }}')">
-                                                    <svg viewBox="0 0 24 24">
-                                                        <path
-                                                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                    </svg>
-                                                </button>
-                                                <button type="button" class="adm-btn danger icon-only" title="Tolak"
-                                                    onclick="bukaModalTolak('{{ $progress->hashed_id }}')">
-                                                    <svg viewBox="0 0 24 24">
-                                                        <line x1="18" y1="6" x2="6"
-                                                            y2="18" />
-                                                        <line x1="6" y1="6" x2="18"
-                                                            y2="18" />
-                                                    </svg>
-                                                </button>
-                                            @else
-                                                <a href="{{ route('superadmin.data-entry-progress.show', $progress->hashed_id) }}"
-                                                    class="adm-btn primary icon-only" title="Lihat Detail">
-                                                    <svg viewBox="0 0 24 24">
-                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                                        <circle cx="12" cy="12" r="3" />
-                                                    </svg>
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10">
-                                        <div class="adm-empty">
-                                            <svg viewBox="0 0 24 24">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <line x1="12" y1="8" x2="12" y2="12" />
-                                                <line x1="12" y1="16" x2="12.01" y2="16" />
-                                            </svg>
-                                            <p>Tidak ada data progress.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
+                        <tbody></tbody>
                     </table>
-                </div>
-                <div class="adm-card-footer">
-                    <span class="adm-footer-info">
-                        Menampilkan {{ $progresses->firstItem() ?? 0 }}–{{ $progresses->lastItem() ?? 0 }}
-                        dari {{ $progresses->total() }} progress
-                    </span>
-                    @include('layouts.pagination', ['paginator' => $progresses])
                 </div>
             </form>
         </div>
@@ -563,186 +405,238 @@
         </div>
     </div>
 
+    @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkAll = document.getElementById('checkAll');
-            const btnBulkTerima = document.getElementById('btnBulkTerima');
+    $(document).ready(function () {
+        var _activeStatus = '';
+        var _searchTimer;
 
-            checkAll?.addEventListener('change', function() {
-                document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+        var table = $('#progressTable').DataTable({
+            processing: true,
+            serverSide: true,
+            searching: true,
+            ajax: {
+                url: '{{ route('superadmin.data-entry-progress.data') }}',
+                type: 'GET',
+                data: function (d) {
+                    d.status     = _activeStatus;
+                    d.entry_type = $('#filterEntryType').val();
+                }
+            },
+            columns: [
+                { data: 'checkbox',         name: 'checkbox',         orderable: false, searchable: false },
+                { data: 'DT_RowIndex',       name: 'DT_RowIndex',      orderable: false, searchable: false },
+                { data: 'tanggal',           name: 'actioned_at' },
+                { data: 'data_entry_cell',   name: 'data_entry_cell',  orderable: false },
+                { data: 'type_badge',        name: 'type_badge',       orderable: false, searchable: false },
+                { data: 'nama_pu_cell',      name: 'nama_pu_cell',     orderable: false },
+                { data: 'status_badge',      name: 'status_badge',     orderable: false, searchable: false },
+                { data: 'verifikator_cell',  name: 'verifikator_cell', orderable: false, searchable: false },
+                { data: 'keterangan_cell',   name: 'keterangan_cell',  orderable: false, searchable: false },
+                { data: 'aksi',              name: 'aksi',             orderable: false, searchable: false },
+            ],
+            dom: 'rt<"adm-card-footer d-flex justify-content-between align-items-center"ip>',
+            language: {
+                processing: '<div class="text-center py-4"><div class="spinner-border" style="color:var(--adm-blue);width:2rem;height:2rem;" role="status"></div></div>',
+                emptyTable:  '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Tidak ada data progress.</p></div>',
+                zeroRecords: '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Data tidak ditemukan.</p></div>',
+                info:        'Menampilkan _START_–_END_ dari _TOTAL_ data',
+                infoEmpty:   'Tidak ada data',
+                paginate:    { previous: '‹', next: '›' },
+            },
+            pageLength: 20,
+            order: [[2, 'desc']],
+            drawCallback: function () {
+                // Re-wire row-check events after each draw
+                document.getElementById('checkAll').checked = false;
+                document.querySelectorAll('.row-check').forEach(function (cb) {
+                    cb.addEventListener('change', updateBulkButton);
+                });
                 updateBulkButton();
-            });
-            document.querySelectorAll('.row-check').forEach(cb => cb.addEventListener('change', updateBulkButton));
-
-            function updateBulkButton() {
-                const checked = document.querySelectorAll('.row-check:checked').length;
-                btnBulkTerima.disabled = checked === 0;
-                document.getElementById('bulkBtnText').textContent = checked > 0 ?
-                    `Terima ${checked} Yang Dipilih` :
-                    'Terima Semua Dipilih';
             }
-
-            document.getElementById('btnLanjutVerifikasi').addEventListener('click', function() {
-                if (!_validasiPertanyaan()) return;
-                document.getElementById('stepPertanyaan').style.display = 'none';
-                document.getElementById('stepVerifikator').style.display = 'block';
-                document.getElementById('btnLanjutVerifikasi').style.display = 'none';
-                document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
-            });
-
-            document.getElementById('btnKonfirmasiTerima').addEventListener('click', function() {
-                const verifikatorId = document.getElementById('selectVerifikator').value;
-                const tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
-                let valid = true;
-                if (!verifikatorId) {
-                    document.getElementById('errorVerifikator').style.display = 'block';
-                    valid = false;
-                } else {
-                    document.getElementById('errorVerifikator').style.display = 'none';
-                }
-                if (!tanggalVerifikasi) {
-                    document.getElementById('errorTanggal').style.display = 'block';
-                    valid = false;
-                } else {
-                    document.getElementById('errorTanggal').style.display = 'none';
-                }
-                if (!valid) return;
-                if (_terimaMode === 'single') {
-                    document.getElementById('terimaVerifikatorId').value = verifikatorId;
-                    document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
-                    // _terimaProgressId sekarang berisi hashed_id — langsung pakai di URL
-                    document.getElementById('formTerima').action =
-                        `/superadmin/data-entry-progress/${_terimaProgressId}/terima`;
-                    document.getElementById('formTerima').submit();
-                } else {
-                    document.getElementById('bulkVerifikatorId').value = verifikatorId;
-                    document.getElementById('bulkTanggalVerifikasi').value = tanggalVerifikasi;
-                    document.getElementById('bulkForm').submit();
-                }
-            });
         });
 
-        // _terimaProgressId sekarang menyimpan hashed_id (string), bukan integer
-        let _terimaMode = 'single',
-            _terimaProgressId = null,
-            _terimaEntryType = null;
+        // Search input — debounced
+        $('#dtSearch').on('input', function () {
+            clearTimeout(_searchTimer);
+            var val = this.value;
+            _searchTimer = setTimeout(function () { table.search(val).draw(); }, 400);
+        });
 
-        function submitTerima(hashedId, entryType) {
-            _terimaMode = 'single';
-            _terimaProgressId = hashedId; // hashed_id
-            _terimaEntryType = entryType;
-            document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
-            _resetModalTerima(entryType);
-            new bootstrap.Modal(document.getElementById('modalTerima')).show();
-        }
+        // Entry type filter
+        $('#filterEntryType').on('change', function () { table.ajax.reload(); });
 
-        function submitBulkTerima() {
-            if (document.querySelectorAll('.row-check:checked').length === 0) return;
-            _terimaMode = 'bulk';
-            _terimaEntryType = null;
-            const checked = document.querySelectorAll('.row-check:checked').length;
-            document.getElementById('modalTerimaTitle').textContent = `Terima ${checked} Progress`;
-            _resetModalTerima(null);
-            new bootstrap.Modal(document.getElementById('modalTerima')).show();
-        }
+        // checkAll
+        document.getElementById('checkAll').addEventListener('change', function () {
+            document.querySelectorAll('.row-check').forEach(function (cb) { cb.checked = this.checked; }, this);
+            updateBulkButton();
+        });
 
-        function _resetModalTerima(entryType) {
-            document.getElementById('stepPertanyaan').style.display = 'block';
-            document.getElementById('stepVerifikator').style.display = 'none';
-            document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
-            document.getElementById('btnKonfirmasiTerima').style.display = 'none';
-            document.getElementById('selectVerifikator').value = '';
-            document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';
-            document.getElementById('errorVerifikator').style.display = 'none';
-            document.getElementById('errorTanggal').style.display = 'none';
-            document.getElementById('pertanyaanOSS').style.display = 'none';
-            document.getElementById('pertanyaanSIHALAL').style.display = 'none';
-            document.getElementById('alertSiHalalBelum').style.display = 'none';
-            document.getElementById('errorOSS').style.display = 'none';
-            document.getElementById('errorSIHALAL').style.display = 'none';
-            document.querySelectorAll('input[name="ossCheck"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="siHalalCek"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="siHalalVerval"]').forEach(r => r.checked = false);
-            if (entryType === 'OSS') {
-                document.getElementById('pertanyaanOSS').style.display = 'block';
-            } else if (entryType === 'SIHALAL') {
-                document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+        // Modal wiring
+        document.getElementById('btnLanjutVerifikasi').addEventListener('click', function () {
+            if (!_validasiPertanyaan()) return;
+            document.getElementById('stepPertanyaan').style.display = 'none';
+            document.getElementById('stepVerifikator').style.display = 'block';
+            document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+            document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
+        });
+
+        document.getElementById('btnKonfirmasiTerima').addEventListener('click', function () {
+            var verifikatorId    = document.getElementById('selectVerifikator').value;
+            var tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
+            var valid = true;
+            if (!verifikatorId) {
+                document.getElementById('errorVerifikator').style.display = 'block'; valid = false;
+            } else { document.getElementById('errorVerifikator').style.display = 'none'; }
+            if (!tanggalVerifikasi) {
+                document.getElementById('errorTanggal').style.display = 'block'; valid = false;
+            } else { document.getElementById('errorTanggal').style.display = 'none'; }
+            if (!valid) return;
+            if (_terimaMode === 'single') {
+                document.getElementById('terimaVerifikatorId').value    = verifikatorId;
+                document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
+                document.getElementById('formTerima').action =
+                    '/superadmin/data-entry-progress/' + _terimaProgressId + '/terima';
+                document.getElementById('formTerima').submit();
             } else {
-                document.getElementById('pertanyaanOSS').style.display = 'block';
-                document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+                document.getElementById('bulkVerifikatorId').value    = verifikatorId;
+                document.getElementById('bulkTanggalVerifikasi').value = tanggalVerifikasi;
+                document.getElementById('bulkForm').submit();
             }
-        }
+        });
+    });
 
-        function _validasiPertanyaan() {
-            let valid = true;
-            if (_terimaEntryType === 'OSS' || _terimaEntryType === null) {
-                const ossCheck = document.querySelector('input[name="ossCheck"]:checked');
-                if (!ossCheck) {
-                    document.getElementById('errorOSS').style.display = 'block';
-                    valid = false;
-                } else {
-                    document.getElementById('errorOSS').style.display = 'none';
-                }
-            }
-            if (_terimaEntryType === 'SIHALAL' || _terimaEntryType === null) {
-                const cek = document.querySelector('input[name="siHalalCek"]:checked');
-                const verval = document.querySelector('input[name="siHalalVerval"]:checked');
-                if (!cek || !verval) {
-                    document.getElementById('errorSIHALAL').style.display = 'block';
-                    valid = false;
-                } else {
-                    document.getElementById('errorSIHALAL').style.display = 'none';
-                    if (cek.value === 'belum' && verval.value === 'belum') {
-                        document.getElementById('alertSiHalalBelum').style.display = 'flex';
-                        valid = false;
-                    } else {
-                        document.getElementById('alertSiHalalBelum').style.display = 'none';
-                    }
-                }
-            }
-            return valid;
-        }
+    // Tab state
+    var _activeStatus = '';
+    function setTab(status) {
+        _activeStatus = status;
+        // Visual: clear all, set active
+        ['default','PENDING','REVISI','DITERIMA','DITOLAK'].forEach(function (k) {
+            var btn = document.getElementById('tab-' + k);
+            if (!btn) return;
+            btn.className = 'adm-btn' + (k === (status || 'default') ? ' primary' : '');
+        });
+        $('#progressTable').DataTable().ajax.reload();
+    }
 
-        function cekSiHalalValid() {
-            const cek = document.querySelector('input[name="siHalalCek"]:checked');
-            const verval = document.querySelector('input[name="siHalalVerval"]:checked');
-            if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
-                document.getElementById('alertSiHalalBelum').style.display = 'flex';
-            } else {
-                document.getElementById('alertSiHalalBelum').style.display = 'none';
+    function resetFilter() {
+        _activeStatus = '';
+        document.getElementById('dtSearch').value = '';
+        document.getElementById('filterEntryType').value = '';
+        setTab('');
+        $('#progressTable').DataTable().search('').ajax.reload();
+    }
+
+    function updateBulkButton() {
+        var checked = document.querySelectorAll('.row-check:checked').length;
+        var btn = document.getElementById('btnBulkTerima');
+        btn.disabled = checked === 0;
+        document.getElementById('bulkBtnText').textContent =
+            checked > 0 ? 'Terima ' + checked + ' Yang Dipilih' : 'Terima Semua Dipilih';
+    }
+
+    var _terimaMode = 'single', _terimaProgressId = null, _terimaEntryType = null;
+
+    function submitTerima(hashedId, entryType) {
+        _terimaMode = 'single';
+        _terimaProgressId = hashedId;
+        _terimaEntryType = entryType;
+        document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
+        _resetModalTerima(entryType);
+        new bootstrap.Modal(document.getElementById('modalTerima')).show();
+    }
+
+    function submitBulkTerima() {
+        if (document.querySelectorAll('.row-check:checked').length === 0) return;
+        _terimaMode = 'bulk';
+        _terimaEntryType = null;
+        var checked = document.querySelectorAll('.row-check:checked').length;
+        document.getElementById('modalTerimaTitle').textContent = 'Terima ' + checked + ' Progress';
+        _resetModalTerima(null);
+        new bootstrap.Modal(document.getElementById('modalTerima')).show();
+    }
+
+    function _resetModalTerima(entryType) {
+        document.getElementById('stepPertanyaan').style.display = 'block';
+        document.getElementById('stepVerifikator').style.display = 'none';
+        document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
+        document.getElementById('btnKonfirmasiTerima').style.display = 'none';
+        document.getElementById('selectVerifikator').value = '';
+        document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';
+        document.getElementById('errorVerifikator').style.display = 'none';
+        document.getElementById('errorTanggal').style.display = 'none';
+        document.getElementById('pertanyaanOSS').style.display = 'none';
+        document.getElementById('pertanyaanSIHALAL').style.display = 'none';
+        document.getElementById('alertSiHalalBelum').style.display = 'none';
+        document.getElementById('errorOSS').style.display = 'none';
+        document.getElementById('errorSIHALAL').style.display = 'none';
+        document.querySelectorAll('input[name="ossCheck"]').forEach(function (r) { r.checked = false; });
+        document.querySelectorAll('input[name="siHalalCek"]').forEach(function (r) { r.checked = false; });
+        document.querySelectorAll('input[name="siHalalVerval"]').forEach(function (r) { r.checked = false; });
+        if (entryType === 'OSS') {
+            document.getElementById('pertanyaanOSS').style.display = 'block';
+        } else if (entryType === 'SIHALAL') {
+            document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+        } else {
+            document.getElementById('pertanyaanOSS').style.display = 'block';
+            document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+        }
+    }
+
+    function _validasiPertanyaan() {
+        var valid = true;
+        if (_terimaEntryType === 'OSS' || _terimaEntryType === null) {
+            var ossCheck = document.querySelector('input[name="ossCheck"]:checked');
+            if (!ossCheck) { document.getElementById('errorOSS').style.display = 'block'; valid = false; }
+            else { document.getElementById('errorOSS').style.display = 'none'; }
+        }
+        if (_terimaEntryType === 'SIHALAL' || _terimaEntryType === null) {
+            var cek    = document.querySelector('input[name="siHalalCek"]:checked');
+            var verval = document.querySelector('input[name="siHalalVerval"]:checked');
+            if (!cek || !verval) { document.getElementById('errorSIHALAL').style.display = 'block'; valid = false; }
+            else {
+                document.getElementById('errorSIHALAL').style.display = 'none';
+                if (cek.value === 'belum' && verval.value === 'belum') {
+                    document.getElementById('alertSiHalalBelum').style.display = 'flex'; valid = false;
+                } else { document.getElementById('alertSiHalalBelum').style.display = 'none'; }
             }
         }
+        return valid;
+    }
 
-        function bukaModalRevisi(hashedId) {
-            // hashedId adalah hashed_id — dipakai langsung di URL
-            document.getElementById('formRevisi').action = `/superadmin/data-entry-progress/${hashedId}/revisi`;
-            document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
-            new bootstrap.Modal(document.getElementById('modalRevisi')).show();
-        }
+    function cekSiHalalValid() {
+        var cek    = document.querySelector('input[name="siHalalCek"]:checked');
+        var verval = document.querySelector('input[name="siHalalVerval"]:checked');
+        if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
+            document.getElementById('alertSiHalalBelum').style.display = 'flex';
+        } else { document.getElementById('alertSiHalalBelum').style.display = 'none'; }
+    }
 
-        function bukaModalTolak(hashedId) {
-            // hashedId adalah hashed_id — dipakai langsung di URL
-            document.getElementById('formTolak').action = `/superadmin/data-entry-progress/${hashedId}/tolak`;
-            document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
-            new bootstrap.Modal(document.getElementById('modalTolak')).show();
-        }
+    function bukaModalRevisi(hashedId) {
+        document.getElementById('formRevisi').action = '/superadmin/data-entry-progress/' + hashedId + '/revisi';
+        document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
+        new bootstrap.Modal(document.getElementById('modalRevisi')).show();
+    }
 
-        function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
-            const revisiWrapper = document.getElementById('keteranganRevisiWrapper');
-            const updateWrapper = document.getElementById('keteranganUpdateWrapper');
-            if (keteranganRevisi) {
-                document.getElementById('keteranganRevisiText').textContent = keteranganRevisi;
-                revisiWrapper.style.display = 'block';
-            } else {
-                revisiWrapper.style.display = 'none';
-            }
-            if (keteranganUpdate) {
-                document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
-                updateWrapper.style.display = 'block';
-            } else {
-                updateWrapper.style.display = 'none';
-            }
-            new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
-        }
+    function bukaModalTolak(hashedId) {
+        document.getElementById('formTolak').action = '/superadmin/data-entry-progress/' + hashedId + '/tolak';
+        document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
+        new bootstrap.Modal(document.getElementById('modalTolak')).show();
+    }
+
+    function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
+        var revisiWrapper = document.getElementById('keteranganRevisiWrapper');
+        var updateWrapper = document.getElementById('keteranganUpdateWrapper');
+        if (keteranganRevisi) {
+            document.getElementById('keteranganRevisiText').textContent = keteranganRevisi;
+            revisiWrapper.style.display = 'block';
+        } else { revisiWrapper.style.display = 'none'; }
+        if (keteranganUpdate) {
+            document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
+            updateWrapper.style.display = 'block';
+        } else { updateWrapper.style.display = 'none'; }
+        new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
+    }
     </script>
+    @endpush
 @endsection

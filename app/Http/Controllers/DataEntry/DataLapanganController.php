@@ -134,20 +134,24 @@ class DataLapanganController extends Controller
 
         // Tentukan status yang boleh dilihat berdasarkan entry_type
         $targetStatus = $dataEntry->entry_type === 'SIHALAL'
-            ? 'Progress OSS'
-            : 'Terverifikasi';
+            ? 'PROGRESS OSS'
+            : 'TERVERIFIKASI';
 
         $koordinatorIds = $dataEntry->koordinators->pluck('id');
 
         $currentUserId = Auth::id();
 
+        $entryType = $dataEntry->entry_type;
+
         $query = DataLapangan::query()
             ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
             ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id')
             ->where('data_lapangans.status', $targetStatus)
-            // Tidak ada progress aktif (PENDING/DITERIMA) — termasuk data yg pernah ditolak/expired
+            // Tidak ada progress aktif (PENDING/DITERIMA) dari entry_type yang sama
+            // Filter harus spesifik per entry_type agar OSS DITERIMA tidak menghalangi SIHALAL
             ->whereDoesntHave('dataEntryProgress', fn ($q) =>
                 $q->whereIn('status', ['PENDING', 'DITERIMA'])
+                  ->whereHas('dataEntry', fn ($q2) => $q2->where('entry_type', $entryType))
             )
             // Tidak sedang dikunci user lain
             ->where(function ($q) use ($currentUserId) {
@@ -185,7 +189,7 @@ class DataLapanganController extends Controller
                 return e($produk ?: '-');
             })
             ->addColumn('status_badge', function ($dl) {
-                $color = $dl->status === 'Progress OSS' ? 'bg-purple text-white' : 'bg-info text-dark';
+                $color = $dl->status === 'PROGRESS OSS' ? 'bg-purple text-white' : 'bg-info text-dark';
 
                 return '<span class="badge '.$color.'">'.e($dl->status).'</span>';
             })

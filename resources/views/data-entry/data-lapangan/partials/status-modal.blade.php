@@ -32,8 +32,7 @@
                             Email SIHALAL <span class="text-danger">*</span>
                         </label>
                         <input type="email" class="form-control @error('email_sihalal') is-invalid @enderror"
-                            id="email_sihalal" name="email_sihalal"
-                            value="{{ old('email_sihalal') }}"
+                            id="email_sihalal" name="email_sihalal" value="{{ old('email_sihalal') }}"
                             placeholder="Masukkan email yang didaftarkan di SIHALAL" required>
                         @error('email_sihalal')
                             <div class="invalid-feedback">{{ $message }}</div>

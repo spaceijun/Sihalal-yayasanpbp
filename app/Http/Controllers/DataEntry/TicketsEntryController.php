@@ -16,7 +16,7 @@ class TicketsEntryController extends Controller
 {
     public function index(Request $request): View
     {
-        $tickets = Ticket::paginate();
+        $tickets = Ticket::where('user_id', Auth::id())->paginate();
         return view('data-entry.ticket.index', compact('tickets'))
             ->with('i', ($request->input('page', 1) - 1) * $tickets->perPage());
     }
@@ -49,18 +49,27 @@ class TicketsEntryController extends Controller
     public function show(string $id): View
     {
         $ticket = Ticket::findByHashedIdOrFail($id);
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403);
+        }
         return view('data-entry.ticket.show', compact('ticket'));
     }
 
     public function edit(string $id): View
     {
         $ticket = Ticket::findByHashedIdOrFail($id);
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403);
+        }
         return view('data-entry.ticket.edit', compact('ticket'));
     }
 
     public function update(TicketRequest $request, string $id): RedirectResponse
     {
         $ticket    = Ticket::findByHashedIdOrFail($id);
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403);
+        }
         $validated = $request->validated();
 
         // Upload file baru jika ada, hapus file lama
@@ -85,6 +94,9 @@ class TicketsEntryController extends Controller
     public function destroy(string $id): RedirectResponse
     {
         $ticket = Ticket::findByHashedIdOrFail($id);
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         // Hapus file dari storage saat ticket dihapus
         if ($ticket->file && Storage::disk('public')->exists($ticket->file)) {

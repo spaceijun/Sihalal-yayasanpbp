@@ -1,6 +1,85 @@
 @extends('layouts.app')
 @section('template_title') Ticket Pendamping @endsection
 
+@push('styles')
+    <style>
+        /* Table responsive wrapper and custom card footer styling */
+        .adm-card .table-responsive {
+            margin: 0;
+            border: none;
+        }
+
+        .adm-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 20px;
+            border-top: 1px solid var(--adm-border);
+            background: var(--adm-bg-light);
+        }
+
+        .adm-footer-info .dataTables_info {
+            font-size: 12.5px;
+            color: var(--adm-text-muted);
+            padding: 0 !important;
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* Beautiful pagination styling matching admin-ui.css */
+        .adm-pagination .pagination {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .adm-pagination .pagination .page-item .page-link {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px !important;
+            border: 1px solid var(--adm-border-mid);
+            background: #fff;
+            color: var(--adm-text-mid) !important;
+            font-size: 12.5px;
+            font-weight: 500;
+            box-shadow: none !important;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .adm-pagination .pagination .page-item:hover:not(.active):not(.disabled) .page-link {
+            background: var(--adm-bg-light);
+            border-color: var(--adm-border-mid);
+            color: var(--adm-text-dark) !important;
+        }
+
+        .adm-pagination .pagination .page-item.active .page-link {
+            background: var(--adm-blue) !important;
+            border-color: var(--adm-blue) !important;
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .adm-pagination .pagination .page-item.disabled .page-link {
+            opacity: 0.35;
+            background: #fff;
+            border-color: var(--adm-border-mid);
+            color: var(--adm-text-muted) !important;
+            cursor: not-allowed;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="adm-page">
         @include('layouts.messages')
@@ -79,23 +158,21 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table id="ticketTable" class="adm-table w-100">
-                    <thead>
-                        <tr>
-                            <th style="width:44px">#</th>
-                            <th style="width:140px">No. Tiket</th>
-                            <th style="width:180px">Enumerator</th>
-                            <th>Nama PU</th>
-                            <th>Isi Kendala</th>
-                            <th class="tc" style="width:100px">Status</th>
-                            <th style="width:130px">Tanggal</th>
-                            <th class="tc" style="width:90px">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table id="ticketTable" class="adm-table w-100">
+                <thead>
+                    <tr>
+                        <th style="width:44px">#</th>
+                        <th style="width:140px">No. Tiket</th>
+                        <th style="width:180px">Enumerator</th>
+                        <th>Nama PU</th>
+                        <th>Isi Kendala</th>
+                        <th class="tc" style="width:100px">Status</th>
+                        <th style="width:130px">Tanggal</th>
+                        <th class="tc" style="width:90px">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 
@@ -153,7 +230,7 @@
                 processing: true,
                 serverSide: true,
                 searching: true,
-                dom: 'rtip',
+                dom: "<'table-responsive'tr><'adm-card-footer'<'adm-footer-info'i><'adm-pagination'p>>",
                 ajax: {
                     url: '{{ route('superadmin.ticket-pendampings.data') }}',
                     type: 'GET',

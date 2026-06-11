@@ -92,7 +92,7 @@ class TicketPendampingController extends Controller
     public function show(string $hashedId): View
     {
         $ticket = TicketPendamping::findByHashedIdOrFail($hashedId);
-        $ticket->load(['user.enumerator', 'dataLapangan:id,nama_pu']);
+        $ticket->load(['user.enumerator', 'dataLapangan:id,nama_pu,nik,status,alamat']);
 
         return view('superadmin.ticket-pendamping.show', compact('ticket'));
     }

@@ -178,7 +178,7 @@
                                             Status Pengajuan</div>
                                         <div>
                                             <span
-                                                class="adm-badge adm-badge-success">{{ $ticket->dataLapangan->status }}</span>
+                                                class="adm-badge adm-badge-success">{{ $ticket->dataLapangan->status ?? 'null' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-12">

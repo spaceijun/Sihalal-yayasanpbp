@@ -37,18 +37,11 @@ return [
 
     'kawulohalal' => [
         'api_key' => env('KAWULOHALAL_API_KEY'),
-        'sender'  => env('KAWULOHALAL_SENDER'),
+        'sender' => env('KAWULOHALAL_SENDER'),
     ],
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
-    ],
-
-    'cpanel' => [
-        'host'      => env('CPANEL_HOST'),
-        'username'  => env('CPANEL_USERNAME'),
-        'api_token' => env('CPANEL_API_TOKEN'),
-        'domain'    => env('CPANEL_DOMAIN'),
     ],
 
     'app' => [

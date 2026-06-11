@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('enumerators', function (Blueprint $table) {
             $table->foreignId('user_id')
-                ->after('id')
                 ->nullable()
                 ->constrained('users')
                 ->cascadeOnDelete();

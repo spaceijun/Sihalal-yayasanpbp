@@ -10,23 +10,146 @@ use App\Http\Requests\EnumeratorRequest;
 use App\Models\DataBank;
 use App\Models\DataLapangan;
 use App\Models\Superadmin\Koordinator;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Yajra\DataTables\Facades\DataTables;
 
 class EnumeratorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $enumerators = Enumerator::with('koordinator', 'bank')->paginate();
+        return view('superadmin.enumerator.index');
+    }
 
-        return view('superadmin.enumerator.index', compact('enumerators'))
-            ->with('i', ($request->input('page', 1) - 1) * $enumerators->perPage());
+    /**
+     * Return DataTables JSON for enumerator listing.
+     */
+    public function data(Request $request)
+    {
+        // Rentang periode aktif (tgl 25 bulan lalu s.d. tgl 25 bulan ini)
+        $startDate = now()->day >= 25
+            ? now()->startOfDay()->day(25)
+            : now()->subMonth()->day(25)->startOfDay();
+        $endDate = $startDate->copy()->addMonth();
+
+        $query = Enumerator::with('koordinator', 'bank')
+            ->withCount([
+                'dataLapangans as data_bulan_ini' => function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('created_at', [$startDate, $endDate]);
+                }
+            ]);
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('no_reg', fn($e) => '<span class="adm-mono" style="font-size:12px;font-weight:600;color:var(--adm-blue);">KH-' . e($e->no_registrasi) . '</span>')
+            ->addColumn('nama_cell', function ($e) {
+                $inisial = strtoupper(substr($e->nama_lengkap, 0, 2));
+                return '<div class="adm-name-cell">
+                    <div class="adm-avatar" style="background:var(--adm-blue-lt);color:var(--adm-blue);">' . $inisial . '</div>
+                    <strong style="font-size:13px;">' . e($e->nama_lengkap) . '</strong>
+                </div>';
+            })
+            ->addColumn('data_bulan', function ($e) {
+                $jumlah = $e->data_bulan_ini ?? 0;
+                $kurang = $jumlah < 20;
+                $bg     = $kurang ? 'var(--adm-red-lt,#fff0f0)' : 'var(--adm-green-lt,#f0fff4)';
+                $color  = $kurang ? 'var(--adm-red,#e03131)' : 'var(--adm-green,#2f9e44)';
+                $sub    = $kurang
+                    ? '<span style="font-size:10px;color:var(--adm-red,#e03131);font-weight:500;white-space:nowrap;">⚠ Kurang ' . (20 - $jumlah) . ' data</span>'
+                    : '<span style="font-size:10px;color:var(--adm-green,#2f9e44);font-weight:500;">✓ Tercapai</span>';
+                return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:28px;border-radius:8px;font-size:13px;font-weight:700;padding:0 10px;background:' . $bg . ';color:' . $color . ';border:1px solid ' . $color . ';">' . $jumlah . '</span>
+                    ' . $sub . '
+                </div>';
+            })
+            ->addColumn('rekening', function ($e) {
+                if ($e->bank && $e->no_rekening && $e->nama_rekening) {
+                    return '<span style="font-size:12px;color:var(--adm-text-muted);">' . e($e->bank->name) . ', ' . e($e->no_rekening) . ' an. ' . e($e->nama_rekening) . '</span>';
+                }
+                return '<span style="color:var(--adm-text-faint);">—</span>';
+            })
+            ->addColumn('status_badge', function ($e) {
+                return $e->status === 'Aktif'
+                    ? '<span class="adm-badge adm-badge-success">Aktif</span>'
+                    : '<span class="adm-badge adm-badge-nonaktif">Tidak Aktif</span>';
+            })
+            ->addColumn('aksi', function ($e) {
+                $generateBtn = '';
+                if (!$e->user_id) {
+                    $generateBtn = '<button type="button" class="adm-btn warning btn-generate-user"
+                        data-id="' . $e->id . '" data-nama="' . e($e->nama_lengkap) . '" data-hp="' . e($e->telephone) . '"
+                        title="Generate akun user">
+                        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        User
+                    </button>';
+                }
+                return '<div class="adm-actions" style="justify-content:center;flex-wrap:wrap;">
+                    ' . $generateBtn . '
+                    <a class="adm-btn icon-only" href="' . route('superadmin.enumerators.gallery', $e->hashed_id) . '" title="Galeri">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </a>
+                    <a class="adm-btn primary icon-only" href="' . route('superadmin.enumerators.show', $e->hashed_id) . '" title="Detail">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </a>
+                    <a class="adm-btn success icon-only" href="' . route('superadmin.enumerators.edit', $e->hashed_id) . '" title="Edit">
+                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </a>
+                    <button type="button" class="adm-btn danger icon-only btn-delete" data-id="' . $e->id . '" title="Hapus">
+                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
+                </div>';
+            })
+            ->rawColumns(['no_reg', 'nama_cell', 'data_bulan', 'rekening', 'status_badge', 'aksi'])
+            ->make(true);
+    }
+
+    /**
+     * Generate akun user untuk enumerator (digunakan oleh tombol di tabel).
+     */
+    public function generateUser($id)
+    {
+        $enumerator = Enumerator::findOrFail($id);
+
+        if ($enumerator->user_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Enumerator ini sudah memiliki akun user.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($enumerator) {
+            $telephone = $enumerator->telephone;
+            $email     = $telephone . '@kawulohalal.id';
+
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name'      => $enumerator->nama_lengkap,
+                    'telephone' => $telephone,
+                    'password'  => Hash::make('enumkh123'),
+                    'role'      => 'enumerator',
+                ]
+            );
+
+            if ($user->wasRecentlyCreated) {
+                $user->assignRole('enumerator');
+            }
+
+            $enumerator->update(['user_id' => $user->id]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "User berhasil digenerate dengan email: {$enumerator->telephone}@kawulohalal.id",
+        ]);
     }
 
     /**

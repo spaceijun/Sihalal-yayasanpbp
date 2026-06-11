@@ -18,7 +18,6 @@ use App\Http\Controllers\Koordinator\RecruitmentController as KoordinatorRecruit
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
-use App\Http\Controllers\Superadmin\CpanelEmailController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
@@ -76,7 +75,6 @@ Route::get('version/check', [AppVersionController::class, 'check']);
 Route::get('/recruitment/confirm/{hashedId}', [RecruitmentController::class, 'confirm'])->name('recruitment.confirm');
 Route::get('resep-makanan', [HomeController::class, 'resepMakanan'])->name('resep-makanan');
 
-
 Route::middleware('auth', 'role:superadmin')->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
@@ -84,29 +82,27 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Server Info
         Route::get('/server-info', [ServerInfoController::class, 'index'])->name('server-info');
         Route::get('/server-info/realtime', [ServerInfoController::class, 'realtime'])->name('server-info.realtime');
-        // Email Info
-        Route::prefix('cpanel')->name('cpanel.')->group(function () {
-            Route::get('emails',               [CpanelEmailController::class, 'index'])->name('emails.index');
-            Route::get('emails/api',           [CpanelEmailController::class, 'apiEmails'])->name('emails.api');
-            Route::post('emails/add',          [CpanelEmailController::class, 'addEmail'])->name('emails.add');
-            Route::post('emails/reset-password', [CpanelEmailController::class, 'resetPassword'])->name('emails.reset-password');
-            Route::get('emails/debug',         [CpanelEmailController::class, 'debug'])->name('emails.debug');
-        });
+
         // Diagnostic
-        Route::get('/diagnostic',       [DiagnosticController::class, 'index'])->name('diagnostic.index');
-        Route::post('/diagnostic/run',  [DiagnosticController::class, 'run'])->name('diagnostic.run');
+        Route::get('/diagnostic', [DiagnosticController::class, 'index'])->name('diagnostic.index');
+        Route::post('/diagnostic/run', [DiagnosticController::class, 'run'])->name('diagnostic.run');
 
         // Ranking Pendamping
         Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');
 
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
+        Route::get('/koordinators-data', [KoordinatorController::class, 'data'])->name('koordinators.data');
         Route::resource('data-entries', DataEntryController::class);
+        Route::get('/data-entries-data', [DataEntryController::class, 'data'])->name('data-entries.data');
         Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');
         Route::resource('enumerators', EnumeratorController::class);
+        Route::get('/enumerators-data', [EnumeratorController::class, 'data'])->name('enumerators.data');
+        Route::post('/enumerators/{id}/generate-user', [EnumeratorController::class, 'generateUser'])->name('enumerators.generate-user');
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
+        Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
         Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
         Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
         Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
@@ -136,7 +132,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
         Route::post('/penagihan/{penagihan}/proses', [DataEntryPenagihanController::class, 'proses'])->name('penagihan.proses');
         Route::post('/penagihan/{penagihan}/tolak', [DataEntryPenagihanController::class, 'tolak'])->name('penagihan.tolak');
-        // Verifikators 
+        // Verifikators
         Route::resource('verifikators', VerifikatorController::class);
         Route::post('verifikators/{verifikator}/bayar', [VerifikatorController::class, 'bayar'])->name('verifikators.bayar');
         Route::get('verifikators/{verifikator}/kalkulasi', [VerifikatorController::class, 'kalkulasi'])->name('verifikators.kalkulasi');
@@ -145,6 +141,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('spotchecks', SpotcheckController::class);
         // Recruitment
         Route::resource('recruitments', RecruitmentController::class);
+        Route::get('/recruitments-data', [RecruitmentController::class, 'data'])->name('recruitments.data');
         Route::post('recruitments/{id}/update-status', [RecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
         Route::get('recruitments/{id}/download-foto/{type}', [RecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
         // Finance Management
@@ -159,14 +156,14 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('devices/disconnect', [DeviceController::class, 'disconnect'])->name('devices.disconnect');
         // Data Entry Progress
         Route::prefix('data-entry-progress')->name('data-entry-progress.')->group(function () {
-            Route::get('/',                                    [SuperadminDataEntryProgressController::class, 'index'])->name('index');
-            Route::get('/{progress}',                          [SuperadminDataEntryProgressController::class, 'show'])->name('show');
-            Route::patch('/{progress}/terima',                 [SuperadminDataEntryProgressController::class, 'terima'])->name('terima');
-            Route::patch('/{progress}/revisi',                 [SuperadminDataEntryProgressController::class, 'revisi'])->name('revisi');
-            Route::patch('/{progress}/tolak',                  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
-            Route::post('/bulk-terima',                        [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
+            Route::get('/', [SuperadminDataEntryProgressController::class, 'index'])->name('index');
+            Route::get('/{progress}', [SuperadminDataEntryProgressController::class, 'show'])->name('show');
+            Route::patch('/{progress}/terima', [SuperadminDataEntryProgressController::class, 'terima'])->name('terima');
+            Route::patch('/{progress}/revisi', [SuperadminDataEntryProgressController::class, 'revisi'])->name('revisi');
+            Route::patch('/{progress}/tolak', [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
+            Route::post('/bulk-terima', [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
         });
-        // Resep Makanan 
+        // Resep Makanan
         Route::resource('resep-makanans', ResepMakananController::class);
         // Pengumuman
         Route::prefix('pengumumen')->name('pengumumen.')->group(function () {
@@ -178,8 +175,9 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::put('/{pengumuman}', [PengumumanController::class, 'update'])->name('update');
             Route::delete('/{id}', [PengumumanController::class, 'destroy'])->name('destroy');
         });
-        // Management Users 
+        // Management Users
         Route::resource('users', UserController::class);
+        Route::get('/users-data', [UserController::class, 'data'])->name('users.data');
         // Ticket
         Route::resource('tickets', TicketController::class);
         Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
@@ -196,16 +194,16 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::patch('/', [ProfileController::class, 'update'])->name('update');
             Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         });
-        // App Version 
+        // App Version
         Route::resource('app-versions', SuperadminAppVersionController::class);
 
         // Face Match
         Route::prefix('face-match')->name('face-match.')->group(function () {
-            Route::get('/',        [FaceMatchController::class, 'index'])->name('index');
-            Route::post('/match',  [FaceMatchController::class, 'match'])->name('match');
-            Route::get('/status',  [FaceMatchController::class, 'status'])->name('status');
-            Route::get('/poll',    [FaceMatchController::class, 'poll'])->name('poll');
-            Route::get('/result',  [FaceMatchController::class, 'result'])->name('result');
+            Route::get('/', [FaceMatchController::class, 'index'])->name('index');
+            Route::post('/match', [FaceMatchController::class, 'match'])->name('match');
+            Route::get('/status', [FaceMatchController::class, 'status'])->name('status');
+            Route::get('/poll', [FaceMatchController::class, 'poll'])->name('poll');
+            Route::get('/result', [FaceMatchController::class, 'result'])->name('result');
         });
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');
@@ -228,7 +226,6 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
 //         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
 //         Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
 //         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
-
 
 //         // Data Pendamping
 //         Route::get('data-pendamping', [DataPendampingController::class, 'index'])->name('data-pendamping.index');
@@ -296,7 +293,6 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
     });
 });
 /**
- * 
  * ENUMERATOR ROUTES
  */
 Route::middleware('auth', 'role:enumerator')->group(function () {
@@ -317,6 +313,4 @@ Route::middleware('auth', 'role:enumerator')->group(function () {
     });
 });
 
-
-
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

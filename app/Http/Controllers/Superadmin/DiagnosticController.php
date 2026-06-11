@@ -127,47 +127,12 @@ class DiagnosticController extends Controller
         return is_link(public_path('storage'));
     }
 
-    // ── 5. SSL Certificate (cPanel API) ────────────────────────────────
+    // ── 5. SSL Certificate ─────────────────────────────────────────────
     private function checkSsl(): array
     {
-        $host   = config('cpanel.host',     env('CPANEL_HOST'));
-        $user   = config('cpanel.username', env('CPANEL_USERNAME'));
-        $token  = config('cpanel.token',    env('CPANEL_API_TOKEN'));
-        $domain = config('cpanel.domain',   env('CPANEL_DOMAIN'));
+        $parsedUrl = parse_url(config('app.url'));
+        $domain = $parsedUrl['host'] ?? request()->getHost() ?? 'localhost';
 
-        try {
-            // Try cPanel UAPI first
-            $response = Http::withHeaders([
-                'Authorization' => 'cpanel ' . $user . ':' . $token,
-            ])->withOptions(['verify' => false])
-                ->timeout(10)
-                ->get("{$host}/execute/SSL/list_certs", ['domain' => $domain]);
-
-            if ($response->successful()) {
-                $certs = $response->json('data') ?? [];
-                if (!empty($certs)) {
-                    $cert = $certs[0];
-                    $validTo  = \Carbon\Carbon::parse($cert['not_after'] ?? null);
-                    $validFrom = \Carbon\Carbon::parse($cert['not_before'] ?? null);
-                    $daysLeft = (int) now()->diffInDays($validTo, false);
-
-                    return [
-                        'valid'          => $daysLeft > 0,
-                        'common_name'    => $cert['domains'][0] ?? $domain,
-                        'organization'   => $cert['subject']['O'] ?? 'N/A',
-                        'issuer'         => $cert['issuer']['O'] ?? 'N/A',
-                        'valid_from'     => $validFrom->format('Y-m-d H:i:s'),
-                        'valid_to'       => $validTo->format('Y-m-d H:i:s'),
-                        'days_remaining' => $daysLeft,
-                        'source'         => 'cpanel_api',
-                    ];
-                }
-            }
-        } catch (\Throwable $e) {
-            // Fall through to socket check
-        }
-
-        // Fallback: direct socket check
         return $this->checkSslSocket($domain);
     }
 

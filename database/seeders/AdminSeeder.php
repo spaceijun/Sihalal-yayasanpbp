@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
-use App\Models\User;
 
 class AdminSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         Role::create(['name' => 'superadmin']);
-        Role::create(['name' => 'koordinator']);
+        Role::create(['name' => 'data_entry']);
         Role::create(['name' => 'enumerator']);
 
         // Superadmin

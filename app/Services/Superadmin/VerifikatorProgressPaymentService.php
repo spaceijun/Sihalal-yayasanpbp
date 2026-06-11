@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Superadmin;
 
 use App\Models\DataEntryProgress;
 use App\Models\Verifikator;
@@ -31,17 +31,17 @@ class VerifikatorProgressPaymentService
                 throw new \RuntimeException('Tidak ada data progress yang belum dibayar untuk verifikator ini.');
             }
 
-            $jumlahData   = $progresses->count();
+            $jumlahData = $progresses->count();
             $totalNominal = $jumlahData * $verifikator->rate_per_data;
 
             // Buat record payment
             $payment = VerifikatorPayment::create([
-                'verifikator_id'  => $verifikator->id,
-                'jumlah_data'     => $jumlahData,
-                'total_nominal'   => $totalNominal,
-                'periode_dari'    => $periodeDari,
-                'periode_sampai'  => $periodeSampai,
-                'paid_at'         => now(),
+                'verifikator_id' => $verifikator->id,
+                'jumlah_data' => $jumlahData,
+                'total_nominal' => $totalNominal,
+                'periode_dari' => $periodeDari,
+                'periode_sampai' => $periodeSampai,
+                'paid_at' => now(),
             ]);
 
             // Tandai semua progress sudah dibayar
@@ -72,11 +72,11 @@ class VerifikatorProgressPaymentService
                     ->count();
 
                 return [
-                    'verifikator'    => $v,
-                    'jumlah_data'    => $jumlah,
-                    'total_nominal'  => $jumlah * $v->rate_per_data,
+                    'verifikator' => $v,
+                    'jumlah_data' => $jumlah,
+                    'total_nominal' => $jumlah * $v->rate_per_data,
                 ];
             })
-            ->filter(fn($item) => $item['jumlah_data'] > 0);
+            ->filter(fn ($item) => $item['jumlah_data'] > 0);
     }
 }

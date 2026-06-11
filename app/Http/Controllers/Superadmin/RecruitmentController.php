@@ -12,48 +12,69 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class RecruitmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(): View
+    {
+        return view('superadmin.recruitment.index');
+    }
+
+    /**
+     * Return DataTables JSON for recruitment listing.
+     */
+    public function data(Request $request)
     {
         $query = Recruitment::with('koordinator');
 
-        // Apply search filter
-        if ($request->has('search') && $request->search != '') {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
-                    ->orWhere('telephone', 'like', '%'.$searchTerm.'%');
-            });
-        }
-
-        // Apply status filter
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
-        }
-
-        // Paginate - akan otomatis pakai $perPage = 20 dari model
-        $recruitments = $query->paginate();
-
-        // Append query parameters ke pagination links
-        $recruitments->appends($request->only(['search', 'status']));
-
-        // Jika AJAX request, return JSON
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'table' => view('superadmin.recruitment.partials.table-body', compact('recruitments'))->render(),
-                'pagination' => view('layouts.pagination', ['paginator' => $recruitments])->render(),
-            ]);
-        }
-
-        // Jika normal request, return view
-        return view('superadmin.recruitment.index', compact('recruitments'))
-            ->with('i', ($request->input('page', 1) - 1) * $recruitments->perPage());
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('koordinator_name', fn($r) => $r->koordinator->nama_lengkap ?? '—')
+            ->addColumn('nama_cell', function ($r) {
+                $inisial = strtoupper(substr($r->nama_lengkap, 0, 2));
+                $showUrl = route('superadmin.recruitments.show', $r->hashed_id);
+                return '<div class="adm-name-cell">
+                    <div class="adm-avatar" style="background:var(--adm-blue-lt);color:var(--adm-blue);">' . $inisial . '</div>
+                    <a href="' . $showUrl . '" style="font-weight:600;font-size:13px;color:var(--adm-text-dark);text-decoration:none;">' . e($r->nama_lengkap) . '</a>
+                </div>';
+            })
+            ->addColumn('rekomendasi_badge', function ($r) {
+                if ($r->rekomendasi) {
+                    return '<span class="adm-badge adm-badge-success">' . e($r->rekomendasi) . '</span>';
+                }
+                return '<span style="color:var(--adm-text-faint);">—</span>';
+            })
+            ->addColumn('status_badge', function ($r) {
+                if ($r->status === 'Diterima') return '<span class="adm-badge adm-badge-success"><span class="dot"></span>Diterima</span>';
+                if ($r->status === 'Ditolak')  return '<span class="adm-badge adm-badge-danger"><span class="dot"></span>Ditolak</span>';
+                return '<span class="adm-badge adm-badge-pending"><span class="dot"></span>Melamar</span>';
+            })
+            ->addColumn('recruit_type_badge', function ($r) {
+                $type = $r->recruit_type ?? '—';
+                return '<span class="adm-badge adm-badge-info">' . e($type) . '</span>';
+            })
+            ->addColumn('aksi', function ($r) {
+                $showUrl   = route('superadmin.recruitments.show', $r->hashed_id);
+                $deleteUrl = route('superadmin.recruitments.destroy', $r->id);
+                return '<div class="adm-actions">
+                    <a class="adm-btn primary icon-only" href="' . $showUrl . '" title="Detail">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </a>
+                    <form action="' . $deleteUrl . '" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data ini?\')">
+                        <input type="hidden" name="_token" value="' . csrf_token() . '">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="adm-btn danger icon-only" title="Hapus">
+                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        </button>
+                    </form>
+                </div>';
+            })
+            ->rawColumns(['nama_cell', 'rekomendasi_badge', 'status_badge', 'recruit_type_badge', 'aksi'])
+            ->make(true);
     }
 
     /**

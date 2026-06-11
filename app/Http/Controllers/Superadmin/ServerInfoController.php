@@ -241,7 +241,7 @@ class ServerInfoController extends Controller
         return [
             'os'       => \php_uname('s') . ' ' . \php_uname('r'),
             'hostname' => $host,
-            'domain'   => \env('CPANEL_DOMAIN', $host),
+            'domain'   => parse_url(config('app.url'), PHP_URL_HOST) ?? request()->getHost() ?? $host,
             'kernel'   => \php_uname('r'),
             'arch'     => \php_uname('m'),
             'ip'       => $_SERVER['SERVER_ADDR'] ?? @\gethostbyname($host) ?? 'N/A',

@@ -256,7 +256,6 @@ Setting Website
                             'MAINTENANCE' => 'c-amber',
                             'AWS' => 'c-amber',
                             'KAWULOHALAL' => 'c-green',
-                            'CPANEL' => 'c-indigo',
                             'SID' => 'c-cyan',
                             'FIREBASE' => 'c-amber',
                         ];
@@ -277,7 +276,6 @@ Setting Website
                             'MAIL_PASSWORD',
                             'REDIS_PASSWORD',
                             'AWS_SECRET_ACCESS_KEY',
-                            'CPANEL_API_TOKEN',
                             'KAWULOHALAL_API_KEY',
                             'SID_AUTH_KEY',
                         ];

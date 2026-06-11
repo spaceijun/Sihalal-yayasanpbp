@@ -13,11 +13,6 @@ return new class extends Migration
     {
         Schema::create('enumerators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
-                ->after('id')
-                ->nullable()
-                ->constrained('users')
-                ->cascadeOnDelete();
             $table->foreignId('koordinator_id')->constrained('koordinators')->onDelete('cascade');
             $table->string('nama_lengkap');
             $table->string('telephone');

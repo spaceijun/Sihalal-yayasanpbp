@@ -3,25 +3,84 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DataEntryRequest;
 use App\Models\DataEntry;
 use App\Models\Superadmin\Koordinator;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\DataEntryRequest;
-use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class DataEntryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $dataEntries = DataEntry::with('koordinators', 'bank')->paginate();
-        return view('superadmin.data-entry.index', compact('dataEntries'))
-            ->with('i', ($request->input('page', 1) - 1) * $dataEntries->perPage());
+        return view('superadmin.data-entry.index');
+    }
+
+    /**
+     * Return DataTables JSON for data entry listing.
+     */
+    public function data(Request $request)
+    {
+        $query = DataEntry::with('koordinators', 'bank');
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('nama_cell', function ($de) {
+                $inisial = strtoupper(substr($de->nama_lengkap, 0, 2));
+
+                return '<div class="adm-name-cell">
+                    <div class="adm-avatar" style="background:var(--adm-blue-lt);color:var(--adm-blue);">'.$inisial.'</div>
+                    <div><strong>'.e($de->nama_lengkap).'</strong></div>
+                </div>';
+            })
+            ->addColumn('status_badge', function ($de) {
+                return $de->status === 'Aktif'
+                    ? '<span class="adm-badge adm-badge-success">Aktif</span>'
+                    : '<span class="adm-badge adm-badge-nonaktif">Tidak Aktif</span>';
+            })
+            ->addColumn('entry_type_badge', function ($de) {
+                if ($de->entry_type === 'OSS') {
+                    return '<span class="adm-badge adm-badge-oss">OSS</span>';
+                }
+                if ($de->entry_type === 'SIHALAL') {
+                    return '<span class="adm-badge adm-badge-sihalal">SIHALAL</span>';
+                }
+
+                return '<span class="adm-badge adm-badge-info">'.e($de->entry_type).'</span>';
+            })
+            ->addColumn('rekening', function ($de) {
+                if ($de->bank && $de->no_rekening && $de->nama_rekening) {
+                    return '<span style="font-size:12px;color:var(--adm-text-muted);">'.e($de->bank->name).', '.e($de->no_rekening).' an. '.e($de->nama_rekening).'</span>';
+                }
+
+                return '<span style="color:var(--adm-text-faint);">—</span>';
+            })
+            ->addColumn('aksi', function ($de) {
+                $editUrl = route('superadmin.data-entries.edit', $de->hashed_id);
+                $deleteUrl = route('superadmin.data-entries.destroy', $de->hashed_id);
+
+                return '<div class="adm-actions">
+                    <a class="adm-btn primary icon-only" href="'.$editUrl.'" title="Edit">
+                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </a>
+                    <form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data entry ini?\')">
+                        <input type="hidden" name="_token" value="'.csrf_token().'">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="adm-btn danger icon-only" title="Hapus">
+                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        </button>
+                    </form>
+                </div>';
+            })
+            ->rawColumns(['nama_cell', 'status_badge', 'entry_type_badge', 'rekening', 'aksi'])
+            ->make(true);
     }
 
     /**
@@ -29,8 +88,9 @@ class DataEntryController extends Controller
      */
     public function create(): View
     {
-        $dataEntry    = new DataEntry();
+        $dataEntry = new DataEntry;
         $koordinators = Koordinator::all();
+
         return view('superadmin.data-entry.create', compact('dataEntry', 'koordinators'));
     }
 
@@ -40,22 +100,22 @@ class DataEntryController extends Controller
     public function store(DataEntryRequest $request): RedirectResponse
     {
         $user = User::create([
-            'name'      => $request->nama_lengkap,
-            'email'     => $request->email,
+            'name' => $request->nama_lengkap,
+            'email' => $request->email,
             'telephone' => $request->telephone,
-            'password'  => bcrypt($request->password),
-            'role'      => 'data_entry',
+            'password' => bcrypt($request->password),
+            'role' => 'data_entry',
         ]);
         $user->assignRole('data_entry');
 
         $dataEntry = DataEntry::create([
-            'user_id'      => $user->id,
+            'user_id' => $user->id,
             'nama_lengkap' => $request->nama_lengkap,
-            'email'        => $request->email,
-            'telephone'    => $request->telephone,
-            'alamat'       => $request->alamat,
-            'status'       => $request->status,
-            'entry_type'   => $request->entry_type,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'alamat' => $request->alamat,
+            'status' => $request->status,
+            'entry_type' => $request->entry_type,
         ]);
 
         // Attach koordinator
@@ -74,6 +134,7 @@ class DataEntryController extends Controller
     {
         $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
         $dataEntry->load('koordinators');
+
         return view('superadmin.data-entry.show', compact('dataEntry'));
     }
 
@@ -82,9 +143,9 @@ class DataEntryController extends Controller
      */
     public function edit($hashedId): View
     {
-        $dataEntry              = DataEntry::findByHashedIdOrFail($hashedId);
+        $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
         $dataEntry->load('koordinators');
-        $koordinators           = Koordinator::all();
+        $koordinators = Koordinator::all();
         $selectedKoordinatorIds = $dataEntry->koordinators->pluck('id')->toArray();
 
         return view('superadmin.data-entry.edit', compact('dataEntry', 'koordinators', 'selectedKoordinatorIds'));
@@ -97,11 +158,11 @@ class DataEntryController extends Controller
     {
         $dataEntry->update([
             'nama_lengkap' => $request->nama_lengkap,
-            'email'        => $request->email,
-            'telephone'    => $request->telephone,
-            'alamat'       => $request->alamat,
-            'status'       => $request->status,
-            'entry_type'   => $request->entry_type,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'alamat' => $request->alamat,
+            'status' => $request->status,
+            'entry_type' => $request->entry_type,
         ]);
 
         // Sync koordinator (otomatis handle tambah/hapus)
@@ -110,7 +171,7 @@ class DataEntryController extends Controller
         // Update password jika diisi
         if ($request->filled('password')) {
             $dataEntry->user->update([
-                'password' => bcrypt($request->password)
+                'password' => bcrypt($request->password),
             ]);
         }
 

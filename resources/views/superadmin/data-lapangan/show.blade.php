@@ -771,27 +771,6 @@
                                 </button>
                             </div>
 
-                            {{-- PASSWORD — 1 field saja, tidak disimpan DB --}}
-                            <div style="margin-bottom:.85rem;">
-                                <label class="form-label">Password Email</label>
-                                <div style="position:relative;">
-                                    <input type="password" name="email_password" id="emailPasswordInput"
-                                        class="form-control @error('email_password') is-invalid @enderror"
-                                        placeholder="Buat password email" required autocomplete="new-password">
-                                    <button type="button" onclick="togglePassword()"
-                                        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dl-muted);font-size:16px;">
-                                        <i class="las la-eye" id="toggleIcon"></i>
-                                    </button>
-                                </div>
-                                @error('email_password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">
-                                    <i class="las la-info-circle"></i>
-                                    Password hanya digunakan untuk membuat akun email. Tidak disimpan di database.
-                                </p>
-                            </div>
-
                             <div style="margin-bottom:.85rem;">
                                 <label class="form-label">Verifikator</label>
                                 <select name="verifikator_id"
@@ -824,7 +803,7 @@
                                     <i class="las la-arrow-left"></i> Kembali
                                 </button>
                                 <button type="submit" class="dl-btn dl-btn-primary" id="btnSubmitEmail">
-                                    <i class="las la-save"></i> Simpan & Buat Email
+                                    <i class="las la-save"></i> Simpan &amp; Verifikasi
                                 </button>
                             </div>
                         </form>

@@ -61,8 +61,8 @@ class DataEntryProgressController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->filterColumn('nama_pu', fn ($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
-            ->filterColumn('nik',     fn ($q, $k) => $q->where('data_lapangans.nik',    'like', "%{$k}%"))
+            ->filterColumn('nama_pu', fn($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
+            ->filterColumn('nik',     fn($q, $k) => $q->where('data_lapangans.nik',    'like', "%{$k}%"))
             ->addColumn(
                 'waktu_aksi',
                 fn($p) => $p->actioned_at
@@ -75,7 +75,7 @@ class DataEntryProgressController extends Controller
                 return '<span class="badge ' . $cls . '">' . e($p->status) . '</span>';
             })
             ->addColumn('aksi', function ($p) {
-                $showUrl = route('data-entry.progress.show', $p->data_lapangan_id);
+                $showUrl = route('data-entry.progress.show', $p->dataLapangan->hashed_id);
                 return '<a href="' . $showUrl . '" class="btn btn-sm btn-primary">
                     <i class="las la-eye"></i> Detail
                 </a>';

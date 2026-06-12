@@ -53,9 +53,9 @@
                 {{-- Human Resources --}}
                 <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
                 <li class="nav-item">
-                    <a href="{{ url('superadmin/recruitments') }}"
-                        class="nav-link {{ $current_url == 'superadmin/recruitments' ? 'active' : '' }}">
-                        <i data-feather="user-plus"></i>Recruitment
+                    <a href="{{ url('superadmin/recruitment-posts') }}"
+                        class="nav-link {{ Request::is('superadmin/recruitment-posts*') ? 'active' : '' }}">
+                        <i data-feather="briefcase"></i>Lowongan Pekerjaan
                     </a>
                 </li>
                 <li class="nav-item">

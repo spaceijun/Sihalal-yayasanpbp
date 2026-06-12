@@ -37,7 +37,10 @@ class DataEntryController extends Controller
 
                 return '<div class="adm-name-cell">
                     <div class="adm-avatar" style="background:var(--adm-blue-lt);color:var(--adm-blue);">'.$inisial.'</div>
-                    <div><strong>'.e($de->nama_lengkap).'</strong></div>
+                    <div>
+                        <strong>'.e($de->nama_lengkap).'</strong>
+                        <small style="color:var(--adm-text-muted);display:block;margin-top:2px;">ID: DE-'.str_pad($de->id, 4, '0', STR_PAD_LEFT).'</small>
+                    </div>
                 </div>';
             })
             ->addColumn('status_badge', function ($de) {
@@ -57,7 +60,11 @@ class DataEntryController extends Controller
             })
             ->addColumn('rekening', function ($de) {
                 if ($de->bank && $de->no_rekening && $de->nama_rekening) {
-                    return '<span style="font-size:12px;color:var(--adm-text-muted);">'.e($de->bank->name).', '.e($de->no_rekening).' an. '.e($de->nama_rekening).'</span>';
+                    return '<div style="font-size:12.5px;line-height:1.4;">
+                        <span style="color:var(--adm-text-dark);font-weight:600;">'.e($de->bank->name).'</span><br>
+                        <span class="adm-mono" style="color:var(--adm-text-mid);font-size:12px;letter-spacing:0.02em;">'.e($de->no_rekening).'</span><br>
+                        <span style="color:var(--adm-text-muted);font-size:11.5px;">a.n. '.e($de->nama_rekening).'</span>
+                    </div>';
                 }
 
                 return '<span style="color:var(--adm-text-faint);">—</span>';
@@ -67,10 +74,10 @@ class DataEntryController extends Controller
                 $deleteUrl = route('superadmin.data-entries.destroy', $de->hashed_id);
 
                 return '<div class="adm-actions">
-                    <a class="adm-btn primary icon-only" href="'.$editUrl.'" title="Edit">
+                    <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
-                    <form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data entry ini?\')">
+                    <form action="'.$deleteUrl.'" method="POST" class="d-inline form-delete">
                         <input type="hidden" name="_token" value="'.csrf_token().'">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="adm-btn danger icon-only" title="Hapus">

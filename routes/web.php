@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\DataEntryProgressController as DataEntryProgressApiController;
 use App\Http\Controllers\Api\FaceMatchController;
 use App\Http\Controllers\AppVersionController;
 use App\Http\Controllers\DataEntry\DashboardController as DataEntryDashboardController;
-use App\Http\Controllers\Api\DataEntryProgressController as DataEntryProgressApiController;
 use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
@@ -26,7 +26,8 @@ use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
 use App\Http\Controllers\Superadmin\PengumumanController;
 use App\Http\Controllers\Superadmin\RankingPendampingController;
-use App\Http\Controllers\Superadmin\RecruitmentController;
+use App\Http\Controllers\Superadmin\RecruitmentApplicantController;
+use App\Http\Controllers\Superadmin\RecruitmentPostController;
 use App\Http\Controllers\Superadmin\ResepMakananController;
 use App\Http\Controllers\Superadmin\ServerInfoController;
 use App\Http\Controllers\Superadmin\SettingwebsiteController;
@@ -38,7 +39,6 @@ use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     return view('welcome');
@@ -64,12 +64,13 @@ Route::get('/', function () {
 Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
 Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
 Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
-Route::get('recruitment', [RecruitmentController::class, 'create'])->name('recruitment.formulir');
-Route::post('recruitment', [RecruitmentController::class, 'store'])->name('recruitment.store');
 Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
 Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
 Route::get('version/check', [AppVersionController::class, 'check']);
-Route::get('/recruitment/confirm/{hashedId}', [RecruitmentController::class, 'confirm'])->name('recruitment.confirm');
+Route::get('/recruitment/confirm/{hashedId}', [RecruitmentApplicantController::class, 'confirm'])->name('recruitment.confirm');
+// Lowongan Pekerjaan — Form Publik Dinamis
+Route::get('loker/{slug}', [RecruitmentApplicantController::class, 'form'])->name('recruitment.form');
+Route::post('loker/{slug}', [RecruitmentApplicantController::class, 'submit'])->name('recruitment.form.submit');
 Route::get('resep-makanan', [HomeController::class, 'resepMakanan'])->name('resep-makanan');
 
 Route::middleware('auth', 'role:superadmin')->group(function () {
@@ -137,11 +138,14 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('verifikator-payments', VerifikatorPaymentController::class);
         // Spotcheck
         Route::resource('spotchecks', SpotcheckController::class);
-        // Recruitment
-        Route::resource('recruitments', RecruitmentController::class);
-        Route::get('/recruitments-data', [RecruitmentController::class, 'data'])->name('recruitments.data');
-        Route::post('recruitments/{id}/update-status', [RecruitmentController::class, 'updateStatus'])->name('recruitments.update-status');
-        Route::get('recruitments/{id}/download-foto/{type}', [RecruitmentController::class, 'downloadFoto'])->name('recruitments.download-foto');
+        // Recruitment — Lowongan Pekerjaan
+        Route::get('recruitment-posts-data', [RecruitmentPostController::class, 'data'])->name('recruitment-posts.data');
+        Route::patch('recruitment-posts/{id}/toggle', [RecruitmentPostController::class, 'toggle'])->name('recruitment-posts.toggle');
+        Route::resource('recruitment-posts', RecruitmentPostController::class);
+        // Recruitment — Pelamar (update status dari halaman show lowongan)
+        Route::post('recruitments/{id}/update-status-v2', [RecruitmentApplicantController::class, 'updateStatus'])->name('recruitments.update-status-v2');
+        Route::get('recruitments/{id}', [RecruitmentApplicantController::class, 'show'])->name('recruitments.show');
+
         // Finance Management
         Route::resource('arus-kas', CashflowController::class);
         Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');
@@ -154,12 +158,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('devices/disconnect', [DeviceController::class, 'disconnect'])->name('devices.disconnect');
         // Data Entry Progress
         Route::prefix('data-entry-progress')->name('data-entry-progress.')->group(function () {
-            Route::get('/',       [SuperadminDataEntryProgressController::class, 'index'])->name('index');
-            Route::get('/data',   [SuperadminDataEntryProgressController::class, 'data'])->name('data');
+            Route::get('/', [SuperadminDataEntryProgressController::class, 'index'])->name('index');
+            Route::get('/data', [SuperadminDataEntryProgressController::class, 'data'])->name('data');
             Route::get('/{progress}', [SuperadminDataEntryProgressController::class, 'show'])->name('show');
             Route::patch('/{progress}/terima', [SuperadminDataEntryProgressController::class, 'terima'])->name('terima');
             Route::patch('/{progress}/revisi', [SuperadminDataEntryProgressController::class, 'revisi'])->name('revisi');
-            Route::patch('/{progress}/tolak',  [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
+            Route::patch('/{progress}/tolak', [SuperadminDataEntryProgressController::class, 'tolak'])->name('tolak');
             Route::post('/bulk-terima', [SuperadminDataEntryProgressController::class, 'bulkTerima'])->name('bulk-terima');
         });
         // Resep Makanan
@@ -253,7 +257,6 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         Route::get('progress/data', [DataEntryProgressController::class, 'data'])->name('progress.data');
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
-
 
         // Ticket
         Route::resource('tickets', TicketsEntryController::class);

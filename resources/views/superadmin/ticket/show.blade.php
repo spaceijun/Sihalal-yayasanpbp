@@ -354,7 +354,7 @@
                         <div style="padding:16px;">
                             <p style="font-size:12.5px;color:var(--adm-text-muted);margin-bottom:12px;line-height:1.5;">
                                 Tindakan ini tidak dapat dibatalkan. Tiket akan dihapus secara permanen.</p>
-                            <form action="{{ route('superadmin.tickets.destroy', $ticket->id) }}" method="POST">
+                            <form action="{{ route('superadmin.tickets.destroy', $ticket->hashed_id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="adm-btn danger"

@@ -1116,11 +1116,18 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ================================================================
        FORM SUBMIT
     ================================================================ */
+    let isSubmitting = false; // Guard untuk mencegah double submit
+
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
+        // -- Guard: cegah double submit --
+        if (isSubmitting) return;
+        isSubmitting = true;
+
         // -- Validasi enumerator --
         if (!enumeratorSelect.value) {
+            isSubmitting = false;
             enumeratorSearch?.classList.add("is-invalid");
             enumeratorSearch?.scrollIntoView({
                 behavior: "smooth",
@@ -1136,6 +1143,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // -- Validasi NIK --
         if (nikInput.value.length !== 16) {
+            isSubmitting = false;
             nikInput.classList.add("is-invalid");
             nikInput.scrollIntoView({ behavior: "smooth", block: "center" });
             showToast(
@@ -1171,7 +1179,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 break;
             }
         }
-        if (!staticOk) return;
+        if (!staticOk) {
+            isSubmitting = false;
+            return;
+        }
 
         // -- Validasi foto produk tambahan --
         let dynamicOk = true;
@@ -1189,6 +1200,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
         if (!dynamicOk) {
+            isSubmitting = false;
             showToast(
                 "error",
                 "Foto Produk Tambahan",
@@ -1199,6 +1211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // -- Disable submit --
         submitBtn.disabled = true;
+        submitBtn.setAttribute('aria-disabled', 'true');
         submitBtn.innerHTML = `
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
                  stroke="rgba(255,255,255,.85)" stroke-width="2.5"
@@ -1308,10 +1321,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 3000,
             );
 
+            // isSubmitting tetap true — form asli tidak bisa disubmit lagi
             setTimeout(() => tempForm.submit(), 800);
         } catch (err) {
             const resetBtn = () => {
+                isSubmitting = false; // Reset flag agar bisa submit ulang setelah error
                 submitBtn.disabled = false;
+                submitBtn.removeAttribute('aria-disabled');
                 submitBtn.innerHTML = `
                     <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
                          stroke="rgba(255,255,255,.85)" stroke-width="2">

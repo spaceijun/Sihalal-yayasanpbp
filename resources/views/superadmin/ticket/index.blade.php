@@ -21,15 +21,6 @@
                     </h1>
                     <p>Kelola semua tiket dukungan pengguna</p>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <a href="{{ route('superadmin.tickets.create') }}" class="adm-btn-primary">
-                        <svg viewBox="0 0 24 24">
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Buat Tiket
-                    </a>
-                </div>
             </div>
 
             {{-- FLASH MESSAGES --}}
@@ -133,8 +124,7 @@
                             @forelse ($tickets as $ticket)
                                 <tr class="ticket-row" data-subject="{{ strtolower($ticket->subject) }}"
                                     data-no="{{ strtolower($ticket->no_ticket) }}"
-                                    data-user="{{ strtolower($ticket->user->name) }}"
-                                    data-status="{{ $ticket->status }}">
+                                    data-user="{{ strtolower($ticket->user->name) }}" data-status="{{ $ticket->status }}">
                                     <td>
                                         <span class="adm-mono"
                                             style="color:var(--adm-blue);font-weight:600;">{{ $ticket->no_ticket }}</span>
@@ -173,14 +163,6 @@
                                                 <svg viewBox="0 0 24 24">
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                                     <circle cx="12" cy="12" r="3" />
-                                                </svg>
-                                            </a>
-                                            {{-- Edit --}}
-                                            <a href="{{ route('superadmin.tickets.edit', $ticket->hashed_id) }}"
-                                                class="adm-btn success icon-only" title="Edit">
-                                                <svg viewBox="0 0 24 24">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                                 </svg>
                                             </a>
                                             {{-- Delete --}}
@@ -358,10 +340,9 @@
                         </div>
                     </div>
 
-                    {{-- Modal Footer --}}
                     <div class="modal-footer">
                         @if ($ticket->status !== 'closed')
-                            <form action="{{ route('superadmin.tickets.close', $ticket->id) }}" method="POST"
+                            <form action="{{ route('superadmin.tickets.close', $ticket->hashed_id) }}" method="POST"
                                 style="margin:0;">
                                 @csrf
                                 @method('PATCH')
@@ -375,15 +356,7 @@
                                 </button>
                             </form>
                         @endif
-                        <a href="{{ route('superadmin.tickets.edit', $ticket->id) }}" class="adm-btn success"
-                            style="height:34px;padding:0 14px;">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            Edit
-                        </a>
-                        <a href="{{ route('superadmin.tickets.show', $ticket->id) }}" class="adm-btn primary"
+                        <a href="{{ route('superadmin.tickets.show', $ticket->hashed_id) }}" class="adm-btn primary"
                             style="height:34px;padding:0 14px;">
                             <svg viewBox="0 0 24 24">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

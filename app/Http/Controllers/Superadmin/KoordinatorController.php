@@ -40,7 +40,10 @@ class KoordinatorController extends Controller
 
                 return '<div class="adm-name-cell">
                     <div class="adm-avatar" style="background:var(--adm-blue-lt);color:var(--adm-blue);">'.$inisial.'</div>
-                    <strong style="font-size:13px;">'.e($k->nama_lengkap).'</strong>
+                    <div>
+                        <strong>'.e($k->nama_lengkap).'</strong>
+                        <small style="color:var(--adm-text-muted);display:block;margin-top:2px;">ID: KO-'.str_pad($k->id, 4, '0', STR_PAD_LEFT).'</small>
+                    </div>
                 </div>';
             })
             ->addColumn('fee_fmt', fn ($k) => 'Rp '.number_format($k->fee_enum, 0, ',', '.'))
@@ -54,10 +57,10 @@ class KoordinatorController extends Controller
                 $deleteUrl = route('superadmin.koordinators.destroy', $k->hashed_id);
 
                 return '<div class="adm-actions">
-                    <a class="adm-btn success icon-only" href="'.$editUrl.'" title="Edit">
+                    <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
-                    <form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus koordinator ini?\')">
+                    <form action="'.$deleteUrl.'" method="POST" class="d-inline form-delete">
                         <input type="hidden" name="_token" value="'.csrf_token().'">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="adm-btn danger icon-only" title="Hapus">

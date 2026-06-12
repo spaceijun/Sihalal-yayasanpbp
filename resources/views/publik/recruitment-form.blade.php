@@ -825,33 +825,44 @@
                                 <div class="rc-field">
                                     <label class="rc-label">Unduh Template Pakta Integritas</label>
                                     <div class="rc-dl-group">
-                                        @if($post->posisi === 'PENDAMPING')
-                                            <a href="{{ asset('assets/files/pakta-integritas-pendamping.docx') }}" download class="rc-dl-btn pendamping active">
+                                        @if($post->template_pakta_integritas)
+                                            <a href="{{ asset('storage/' . $post->template_pakta_integritas) }}" download class="rc-dl-btn pendamping active">
                                                 <svg viewBox="0 0 24 24">
                                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                                     <polyline points="7 10 12 15 17 10" />
                                                     <line x1="12" y1="15" x2="12" y2="3" />
                                                 </svg>
-                                                Pakta — Pendamping
+                                                Unduh Template Pakta
                                             </a>
-                                        @elseif($post->posisi === 'DATA ENTRY')
-                                            <a href="{{ asset('assets/files/pakta-integritas-data-entry.docx') }}" download class="rc-dl-btn dataentry active">
-                                                <svg viewBox="0 0 24 24">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                    <polyline points="7 10 12 15 17 10" />
-                                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                                </svg>
-                                                Pakta — Data Entry
-                                            </a>
-                                        @elseif($post->posisi === 'ADMIN UMUM')
-                                            <a href="{{ asset('assets/files/pakta-integritas-admin-umum.docx') }}" download class="rc-dl-btn adminumum active">
-                                                <svg viewBox="0 0 24 24">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                    <polyline points="7 10 12 15 17 10" />
-                                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                                </svg>
-                                                Pakta — Admin Umum
-                                            </a>
+                                        @else
+                                            @if($post->posisi === 'PENDAMPING')
+                                                <a href="{{ asset('assets/files/pakta-integritas-pendamping.docx') }}" download class="rc-dl-btn pendamping active">
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="7 10 12 15 17 10" />
+                                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                                    </svg>
+                                                    Pakta — Pendamping
+                                                </a>
+                                            @elseif($post->posisi === 'DATA ENTRY')
+                                                <a href="{{ asset('assets/files/pakta-integritas-data-entry.docx') }}" download class="rc-dl-btn dataentry active">
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="7 10 12 15 17 10" />
+                                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                                    </svg>
+                                                    Pakta — Data Entry
+                                                </a>
+                                            @elseif($post->posisi === 'ADMIN UMUM')
+                                                <a href="{{ asset('assets/files/pakta-integritas-admin-umum.docx') }}" download class="rc-dl-btn adminumum active">
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="7 10 12 15 17 10" />
+                                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                                    </svg>
+                                                    Pakta — Admin Umum
+                                                </a>
+                                            @endif
                                         @endif
                                     </div>
                                     <span class="rc-hint">Unduh template sesuai posisi, tandatangani, lalu unggah kembali di bagian bawah.</span>

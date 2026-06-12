@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <form action="{{ route('superadmin.recruitment-posts.update', $post->hashed_id) }}" method="POST" id="formLoker">
+        <form action="{{ route('superadmin.recruitment-posts.update', $post->hashed_id) }}" method="POST" id="formLoker" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">

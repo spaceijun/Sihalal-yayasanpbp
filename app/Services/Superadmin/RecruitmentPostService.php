@@ -19,6 +19,14 @@ class RecruitmentPostService
     {
         $data['slug'] = $this->generateUniqueSlug($data['nama_loker']);
 
+        if (isset($data['template_pakta_integritas']) && $data['template_pakta_integritas'] instanceof \Illuminate\Http\UploadedFile) {
+            $file = $data['template_pakta_integritas'];
+            $ext = $file->getClientOriginalExtension();
+            $fileName = 'template_pakta_integritas_' . time() . '.' . $ext;
+            $path = $file->storeAs('recruitment_templates', $fileName, 'public');
+            $data['template_pakta_integritas'] = $path;
+        }
+
         return RecruitmentPost::create($data);
     }
 
@@ -30,6 +38,25 @@ class RecruitmentPostService
         // Jika nama berubah, generate slug baru
         if (isset($data['nama_loker']) && $data['nama_loker'] !== $post->nama_loker) {
             $data['slug'] = $this->generateUniqueSlug($data['nama_loker'], $post->id);
+        }
+
+        if (isset($data['template_pakta_integritas'])) {
+            if ($data['template_pakta_integritas'] instanceof \Illuminate\Http\UploadedFile) {
+                // Hapus file lama jika ada
+                if ($post->template_pakta_integritas) {
+                    Storage::disk('public')->delete($post->template_pakta_integritas);
+                }
+                $file = $data['template_pakta_integritas'];
+                $ext = $file->getClientOriginalExtension();
+                $fileName = 'template_pakta_integritas_' . time() . '.' . $ext;
+                $path = $file->storeAs('recruitment_templates', $fileName, 'public');
+                $data['template_pakta_integritas'] = $path;
+            } elseif ($data['template_pakta_integritas'] === null) {
+                if ($post->template_pakta_integritas) {
+                    Storage::disk('public')->delete($post->template_pakta_integritas);
+                }
+                $data['template_pakta_integritas'] = null;
+            }
         }
 
         $post->update($data);

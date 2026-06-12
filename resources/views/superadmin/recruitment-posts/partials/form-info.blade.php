@@ -44,6 +44,21 @@
         value="{{ old('tanggal_tutup', isset($post) && $post->tanggal_tutup ? $post->tanggal_tutup->format('Y-m-d\TH:i') : '') }}">
     <span class="adm-hint">Kosongkan jika tidak ada batas tanggal tutup.</span>
 </div>
+<div class="adm-field">
+    <label class="adm-label">Template Pakta Integritas</label>
+    <input type="file" name="template_pakta_integritas" class="adm-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+    <span class="adm-hint">Format: PDF, DOC, DOCX, JPG, PNG (Max. 10MB). Unggah jika lowongan ini memerlukan format pakta integritas tertentu.</span>
+    @if(isset($post) && $post->template_pakta_integritas)
+        <div style="margin-top:8px;display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--adm-bg-muted,#f8f9fa);border-radius:6px;border:1px solid var(--adm-border-color,#e9ebec);">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--adm-blue);fill:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <a href="{{ asset('storage/' . $post->template_pakta_integritas) }}" target="_blank" style="font-size:12.5px;font-weight:600;color:var(--adm-blue);text-decoration:none;flex-grow:1;">Lihat Template Saat Ini</a>
+            
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--adm-red);cursor:pointer;margin:0;">
+                <input type="checkbox" name="delete_template" value="1"> Hapus Template
+            </label>
+        </div>
+    @endif
+</div>
 
 @push('scripts')
     <script>

@@ -130,18 +130,23 @@ class RecruitmentPostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_loker'    => 'required|string|max:255',
-            'posisi'        => 'required|in:PENDAMPING,DATA ENTRY,ADMIN UMUM',
-            'deskripsi'     => 'nullable|string',
-            'jobdesk'       => 'nullable|string',
-            'is_active'     => 'nullable|boolean',
-            'tanggal_buka'  => 'nullable|date',
-            'tanggal_tutup' => 'nullable|date|after_or_equal:tanggal_buka',
-            'requirements'  => 'nullable|array',
+            'nama_loker'                 => 'required|string|max:255',
+            'posisi'                     => 'required|in:PENDAMPING,DATA ENTRY,ADMIN UMUM',
+            'deskripsi'                  => 'nullable|string',
+            'jobdesk'                    => 'nullable|string',
+            'template_pakta_integritas'  => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:10240',
+            'is_active'                  => 'nullable|boolean',
+            'tanggal_buka'               => 'nullable|date',
+            'tanggal_tutup'              => 'nullable|date|after_or_equal:tanggal_buka',
+            'requirements'               => 'nullable|array',
         ]);
 
         $data = $request->only(['nama_loker', 'posisi', 'deskripsi', 'jobdesk', 'tanggal_buka', 'tanggal_tutup']);
         $data['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('template_pakta_integritas')) {
+            $data['template_pakta_integritas'] = $request->file('template_pakta_integritas');
+        }
 
         // Parse requirements dari form builder
         if ($request->filled('requirements')) {
@@ -184,20 +189,27 @@ class RecruitmentPostController extends Controller
     public function update(Request $request, $hashedId)
     {
         $request->validate([
-            'nama_loker'    => 'required|string|max:255',
-            'posisi'        => 'required|in:PENDAMPING,DATA ENTRY,ADMIN UMUM',
-            'deskripsi'     => 'nullable|string',
-            'jobdesk'       => 'nullable|string',
-            'is_active'     => 'nullable|boolean',
-            'tanggal_buka'  => 'nullable|date',
-            'tanggal_tutup' => 'nullable|date|after_or_equal:tanggal_buka',
-            'requirements'  => 'nullable|array',
+            'nama_loker'                 => 'required|string|max:255',
+            'posisi'                     => 'required|in:PENDAMPING,DATA ENTRY,ADMIN UMUM',
+            'deskripsi'                  => 'nullable|string',
+            'jobdesk'                    => 'nullable|string',
+            'template_pakta_integritas'  => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:10240',
+            'is_active'                  => 'nullable|boolean',
+            'tanggal_buka'               => 'nullable|date',
+            'tanggal_tutup'              => 'nullable|date|after_or_equal:tanggal_buka',
+            'requirements'               => 'nullable|array',
         ]);
 
         $post = RecruitmentPost::findByHashedIdOrFail($hashedId);
 
         $data = $request->only(['nama_loker', 'posisi', 'deskripsi', 'jobdesk', 'tanggal_buka', 'tanggal_tutup']);
         $data['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('template_pakta_integritas')) {
+            $data['template_pakta_integritas'] = $request->file('template_pakta_integritas');
+        } elseif ($request->boolean('delete_template')) {
+            $data['template_pakta_integritas'] = null;
+        }
 
         if ($request->filled('requirements')) {
             $data['requirements'] = $this->service->parseRequirements($request->input('requirements'));

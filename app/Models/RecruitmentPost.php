@@ -33,6 +33,7 @@ class RecruitmentPost extends Model
         'posisi',
         'deskripsi',
         'jobdesk',
+        'template_pakta_integritas',
         'is_active',
         'slug',
         'requirements',

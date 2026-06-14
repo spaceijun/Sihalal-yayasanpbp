@@ -1679,7 +1679,7 @@ Tandai titik_kritis: true pada langkah yang berpotensi mempengaruhi kehalalan pr
 PENTING: Balas JSON saja, tidak ada teks lain, tidak ada markdown, tidak ada backtick.`;
 
             try {
-                const response = await fetch('/api/analisis-halal', {
+                const response = await fetch('/api/data-entry/analisis-halal', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

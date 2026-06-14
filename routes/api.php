@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\AnalisisHalalController;
 use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
@@ -19,7 +20,8 @@ use Illuminate\Support\Facades\Route;
 |
 | File ini hanya berisi endpoint yang digunakan oleh aplikasi Flutter:
 |   1. Auth  → /api/login  (login enumerator/user)
-|   2. Enumerator (sanctum) → semua endpoint profil, data lapangan, cashflow, pengumuman
+|   2. Data Entry (sanctum) → analisis halal (AI)
+|   3. Enumerator (sanctum) → semua endpoint profil, data lapangan, cashflow, pengumuman
 |
 | Seluruh endpoint berbasis web-session (superadmin, koordinator, data-entry)
 | telah dipindahkan ke routes/web.php menggunakan Yajra DataTables.
@@ -43,6 +45,22 @@ Route::get('/ringkasan', [RingkasanController::class, 'index'])
 Route::get('ranking-pendamping', [RankingPendampingApiController::class, 'index'])
     ->middleware('throttle:60,1')
     ->name('api.ranking-pendamping');
+
+// ──────────────────────────────────────────────────────────
+// DATA ENTRY ROUTES (sanctum) - WITH RATE LIMITING
+// ──────────────────────────────────────────────────────────
+Route::middleware([
+    'auth:sanctum',
+    'role:data_entry',
+    'throttle:120,1' // 120 requests per minute per user
+])->group(function () {
+    Route::prefix('data-entry')->name('api.data-entry.')->group(function () {
+
+        // Analisis Halal (AI) — /api/data-entry/analisis-halal
+        Route::post('/analisis-halal', [AnalisisHalalController::class, 'analyze'])->name('analisis-halal');
+
+    });
+});
 
 // ──────────────────────────────────────────────────────────
 // ENUMERATOR ROUTES (sanctum) - WITH RATE LIMITING
@@ -96,6 +114,9 @@ Route::middleware([
         // Pengumuman
         Route::get('/pengumuman', [PengumumanEnumController::class, 'index'])->name('pengumuman.index');
         Route::get('/pengumuman/{id}', [PengumumanEnumController::class, 'show'])->name('pengumuman.show');
+
+        // Analisis Halal (AI)
+        Route::post('/analisis-halal', [AnalisisHalalController::class, 'analyze'])->name('analisis-halal');
 
         // Tiket Keluhan
         Route::prefix('tiket')->name('tiket.')->group(function () {

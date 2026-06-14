@@ -22,8 +22,9 @@ class TicketController extends Controller
         }
 
         $tickets = $query->paginate();
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.ticket.index', compact('tickets'))
+        return view('superadmin.ticket.index', compact('tickets', 'routePrefix'))
             ->with('i', ($request->input('page', 1) - 1) * $tickets->perPage());
     }
 

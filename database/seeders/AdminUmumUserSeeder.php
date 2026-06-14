@@ -18,19 +18,19 @@ class AdminUmumUserSeeder extends Seeder
     {
         // 1. Pastikan role admin_umum sudah ada
         $role = Role::firstOrCreate([
-            'name'       => 'admin_umum',
+            'name' => 'admin_umum',
             'guard_name' => 'web',
         ]);
 
         // 2. Buat atau update user admin umum
         $user = User::updateOrCreate(
-            ['email' => 'adminumum@sihalal.id'],
+            ['email' => 'adminumum@kawulohalal.id'],
             [
-                'name'      => 'Admin Umum',
-                'email'     => 'adminumum@sihalal.id',
+                'name' => 'Admin Umum',
+                'email' => 'adminumum@kawulohalal.id',
                 'telephone' => '08123456789',
-                'password'  => Hash::make('password123'),
-                'role'      => 'admin_umum',
+                'password' => Hash::make('adminumum123'),
+                'role' => 'admin_umum',
             ]
         );
 

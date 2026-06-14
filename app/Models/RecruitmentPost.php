@@ -29,6 +29,7 @@ class RecruitmentPost extends Model
     use HasHashedId;
 
     protected $fillable = [
+        'created_by',
         'nama_loker',
         'posisi',
         'deskripsi',

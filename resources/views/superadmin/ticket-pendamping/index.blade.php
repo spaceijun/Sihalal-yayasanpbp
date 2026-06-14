@@ -232,7 +232,7 @@
                 searching: true,
                 dom: "<'table-responsive'tr><'adm-card-footer'<'adm-footer-info'i><'adm-pagination'p>>",
                 ajax: {
-                    url: '{{ route('superadmin.ticket-pendampings.data') }}',
+                    url: '{{ route($routePrefix . '.ticket-pendampings.data') }}',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': CSRF

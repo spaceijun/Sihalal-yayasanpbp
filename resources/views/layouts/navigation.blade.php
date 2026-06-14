@@ -119,6 +119,12 @@
                 {{-- Master Data --}}
                 <li class="menu-title"><span data-key="t-menu">Master Data</span></li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/company-profile') }}"
+                        class="nav-link {{ Request::is('superadmin/company-profile*') ? 'active' : '' }}">
+                        <i data-feather="globe"></i>Company Profile
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/resep-makanans') }}"
                         class="nav-link {{ $current_url == 'superadmin/resep-makanans' ? 'active' : '' }}">
                         <i data-feather="file-text"></i>Resep Makanan
@@ -158,7 +164,99 @@
                         <i data-feather="smartphone"></i>App Versions
                     </a>
                 </li>
+            @elseif ($role == 'admin_umum')
+                {{-- Dashboard --}}
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum') }}" class="nav-link {{ Request::is('admin-umum') || Request::is('admin-umum/dashboard') ? 'active' : '' }}">
+                        <i data-feather="home"></i>Dashboard
+                    </a>
+                </li>
+
+                {{-- Management --}}
+                <li class="menu-title"><span data-key="t-menu">Management</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/koordinators') }}"
+                        class="nav-link {{ Request::is('admin-umum/koordinators*') ? 'active' : '' }}">
+                        <i data-feather="user"></i>Koordinator
+                    </a>
+                </li>
+
+                {{-- Data Entry --}}
+                <li class="menu-title"><span data-key="t-menu">Data Entry</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/data-entries') }}"
+                        class="nav-link {{ Request::is('admin-umum/data-entries*') ? 'active' : '' }}">
+                        <i data-feather="file-text"></i>Data Entry
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/pengumumen') }}"
+                        class="nav-link {{ Request::is('admin-umum/pengumumen*') ? 'active' : '' }}">
+                        <i data-feather="align-justify"></i>Pengumuman Data Entry
+                    </a>
+                </li>
+
+                {{-- Human Resources --}}
+                <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/recruitment-posts') }}"
+                        class="nav-link {{ Request::is('admin-umum/recruitment-posts*') ? 'active' : '' }}">
+                        <i data-feather="briefcase"></i>Lowongan Pekerjaan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/enumerators') }}"
+                        class="nav-link {{ Request::is('admin-umum/enumerators*') ? 'active' : '' }}">
+                        <i data-feather="list"></i>Enumerator
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/data-lapangans') }}"
+                        class="nav-link {{ Request::is('admin-umum/data-lapangans*') ? 'active' : '' }}">
+                        <i data-feather="map-pin"></i>Data Lapangan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/ranking-pendamping') }}"
+                        class="nav-link {{ Request::is('admin-umum/ranking-pendamping*') ? 'active' : '' }}">
+                        <i data-feather="award"></i>Ranking Pendamping
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/laporan-harian') }}"
+                        class="nav-link {{ Request::is('admin-umum/laporan-harian*') ? 'active' : '' }}">
+                        <i data-feather="calendar"></i>Laporan Harian
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/tickets') }}"
+                        class="nav-link {{ Request::is('admin-umum/tickets') ? 'active' : '' }}">
+                        <i data-feather="send"></i>Tickets
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/ticket-pendampings') }}"
+                        class="nav-link {{ Request::is('admin-umum/ticket-pendampings*') ? 'active' : '' }}">
+                        <i data-feather="message-square"></i>Ticket Pendamping
+                    </a>
+                </li>
+
+                {{-- Master Data --}}
+                <li class="menu-title"><span data-key="t-menu">Master Data</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/company-profile') }}"
+                        class="nav-link {{ Request::is('admin-umum/company-profile*') ? 'active' : '' }}">
+                        <i data-feather="globe"></i>Company Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/resep-makanans') }}"
+                        class="nav-link {{ Request::is('admin-umum/resep-makanans*') ? 'active' : '' }}">
+                        <i data-feather="file-text"></i>Resep Makanan
+                    </a>
+                </li>
             @elseif ($role == 'koordinator')
+
                 @include('layouts.navigation-koordinator')
             @elseif ($role == 'data_entry')
                 @include('layouts.navigation-data-entry')

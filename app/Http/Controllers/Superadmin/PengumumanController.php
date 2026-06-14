@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Pengumuman;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class PengumumanController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
@@ -32,7 +35,9 @@ class PengumumanController extends Controller
         $nextNomor = $this->generateNomor();
         $pengumuman = new Pengumuman();
 
-        return view('superadmin.pengumuman.create', compact('pengumuman', 'nextNomor'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.pengumuman.create', compact('pengumuman', 'nextNomor', 'routePrefix'));
     }
 
     /**
@@ -54,7 +59,7 @@ class PengumumanController extends Controller
 
         Pengumuman::create($validatedData);
 
-        return Redirect::route('superadmin.pengumumen.index')
+        return Redirect::route($this->routePrefix() . '.pengumumen.index')
             ->with('success', 'Pengumuman created successfully.');
     }
 
@@ -65,7 +70,9 @@ class PengumumanController extends Controller
     {
         $pengumuman = Pengumuman::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.pengumuman.show', compact('pengumuman'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.pengumuman.show', compact('pengumuman', 'routePrefix'));
     }
 
     /**
@@ -75,7 +82,9 @@ class PengumumanController extends Controller
     {
         $pengumuman = Pengumuman::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.pengumuman.edit', compact('pengumuman'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.pengumuman.edit', compact('pengumuman', 'routePrefix'));
     }
 
     /**
@@ -102,7 +111,7 @@ class PengumumanController extends Controller
 
         $pengumuman->update($validatedData);
 
-        return Redirect::route('superadmin.pengumumen.index')
+        return Redirect::route($this->routePrefix() . '.pengumumen.index')
             ->with('success', 'Pengumuman updated successfully');
     }
 
@@ -110,7 +119,7 @@ class PengumumanController extends Controller
     {
         Pengumuman::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.pengumumen.index')
+        return Redirect::route($this->routePrefix() . '.pengumumen.index')
             ->with('success', 'Pengumuman deleted successfully');
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Http\Requests\DataEntryRequest;
 use App\Models\DataEntry;
 use App\Models\Superadmin\Koordinator;
@@ -15,12 +16,30 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DataEntryController extends Controller
 {
+    use HasRoutePrefix;
+
+    /**
+     * Deteksi route prefix (superadmin atau admin-umum).
+     */
+    private function routePrefix(): string
+    {
+        $prefix = request()->route()->getPrefix();
+
+        return str_contains($prefix, 'admin-umum') ? 'admin-umum' : 'superadmin';
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        return view('superadmin.data-entry.index');
+        $prefix = $this->routePrefix();
+        $dataUrl = route($prefix.'.data-entries.data');
+        $createUrl = route($prefix.'.data-entries.create');
+
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-entry.index', compact('dataUrl', 'createUrl', 'prefix', 'routePrefix'));
     }
 
     /**
@@ -70,8 +89,9 @@ class DataEntryController extends Controller
                 return '<span style="color:var(--adm-text-faint);">—</span>';
             })
             ->addColumn('aksi', function ($de) {
-                $editUrl = route('superadmin.data-entries.edit', $de->hashed_id);
-                $deleteUrl = route('superadmin.data-entries.destroy', $de->hashed_id);
+                $prefix = $this->routePrefix();
+                $editUrl = route($prefix.'.data-entries.edit', $de->hashed_id);
+                $deleteUrl = route($prefix.'.data-entries.destroy', $de->hashed_id);
 
                 return '<div class="adm-actions">
                     <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
@@ -95,10 +115,13 @@ class DataEntryController extends Controller
      */
     public function create(): View
     {
+        $prefix = $this->routePrefix();
         $dataEntry = new DataEntry;
         $koordinators = Koordinator::all();
 
-        return view('superadmin.data-entry.create', compact('dataEntry', 'koordinators'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-entry.create', compact('dataEntry', 'koordinators', 'prefix', 'routePrefix'));
     }
 
     /**
@@ -130,7 +153,7 @@ class DataEntryController extends Controller
             $dataEntry->koordinators()->sync($request->koordinator_ids);
         }
 
-        return Redirect::route('superadmin.data-entries.index')
+        return Redirect::route($this->routePrefix().'.data-entries.index')
             ->with('success', 'Data Entry Berhasil Dibuat.');
     }
 
@@ -139,10 +162,13 @@ class DataEntryController extends Controller
      */
     public function show($hashedId): View
     {
+        $prefix = $this->routePrefix();
         $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
         $dataEntry->load('koordinators');
 
-        return view('superadmin.data-entry.show', compact('dataEntry'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-entry.show', compact('dataEntry', 'prefix', 'routePrefix'));
     }
 
     /**
@@ -150,12 +176,15 @@ class DataEntryController extends Controller
      */
     public function edit($hashedId): View
     {
+        $prefix = $this->routePrefix();
         $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
         $dataEntry->load('koordinators');
         $koordinators = Koordinator::all();
         $selectedKoordinatorIds = $dataEntry->koordinators->pluck('id')->toArray();
 
-        return view('superadmin.data-entry.edit', compact('dataEntry', 'koordinators', 'selectedKoordinatorIds'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-entry.edit', compact('dataEntry', 'koordinators', 'selectedKoordinatorIds', 'prefix', 'routePrefix'));
     }
 
     /**
@@ -182,7 +211,7 @@ class DataEntryController extends Controller
             ]);
         }
 
-        return Redirect::route('superadmin.data-entries.index')
+        return Redirect::route($this->routePrefix().'.data-entries.index')
             ->with('success', 'Data Entry Berhasil Di Update.');
     }
 
@@ -197,7 +226,7 @@ class DataEntryController extends Controller
         $dataEntry->koordinators()->detach();
         $dataEntry->delete();
 
-        return Redirect::route('superadmin.data-entries.index')
+        return Redirect::route($this->routePrefix().'.data-entries.index')
             ->with('success', 'Data Entry Berhasil Dihapus.');
     }
 }

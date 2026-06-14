@@ -15,11 +15,11 @@
                 <p>Top 10 pendamping berdasarkan total pengajuan</p>
             </div>
             <div class="period-pills">
-                <a href="{{ route('superadmin.ranking-pendamping.index') }}"
+                <a href="{{ route($routePrefix . '.ranking-pendamping.index') }}"
                     class="period-pill {{ $periode === 'all' ? 'active' : '' }}">
                     Semua Waktu
                 </a>
-                <a href="{{ route('superadmin.ranking-pendamping.index', ['periode' => 'bulan_ini']) }}"
+                <a href="{{ route($routePrefix . '.ranking-pendamping.index', ['periode' => 'bulan_ini']) }}"
                     class="period-pill {{ $periode === 'bulan_ini' ? 'active' : '' }}">
                     Bulan Ini
                 </a>

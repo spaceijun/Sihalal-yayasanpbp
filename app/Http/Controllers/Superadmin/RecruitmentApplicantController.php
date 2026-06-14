@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Recruitment;
 use App\Models\RecruitmentPost;
 use App\Models\Superadmin\Koordinator;
@@ -11,6 +12,8 @@ use Illuminate\Http\Request;
 
 class RecruitmentApplicantController extends Controller
 {
+    use HasRoutePrefix;
+
     public function __construct(private RecruitmentPostService $service) {}
 
     /**
@@ -116,7 +119,9 @@ class RecruitmentApplicantController extends Controller
         $recruitment = Recruitment::with(['koordinator', 'recruitmentPost'])->findOrFail(Recruitment::findByHashedIdOrFail($hashedId)->id);
         $koordinators = Koordinator::all();
 
-        return view('superadmin.recruitment.show', compact('recruitment', 'koordinators'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.recruitment.show', compact('recruitment', 'koordinators', 'routePrefix'));
     }
 
     /**

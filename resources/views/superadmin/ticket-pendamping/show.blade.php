@@ -21,7 +21,7 @@
                     <p>Informasi detail kendala lapangan dari pendamping/enumerator</p>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                    <a href="{{ route('superadmin.ticket-pendampings.index') }}" class="adm-btn-secondary">
+                    <a href="{{ route($routePrefix . '.ticket-pendampings.index') }}" class="adm-btn-secondary">
                         <svg viewBox="0 0 24 24"
                             style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;">
                             <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -152,7 +152,7 @@
                                             {{ $ticket->dataLapangan->nama_pu }}
                                         </div>
                                     </div>
-                                    <a href="{{ route('superadmin.data-lapangans.show', $ticket->dataLapangan->hashed_id) }}"
+                                    <a href="{{ route($routePrefix . '.data-lapangans.show', $ticket->dataLapangan->hashed_id) }}"
                                         class="adm-btn primary" target="_blank">
                                         <svg viewBox="0 0 24 24">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -327,7 +327,7 @@
                             </div>
                         </div>
                         <div style="padding:20px;">
-                            <form action="{{ route('superadmin.ticket-pendampings.update-status', $ticket->hashed_id) }}"
+                            <form action="{{ route($routePrefix . '.ticket-pendampings.update-status', $ticket->hashed_id) }}"
                                 method="POST">
                                 @csrf
                                 @method('PATCH')
@@ -396,7 +396,7 @@
                             <p style="font-size:12px;color:var(--adm-text-muted);margin-bottom:12px;line-height:1.5;">
                                 Menghapus tiket ini akan menghilangkan data pengaduan secara permanen.
                             </p>
-                            <form action="{{ route('superadmin.ticket-pendampings.destroy', $ticket->hashed_id) }}"
+                            <form action="{{ route($routePrefix . '.ticket-pendampings.destroy', $ticket->hashed_id) }}"
                                 method="POST"
                                 onsubmit="return confirm('Apakah Anda benar-benar yakin ingin menghapus tiket ini? Tindakan ini tidak dapat dibatalkan.');">
                                 @csrf

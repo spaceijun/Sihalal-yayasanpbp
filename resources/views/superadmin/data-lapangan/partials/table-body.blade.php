@@ -27,7 +27,7 @@
         </td>
         <td>
             <div style="font-weight:600;font-size:13px;color:var(--adm-text-dark);">
-                <a href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"
+                <a href="{{ route($routePrefix . '.data-lapangans.show', $dataLapangan->hashed_id) }}"
                     style="color:inherit;text-decoration:none;">
                     {{ $dataLapangan->nama_pu }}
                 </a>
@@ -89,7 +89,7 @@
         <td class="tc">
             <div class="adm-actions" style="justify-content:center;gap:4px;">
                 <a class="adm-btn primary icon-only"
-                    href="{{ route('superadmin.data-lapangans.show', $dataLapangan->hashed_id) }}"
+                    href="{{ route($routePrefix . '.data-lapangans.show', $dataLapangan->hashed_id) }}"
                     title="Lihat Detail">
                     <svg viewBox="0 0 24 24">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -102,7 +102,7 @@
                         $dataLapangan->status_pembayaran == 'PENGAJUAN' &&
                         optional($dataLapangan->enumerator)->status === 'Aktif')
                     <form
-                        action="{{ route('superadmin.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
+                        action="{{ route($routePrefix . '.data-lapangans.update-status-payment', $dataLapangan->hashed_id) }}"
                         method="POST" class="d-inline">
                         @csrf @method('PATCH')
                         <button type="submit" class="adm-btn success icon-only" title="Tandai Dibayar">
@@ -125,7 +125,7 @@
                 @endif
 
                 @if ($dataLapangan->status == 'PENDING' || $dataLapangan->status == 'DITOLAK')
-                    <form action="{{ route('superadmin.data-lapangans.destroy', $dataLapangan->hashed_id) }}"
+                    <form action="{{ route($routePrefix . '.data-lapangans.destroy', $dataLapangan->hashed_id) }}"
                         method="POST" class="delete-form d-inline" data-id="{{ $dataLapangan->id }}">
                         @csrf @method('DELETE')
                         <button type="submit" class="adm-btn danger icon-only" title="Hapus Data">

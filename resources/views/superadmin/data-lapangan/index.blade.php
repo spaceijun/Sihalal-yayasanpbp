@@ -24,14 +24,14 @@
                     </svg>
                     Export Excel
                 </button>
-                <a href="{{ route('superadmin.data-lapangans.data-revisi') }}" class="adm-btn-secondary" style="gap:6px;">
+                <a href="{{ route($routePrefix . '.data-lapangans.data-revisi') }}" class="adm-btn-secondary" style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <polyline points="1 4 1 10 7 10" />
                         <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
                     </svg>
                     Data Revisi
                 </a>
-                <a href="{{ route('superadmin.data-lapangans.create') }}" class="adm-btn-primary" style="gap:6px;">
+                <a href="{{ route($routePrefix . '.data-lapangans.create') }}" class="adm-btn-primary" style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -265,8 +265,8 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const FORCE_UNLOCK_URL = '{{ url('superadmin/data-lapangans') }}';
-                const BULK_PAYMENT_URL = '{{ route('superadmin.data-lapangans.bulk-payment') }}';
-                const EXPORT_URL = '{{ route('superadmin.data-lapangans.export') }}';
+                const BULK_PAYMENT_URL = '{{ route($routePrefix . '.data-lapangans.bulk-payment') }}';
+                const EXPORT_URL = '{{ route($routePrefix . '.data-lapangans.export') }}';
                 const CSRF_TOKEN = '{{ csrf_token() }}';
 
                 function getCsrfToken() {
@@ -281,7 +281,7 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '{{ route('superadmin.data-lapangans.data') }}',
+                        url: '{{ route($routePrefix . '.data-lapangans.data') }}',
                         type: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': getCsrfToken()

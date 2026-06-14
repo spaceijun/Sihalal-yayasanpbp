@@ -45,6 +45,18 @@ return [
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+            /*
+            |--------------------------------------------------------------------------
+            | File Access Control
+            |--------------------------------------------------------------------------
+            |
+            | SECURITY NOTE: Files in public disk are accessible via direct URL.
+            | To protect sensitive files, consider:
+            | 1. Use hashed filenames (implemented in FileService)
+            | 2. Implement signed URLs for sensitive documents
+            | 3. Move sensitive files to private disk and serve via controller
+            |
+            */
         ],
 
         's3' => [

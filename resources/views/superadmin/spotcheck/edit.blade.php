@@ -8,7 +8,7 @@
             <h1>Edit Spotcheck</h1>
             <p>Update catatan spotcheck <strong>{{ $spotcheck->nama_spotcheck }}</strong></p>
         </div>
-        <a href="{{ route('superadmin.spotchecks.index') }}" class="adm-btn-secondary">
+        <a href="{{ route($routePrefix . '.spotchecks.index') }}" class="adm-btn-secondary">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Kembali
         </a>
     </div>
@@ -17,7 +17,7 @@
             <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             Edit Data Spotcheck
         </div>
-        <form method="POST" action="{{ route('superadmin.spotchecks.update', $spotcheck->hashed_id) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route($routePrefix . '.spotchecks.update', $spotcheck->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -29,7 +29,7 @@
                 <button type="submit" class="adm-btn-primary">
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Perubahan
                 </button>
-                <a href="{{ route('superadmin.spotchecks.index') }}" class="adm-btn-secondary">Batal</a>
+                <a href="{{ route($routePrefix . '.spotchecks.index') }}" class="adm-btn-secondary">Batal</a>
             </div>
         </form>
     </div>

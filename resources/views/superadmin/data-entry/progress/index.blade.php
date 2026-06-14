@@ -96,7 +96,7 @@
             </div>
 
             {{-- TABLE --}}
-            <form id="bulkForm" action="{{ route('superadmin.data-entry-progress.bulk-terima') }}" method="POST">
+            <form id="bulkForm" action="{{ route($routePrefix . '.data-entry-progress.bulk-terima') }}" method="POST">
                 @csrf
                 <input type="hidden" name="verifikator_id" id="bulkVerifikatorId">
                 <input type="hidden" name="tanggal_verifikasi" id="bulkTanggalVerifikasi">
@@ -416,7 +416,7 @@
             serverSide: true,
             searching: true,
             ajax: {
-                url: '{{ route('superadmin.data-entry-progress.data') }}',
+                url: '{{ route($routePrefix . '.data-entry-progress.data') }}',
                 type: 'GET',
                 data: function (d) {
                     d.status     = _activeStatus;

@@ -75,7 +75,7 @@
                 <span class="badge bg-{{ $progressStatusClass['bg'] }} {{ $progressStatusClass['text'] }} px-3 py-2 fs-6">
                     {{ $progressStatusClass['label'] }}
                 </span>
-                <a href="{{ route('superadmin.data-entry-progress.index') }}" class="btn btn-light btn-sm">
+                <a href="{{ route($routePrefix . '.data-entry-progress.index') }}" class="btn btn-light btn-sm">
                     <i class="las la-arrow-left me-1"></i>Kembali
                 </a>
             </div>
@@ -415,7 +415,7 @@
                                                 <i class="las la-eye"></i>
                                             </button>
                                             @if ($idx === 1)
-                                                <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dl->hashed_id) }}"
+                                                <a href="{{ route($routePrefix . '.datalapangan.download-foto-produk', $dl->hashed_id) }}"
                                                     class="btn btn-success btn-sm">
                                                     <i class="las la-download me-1"></i>Download
                                                 </a>

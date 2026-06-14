@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Enumerator;
 use Illuminate\Http\Request;
 
 class RankingPendampingController extends Controller
 {
+    use HasRoutePrefix;
+
     public function index(Request $request)
     {
         $periode = in_array($request->get('periode'), ['all', 'bulan_ini'])
@@ -67,11 +70,13 @@ class RankingPendampingController extends Controller
             'total_progress'   => $enumerators->sum('progress'),
         ];
 
+        $routePrefix = $this->routePrefix();
+
         return view('superadmin.ranking-pendamping.index', compact(
             'enumerators',
             'maxPengajuan',
             'stats',
             'periode',
-        ));
+            'routePrefix'));
     }
 }

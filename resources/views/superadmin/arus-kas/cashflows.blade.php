@@ -12,7 +12,7 @@
             <h1>Laporan Arus Kas</h1>
             <p>Ringkasan pemasukan, pengeluaran, dan neraca kas</p>
         </div>
-        <a href="{{ route('superadmin.arus-kas.index') }}" class="adm-btn-secondary">
+        <a href="{{ route($routePrefix . '.arus-kas.index') }}" class="adm-btn-secondary">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Kelola Transaksi
         </a>
@@ -118,7 +118,7 @@
     }
 
     function fetchData() {
-        fetch('{{ route('superadmin.cashflows.data') }}')
+        fetch('{{ route($routePrefix . '.cashflows.data') }}')
             .then(r => r.json())
             .then(data => processData(data))
             .catch(() => {

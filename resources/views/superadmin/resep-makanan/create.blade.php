@@ -12,7 +12,7 @@
                 <h1>Buat Resep Makanan</h1>
                 <p>Tambahkan resep makanan atau minuman baru</p>
             </div>
-            <a href="{{ route('superadmin.resep-makanans.index') }}" class="adm-btn-secondary">
+            <a href="{{ route($routePrefix . '.resep-makanans.index') }}" class="adm-btn-secondary">
                 <svg viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
@@ -29,7 +29,7 @@
                 Informasi Resep Makanan
             </div>
 
-            <form method="POST" action="{{ route('superadmin.resep-makanans.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route($routePrefix . '.resep-makanans.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="adm-form-body">
                     <div class="adm-form-grid cols-2" style="gap:14px;">
@@ -43,7 +43,7 @@
                         </svg>
                         Simpan Resep Makanan
                     </button>
-                    <a href="{{ route('superadmin.resep-makanans.index') }}" class="adm-btn-secondary">Batal</a>
+                    <a href="{{ route($routePrefix . '.resep-makanans.index') }}" class="adm-btn-secondary">Batal</a>
                 </div>
             </form>
         </div>

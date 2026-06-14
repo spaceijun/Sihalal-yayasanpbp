@@ -10,7 +10,7 @@
             <h1>Manajemen User</h1>
             <p>Kelola akun dan hak akses pengguna sistem</p>
         </div>
-        <a href="{{ route('superadmin.users.create') }}" class="adm-btn-primary">
+        <a href="{{ route($routePrefix . '.users.create') }}" class="adm-btn-primary">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah User
         </a>
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '{{ route('superadmin.users.data') }}',
+            url: '{{ route($routePrefix . '.users.data') }}',
             type: 'GET',
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         },

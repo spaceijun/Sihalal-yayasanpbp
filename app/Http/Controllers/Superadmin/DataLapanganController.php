@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Exports\DataLapangansExport;
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Http\Requests\DataLapanganRequest;
 use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
@@ -30,6 +31,8 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DataLapanganController extends Controller
 {
+    use HasRoutePrefix;
+
     public function __construct(
         private DataLapanganService $dataLapanganService,
         private StatusService $statusService,
@@ -65,7 +68,9 @@ class DataLapanganController extends Controller
             }
         }
 
-        return view('superadmin.data-lapangan.index', compact('paymentStats'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-lapangan.index', compact('paymentStats', 'routePrefix'));
     }
 
     /**
@@ -140,9 +145,9 @@ class DataLapanganController extends Controller
                 return '';
             })
             ->addColumn('aksi', function ($dl) {
-                $showUrl      = route('superadmin.data-lapangans.show',    $dl->hashed_id);
-                $deleteUrl    = route('superadmin.data-lapangans.destroy',  $dl->hashed_id);
-                $toggleUrl    = route('superadmin.data-lapangans.toggle-unlock', $dl->hashed_id);
+                $showUrl      = route($this->routePrefix() . '.data-lapangans.show',    $dl->hashed_id);
+                $deleteUrl    = route($this->routePrefix() . '.data-lapangans.destroy',  $dl->hashed_id);
+                $toggleUrl    = route($this->routePrefix() . '.data-lapangans.toggle-unlock', $dl->hashed_id);
                 $unlocked     = $dl->is_unlocked_for_data_entry;
                 $unlockClass  = $unlocked ? 'adm-btn success' : 'adm-btn warning';
                 $unlockTitle  = $unlocked ? 'Kunci dari Data Entry' : 'Buka untuk Data Entry';
@@ -657,12 +662,14 @@ class DataLapanganController extends Controller
             ->orderBy('actioned_at', 'asc')
             ->first();
 
+        $routePrefix = $this->routePrefix();
+
         return view('superadmin.data-lapangan.show', compact(
             'dataLapangan',
             'dataEntryOSS',
             'dataEntrySihalal',
             'verifikators'
-        ));
+        , 'routePrefix'));
     }
 
     /**
@@ -672,7 +679,9 @@ class DataLapanganController extends Controller
     {
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.data-lapangan.edit', compact('dataLapangan'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.data-lapangan.edit', compact('dataLapangan', 'routePrefix'));
     }
 
     /**
@@ -682,7 +691,7 @@ class DataLapanganController extends Controller
     {
         $this->dataLapanganService->update($dataLapangan, $request->validated());
 
-        return Redirect::route('superadmin.data-lapangans.index')
+        return Redirect::route($this->routePrefix() . '.data-lapangans.index')
             ->with('success', 'DataLapangan updated successfully');
     }
 
@@ -710,7 +719,7 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $this->dataLapanganService->delete($dataLapangan->id);
 
-        return Redirect::route('superadmin.data-lapangans.index')
+        return Redirect::route($this->routePrefix() . '.data-lapangans.index')
             ->with('success', 'DataLapangan deleted successfully');
     }
 

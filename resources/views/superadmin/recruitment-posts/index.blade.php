@@ -12,7 +12,7 @@
                 <h1>Lowongan Pekerjaan</h1>
                 <p>Kelola lowongan, syarat pendaftaran, dan generate link form otomatis</p>
             </div>
-            <a href="{{ route('superadmin.recruitment-posts.create') }}" class="adm-btn-primary">
+            <a href="{{ route($routePrefix . '.recruitment-posts.create') }}" class="adm-btn-primary">
                 <svg viewBox="0 0 24 24">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -94,7 +94,7 @@
                 serverSide: true,
                 dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 ajax: {
-                    url: '{{ route('superadmin.recruitment-posts.data') }}',
+                    url: '{{ route($routePrefix . '.recruitment-posts.data') }}',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': CSRF

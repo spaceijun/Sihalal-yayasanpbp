@@ -196,7 +196,7 @@
         <div class="modal fade" id="modalApprove{{ $penagihan->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <form action="{{ route('superadmin.penagihan.approve', $penagihan) }}" method="POST">
+                    <form action="{{ route($routePrefix . '.penagihan.approve', $penagihan) }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title">
@@ -242,7 +242,7 @@
         <div class="modal fade" id="modalTolak{{ $penagihan->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <form action="{{ route('superadmin.penagihan.tolak', $penagihan) }}" method="POST">
+                    <form action="{{ route($routePrefix . '.penagihan.tolak', $penagihan) }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title">

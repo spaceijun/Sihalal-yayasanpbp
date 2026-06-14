@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\DataLapangan;
 use App\Models\Superadmin\Koordinator;
 use App\Exports\LaporanHarianExport;
@@ -14,6 +15,8 @@ use Carbon\Carbon;
 
 class LaporanHarianController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Laporan Unified (Harian & Bulanan dalam satu halaman)
      */
@@ -143,6 +146,8 @@ class LaporanHarianController extends Controller
             ];
         })->values();
 
+        $routePrefix = $this->routePrefix();
+
         return view('superadmin.data-lapangan.laporan-harian.index', compact(
             'laporanPerKoordinator',
             'tipeFilter',
@@ -152,7 +157,7 @@ class LaporanHarianController extends Controller
             'koordinators',
             'koordinatorId',
             'grafikHarian'
-        ));
+        , 'routePrefix'));
     }
 
     /**

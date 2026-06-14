@@ -89,7 +89,7 @@
                 <span class="dl-badge {{ $statusBadge }}">
                     <span class="dl-badge-dot"></span>{{ $dataLapangan->status }}
                 </span>
-                <a href="{{ route('superadmin.data-lapangans.index') }}" class="dl-back">
+                <a href="{{ route($routePrefix . '.data-lapangans.index') }}" class="dl-back">
                     <i class="las la-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -306,7 +306,7 @@
                             </div>
                         @endif
                         <form
-                            action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
+                            action="{{ route($routePrefix . '.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
                             method="POST">
                             @csrf
                             <label
@@ -470,7 +470,7 @@
                                         <i class="las la-eye"></i>
                                     </button>
                                     @if ($idx === 1)
-                                        <a href="{{ route('superadmin.datalapangan.download-foto-produk', $dataLapangan->hashed_id) }}"
+                                        <a href="{{ route($routePrefix . '.datalapangan.download-foto-produk', $dataLapangan->hashed_id) }}"
                                             class="dl-btn dl-btn-success dl-btn-sm">
                                             <i class="las la-download"></i> Download
                                         </a>
@@ -561,7 +561,7 @@
                                 </button>
                             @endif
                         </div>
-                        <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                        <form action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
                             method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="file_type" value="oss">
@@ -598,7 +598,7 @@
                                 </button>
                             @endif
                         </div>
-                        <form action="{{ route('superadmin.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                        <form action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
                             method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="file_type" value="sihalal">
@@ -747,7 +747,7 @@
                                 data verifikasi di bawah ini.</div>
                         </div>
 
-                        <form action="{{ route('superadmin.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
+                        <form action="{{ route($routePrefix . '.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
                             method="POST" id="formVerifikasi">
                             @csrf
 
@@ -832,7 +832,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
+                <form action="{{ route($routePrefix . '.data-lapangans.update-keterangan', $dataLapangan->hashed_id) }}"
                     method="POST">
                     @csrf
                     <div class="modal-body">
@@ -872,7 +872,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-lapangans.update-email-sihalal', $dataLapangan->hashed_id) }}"
+                <form action="{{ route($routePrefix . '.data-lapangans.update-email-sihalal', $dataLapangan->hashed_id) }}"
                     method="POST">
                     @csrf @method('PATCH')
                     <div class="modal-body">
@@ -2208,7 +2208,7 @@
             statusEl.style.color = 'var(--dl-muted)';
             statusEl.innerHTML = '<i class="las la-spinner la-spin"></i> Mengecek ketersediaan email...';
 
-            fetch(`{{ route('superadmin.data-lapangans.check-email') }}?prefix=${encodeURIComponent(prefix)}`, {
+            fetch(`{{ route($routePrefix . '.data-lapangans.check-email') }}?prefix=${encodeURIComponent(prefix)}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',

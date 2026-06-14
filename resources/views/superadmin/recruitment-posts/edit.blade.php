@@ -23,7 +23,7 @@
                         Preview Form
                     </a>
                 @endif
-                <a href="{{ route('superadmin.recruitment-posts.index') }}" class="adm-btn-secondary">
+                <a href="{{ route($routePrefix . '.recruitment-posts.index') }}" class="adm-btn-secondary">
                     <svg viewBox="0 0 24 24">
                         <polyline points="15 18 9 12 15 6" />
                     </svg> Kembali
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <form action="{{ route('superadmin.recruitment-posts.update', $post->hashed_id) }}" method="POST" id="formLoker" enctype="multipart/form-data">
+        <form action="{{ route($routePrefix . '.recruitment-posts.update', $post->hashed_id) }}" method="POST" id="formLoker" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
@@ -107,7 +107,7 @@
             </div>
 
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
-                <a href="{{ route('superadmin.recruitment-posts.index') }}" class="adm-btn-secondary">Batal</a>
+                <a href="{{ route($routePrefix . '.recruitment-posts.index') }}" class="adm-btn-secondary">Batal</a>
                 <button type="submit" class="adm-btn-primary">
                     <svg viewBox="0 0 24 24">
                         <polyline points="20 6 9 17 4 12" />

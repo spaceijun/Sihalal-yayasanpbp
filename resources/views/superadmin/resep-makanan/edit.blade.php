@@ -12,7 +12,7 @@
                 <h1>Edit Resep Makanan</h1>
                 <p>Update data resep makanan <strong>{{ $resepMakanan->nama_produk }}</strong></p>
             </div>
-            <a href="{{ route('superadmin.resep-makanans.index') }}" class="adm-btn-secondary">
+            <a href="{{ route($routePrefix . '.resep-makanans.index') }}" class="adm-btn-secondary">
                 <svg viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
@@ -28,7 +28,7 @@
                 </svg>
                 Informasi Resep Makanan
             </div>
-            <form method="POST" action="{{ route('superadmin.resep-makanans.update', $resepMakanan->hashed_id) }}"
+            <form method="POST" action="{{ route($routePrefix . '.resep-makanans.update', $resepMakanan->hashed_id) }}"
                 enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
@@ -44,7 +44,7 @@
                         </svg>
                         Simpan Perubahan
                     </button>
-                    <a href="{{ route('superadmin.resep-makanans.index') }}" class="adm-btn-secondary">Batal</a>
+                    <a href="{{ route($routePrefix . '.resep-makanans.index') }}" class="adm-btn-secondary">Batal</a>
                 </div>
             </form>
         </div>

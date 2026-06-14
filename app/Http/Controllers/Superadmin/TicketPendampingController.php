@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\TicketPendamping;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TicketPendampingController extends Controller
 {
+    use HasRoutePrefix;
+
     public function index(Request $request): View
     {
         $counts = [
@@ -21,7 +24,9 @@ class TicketPendampingController extends Controller
             'closed' => TicketPendamping::where('status', 'Closed')->count(),
         ];
 
-        return view('superadmin.ticket-pendamping.index', compact('counts'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.ticket-pendamping.index', compact('counts', 'routePrefix'));
     }
 
     /**
@@ -72,8 +77,8 @@ class TicketPendampingController extends Controller
                 fn ($t) => $t->created_at?->format('d/m/Y H:i') ?? '-'
             )
             ->addColumn('aksi', function ($t) {
-                $showUrl = route('superadmin.ticket-pendampings.show', $t->hashed_id);
-                $deleteUrl = route('superadmin.ticket-pendampings.destroy', $t->hashed_id);
+                $showUrl = route($this->routePrefix() . '.ticket-pendampings.show', $t->hashed_id);
+                $deleteUrl = route($this->routePrefix() . '.ticket-pendampings.destroy', $t->hashed_id);
 
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a href="'.$showUrl.'" class="adm-btn primary icon-only" title="Lihat Detail">
@@ -94,7 +99,9 @@ class TicketPendampingController extends Controller
         $ticket = TicketPendamping::findByHashedIdOrFail($hashedId);
         $ticket->load(['user.enumerator', 'dataLapangan:id,nama_pu,nik,status,alamat']);
 
-        return view('superadmin.ticket-pendamping.show', compact('ticket'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.ticket-pendamping.show', compact('ticket', 'routePrefix'));
     }
 
     /**
@@ -117,7 +124,7 @@ class TicketPendampingController extends Controller
     {
         TicketPendamping::findByHashedId($hashedId)->delete();
 
-        return redirect()->route('superadmin.ticket-pendampings.index')
+        return redirect()->route($this->routePrefix() . '.ticket-pendampings.index')
             ->with('success', 'Tiket pendamping berhasil dihapus.');
     }
 }

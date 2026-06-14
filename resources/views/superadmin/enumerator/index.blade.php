@@ -27,7 +27,7 @@
                     </svg>
                     Export PDF
                 </button>
-                <a href="{{ route('superadmin.enumerators.create') }}" class="adm-btn-primary">
+                <a href="{{ route($routePrefix . '.enumerators.create') }}" class="adm-btn-primary">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -251,7 +251,7 @@
 
             const GENERATE_URL = '{{ url('superadmin/enumerators') }}/{id}/generate-user';
             const DELETE_URL = '{{ url('superadmin/enumerators') }}/{id}';
-            const EXPORT_URL = '{{ route('superadmin.enumerators.export-pdf') }}';
+            const EXPORT_URL = '{{ route($routePrefix . '.enumerators.export-pdf') }}';
             const CSRF = $('meta[name="csrf-token"]').attr('content');
 
             const NAMA_BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
@@ -269,7 +269,7 @@
                 serverSide: true,
                 dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 ajax: {
-                    url: '{{ route('superadmin.enumerators.data') }}',
+                    url: '{{ route($routePrefix . '.enumerators.data') }}',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': CSRF

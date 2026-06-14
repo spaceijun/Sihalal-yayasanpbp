@@ -68,7 +68,7 @@
                         <div class="card-body p-4">
                             <div class="tab-content">
                                 <div class="tab-pane active" id="personalDetails" role="tabpanel">
-                                    <form action="{{ route('superadmin.profile.update') }}" method="post">
+                                    <form action="{{ route($routePrefix . '.profile.update') }}" method="post">
                                         @csrf
                                         @method('patch')
                                         <div class="row">

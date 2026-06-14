@@ -14,14 +14,14 @@
                 <p>Kelola data pemasukan, pengeluaran, dan kas</p>
             </div>
             <div style="display:flex;gap:8px;">
-                <a href="{{ route('superadmin.cashflow.index') }}" class="adm-btn-secondary">
+                <a href="{{ route($routePrefix . '.cashflow.index') }}" class="adm-btn-secondary">
                     <svg viewBox="0 0 24 24">
                         <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                         <polyline points="17 6 23 6 23 12" />
                     </svg>
                     Laporan
                 </a>
-                <a href="{{ route('superadmin.arus-kas.create') }}" class="adm-btn-primary">
+                <a href="{{ route($routePrefix . '.arus-kas.create') }}" class="adm-btn-primary">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -85,13 +85,13 @@
                                 <td class="tc">
                                     <div class="adm-actions">
                                         <a class="adm-btn primary icon-only"
-                                            href="{{ route('superadmin.arus-kas.edit', $cashflow->hashed_id) }}" title="Edit">
+                                            href="{{ route($routePrefix . '.arus-kas.edit', $cashflow->hashed_id) }}" title="Edit">
                                             <svg viewBox="0 0 24 24">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                             </svg>
                                         </a>
-                                        <form action="{{ route('superadmin.arus-kas.destroy', $cashflow->hashed_id) }}"
+                                        <form action="{{ route($routePrefix . '.arus-kas.destroy', $cashflow->hashed_id) }}"
                                             method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')

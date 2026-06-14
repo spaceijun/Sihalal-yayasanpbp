@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Verifikator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,10 @@ use Illuminate\View\View;
 
 class VerifikatorController extends Controller
 {
+    use HasRoutePrefix;
+
     protected $notificationService;
+
     public function __construct()
     {
         $this->notificationService = app()->make(NotificationService::class);
@@ -54,8 +58,13 @@ class VerifikatorController extends Controller
 
         $i = ($verifikators->currentPage() - 1) * $verifikators->perPage();
 
-        return view('superadmin.verifikator.index', compact('verifikators', 'i'));
+        return view('superadmin.verifikator.index', [
+            'verifikators' => $verifikators,
+            'i' => $i,
+            'routePrefix' => $this->routePrefix(),
+        ]);
     }
+
     public function bayar(Verifikator $verifikator)
     {
         $payment = null;
@@ -154,7 +163,7 @@ class VerifikatorController extends Controller
             );
         }
 
-        return redirect()->route('superadmin.verifikators.index')
+        return redirect()->route($this->routePrefix() . '.verifikators.index')
             ->with('success', 'Pembayaran berhasil diproses.');
     }
     /**
@@ -264,7 +273,7 @@ class VerifikatorController extends Controller
     {
         Verifikator::create($request->validated());
 
-        return Redirect::route('superadmin.verifikators.index')
+        return Redirect::route($this->routePrefix() . '.verifikators.index')
             ->with('success', 'Verifikator created successfully.');
     }
 
@@ -293,7 +302,7 @@ class VerifikatorController extends Controller
     {
         $verifikator->update($request->validated());
 
-        return Redirect::route('superadmin.verifikators.index')
+        return Redirect::route($this->routePrefix() . '.verifikators.index')
             ->with('success', 'Verifikator updated successfully');
     }
 
@@ -301,7 +310,7 @@ class VerifikatorController extends Controller
     {
         Verifikator::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.verifikators.index')
+        return Redirect::route($this->routePrefix() . '.verifikators.index')
             ->with('success', 'Verifikator deleted successfully');
     }
 }

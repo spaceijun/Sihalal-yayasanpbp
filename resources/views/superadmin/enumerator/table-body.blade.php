@@ -12,7 +12,7 @@
             <h1>Edit Enumerator</h1>
             <p>Update informasi <strong>{{ $enumerator->nama_lengkap }}</strong></p>
         </div>
-        <a href="{{ route('superadmin.enumerators.index') }}" class="adm-btn-secondary">
+        <a href="{{ route($routePrefix . '.enumerators.index') }}" class="adm-btn-secondary">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Kembali
         </a>
@@ -23,7 +23,7 @@
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Edit Informasi Enumerator
         </div>
-        <form method="POST" action="{{ route('superadmin.enumerators.update', $enumerator->hashed_id) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route($routePrefix . '.enumerators.update', $enumerator->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -36,7 +36,7 @@
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                     Simpan Perubahan
                 </button>
-                <a href="{{ route('superadmin.enumerators.index') }}" class="adm-btn-secondary">Batal</a>
+                <a href="{{ route($routePrefix . '.enumerators.index') }}" class="adm-btn-secondary">Batal</a>
             </div>
         </form>
     </div>

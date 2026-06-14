@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('superadmin.profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route($routePrefix . '.profile.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 

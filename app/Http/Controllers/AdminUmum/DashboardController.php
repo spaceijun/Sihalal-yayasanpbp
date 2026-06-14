@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers\AdminUmum;
+
+use App\Http\Controllers\Controller;
+use App\Models\DataLapangan;
+use App\Models\Enumerator;
+use App\Models\Superadmin\Koordinator;
+
+class DashboardController extends Controller
+{
+    /**
+     * Display admin umum dashboard.
+     */
+    public function index()
+    {
+        $totalDataKoordinator = Koordinator::count();
+        $totalDataEnumerator = Enumerator::count();
+        $totalDataLapangan = DataLapangan::count();
+        $totalDataPending = DataLapangan::where('status', 'PENDING')->count();
+        $totalDataProgressOSS = DataLapangan::where('status', 'PROGRESS OSS')->count();
+        $totalDataProgressSihalal = DataLapangan::where('status', 'PROGRESS SIHALAL')->count();
+        $totalDataTerbitSH = DataLapangan::where('status', 'TERBIT SH')->count();
+        $totalPembayaranPending = DataLapangan::where('status', 'TERBIT SH')->where('status_pembayaran', 'PENDING')->count();
+        $totalPembayaranPengajuan = DataLapangan::where('status_pembayaran', 'PENGAJUAN')->count();
+        $totalDibayar = DataLapangan::where('status_pembayaran', 'DIBAYAR')->count();
+        $totalDataRevisi = DataLapangan::where('status', 'REVISI')->count();
+        $totalDataTerverifikasi = DataLapangan::where('status', 'TERVERIFIKASI')->count();
+
+        $latestDataToday = DataLapangan::with('enumerator')
+            ->whereDate('created_at', today())
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
+
+        $latestDataUpdate = DataLapangan::with('enumerator')
+            ->where('status', 'Terbit SH')
+            ->orderBy('updated_at', 'desc')
+            ->take(20)
+            ->get();
+
+        // Data masuk per bulan
+        $dataMasukPerBulan = DataLapangan::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        // Data Terbit SH per bulan
+        $dataTerbitSHPerBulan = DataLapangan::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->where('status', 'Terbit SH')
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        return view('admin-umum.home.index', compact(
+            'totalDataKoordinator',
+            'totalDataEnumerator',
+            'totalDataLapangan',
+            'latestDataToday',
+            'latestDataUpdate',
+            'totalDataPending',
+            'totalDataProgressOSS',
+            'totalDataProgressSihalal',
+            'totalDataTerbitSH',
+            'totalPembayaranPending',
+            'totalPembayaranPengajuan',
+            'totalDibayar',
+            'totalDataRevisi',
+            'totalDataTerverifikasi',
+            'dataMasukPerBulan',
+            'dataTerbitSHPerBulan'
+        ));
+    }
+}

@@ -11,7 +11,7 @@
                 <p>Upload foto wajah — sistem akan men-scan foto pendamping dari enumerator yang Anda pilih secara otomatis
                 </p>
             </div>
-            <a href="{{ route('superadmin.dashboard') }}" class="adm-btn-secondary">
+            <a href="{{ route($routePrefix . '.dashboard') }}" class="adm-btn-secondary">
                 <svg viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('superadmin.face-match.match') }}" method="POST" enctype="multipart/form-data"
+                    <form action="{{ route($routePrefix . '.face-match.match') }}" method="POST" enctype="multipart/form-data"
                         id="faceMatchForm">
                         @csrf
 

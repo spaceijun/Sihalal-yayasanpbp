@@ -22,7 +22,7 @@
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                     @if ($ticket->status !== 'closed')
-                        <form action="{{ route('superadmin.tickets.close', $ticket->hashed_id) }}" method="POST"
+                        <form action="{{ route($routePrefix . '.tickets.close', $ticket->hashed_id) }}" method="POST"
                             style="margin:0;">
                             @csrf
                             @method('PATCH')
@@ -37,7 +37,7 @@
                             </button>
                         </form>
                     @endif
-                    <a href="{{ route('superadmin.tickets.index') }}" class="adm-btn-secondary">
+                    <a href="{{ route($routePrefix . '.tickets.index') }}" class="adm-btn-secondary">
                         <svg viewBox="0 0 24 24"
                             style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;">
                             <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -354,7 +354,7 @@
                         <div style="padding:16px;">
                             <p style="font-size:12.5px;color:var(--adm-text-muted);margin-bottom:12px;line-height:1.5;">
                                 Tindakan ini tidak dapat dibatalkan. Tiket akan dihapus secara permanen.</p>
-                            <form action="{{ route('superadmin.tickets.destroy', $ticket->hashed_id) }}" method="POST">
+                            <form action="{{ route($routePrefix . '.tickets.destroy', $ticket->hashed_id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="adm-btn danger"

@@ -1034,7 +1034,7 @@
                 <h1>Verifikator</h1>
                 <p>Kelola data verifikator dan status pembayaran</p>
             </div>
-            <a href="{{ route('superadmin.verifikators.create') }}" class="verk-btn-create">
+            <a href="{{ route($routePrefix . '.verifikators.create') }}" class="verk-btn-create">
                 <svg viewBox="0 0 24 24">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -1207,7 +1207,7 @@
                                                     data-jumlah="{{ $verifikator->total_belum_dibayar }}"
                                                     data-rate="Rp {{ number_format($verifikator->rate_per_data, 0, ',', '.') }}"
                                                     data-total="Rp {{ number_format($totalNominalRow, 0, ',', '.') }}"
-                                                    data-action="{{ route('superadmin.verifikators.bayar', $verifikator->hashed_id) }}">
+                                                    data-action="{{ route($routePrefix . '.verifikators.bayar', $verifikator->hashed_id) }}">
                                                     <svg viewBox="0 0 24 24">
                                                         <rect x="2" y="5" width="20" height="14" rx="2" />
                                                         <line x1="2" y1="10" x2="22" y2="10" />
@@ -1228,7 +1228,7 @@
                                             <button type="button" class="verk-btn verk-btn-icon btn-kalkulasi"
                                                 data-id="{{ $verifikator->id }}"
                                                 data-nama="{{ $verifikator->nama_lengkap }}"
-                                                data-url="{{ route('superadmin.verifikators.kalkulasi', $verifikator->hashed_id) }}"
+                                                data-url="{{ route($routePrefix . '.verifikators.kalkulasi', $verifikator->hashed_id) }}"
                                                 title="Kalkulasi">
                                                 <svg viewBox="0 0 24 24">
                                                     <rect x="4" y="2" width="16" height="20" rx="2" />
@@ -1251,7 +1251,7 @@
 
                                             {{-- EDIT --}}
                                             <a class="verk-btn verk-btn-icon"
-                                                href="{{ route('superadmin.verifikators.edit', $verifikator->hashed_id) }}"
+                                                href="{{ route($routePrefix . '.verifikators.edit', $verifikator->hashed_id) }}"
                                                 title="Edit">
                                                 <svg viewBox="0 0 24 24">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -1261,7 +1261,7 @@
 
                                             {{-- HAPUS --}}
                                             <form
-                                                action="{{ route('superadmin.verifikators.destroy', $verifikator->hashed_id) }}"
+                                                action="{{ route($routePrefix . '.verifikators.destroy', $verifikator->hashed_id) }}"
                                                 method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="verk-btn verk-btn-icon danger"

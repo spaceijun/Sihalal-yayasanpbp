@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
 use App\Models\Verifikator;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class DataEntryProgressController extends Controller
 {
+    use HasRoutePrefix;
+
     protected $penagihanService;
     protected $notificationService;
 
@@ -91,7 +94,7 @@ class DataEntryProgressController extends Controller
         }
 
         if ($request->filled('entry_type')) {
-            $query->whereHas('dataEntry', fn ($q) => $q->where('entry_type', $request->entry_type));
+            $query->whereHas('dataEntry', fn($q) => $q->where('entry_type', $request->entry_type));
         }
 
         return DataTables::of($query)
@@ -100,7 +103,7 @@ class DataEntryProgressController extends Controller
                 if ($p->status !== 'PENDING') return '';
                 return '<input type="checkbox" name="progress_ids[]" value="' . $p->hashed_id . '" class="form-check-input row-check">';
             })
-            ->addColumn('tanggal', fn ($p) => $p->actioned_at?->format('d/m/Y H:i') ?? '-')
+            ->addColumn('tanggal', fn($p) => $p->actioned_at?->format('d/m/Y H:i') ?? '-')
             ->addColumn('data_entry_cell', function ($p) {
                 $init = strtoupper(substr($p->dataEntry?->user?->name ?? 'U', 0, 2));
                 $name = e($p->dataEntry?->user?->name ?? '-');
@@ -117,11 +120,11 @@ class DataEntryProgressController extends Controller
                 };
             })
             ->addColumn('nama_pu_cell', function ($p) {
-                $url    = route('superadmin.data-entry-progress.show', $p->hashed_id);
+                $url    = route($this->routePrefix() . '.data-entry-progress.show', $p->hashed_id);
                 $nama   = e($p->dataLapangan?->nama_pu ?? '-');
                 $nik    = e($p->dataLapangan?->nik ?? '');
                 return '<a href="' . $url . '" style="font-weight:600;font-size:13px;color:var(--adm-blue);text-decoration:none;">' . $nama . '</a>'
-                     . '<div style="font-size:11px;color:var(--adm-text-muted);">' . $nik . '</div>';
+                    . '<div style="font-size:11px;color:var(--adm-text-muted);">' . $nik . '</div>';
             })
             ->addColumn('status_badge', function ($p) {
                 return match ($p->status) {
@@ -135,7 +138,7 @@ class DataEntryProgressController extends Controller
             ->addColumn('verifikator_cell', function ($p) {
                 if ($p->verifikator) {
                     return '<div style="font-weight:600;font-size:13px;">' . e($p->verifikator->nama_lengkap) . '</div>'
-                         . '<div style="font-size:11px;color:var(--adm-text-muted);">' . ($p->tanggal_verifikasi?->format('d/m/Y') ?? '') . '</div>';
+                        . '<div style="font-size:11px;color:var(--adm-text-muted);">' . ($p->tanggal_verifikasi?->format('d/m/Y') ?? '') . '</div>';
                 }
                 return '<span style="color:var(--adm-text-faint);">—</span>';
             })
@@ -164,18 +167,22 @@ class DataEntryProgressController extends Controller
                         </button>
                     </div>';
                 }
-                $url = route('superadmin.data-entry-progress.show', $p->hashed_id);
+                $url = route($this->routePrefix() . '.data-entry-progress.show', $p->hashed_id);
                 return '<div class="adm-actions">
                     <a href="' . $url . '" class="adm-btn primary icon-only" title="Lihat Detail">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
                 </div>';
             })
-            ->filterColumn('nama_pu_cell', fn ($q, $k) =>
-                $q->whereHas('dataLapangan', fn ($q2) => $q2->where('nama_pu', 'like', "%{$k}%"))
+            ->filterColumn(
+                'nama_pu_cell',
+                fn($q, $k) =>
+                $q->whereHas('dataLapangan', fn($q2) => $q2->where('nama_pu', 'like', "%{$k}%"))
             )
-            ->filterColumn('data_entry_cell', fn ($q, $k) =>
-                $q->whereHas('dataEntry.user', fn ($q2) => $q2->where('name', 'like', "%{$k}%"))
+            ->filterColumn(
+                'data_entry_cell',
+                fn($q, $k) =>
+                $q->whereHas('dataEntry.user', fn($q2) => $q2->where('name', 'like', "%{$k}%"))
             )
             ->rawColumns(['checkbox', 'data_entry_cell', 'type_badge', 'nama_pu_cell', 'status_badge', 'verifikator_cell', 'keterangan_cell', 'aksi'])
             ->make(true);
@@ -223,6 +230,7 @@ class DataEntryProgressController extends Controller
 
         return view('superadmin.data-entry.progress.index', array_merge(
             compact('progresses', 'verifikators'),
+            ['routePrefix' => $this->routePrefix()],
             $this->getStatusCounts()
         ));
     }
@@ -241,6 +249,7 @@ class DataEntryProgressController extends Controller
 
         return view('superadmin.data-entry.progress.show', array_merge(
             compact('progress', 'progresses', 'verifikators'),
+            ['routePrefix' => $this->routePrefix()],
             $this->getStatusCounts()
         ));
     }

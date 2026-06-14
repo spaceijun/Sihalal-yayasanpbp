@@ -779,7 +779,7 @@
             await sleep(300);
 
             try {
-                const res = await fetch('{{ route('superadmin.diagnostic.run') }}', {
+                const res = await fetch('{{ route($routePrefix . '.diagnostic.run') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

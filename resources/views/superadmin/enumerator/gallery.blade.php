@@ -16,7 +16,7 @@
                             Galeri Foto Enumerator — {{ $enumerator->nama_lengkap }}
                             <small class="text-muted">(No. Reg: {{ $enumerator->no_registrasi }})</small>
                         </span>
-                        <a class="btn btn-primary btn-sm" href="{{ route('superadmin.enumerators.show', $enumerator->hashed_id) }}">
+                        <a class="btn btn-primary btn-sm" href="{{ route($routePrefix . '.enumerators.show', $enumerator->hashed_id) }}">
                             ← Back
                         </a>
                     </div>
@@ -115,7 +115,7 @@
                                                         '{{ $data->nama_pu ?? '-' }}',
                                                         '{{ $data->nama_produk ?? '-' }}',
                                                         '{{ $data->status }}',
-                                                        '{{ route('superadmin.enumerators.download-foto-entry', [$enumerator->hashed_id, $data->id, 'foto_pendamping']) }}')">
+                                                        '{{ route($routePrefix . '.enumerators.download-foto-entry', [$enumerator->hashed_id, $data->id, 'foto_pendamping']) }}')">
                                                         <img src="{{ asset('storage/' . $data->foto_pendamping) }}"
                                                             class="card-img-top" style="height:160px; object-fit:cover;"
                                                             alt="Foto Pendamping">
@@ -145,7 +145,7 @@
                                                                 {{ $data->status }}
                                                             </span>
                                                             {{-- Tombol Download --}}
-                                                            <a href="{{ route('superadmin.enumerators.download-foto-entry', [$enumerator->hashed_id, $data->id, 'foto_pendamping']) }}"
+                                                            <a href="{{ route($routePrefix . '.enumerators.download-foto-entry', [$enumerator->hashed_id, $data->id, 'foto_pendamping']) }}"
                                                                 class="btn btn-outline-secondary btn-sm py-0 px-1"
                                                                 title="Download foto">
                                                                 <i class="las la-download"></i>

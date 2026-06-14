@@ -1188,7 +1188,7 @@
             'use strict';
 
             // ── CONFIG ─────────────────────────────────────────────
-            const API_URL = '{{ route('superadmin.server-info.realtime') }}';
+            const API_URL = '{{ route($routePrefix . '.server-info.realtime') }}';
             const INTERVAL_MS = 2000; // polling setiap 2 detik
             const HISTORY_LEN = 60; // titik pada grafik
             const CSRF = document.querySelector('meta[name="csrf-token"]')?.content ?? '';

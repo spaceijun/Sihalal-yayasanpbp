@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\ResepMakanan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class ResepMakananController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
@@ -30,7 +33,9 @@ class ResepMakananController extends Controller
     {
         $resepMakanan = new ResepMakanan();
 
-        return view('superadmin.resep-makanan.create', compact('resepMakanan'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.resep-makanan.create', compact('resepMakanan', 'routePrefix'));
     }
 
     /**
@@ -50,7 +55,7 @@ class ResepMakananController extends Controller
 
         ResepMakanan::create($validatedData);
 
-        return Redirect::route('superadmin.resep-makanans.index')
+        return Redirect::route($this->routePrefix() . '.resep-makanans.index')
             ->with('success', 'ResepMakanan created successfully.');
     }
 
@@ -61,7 +66,9 @@ class ResepMakananController extends Controller
     {
         $resepMakanan = ResepMakanan::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.resep-makanan.show', compact('resepMakanan'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.resep-makanan.show', compact('resepMakanan', 'routePrefix'));
     }
 
     /**
@@ -71,7 +78,9 @@ class ResepMakananController extends Controller
     {
         $resepMakanan = ResepMakanan::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.resep-makanan.edit', compact('resepMakanan'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.resep-makanan.edit', compact('resepMakanan', 'routePrefix'));
     }
 
     /**
@@ -92,7 +101,7 @@ class ResepMakananController extends Controller
 
         $resepMakanan->update($validatedData);
 
-        return Redirect::route('superadmin.resep-makanans.index')
+        return Redirect::route($this->routePrefix() . '.resep-makanans.index')
             ->with('success', 'ResepMakanan updated successfully');
     }
 
@@ -100,7 +109,7 @@ class ResepMakananController extends Controller
     {
         ResepMakanan::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.resep-makanans.index')
+        return Redirect::route($this->routePrefix() . '.resep-makanans.index')
             ->with('success', 'ResepMakanan deleted successfully');
     }
 }

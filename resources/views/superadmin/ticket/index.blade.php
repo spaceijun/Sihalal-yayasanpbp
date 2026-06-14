@@ -158,7 +158,7 @@
                                     <td class="tc">
                                         <div class="adm-actions">
                                             {{-- Show --}}
-                                            <a href="{{ route('superadmin.tickets.show', $ticket->hashed_id) }}"
+                                            <a href="{{ route($routePrefix . '.tickets.show', $ticket->hashed_id) }}"
                                                 class="adm-btn primary icon-only" title="Lihat Detail">
                                                 <svg viewBox="0 0 24 24">
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -166,7 +166,7 @@
                                                 </svg>
                                             </a>
                                             {{-- Delete --}}
-                                            <form action="{{ route('superadmin.tickets.destroy', $ticket->hashed_id) }}"
+                                            <form action="{{ route($routePrefix . '.tickets.destroy', $ticket->hashed_id) }}"
                                                 method="POST" style="margin:0;">
                                                 @csrf
                                                 @method('DELETE')
@@ -342,7 +342,7 @@
 
                     <div class="modal-footer">
                         @if ($ticket->status !== 'closed')
-                            <form action="{{ route('superadmin.tickets.close', $ticket->hashed_id) }}" method="POST"
+                            <form action="{{ route($routePrefix . '.tickets.close', $ticket->hashed_id) }}" method="POST"
                                 style="margin:0;">
                                 @csrf
                                 @method('PATCH')
@@ -356,7 +356,7 @@
                                 </button>
                             </form>
                         @endif
-                        <a href="{{ route('superadmin.tickets.show', $ticket->hashed_id) }}" class="adm-btn primary"
+                        <a href="{{ route($routePrefix . '.tickets.show', $ticket->hashed_id) }}" class="adm-btn primary"
                             style="height:34px;padding:0 14px;">
                             <svg viewBox="0 0 24 24">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

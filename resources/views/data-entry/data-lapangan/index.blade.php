@@ -221,7 +221,7 @@
                 },
                 pageLength: 20,
                 order: [
-                    [0, 'asc']
+                    [1, 'asc']
                 ],
                 // Hide the built-in search box — we use our own inputs
                 dom: '<"row"<"col-sm-6"l><"col-sm-6">>rt<"row mt-2"<"col-sm-5"i><"col-sm-7"p>>',

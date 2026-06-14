@@ -14,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
+use App\Http\Controllers\AdminUmum\DashboardController as AdminUmumDashboardController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
@@ -51,6 +52,8 @@ Route::get('/', function () {
         // Redirect berdasarkan role
         if ($user->role === 'superadmin') {
             return redirect('/superadmin');
+        } elseif ($user->role === 'admin_umum') {
+            return redirect('/admin-umum');
         } elseif ($user->role === 'data-entry') {
             return redirect('/data-entry');
         }
@@ -61,7 +64,9 @@ Route::get('/', function () {
 
     return view('auth.login');
 });
-Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
+Route::get('formulir-halal', function () {
+    return redirect()->route('publik.contact');
+})->name('formulir.halal');
 Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
 Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
 Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
@@ -220,6 +225,107 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
     // Route::get('/', function () {
     //     return view('superadmin.home.index')->name('superadmin.index');
     // });
+});
+
+/**
+ * ADMIN UMUM ROUTES
+ */
+Route::middleware('auth', 'role:admin_umum')->group(function () {
+    Route::prefix('admin-umum')->name('admin-umum.')->group(function () {
+        Route::get('/', [AdminUmumDashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard', [AdminUmumDashboardController::class, 'index']);
+
+        // Data Lapangan (read-only operations & status update)
+        Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
+        Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
+        Route::get('/data-lapangans/check-email', [DataLapanganController::class, 'checkEmail'])->name('data-lapangans.check-email');
+        Route::resource('data-lapangans', DataLapanganController::class);
+        Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
+        Route::post('data-lapangans/{dataLapangan}/update-status', [DataLapanganController::class, 'updateStatus'])->name('data-lapangans.update-status');
+        Route::patch('data-lapangans/{dataLapangan}/update-status-payment', [DataLapanganController::class, 'updateStatusPayment'])->name('data-lapangans.update-status-payment');
+        Route::post('data-lapangans/bulk-payment', [DataLapanganController::class, 'bulkUpdateStatusPayment'])->name('data-lapangans.bulk-payment');
+        Route::post('data-lapangans/{id}/toggle-unlock', [DataLapanganController::class, 'toggleUnlockForDataEntry'])->name('data-lapangans.toggle-unlock');
+        Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
+        Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
+        Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
+        Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
+        Route::get('data-revisi', [DataLapanganController::class, 'dataRevisi'])->name('data-lapangans.data-revisi');
+        Route::get('/data-revisi/export-pdf', [DataLapanganController::class, 'exportRevisiPdf'])->name('data-revisi.export-pdf');
+        Route::post('/data-revisi/{id}/send-notification', [DataLapanganController::class, 'sendRevisiNotification'])->name('data-revisi.send-notification');
+        Route::post('/data-revisi/send-all-notifications', [DataLapanganController::class, 'sendAllRevisiNotifications'])->name('data-revisi.send-all-notifications');
+        Route::get('/datalapangan/{id}/download-foto-pendamping', [DataLapanganController::class, 'downloadFotoPendamping'])->name('datalapangan.download-foto-pendamping');
+        Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
+        Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
+        Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
+
+        // Laporan Harian
+        Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
+
+        // Human Resources — Koordinator
+        Route::resource('koordinators', KoordinatorController::class);
+        Route::get('/koordinators-data', [KoordinatorController::class, 'data'])->name('koordinators.data');
+
+        // Human Resources — Data Entry
+        Route::resource('data-entries', DataEntryController::class);
+        Route::get('/data-entries-data', [DataEntryController::class, 'data'])->name('data-entries.data');
+
+        // Human Resources — Enumerator
+        Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');
+        Route::resource('enumerators', EnumeratorController::class);
+        Route::get('/enumerators-data', [EnumeratorController::class, 'data'])->name('enumerators.data');
+        Route::post('/enumerators/{id}/generate-user', [EnumeratorController::class, 'generateUser'])->name('enumerators.generate-user');
+        Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
+        Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
+        Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
+        Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
+        Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
+        Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
+
+        // Ranking Pendamping
+        Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');
+
+        // Spotcheck
+        Route::resource('spotchecks', SpotcheckController::class);
+
+        // Recruitment — Lowongan Pekerjaan
+        Route::get('recruitment-posts-data', [RecruitmentPostController::class, 'data'])->name('recruitment-posts.data');
+        Route::patch('recruitment-posts/{id}/toggle', [RecruitmentPostController::class, 'toggle'])->name('recruitment-posts.toggle');
+        Route::resource('recruitment-posts', RecruitmentPostController::class);
+        Route::post('recruitments/{id}/update-status-v2', [RecruitmentApplicantController::class, 'updateStatus'])->name('recruitments.update-status-v2');
+        Route::get('recruitments/{id}', [RecruitmentApplicantController::class, 'show'])->name('recruitments.show');
+
+        // Pengumuman
+        Route::prefix('pengumumen')->name('pengumumen.')->group(function () {
+            Route::get('/', [PengumumanController::class, 'index'])->name('index');
+            Route::get('/create', [PengumumanController::class, 'create'])->name('create');
+            Route::post('/', [PengumumanController::class, 'store'])->name('store');
+            Route::get('/{hashedId}', [PengumumanController::class, 'show'])->name('show');
+            Route::get('/{hashedId}/edit', [PengumumanController::class, 'edit'])->name('edit');
+            Route::put('/{pengumuman}', [PengumumanController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PengumumanController::class, 'destroy'])->name('destroy');
+        });
+
+        // Ticket (Data Entry)
+        Route::resource('tickets', TicketController::class)->only(['index', 'show', 'destroy']);
+        Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
+
+        // Ticket Pendamping (Enumerator)
+        Route::get('ticket-pendampings-data', [TicketPendampingController::class, 'data'])->name('ticket-pendampings.data');
+        Route::get('ticket-pendampings', [TicketPendampingController::class, 'index'])->name('ticket-pendampings.index');
+        Route::get('ticket-pendampings/{id}', [TicketPendampingController::class, 'show'])->name('ticket-pendampings.show');
+        Route::patch('ticket-pendampings/{id}/status', [TicketPendampingController::class, 'updateStatus'])->name('ticket-pendampings.update-status');
+        Route::delete('ticket-pendampings/{id}', [TicketPendampingController::class, 'destroy'])->name('ticket-pendampings.destroy');
+
+        // Master Data — Resep Makanan
+        Route::resource('resep-makanans', ResepMakananController::class);
+
+        // Profile
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+            Route::patch('/', [ProfileController::class, 'update'])->name('update');
+            Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+        });
+    });
 });
 
 /**

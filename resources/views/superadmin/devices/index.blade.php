@@ -5,7 +5,7 @@
             <!-- Header Section -->
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold">All Devices</h1>
-                <a href="{{ route('superadmin.devices.create') }}"
+                <a href="{{ route($routePrefix . '.devices.create') }}"
                     class="px-4 py-2 font-semibold text-white rounded bg-slate-500 hover:bg-slate-600">
                     Add New Device
                 </a>

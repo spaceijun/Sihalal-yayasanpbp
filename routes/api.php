@@ -27,22 +27,31 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ──────────────────────────────────────────────────────────
-// PUBLIC ENDPOINTS (tidak butuh auth)
+// PUBLIC ENDPOINTS (tidak butuh auth) - WITH RATE LIMITING
 // ──────────────────────────────────────────────────────────
 
-/** Login – digunakan oleh aplikasi Flutter */
-Route::post('/login', [LoginController::class, 'store']);
+/** Login – digunakan oleh aplikasi Flutter (rate limited: 5 attempts per minute) */
+Route::post('/login', [LoginController::class, 'store'])
+    ->middleware('throttle:5,1');
 
-/** Ringkasan publik */
-Route::get('/ringkasan', [RingkasanController::class, 'index'])->name('api.ringkasan');
+/** Ringkasan publik (rate limited: 60 requests per minute) */
+Route::get('/ringkasan', [RingkasanController::class, 'index'])
+    ->middleware('throttle:60,1')
+    ->name('api.ringkasan');
 
-/** Ranking pendamping publik */
-Route::get('ranking-pendamping', [RankingPendampingApiController::class, 'index'])->name('api.ranking-pendamping');
+/** Ranking pendamping publik (rate limited: 60 requests per minute) */
+Route::get('ranking-pendamping', [RankingPendampingApiController::class, 'index'])
+    ->middleware('throttle:60,1')
+    ->name('api.ranking-pendamping');
 
 // ──────────────────────────────────────────────────────────
-// ENUMERATOR ROUTES (sanctum)
+// ENUMERATOR ROUTES (sanctum) - WITH RATE LIMITING
 // ──────────────────────────────────────────────────────────
-Route::middleware(['auth:sanctum', 'role:enumerator'])->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    'role:enumerator',
+    'throttle:120,1' // 120 requests per minute per user
+])->group(function () {
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
 
         Route::get('dashboard', [HomeApiController::class, 'index'])->name('dashboard');

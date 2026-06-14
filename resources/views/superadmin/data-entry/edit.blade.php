@@ -12,7 +12,7 @@
             <h1>Edit Data Entry</h1>
             <p>Update informasi akun <strong>{{ $dataEntry->nama_lengkap }}</strong></p>
         </div>
-        <a href="{{ route('superadmin.data-entries.index') }}" class="adm-btn-secondary">
+        <a href="{{ route($routePrefix . '.data-entries.index') }}" class="adm-btn-secondary">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Kembali
         </a>
@@ -23,7 +23,7 @@
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             Edit Informasi Data Entry
         </div>
-        <form method="POST" action="{{ route('superadmin.data-entries.update', $dataEntry->hashed_id) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route($routePrefix . '.data-entries.update', $dataEntry->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -36,7 +36,7 @@
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                     Simpan Perubahan
                 </button>
-                <a href="{{ route('superadmin.data-entries.index') }}" class="adm-btn-secondary">Batal</a>
+                <a href="{{ route($routePrefix . '.data-entries.index') }}" class="adm-btn-secondary">Batal</a>
             </div>
         </form>
     </div>

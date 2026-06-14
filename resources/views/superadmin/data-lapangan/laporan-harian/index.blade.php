@@ -318,7 +318,7 @@
         const koordinatorId = document.getElementById('filterKoordinator').value;
         const tanggal = document.getElementById('filterTanggal').value;
         const bulan = document.getElementById('filterBulan').value;
-        let url = "{{ route('superadmin.laporan-harian.index') }}?tipe=" + tipeFilter + "&tipe_data=" + tipeData;
+        let url = "{{ route($routePrefix . '.laporan-harian.index') }}?tipe=" + tipeFilter + "&tipe_data=" + tipeData;
         url += tipeFilter === 'harian' ? "&tanggal=" + tanggal : "&bulan=" + bulan;
         if (koordinatorId) url += "&koordinator_id=" + koordinatorId;
         window.location.href = url;

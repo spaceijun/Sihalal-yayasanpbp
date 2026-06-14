@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Spotcheck;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class SpotcheckController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
@@ -62,7 +65,8 @@ class SpotcheckController extends Controller
     public function show($hashedId): View
     {
         $spotcheck = Spotcheck::findByHashedIdOrFail($hashedId);
-        return view('superadmin.spotcheck.show', compact('spotcheck'));
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.spotcheck.show', compact('spotcheck', 'routePrefix'));
     }
 
     /**
@@ -71,7 +75,8 @@ class SpotcheckController extends Controller
     public function edit($hashedId): View
     {
         $spotcheck = Spotcheck::findByHashedIdOrFail($hashedId);
-        return view('superadmin.spotcheck.edit', compact('spotcheck'));
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.spotcheck.edit', compact('spotcheck', 'routePrefix'));
     }
 
     /**
@@ -81,7 +86,7 @@ class SpotcheckController extends Controller
     {
         $spotcheck->update($request->validated());
 
-        return Redirect::route('superadmin.spotchecks.index')
+        return Redirect::route($this->routePrefix() . '.spotchecks.index')
             ->with('success', 'Spotcheck updated successfully');
     }
 
@@ -89,7 +94,7 @@ class SpotcheckController extends Controller
     {
         Spotcheck::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.spotchecks.index')
+        return Redirect::route($this->routePrefix() . '.spotchecks.index')
             ->with('success', 'Spotcheck deleted successfully');
     }
 }

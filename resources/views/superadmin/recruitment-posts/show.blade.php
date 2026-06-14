@@ -89,7 +89,7 @@
                         Copy Link
                     </button>
                 @endif
-                <a href="{{ route('superadmin.recruitment-posts.edit', $post->hashed_id) }}" class="adm-btn success"
+                <a href="{{ route($routePrefix . '.recruitment-posts.edit', $post->hashed_id) }}" class="adm-btn success"
                     style="font-size:12px;padding:6px 14px;">
                     <svg viewBox="0 0 24 24" style="width:13px;height:13px;">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -97,7 +97,7 @@
                     </svg>
                     Edit Lowongan
                 </a>
-                <a href="{{ route('superadmin.recruitment-posts.index') }}" class="adm-btn-secondary">
+                <a href="{{ route($routePrefix . '.recruitment-posts.index') }}" class="adm-btn-secondary">
                     <svg viewBox="0 0 24 24">
                         <polyline points="15 18 9 12 15 6" />
                     </svg> Kembali
@@ -307,7 +307,7 @@
                                         <td class="tc" style="padding-left:20px;">{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="adm-name-cell">
-                                                <a href="{{ route('superadmin.recruitments.show', $r->hashed_id) }}"
+                                                <a href="{{ route($routePrefix . '.recruitments.show', $r->hashed_id) }}"
                                                     style="font-weight:600;font-size:13.5px;color:var(--adm-text-dark);text-decoration:none;">{{ $r->nama_lengkap }}</a>
                                             </div>
                                         </td>
@@ -333,7 +333,7 @@
                                         <td class="tc" style="padding-right:20px;">
                                             <div class="adm-actions" style="justify-content:center;">
                                                 <a class="adm-btn primary icon-only"
-                                                    href="{{ route('superadmin.recruitments.show', $r->hashed_id) }}"
+                                                    href="{{ route($routePrefix . '.recruitments.show', $r->hashed_id) }}"
                                                     title="Buka Detail">
                                                     <svg viewBox="0 0 24 24">
                                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

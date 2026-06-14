@@ -11,14 +11,14 @@
                 <p>Top 3 foto dengan kemiripan ≥80% dari seluruh enumerator</p>
             </div>
             <div style="display:flex;gap:8px;">
-                <a href="{{ route('superadmin.face-match.index') }}" class="adm-btn-primary">
+                <a href="{{ route($routePrefix . '.face-match.index') }}" class="adm-btn-primary">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                     Scan Ulang
                 </a>
-                <a href="{{ route('superadmin.dashboard') }}" class="adm-btn-secondary">
+                <a href="{{ route($routePrefix . '.dashboard') }}" class="adm-btn-secondary">
                     <svg viewBox="0 0 24 24">
                         <polyline points="15 18 9 12 15 6" />
                     </svg>
@@ -132,7 +132,7 @@
                                     </svg>
                                     {{ $data['nama_enumerator'] ?? 'Enumerator #' . ($data['enumerator_id'] ?? '-') }}
                                 </div>
-                                <a href="{{ route('superadmin.data-lapangans.show', $data['id']) }}"
+                                <a href="{{ route($routePrefix . '.data-lapangans.show', $data['id']) }}"
                                     class="adm-btn-secondary fm-detail-btn" style="margin-top:10px;">
                                     <svg viewBox="0 0 24 24" style="width:12px;height:12px;">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

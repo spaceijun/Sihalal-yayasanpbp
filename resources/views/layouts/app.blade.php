@@ -2,6 +2,9 @@
 @if (auth()->check() && auth()->user()->role === 'superadmin')
     <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="blue">
+@elseif(auth()->check() && auth()->user()->role === 'admin_umum')
+    <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+        data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="teal">
 @elseif(auth()->check() && auth()->user()->role === 'koordinator')
     <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">
@@ -487,6 +490,15 @@
                                                 {{ auth()->user()->email }}
                                             </span>
 
+                                            {{-- Untuk Admin Umum --}}
+                                        @elseif (auth()->check() && auth()->user()->role === 'admin_umum')
+                                            <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
+                                                {{ auth()->user()->name }}
+                                            </span>
+                                            <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">
+                                                {{ auth()->user()->email }}
+                                            </span>
+
                                             {{-- Untuk Koordinator --}}
                                         @elseif (auth()->check() && auth()->user()->role === 'koordinator')
                                             <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
@@ -518,6 +530,9 @@
                                 <!-- item-->
                                 {{-- Untuk Superadmin --}}
                                 @if (auth()->check() && auth()->user()->role === 'superadmin')
+                                    <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
+                                    {{-- Untuk Admin Umum --}}
+                                @elseif (auth()->check() && auth()->user()->role === 'admin_umum')
                                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
                                     {{-- Untuk Koordinator --}}
                                 @elseif (auth()->check() && auth()->user()->role === 'koordinator')

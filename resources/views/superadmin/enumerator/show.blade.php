@@ -122,7 +122,7 @@
                                         <span class="pill pill-red">
                                             <i class="las la-times-circle"></i> Tidak Aktif
                                         </span>
-                                        <form action="{{ route('superadmin.enumerators.aktivasi', $enumerator->hashed_id) }}"
+                                        <form action="{{ route($routePrefix . '.enumerators.aktivasi', $enumerator->hashed_id) }}"
                                             method="POST"
                                             onsubmit="return confirm('Aktifkan kembali {{ $enumerator->nama_lengkap }}?')">
                                             @csrf @method('PATCH')
@@ -901,7 +901,7 @@
         // Load surat tugas iframe on modal open
         document.getElementById('modalSuratTugas').addEventListener('show.bs.modal', function() {
             document.getElementById('suratTugasFrame').src =
-                '{{ route('superadmin.enumerators.surat-tugas', $enumerator->hashed_id) }}';
+                '{{ route($routePrefix . '.enumerators.surat-tugas', $enumerator->hashed_id) }}';
         });
 
         function suratTugasLoaded() {

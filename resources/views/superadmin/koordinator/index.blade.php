@@ -12,7 +12,7 @@
                 <h1>Koordinator</h1>
                 <p>Kelola data koordinator lapangan beserta statistik data mereka</p>
             </div>
-            <a href="{{ route('superadmin.koordinators.create') }}" class="adm-btn-primary">
+            <a href="{{ route($routePrefix . '.koordinators.create') }}" class="adm-btn-primary">
                 <svg viewBox="0 0 24 24">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -63,7 +63,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route('superadmin.koordinators.data') }}',
+                    url: '{{ route($routePrefix . '.koordinators.data') }}',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -79,7 +79,6 @@
                     {
                         data: 'nama_cell',
                         name: 'nama_lengkap',
-                        render: $.fn.dataTable.render.text(),
                         className: ''
                     },
                     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Http\Requests\EnumeratorRequest;
 use App\Models\DataBank;
 use App\Models\DataLapangan;
@@ -21,12 +22,15 @@ use Yajra\DataTables\Facades\DataTables;
 
 class EnumeratorController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        return view('superadmin.enumerator.index');
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.enumerator.index', compact('routePrefix'));
     }
 
     /**
@@ -101,13 +105,13 @@ class EnumeratorController extends Controller
 
                 return '<div class="adm-actions" style="justify-content:center;flex-wrap:wrap;">
                     '.$generateBtn.'
-                    <a class="adm-btn icon-only" href="'.route('superadmin.enumerators.gallery', $e->hashed_id).'" title="Galeri">
+                    <a class="adm-btn icon-only" href="'.route($this->routePrefix() . '.enumerators.gallery', $e->hashed_id).'" title="Galeri">
                         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </a>
-                    <a class="adm-btn primary icon-only" href="'.route('superadmin.enumerators.show', $e->hashed_id).'" title="Detail">
+                    <a class="adm-btn primary icon-only" href="'.route($this->routePrefix() . '.enumerators.show', $e->hashed_id).'" title="Detail">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
-                    <a class="adm-btn success icon-only" href="'.route('superadmin.enumerators.edit', $e->hashed_id).'" title="Edit">
+                    <a class="adm-btn success icon-only" href="'.route($this->routePrefix() . '.enumerators.edit', $e->hashed_id).'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
                     <button type="button" class="adm-btn danger icon-only btn-delete" data-id="'.$e->hashed_id.'" title="Hapus">
@@ -168,7 +172,9 @@ class EnumeratorController extends Controller
         $enumerator = new Enumerator;
         $koordinators = Koordinator::all();
 
-        return view('superadmin.enumerator.create', compact('enumerator', 'koordinators'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.create', compact('enumerator', 'koordinators', 'routePrefix'));
     }
 
     /**
@@ -205,7 +211,7 @@ class EnumeratorController extends Controller
             ));
         });
 
-        return Redirect::route('superadmin.enumerators.index')
+        return Redirect::route($this->routePrefix() . '.enumerators.index')
             ->with('success', 'Enumerator created successfully.');
     }
 
@@ -217,7 +223,9 @@ class EnumeratorController extends Controller
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
         $enumerator->load(['koordinator', 'bank']);
 
-        return view('superadmin.enumerator.show', compact('enumerator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.show', compact('enumerator', 'routePrefix'));
     }
 
     /**
@@ -228,7 +236,9 @@ class EnumeratorController extends Controller
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
         $enumerator->load(['koordinator', 'dataLapangans']);
 
-        return view('superadmin.enumerator.gallery', compact('enumerator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.gallery', compact('enumerator', 'routePrefix'));
     }
 
     /**
@@ -309,7 +319,9 @@ class EnumeratorController extends Controller
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
         $enumerator->load('koordinator');
 
-        return view('superadmin.enumerator.partials.surat', compact('enumerator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.partials.surat', compact('enumerator', 'routePrefix'));
     }
 
     /**
@@ -319,7 +331,9 @@ class EnumeratorController extends Controller
     {
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.enumerator.partials.idcard', compact('enumerator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.partials.idcard', compact('enumerator', 'routePrefix'));
     }
 
     /**
@@ -331,7 +345,9 @@ class EnumeratorController extends Controller
         $koordinators = Koordinator::all();
         $banks = DataBank::orderBy('name')->get();
 
-        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators', 'banks'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.enumerator.edit', compact('enumerator', 'koordinators', 'banks', 'routePrefix'));
     }
 
     /**
@@ -341,7 +357,7 @@ class EnumeratorController extends Controller
     {
         $enumerator->update($request->validated());
 
-        return Redirect::route('superadmin.enumerators.index')
+        return Redirect::route($this->routePrefix() . '.enumerators.index')
             ->with('success', 'Enumerator updated successfully');
     }
 
@@ -370,7 +386,7 @@ class EnumeratorController extends Controller
     {
         Enumerator::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.enumerators.index')
+        return Redirect::route($this->routePrefix() . '.enumerators.index')
             ->with('success', 'Enumerator deleted successfully');
     }
 

@@ -61,7 +61,7 @@ Setting Website
         {{-- TAB: WEBSITE                               --}}
         {{-- ========================================== --}}
         <div id="tab-website" class="adm-tab-pane active">
-            <form action="{{ route('superadmin.settings.update') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route($routePrefix . '.settings.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -182,7 +182,7 @@ Setting Website
                         </svg>
                         Simpan Pengaturan
                     </button>
-                    <a href="{{ route('superadmin.settings.index') }}" class="adm-btn-secondary">Batal</a>
+                    <a href="{{ route($routePrefix . '.settings.index') }}" class="adm-btn-secondary">Batal</a>
                 </div>
 
             </form>
@@ -214,7 +214,7 @@ Setting Website
                 </div>
             </div>
 
-            <form action="{{ route('superadmin.settings.env.update') }}" method="POST" id="envForm">
+            <form action="{{ route($routePrefix . '.settings.env.update') }}" method="POST" id="envForm">
                 @csrf
                 @method('PUT')
 

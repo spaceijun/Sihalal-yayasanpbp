@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
+use App\Traits\ApiResponses;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 
 class DataLapanganController extends Controller
 {
+    use ApiResponses;
+
     /*
     |--------------------------------------------------------------------------
     | WEB VIEW METHODS
@@ -74,7 +77,7 @@ class DataLapanganController extends Controller
                 'payment_stats' => $stats,
             ]);
         } catch (\Exception $e) {
-            return $this->errorResponse('Terjadi kesalahan: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Terjadi kesalahan saat memuat data');
         }
     }
 
@@ -88,7 +91,7 @@ class DataLapanganController extends Controller
 
             return $this->successResponse(['data' => $dataLapangan]);
         } catch (\Exception $e) {
-            return $this->errorResponse('Data tidak ditemukan', 404);
+            return $this->safeErrorResponse($e, 'Data tidak ditemukan', 404);
         }
     }
 
@@ -143,7 +146,7 @@ class DataLapanganController extends Controller
                 201
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal menambahkan data: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal menambahkan data');
         }
     }
 
@@ -168,7 +171,7 @@ class DataLapanganController extends Controller
                 'Data berhasil diupdate'
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal mengupdate data: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal mengupdate data');
         }
     }
 
@@ -183,7 +186,7 @@ class DataLapanganController extends Controller
 
             return $this->successResponse([], 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal menghapus data: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal menghapus data');
         }
     }
 
@@ -206,7 +209,7 @@ class DataLapanganController extends Controller
                 "{$deletedCount} data berhasil dihapus"
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal menghapus data: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal menghapus data');
         }
     }
 
@@ -236,7 +239,7 @@ class DataLapanganController extends Controller
                 'Status berhasil diupdate'
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal mengupdate status: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal mengupdate status');
         }
     }
 
@@ -260,7 +263,7 @@ class DataLapanganController extends Controller
                 'Status pembayaran berhasil diupdate'
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal mengupdate status pembayaran: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal mengupdate status pembayaran');
         }
     }
 
@@ -275,7 +278,7 @@ class DataLapanganController extends Controller
 
             return $this->successResponse([], 'Keterangan berhasil diupdate');
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal mengupdate keterangan: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal mengupdate keterangan');
         }
     }
 
@@ -312,7 +315,7 @@ class DataLapanganController extends Controller
                 'File berhasil diupload'
             );
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal mengupload file: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal mengupload file');
         }
     }
 
@@ -333,15 +336,15 @@ class DataLapanganController extends Controller
 
             return $this->successResponse([], 'File berhasil dihapus');
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal menghapus file: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal menghapus file');
         }
     }
 
     /*
-|--------------------------------------------------------------------------
-| API METHODS - LOCK MANAGEMENT (Superadmin)
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | API METHODS - LOCK MANAGEMENT (Superadmin)
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Force unlock data (hanya superadmin)
@@ -357,7 +360,7 @@ class DataLapanganController extends Controller
 
             return $this->successResponse([], 'Data berhasil di-unlock');
         } catch (\Exception $e) {
-            return $this->errorResponse('Gagal unlock: ' . $e->getMessage(), 500);
+            return $this->safeErrorResponse($e, 'Gagal unlock');
         }
     }
 
@@ -465,7 +468,7 @@ class DataLapanganController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nama_pu', 'like', "%{$searchTerm}%")
                     ->orWhere('nama_produk', 'like', "%{$searchTerm}%")
-                    ->orWhere('no_registrasi', 'like', "%{$searchTerm}%") // ← tambahkan ini
+                    ->orWhere('no_registrasi', 'like', "%{$searchTerm}%") // <- tambahkan ini
                     ->orWhereHas('enumerator', function ($subQ) use ($searchTerm) {
                         $subQ->where('nama_lengkap', 'like', "%{$searchTerm}%");
                     });
@@ -549,48 +552,5 @@ class DataLapanganController extends Controller
     private function storeFile($file): string
     {
         return $file->store('data-lapangan-files', 'public');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESPONSE METHODS
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Success response
-     */
-    private function successResponse(array $data = [], string $message = null, int $statusCode = 200): JsonResponse
-    {
-        $response = ['success' => true];
-
-        if ($message) {
-            $response['message'] = $message;
-        }
-
-        return response()->json(array_merge($response, $data), $statusCode);
-    }
-
-    /**
-     * Error response
-     */
-    private function errorResponse(string $message, int $statusCode = 400): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $message
-        ], $statusCode);
-    }
-
-    /**
-     * Validation error response
-     */
-    private function validationErrorResponse($validator): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation error',
-            'errors' => $validator->errors()
-        ], 422);
     }
 }

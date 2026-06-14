@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Ticket;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class TicketController extends Controller
 {
+    use HasRoutePrefix;
+
     public function index(Request $request): View
     {
         $query = Ticket::with('user')->latest();
@@ -28,14 +31,16 @@ class TicketController extends Controller
     {
         $ticket = Ticket::with('user')->findByHashedId($hashedId);
 
-        return view('superadmin.ticket.show', compact('ticket'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.ticket.show', compact('ticket', 'routePrefix'));
     }
 
     public function destroy($hashedId): RedirectResponse
     {
         Ticket::findByHashedId($hashedId)->delete();
 
-        return redirect()->route('superadmin.tickets.index')
+        return redirect()->route($this->routePrefix() . '.tickets.index')
             ->with('success', 'Tiket berhasil dihapus.');
     }
 

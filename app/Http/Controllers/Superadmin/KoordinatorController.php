@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Http\Requests\KoordinatorRequest;
 use App\Models\Superadmin\Koordinator;
 use App\Models\User;
@@ -14,12 +15,15 @@ use Yajra\DataTables\Facades\DataTables;
 
 class KoordinatorController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        return view('superadmin.koordinator.index');
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.koordinator.index', compact('routePrefix'));
     }
 
     /**
@@ -53,8 +57,8 @@ class KoordinatorController extends Controller
                     : '<span class="adm-badge adm-badge-nonaktif">Tidak Aktif</span>';
             })
             ->addColumn('aksi', function ($k) {
-                $editUrl = route('superadmin.koordinators.edit', $k->hashed_id);
-                $deleteUrl = route('superadmin.koordinators.destroy', $k->hashed_id);
+                $editUrl = route($this->routePrefix() . '.koordinators.edit', $k->hashed_id);
+                $deleteUrl = route($this->routePrefix() . '.koordinators.destroy', $k->hashed_id);
 
                 return '<div class="adm-actions">
                     <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
@@ -80,7 +84,9 @@ class KoordinatorController extends Controller
     {
         $koordinator = new Koordinator;
 
-        return view('superadmin.koordinator.create', compact('koordinator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.koordinator.create', compact('koordinator', 'routePrefix'));
     }
 
     /**
@@ -108,7 +114,7 @@ class KoordinatorController extends Controller
             'status' => $request->status,
         ]);
 
-        return Redirect::route('superadmin.koordinators.index')
+        return Redirect::route($this->routePrefix() . '.koordinators.index')
             ->with('success', 'Koordinator created successfully.');
     }
 
@@ -119,7 +125,9 @@ class KoordinatorController extends Controller
     {
         $koordinator = Koordinator::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.koordinator.show', compact('koordinator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.koordinator.show', compact('koordinator', 'routePrefix'));
     }
 
     /**
@@ -129,7 +137,9 @@ class KoordinatorController extends Controller
     {
         $koordinator = Koordinator::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.koordinator.edit', compact('koordinator'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.koordinator.edit', compact('koordinator', 'routePrefix'));
     }
 
     /**
@@ -139,7 +149,7 @@ class KoordinatorController extends Controller
     {
         $koordinator->update($request->validated());
 
-        return Redirect::route('superadmin.koordinators.index')
+        return Redirect::route($this->routePrefix() . '.koordinators.index')
             ->with('success', 'Koordinator updated successfully');
     }
 
@@ -147,7 +157,7 @@ class KoordinatorController extends Controller
     {
         Koordinator::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route('superadmin.koordinators.index')
+        return Redirect::route($this->routePrefix() . '.koordinators.index')
             ->with('success', 'Koordinator deleted successfully');
     }
 }

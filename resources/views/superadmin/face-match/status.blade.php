@@ -64,7 +64,7 @@
 
         {{-- Tombol batal (opsional — hanya UI, tidak cancel batch secara backend) --}}
         <div class="text-center mt-3">
-            <a href="{{ route('superadmin.face-match.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+            <a href="{{ route($routePrefix . '.face-match.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4"
                 onclick="return confirm('Batalkan dan kembali ke halaman utama?')">
                 <i class="bi bi-x-circle me-1"></i>Batalkan
             </a>
@@ -75,8 +75,8 @@
     <script>
         (function() {
             const KEY = @json($sessionKey);
-            const POLL_URL = @json(route('superadmin.face-match.poll', ['key' => $sessionKey]));
-            const RESULT_URL = @json(route('superadmin.face-match.result', ['key' => $sessionKey]));
+            const POLL_URL = @json(route($routePrefix . '.face-match.poll', ['key' => $sessionKey]));
+            const RESULT_URL = @json(route($routePrefix . '.face-match.result', ['key' => $sessionKey]));
             const INTERVAL = 2000; // ms
 
             const elBar = document.getElementById('progress-bar');

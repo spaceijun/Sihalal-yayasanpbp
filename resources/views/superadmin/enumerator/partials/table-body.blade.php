@@ -78,7 +78,7 @@
                     </button>
                 @endif
                 <a class="adm-btn icon-only"
-                    href="{{ route('superadmin.enumerators.gallery', $enumerator->hashed_id) }}" title="Galeri">
+                    href="{{ route($routePrefix . '.enumerators.gallery', $enumerator->hashed_id) }}" title="Galeri">
                     <svg viewBox="0 0 24 24">
                         <rect x="3" y="3" width="18" height="18" rx="2" />
                         <circle cx="8.5" cy="8.5" r="1.5" />
@@ -86,14 +86,14 @@
                     </svg>
                 </a>
                 <a class="adm-btn primary icon-only"
-                    href="{{ route('superadmin.enumerators.show', $enumerator->hashed_id) }}" title="Detail">
+                    href="{{ route($routePrefix . '.enumerators.show', $enumerator->hashed_id) }}" title="Detail">
                     <svg viewBox="0 0 24 24">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                     </svg>
                 </a>
                 <a class="adm-btn success icon-only"
-                    href="{{ route('superadmin.enumerators.edit', $enumerator->hashed_id) }}" title="Edit">
+                    href="{{ route($routePrefix . '.enumerators.edit', $enumerator->hashed_id) }}" title="Edit">
                     <svg viewBox="0 0 24 24">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />

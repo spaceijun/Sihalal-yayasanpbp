@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\RecruitmentPost;
 use App\Models\Superadmin\Koordinator;
 use App\Services\Superadmin\RecruitmentPostService;
@@ -11,6 +12,8 @@ use Yajra\DataTables\Facades\DataTables;
 
 class RecruitmentPostController extends Controller
 {
+    use HasRoutePrefix;
+
     public function __construct(private RecruitmentPostService $service) {}
 
     /**
@@ -18,7 +21,8 @@ class RecruitmentPostController extends Controller
      */
     public function index()
     {
-        return view('superadmin.recruitment-posts.index');
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.recruitment-posts.index', compact('routePrefix'));
     }
 
     /**
@@ -27,6 +31,11 @@ class RecruitmentPostController extends Controller
     public function data(Request $request)
     {
         $query = RecruitmentPost::withCount('recruitments');
+
+        // Admin Umum hanya melihat lowongan yang dia buat
+        if (auth()->user()->role === 'admin_umum') {
+            $query->where('created_by', auth()->id());
+        }
 
         if ($request->filled('posisi')) {
             $query->where('posisi', $request->posisi);
@@ -39,7 +48,7 @@ class RecruitmentPostController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('nama_cell', function ($p) {
-                $showUrl  = route('superadmin.recruitment-posts.show', $p->hashed_id);
+                $showUrl  = route($this->routePrefix() . '.recruitment-posts.show', $p->hashed_id);
 
                 return '<div class="adm-name-cell">
                     <div>
@@ -80,10 +89,10 @@ class RecruitmentPostController extends Controller
                 return '<span class="adm-badge" style="background:var(--adm-bg-muted);color:var(--adm-text-dark);font-weight:700;">' . $count . '</span>';
             })
             ->addColumn('aksi', function ($p) {
-                $editUrl   = route('superadmin.recruitment-posts.edit', $p->hashed_id);
-                $showUrl   = route('superadmin.recruitment-posts.show', $p->hashed_id);
-                $toggleUrl = route('superadmin.recruitment-posts.toggle', $p->hashed_id);
-                $deleteUrl = route('superadmin.recruitment-posts.destroy', $p->hashed_id);
+                $editUrl   = route($this->routePrefix() . '.recruitment-posts.edit', $p->hashed_id);
+                $showUrl   = route($this->routePrefix() . '.recruitment-posts.show', $p->hashed_id);
+                $toggleUrl = route($this->routePrefix() . '.recruitment-posts.toggle', $p->hashed_id);
+                $deleteUrl = route($this->routePrefix() . '.recruitment-posts.destroy', $p->hashed_id);
                 $toggleLabel = $p->is_active ? 'Nonaktifkan' : 'Aktifkan';
                 $toggleIcon  = $p->is_active
                     ? '<svg viewBox="0 0 24 24"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3" fill="currentColor"/></svg>'
@@ -121,7 +130,8 @@ class RecruitmentPostController extends Controller
      */
     public function create()
     {
-        return view('superadmin.recruitment-posts.create');
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.recruitment-posts.create', compact('routePrefix'));
     }
 
     /**
@@ -138,17 +148,17 @@ class RecruitmentPostController extends Controller
             'is_active'                  => 'nullable|boolean',
             'tanggal_buka'               => 'nullable|date',
             'tanggal_tutup'              => 'nullable|date|after_or_equal:tanggal_buka',
-            'requirements'               => 'nullable|array',
+            'requirements'              => 'nullable|array',
         ]);
 
         $data = $request->only(['nama_loker', 'posisi', 'deskripsi', 'jobdesk', 'tanggal_buka', 'tanggal_tutup']);
         $data['is_active'] = $request->boolean('is_active');
+        $data['created_by'] = auth()->id();
 
         if ($request->hasFile('template_pakta_integritas')) {
             $data['template_pakta_integritas'] = $request->file('template_pakta_integritas');
         }
 
-        // Parse requirements dari form builder
         if ($request->filled('requirements')) {
             $data['requirements'] = $this->service->parseRequirements($request->input('requirements'));
         } else {
@@ -158,7 +168,7 @@ class RecruitmentPostController extends Controller
         $post = $this->service->create($data);
 
         return redirect()
-            ->route('superadmin.recruitment-posts.index')
+            ->route($this->routePrefix() . '.recruitment-posts.index')
             ->with('success', "Lowongan \"{$post->nama_loker}\" berhasil dibuat!");
     }
 
@@ -170,7 +180,9 @@ class RecruitmentPostController extends Controller
         $post        = RecruitmentPost::findByHashedIdOrFail($hashedId);
         $koordinators = Koordinator::all();
 
-        return view('superadmin.recruitment-posts.show', compact('post', 'koordinators'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.recruitment-posts.show', compact('post', 'koordinators', 'routePrefix'));
     }
 
     /**
@@ -180,7 +192,9 @@ class RecruitmentPostController extends Controller
     {
         $post = RecruitmentPost::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.recruitment-posts.edit', compact('post'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.recruitment-posts.edit', compact('post', 'routePrefix'));
     }
 
     /**
@@ -197,7 +211,7 @@ class RecruitmentPostController extends Controller
             'is_active'                  => 'nullable|boolean',
             'tanggal_buka'               => 'nullable|date',
             'tanggal_tutup'              => 'nullable|date|after_or_equal:tanggal_buka',
-            'requirements'               => 'nullable|array',
+            'requirements'              => 'nullable|array',
         ]);
 
         $post = RecruitmentPost::findByHashedIdOrFail($hashedId);
@@ -220,7 +234,7 @@ class RecruitmentPostController extends Controller
         $this->service->update($post, $data);
 
         return redirect()
-            ->route('superadmin.recruitment-posts.index')
+            ->route($this->routePrefix() . '.recruitment-posts.index')
             ->with('success', "Lowongan \"{$post->nama_loker}\" berhasil diperbarui!");
     }
 
@@ -247,7 +261,7 @@ class RecruitmentPostController extends Controller
         $this->service->delete($post);
 
         return redirect()
-            ->route('superadmin.recruitment-posts.index')
+            ->route($this->routePrefix() . '.recruitment-posts.index')
             ->with('success', "Lowongan \"{$nama}\" berhasil dihapus!");
     }
 }

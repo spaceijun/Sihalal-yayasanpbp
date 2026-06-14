@@ -240,14 +240,14 @@
             </div>
             <div>
                 @if ($recruitment->recruitmentPost)
-                    <a href="{{ route('superadmin.recruitment-posts.show', $recruitment->recruitmentPost->hashed_id) }}"
+                    <a href="{{ route($routePrefix . '.recruitment-posts.show', $recruitment->recruitmentPost->hashed_id) }}"
                         class="adm-btn-secondary">
                         <svg viewBox="0 0 24 24">
                             <polyline points="15 18 9 12 15 6" />
                         </svg> Kembali ke Lowongan
                     </a>
                 @else
-                    <a href="{{ route('superadmin.recruitment-posts.index') }}" class="adm-btn-secondary">
+                    <a href="{{ route($routePrefix . '.recruitment-posts.index') }}" class="adm-btn-secondary">
                         <svg viewBox="0 0 24 24">
                             <polyline points="15 18 9 12 15 6" />
                         </svg> Kembali
@@ -521,7 +521,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content"
                     style="border-radius:12px;border:none;box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                    <form action="{{ route('superadmin.recruitments.update-status-v2', $recruitment->hashed_id) }}"
+                    <form action="{{ route($routePrefix . '.recruitments.update-status-v2', $recruitment->hashed_id) }}"
                         method="POST">
                         @csrf
                         <input type="hidden" name="status" value="Diterima">
@@ -566,7 +566,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content"
                     style="border-radius:12px;border:none;box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                    <form action="{{ route('superadmin.recruitments.update-status-v2', $recruitment->hashed_id) }}"
+                    <form action="{{ route($routePrefix . '.recruitments.update-status-v2', $recruitment->hashed_id) }}"
                         method="POST">
                         @csrf
                         <input type="hidden" name="status" value="Ditolak">

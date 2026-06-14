@@ -9,6 +9,7 @@ use App\Models\Enumerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class FaceMatchController extends Controller
@@ -71,15 +72,7 @@ class FaceMatchController extends Controller
         $queryPath    = storage_path('app/public/' . $tmpPath);
 
         // Usia foto query = waktu upload (baru saja) → 0 bulan
-        // Catatan: foto query baru saja diupload, usianya 0.
-        // Jika ingin membaca metadata EXIF untuk tanggal asli kamera, lihat komentar di bawah.
         $queryAgeMonths = 0;
-        // Opsional — baca tanggal EXIF kamera jika tersedia:
-        // $exif = @exif_read_data($queryPath);
-        // $takenAt = $exif['DateTimeOriginal'] ?? $exif['DateTime'] ?? null;
-        // if ($takenAt) {
-        //     $queryAgeMonths = (int) now()->diffInMonths(\Carbon\Carbon::createFromFormat('Y:m:d H:i:s', $takenAt));
-        // }
 
         $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
             ->where('foto_pendamping', '!=', '')
@@ -95,6 +88,10 @@ class FaceMatchController extends Controller
         }
 
         $sessionKey = 'face_match_' . Str::uuid();
+
+        // Store session ownership - only the current user can access this session
+        $userId = $request->user()?->id ?? 'anonymous';
+        Cache::put($sessionKey . '_owner', $userId, now()->addHours(2));
 
         $enumeratorNames = Enumerator::whereIn('id', collect($selectedIds))
             ->pluck('nama_lengkap', 'id');
@@ -122,14 +119,12 @@ class FaceMatchController extends Controller
                 continue;
             }
 
-            // Hitung usia foto DB dari mtime file (fallback jika tidak ada kolom tanggal)
+            // Hitung usia foto DB dari mtime file
             $dbAgeMonths = 0;
             $mtime = @filemtime($dbPath);
             if ($mtime) {
                 $dbAgeMonths = (int) now()->diffInMonths(\Carbon\Carbon::createFromTimestamp($mtime));
             }
-            // Jika model DataLapangan punya kolom tanggal upload / created_at, lebih akurat:
-            // $dbAgeMonths = (int) now()->diffInMonths($data->created_at);
 
             $namaEnumerator = $enumeratorNames[$data->enumerator_id]
                 ?? 'Enumerator #' . $data->enumerator_id;
@@ -164,12 +159,19 @@ class FaceMatchController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Halaman status
+    // Halaman status - dengan validasi ownership
     // -------------------------------------------------------------------------
     public function status(Request $request)
     {
         $sessionKey = $request->query('key');
-        $meta       = Cache::get($sessionKey . '_meta');
+
+        // SECURITY: Validasi ownership sesi
+        if (!$this->validateSessionOwnership($sessionKey, $request)) {
+            return redirect()->route('superadmin.face-match.index')
+                ->with('error', 'Sesi tidak ditemukan atau Anda tidak memiliki akses.');
+        }
+
+        $meta = Cache::get($sessionKey . '_meta');
 
         if (!$meta) {
             return redirect()->route('superadmin.face-match.index')
@@ -180,13 +182,19 @@ class FaceMatchController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Endpoint AJAX polling
+    // Endpoint AJAX polling - dengan validasi ownership
     // -------------------------------------------------------------------------
     public function poll(Request $request)
     {
         $sessionKey = $request->query('key');
-        $batchId    = Cache::get($sessionKey . '_batch');
-        $meta       = Cache::get($sessionKey . '_meta');
+
+        // SECURITY: Validasi ownership sesi
+        if (!$this->validateSessionOwnership($sessionKey, $request)) {
+            return response()->json(['error' => 'Sesi tidak ditemukan.'], 404);
+        }
+
+        $batchId = Cache::get($sessionKey . '_batch');
+        $meta = Cache::get($sessionKey . '_meta');
 
         if (!$batchId || !$meta) {
             return response()->json(['error' => 'Sesi tidak ditemukan.'], 404);
@@ -229,12 +237,19 @@ class FaceMatchController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Halaman hasil — filter ≥80%, ambil TOP 3 saja
+    // Halaman hasil - dengan validasi ownership
     // -------------------------------------------------------------------------
     public function result(Request $request)
     {
         $sessionKey = $request->query('key');
-        $meta       = Cache::get($sessionKey . '_meta');
+
+        // SECURITY: Validasi ownership sesi
+        if (!$this->validateSessionOwnership($sessionKey, $request)) {
+            return redirect()->route('superadmin.face-match.index')
+                ->with('error', 'Sesi tidak ditemukan atau Anda tidak memiliki akses.');
+        }
+
+        $meta = Cache::get($sessionKey . '_meta');
         $allResults = Cache::get($sessionKey, []);
 
         if (!$meta) {
@@ -256,6 +271,28 @@ class FaceMatchController extends Controller
             'totalDianalisis',
             'totalDitemukan',
         ));
+    }
+
+    // -------------------------------------------------------------------------
+    // SECURITY: Validasi ownership sesi face match
+    // -------------------------------------------------------------------------
+    private function validateSessionOwnership(string $sessionKey, Request $request): bool
+    {
+        $owner = Cache::get($sessionKey . '_owner');
+        $userId = $request->user()?->id ?? 'anonymous';
+
+        // Jika tidak ada owner yang tersimpan, berarti sesi lama - validasi berdasarkan session
+        if ($owner === null) {
+            // Untuk backward compatibility dengan sesi lama, tetap izinkan
+            // Tapi log untuk audit
+            Log::warning('Face match session accessed without ownership check', [
+                'session_key' => $sessionKey,
+                'user_id' => $userId,
+            ]);
+            return true;
+        }
+
+        return $owner === $userId;
     }
 
     // -------------------------------------------------------------------------

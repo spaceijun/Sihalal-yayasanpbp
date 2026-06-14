@@ -415,7 +415,7 @@ class DataLapanganController extends Controller
                 'email_sihalal' => ['required', 'email', 'max:255'],
             ]);
 
-            $dataLapangan = DataLapangan::findOrFail($id);
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($id);
             $dataEntry = $this->getAuthDataEntry();
 
             // Cegah double submit — tolak jika masih ada PENDING

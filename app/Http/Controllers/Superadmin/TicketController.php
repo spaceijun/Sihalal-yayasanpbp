@@ -30,7 +30,8 @@ class TicketController extends Controller
 
     public function show($hashedId): View
     {
-        $ticket = Ticket::with('user')->findByHashedId($hashedId);
+        $ticket = Ticket::findByHashedId($hashedId);
+        $ticket?->load('user');
 
         $routePrefix = $this->routePrefix();
 

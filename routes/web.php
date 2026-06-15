@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUmum\DashboardController as AdminUmumDashboardController;
 use App\Http\Controllers\Api\DataEntryProgressController as DataEntryProgressApiController;
 use App\Http\Controllers\Api\FaceMatchController;
 use App\Http\Controllers\AppVersionController;
@@ -14,7 +15,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
-use App\Http\Controllers\AdminUmum\DashboardController as AdminUmumDashboardController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
@@ -64,11 +64,16 @@ Route::get('/', function () {
 
     return view('auth.login');
 });
-Route::get('formulir-halal', function () {
-    return redirect()->route('publik.contact');
-})->name('formulir.halal');
-Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
-Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
+// Formulir Halal — publik (tanpa auth), dilindungi rate limiter
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('formulir-halal', [DataLapanganController::class, 'create'])->name('formulir.halal');
+});
+Route::middleware('throttle:formulir-halal')->group(function () {
+    Route::post('formulir-halal', [DataLapanganController::class, 'store'])->name('formulir.halal.store');
+});
+Route::middleware('throttle:upload-file')->group(function () {
+    Route::post('upload/{type}', [DataLapanganController::class, 'uploadFileSequintal'])->name('upload.file');
+});
 Route::get('spotcheck', [SpotcheckController::class, 'create'])->name('spotcheck.formulir');
 Route::post('spotcheck', [SpotcheckController::class, 'store'])->name('spotcheck.store');
 Route::get('version/check', [AppVersionController::class, 'check']);

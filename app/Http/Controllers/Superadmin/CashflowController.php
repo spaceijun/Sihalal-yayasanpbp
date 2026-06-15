@@ -46,7 +46,8 @@ class CashflowController extends Controller
     public function cashflows()
     {
         $cashflows = Cashflow::orderBy('created_at', 'asc')->get();
-        return view('superadmin.arus-kas.cashflows', compact('cashflows'));
+        $routePrefix = $this->routePrefix();
+        return view('superadmin.arus-kas.cashflows', compact('cashflows', 'routePrefix'));
     }
 
     /**

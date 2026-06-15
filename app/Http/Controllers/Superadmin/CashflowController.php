@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Cashflow;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,14 +13,16 @@ use Illuminate\View\View;
 
 class CashflowController extends Controller
 {
+    use HasRoutePrefix;
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): View
     {
         $cashflows = Cashflow::paginate();
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.arus-kas.index', compact('cashflows'))
+        return view('superadmin.arus-kas.index', compact('cashflows', 'routePrefix'))
             ->with('i', ($request->input('page', 1) - 1) * $cashflows->perPage());
     }
 
@@ -52,8 +55,9 @@ class CashflowController extends Controller
     public function create(): View
     {
         $cashflow = new Cashflow();
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.arus-kas.create', compact('cashflow'));
+        return view('superadmin.arus-kas.create', compact('cashflow', 'routePrefix'));
     }
 
     /**
@@ -73,8 +77,9 @@ class CashflowController extends Controller
     public function show($hashedId): View
     {
         $cashflow = Cashflow::findByHashedIdOrFail($hashedId);
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.arus-kas.show', compact('cashflow'));
+        return view('superadmin.arus-kas.show', compact('cashflow', 'routePrefix'));
     }
 
     /**
@@ -83,8 +88,9 @@ class CashflowController extends Controller
     public function edit($hashedId): View
     {
         $cashflow = Cashflow::findByHashedIdOrFail($hashedId);
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.arus-kas.edit', compact('cashflow'));
+        return view('superadmin.arus-kas.edit', compact('cashflow', 'routePrefix'));
     }
 
     /**

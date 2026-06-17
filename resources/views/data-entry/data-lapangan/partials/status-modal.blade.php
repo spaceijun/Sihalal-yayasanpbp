@@ -6,7 +6,7 @@
                 <h5 class="modal-title" id="modalUpdateStatusHalalLabel">Update Status ke Progress SIHALAL</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('data-entry.datalapangan.update-status', $dataLapangan->id) }}" method="POST">
+            <form action="{{ route('data-entry.datalapangan.update-status', $dataLapangan->hashed_id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">

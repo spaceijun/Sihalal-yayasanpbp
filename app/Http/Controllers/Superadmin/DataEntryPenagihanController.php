@@ -31,13 +31,15 @@ class DataEntryPenagihanController extends Controller
         $totalDiproses = DataEntryPenagihan::where('status', 'Diproses')->count();
         $totalDibayar  = DataEntryPenagihan::where('status', 'Dibayar')->sum('nominal');
         $totalDitolak  = DataEntryPenagihan::where('status', 'Ditolak')->count();
+        $routePrefix   = 'superadmin';
 
         return view('superadmin.penagihan.index', compact(
             'penagihans',
             'totalMenunggu',
             'totalDiproses',
             'totalDibayar',
-            'totalDitolak'
+            'totalDitolak',
+            'routePrefix'
         ));
     }
 

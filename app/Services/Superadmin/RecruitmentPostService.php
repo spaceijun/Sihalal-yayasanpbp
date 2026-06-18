@@ -97,6 +97,11 @@ class RecruitmentPostService
 
         // Proses setiap field sesuai requirements
         foreach ($requirements as $req) {
+            // Guard: skip malformed entries
+            if (empty($req['field_key']) || empty($req['type'])) {
+                continue;
+            }
+
             $fieldKey  = $req['field_key'];
             $fieldType = $req['type'];
 
@@ -135,9 +140,9 @@ class RecruitmentPostService
             }
         }
 
-        // Simpan extra fields sebagai JSON di kolom 'answers' jika ada
+        // Simpan extra fields sebagai array di kolom 'answers' (model cast menangani JSON encode)
         if (! empty($extraData)) {
-            $modelData['answers'] = json_encode($extraData);
+            $modelData['answers'] = $extraData;
         }
 
         // Uppercase nama_lengkap jika ada

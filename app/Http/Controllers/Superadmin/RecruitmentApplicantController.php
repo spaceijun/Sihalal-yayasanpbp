@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Models\Recruitment;
 use App\Models\RecruitmentPost;
 use App\Models\Superadmin\Koordinator;
 use App\Services\Superadmin\RecruitmentPostService;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 
 class RecruitmentApplicantController extends Controller
@@ -44,25 +44,58 @@ class RecruitmentApplicantController extends Controller
         }
 
         // Validasi dinamis berdasarkan requirements
-        $rules   = [];
+        $rules = [];
         $messages = [];
 
         foreach ($post->requirements ?? [] as $req) {
+            // Guard: skip malformed entries that lack required keys
+            if (empty($req['field_key']) || empty($req['type'])) {
+                continue;
+            }
+
             $fieldKey = $req['field_key'];
-            $label    = $req['label'];
-            $rule     = [];
+            $label = $req['label'] ?? $fieldKey;
+            $rule = [];
 
             if ($req['required'] ?? false) {
-                $rule[] = $req['type'] === 'file' ? 'required|file' : 'required';
+                $rule[] = $req['type'] === 'file' ? 'required' : 'required';
                 $messages["{$fieldKey}.required"] = "{$label} wajib diisi.";
-                $messages["{$fieldKey}.file"]     = "{$label} harus berupa file.";
             } else {
                 $rule[] = 'nullable';
             }
 
             if ($req['type'] === 'file') {
+                $rule[] = 'file';
                 $rule[] = 'max:5120'; // 5MB
-                $messages["{$fieldKey}.max"] = "{$label} tidak boleh lebih dari 5MB.";
+
+                // Add MIME validation based on accept attribute
+                $accept = $req['accept'] ?? null;
+                if ($accept && $accept !== '*/*') {
+                    $mimes = array_filter(array_map(function ($m) {
+                        $m = trim($m);
+                        // Convert MIME type to extension for Laravel's mimes rule
+                        $map = [
+                            'image/jpeg' => 'jpg,jpeg',
+                            'image/jpg' => 'jpg,jpeg',
+                            'image/png' => 'png',
+                            'image/gif' => 'gif',
+                            'application/pdf' => 'pdf',
+                            'application/msword' => 'doc',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+                        ];
+
+                        return $map[$m] ?? null;
+                    }, explode(',', $accept)));
+
+                    if (! empty($mimes)) {
+                        $extList = implode(',', array_unique(explode(',', implode(',', $mimes))));
+                        $rule[] = 'mimes:'.$extList;
+                        $messages["{$fieldKey}.mimes"] = "{$label} harus berformat ".strtoupper(str_replace(',', '/', $extList)).'.';
+                    }
+
+                    $messages["{$fieldKey}.file"] = "{$label} harus berupa file.";
+                    $messages["{$fieldKey}.max"] = "{$label} tidak boleh lebih dari 5MB.";
+                }
             }
 
             $rules[$fieldKey] = implode('|', $rule);
@@ -70,7 +103,13 @@ class RecruitmentApplicantController extends Controller
 
         $request->validate($rules, $messages);
 
-        $recruitment = $this->service->submitApplication($post, $request);
+        try {
+            $recruitment = $this->service->submitApplication($post, $request);
+        } catch (\Throwable $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan lamaran. Silakan coba lagi.');
+        }
 
         return redirect()->route('recruitment.confirm', $recruitment->hashed_id);
     }
@@ -93,8 +132,8 @@ class RecruitmentApplicantController extends Controller
         $validationRules['alasan_penolakan'] = 'required_if:status,Ditolak|nullable';
 
         $request->validate($validationRules, [
-            'koordinator_id.required_if'    => 'Koordinator wajib dipilih jika status diterima.',
-            'alasan_penolakan.required_if'  => 'Alasan penolakan wajib diisi jika status ditolak.',
+            'koordinator_id.required_if' => 'Koordinator wajib dipilih jika status diterima.',
+            'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak.',
         ]);
 
         $result = $this->service->updateStatus(

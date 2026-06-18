@@ -1121,7 +1121,7 @@
                                 @csrf
 
                                 @php
-                                    $requirements = $post->requirements ?? [];
+                                    $requirements = is_array($post->requirements) ? $post->requirements : [];
                                     $halfWidthKeys = [
                                         'nik',
                                         'jenis_kelamin',
@@ -1152,6 +1152,14 @@
                                 <div class="rc-form-row">
                                     @forelse ($requirements as $req)
                                         @php
+                                            // Guard: skip malformed requirement entries to prevent Undefined array key errors
+                                            if (
+                                                empty($req['field_key']) ||
+                                                empty($req['label']) ||
+                                                empty($req['type'])
+                                            ) {
+                                                continue;
+                                            }
                                             $key = $req['field_key'];
                                             $label = $req['label'];
                                             $type = $req['type'];
@@ -1161,6 +1169,18 @@
                                             $accept = $req['accept'] ?? '*/*';
                                             $isHalf = in_array($key, $halfWidthKeys);
                                             $section = $sectionMap[$key] ?? null;
+                                            // Clean up accept string for display (handle multi-MIME e.g. image/jpeg,application/pdf)
+                                            $acceptDisplay = strtoupper(
+                                                implode(
+                                                    ', ',
+                                                    array_map(function ($m) {
+                                                        $m = trim($m);
+                                                        $m = preg_replace('/^image\//', '', $m);
+                                                        $m = preg_replace('/^application\//', '', $m);
+                                                        return $m;
+                                                    }, explode(',', $accept)),
+                                                ),
+                                            );
                                         @endphp
 
                                         {{-- Section heading --}}
@@ -1344,7 +1364,7 @@
                                                                 style="font-size:1.3rem; color:var(--kh-primary); display:block; margin-bottom:4px;"></i>
                                                             Klik atau seret file ke sini
                                                         </strong>
-                                                        <small>{{ strtoupper(str_replace(['image/', 'application/'], '', $accept)) }}
+                                                        <small>{{ $acceptDisplay }}
                                                             · maks 5MB</small>
                                                     </div>
                                                 </div>
@@ -1859,7 +1879,7 @@
 
                     document.querySelectorAll(
                             '#formRecruitment input:not([type="file"]):not([type="hidden"]), #formRecruitment select, #formRecruitment textarea'
-                            )
+                        )
                         .forEach(el => {
                             if (el.value) validateField(el);
                         });

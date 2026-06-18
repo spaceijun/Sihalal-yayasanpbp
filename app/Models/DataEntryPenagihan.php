@@ -21,6 +21,7 @@ class DataEntryPenagihan extends Model
         'catatan',
         'tanggal_tagihan',
         'tanggal_dibayar',
+        'receipt_path',
     ];
 
     protected $casts = [

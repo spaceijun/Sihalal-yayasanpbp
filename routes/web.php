@@ -141,6 +141,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
         Route::post('/penagihan/{penagihan}/proses', [DataEntryPenagihanController::class, 'proses'])->name('penagihan.proses');
         Route::post('/penagihan/{penagihan}/tolak', [DataEntryPenagihanController::class, 'tolak'])->name('penagihan.tolak');
+        Route::get('/penagihan/{penagihan}/receipt', [DataEntryPenagihanController::class, 'downloadReceipt'])->name('penagihan.receipt');
         // Verifikators
         Route::resource('verifikators', VerifikatorController::class);
         Route::post('verifikators/{verifikator}/bayar', [VerifikatorController::class, 'bayar'])->name('verifikators.bayar');

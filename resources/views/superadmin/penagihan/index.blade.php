@@ -144,6 +144,30 @@
                                             Tolak
                                         </button>
                                     </div>
+                                @elseif ($penagihan->status === 'Dibayar')
+                                    <div class="adm-actions" style="justify-content:center;gap:5px;">
+                                        <a href="{{ route($routePrefix . '.penagihan.receipt', $penagihan) }}"
+                                           target="_blank"
+                                           class="adm-btn"
+                                           style="font-size:11px;padding:5px 10px;background:var(--adm-blue);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:4px;border-radius:6px;">
+                                            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                <polyline points="7 10 12 15 17 10"/>
+                                                <line x1="12" y1="15" x2="12" y2="3"/>
+                                            </svg>
+                                            Receipt
+                                        </a>
+                                        @if ($penagihan->catatan)
+                                            <span data-bs-toggle="tooltip" title="{{ $penagihan->catatan }}"
+                                                style="cursor:help;color:var(--adm-blue);display:inline-flex;">
+                                                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                                </svg>
+                                            </span>
+                                        @endif
+                                    </div>
                                 @else
                                     @if ($penagihan->catatan)
                                         <span data-bs-toggle="tooltip" title="{{ $penagihan->catatan }}"

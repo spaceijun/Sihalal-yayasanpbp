@@ -9,6 +9,7 @@ use App\Models\Superadmin\Koordinator;
 use App\Services\Superadmin\RecruitmentPostService;
 use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RecruitmentApplicantController extends Controller
 {
@@ -106,6 +107,13 @@ class RecruitmentApplicantController extends Controller
         try {
             $recruitment = $this->service->submitApplication($post, $request);
         } catch (\Throwable $e) {
+            Log::error('[RecruitmentApplicantController@submit] Gagal menyimpan lamaran', [
+                'slug'      => $slug,
+                'error'     => $e->getMessage(),
+                'file'      => $e->getFile() . ':' . $e->getLine(),
+                'input'     => $request->except(['_token']),
+            ]);
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan saat menyimpan lamaran. Silakan coba lagi.');

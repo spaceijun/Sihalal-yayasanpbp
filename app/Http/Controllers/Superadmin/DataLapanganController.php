@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Exports\DataLapangansExport;
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Http\Requests\DataLapanganRequest;
 use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
@@ -17,6 +16,7 @@ use App\Services\Superadmin\ImageService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\PdfService;
 use App\Services\Superadmin\StatusService;
+use App\Traits\HasRoutePrefix;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -96,37 +96,40 @@ class DataLapanganController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             // Per-column filterColumn so global search works on each searchable column
-            ->filterColumn('nama_pu',        fn ($q, $k) => $q->where('data_lapangans.nama_pu',        'like', "%{$k}%"))
-            ->filterColumn('no_registrasi',  fn ($q, $k) => $q->where('data_lapangans.no_registrasi',  'like', "%{$k}%"))
-            ->filterColumn('nik',            fn ($q, $k) => $q->where('data_lapangans.nik',            'like', "%{$k}%"))
-            ->filterColumn('enumerator_nama',fn ($q, $k) => $q->where('enumerators.nama_lengkap',      'like', "%{$k}%"))
+            ->filterColumn('nama_pu', fn ($q, $k) => $q->where('data_lapangans.nama_pu', 'like', "%{$k}%"))
+            ->filterColumn('no_registrasi', fn ($q, $k) => $q->where('data_lapangans.no_registrasi', 'like', "%{$k}%"))
+            ->filterColumn('nik', fn ($q, $k) => $q->where('data_lapangans.nik', 'like', "%{$k}%"))
+            ->filterColumn('enumerator_nama', fn ($q, $k) => $q->where('enumerators.nama_lengkap', 'like', "%{$k}%"))
             ->addColumn('tanggal', fn ($dl) => $dl->created_at ? $dl->created_at->format('d/m/Y') : '-')
             ->addColumn('pendamping_cell', function ($dl) {
                 $nama = e($dl->enumerator_nama ?? '-');
+
                 return '<span style="font-size:12.5px;">'.$nama.'</span>';
             })
             ->addColumn('status_badge', function ($dl) {
                 $map = [
-                    'Pending'          => '#F59E0B:#FEF3C7',
-                    'Terverifikasi'    => '#2563EB:#DBEAFE',
-                    'Progress OSS'     => '#7C3AED:#EDE9FE',
+                    'Pending' => '#F59E0B:#FEF3C7',
+                    'Terverifikasi' => '#2563EB:#DBEAFE',
+                    'Progress OSS' => '#7C3AED:#EDE9FE',
                     'Progress SIHALAL' => '#0891B2:#CFFAFE',
-                    'Terbit SH'        => '#16A34A:#DCFCE7',
-                    'Ditolak'          => '#DC2626:#FEE2E2',
-                    'Revisi'           => '#D97706:#FEF3C7',
+                    'Terbit SH' => '#16A34A:#DCFCE7',
+                    'Ditolak' => '#DC2626:#FEE2E2',
+                    'Revisi' => '#D97706:#FEF3C7',
                 ];
                 $status = $dl->status ?? 'Pending';
                 [$color, $bg] = explode(':', $map[$status] ?? '#6B7280:#F3F4F6');
+
                 return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($status).'</span>';
             })
             ->addColumn('payment_badge', function ($dl) {
                 $map = [
-                    'PENDING'   => '#D97706:#FEF3C7',
+                    'PENDING' => '#D97706:#FEF3C7',
                     'PENGAJUAN' => '#2563EB:#DBEAFE',
-                    'DIBAYAR'   => '#16A34A:#DCFCE7',
+                    'DIBAYAR' => '#16A34A:#DCFCE7',
                 ];
                 $sp = strtoupper($dl->status_pembayaran ?? 'PENDING');
                 [$color, $bg] = explode(':', $map[$sp] ?? '#6B7280:#F3F4F6');
+
                 return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($sp).'</span>';
             })
             ->addColumn('tagihan_cell', function ($dl) use ($cutoff) {
@@ -134,6 +137,7 @@ class DataLapanganController extends Controller
                     return '-';
                 }
                 $tagihan = Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
+
                 return 'Rp '.number_format($tagihan, 0, ',', '.');
             })
             ->addColumn('locked_icon', function ($dl) {
@@ -142,18 +146,20 @@ class DataLapanganController extends Controller
                         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                     </button>';
                 }
+
                 return '';
             })
             ->addColumn('aksi', function ($dl) {
-                $showUrl      = route($this->routePrefix() . '.data-lapangans.show',    $dl->hashed_id);
-                $deleteUrl    = route($this->routePrefix() . '.data-lapangans.destroy',  $dl->hashed_id);
-                $toggleUrl    = route($this->routePrefix() . '.data-lapangans.toggle-unlock', $dl->hashed_id);
-                $unlocked     = $dl->is_unlocked_for_data_entry;
-                $unlockClass  = $unlocked ? 'adm-btn success' : 'adm-btn warning';
-                $unlockTitle  = $unlocked ? 'Kunci dari Data Entry' : 'Buka untuk Data Entry';
-                $unlockIcon   = $unlocked
+                $showUrl = route($this->routePrefix().'.data-lapangans.show', $dl->hashed_id);
+                $deleteUrl = route($this->routePrefix().'.data-lapangans.destroy', $dl->hashed_id);
+                $toggleUrl = route($this->routePrefix().'.data-lapangans.toggle-unlock', $dl->hashed_id);
+                $unlocked = $dl->is_unlocked_for_data_entry;
+                $unlockClass = $unlocked ? 'adm-btn success' : 'adm-btn warning';
+                $unlockTitle = $unlocked ? 'Kunci dari Data Entry' : 'Buka untuk Data Entry';
+                $unlockIcon = $unlocked
                     ? '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
                     : '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a class="adm-btn primary icon-only" href="'.$showUrl.'" title="Lihat">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -174,6 +180,7 @@ class DataLapanganController extends Controller
                 if ($dl->status_pembayaran === 'PENGAJUAN') {
                     return '<input type="checkbox" class="row-checkbox adm-checkbox" value="'.e($dl->hashed_id).'">';
                 }
+
                 return '';
             })
             ->rawColumns(['pendamping_cell', 'status_badge', 'payment_badge', 'locked_icon', 'aksi', 'checkbox'])
@@ -198,9 +205,9 @@ class DataLapanganController extends Controller
         $unlocked = $dataLapangan->is_unlocked_for_data_entry;
 
         return response()->json([
-            'success'  => true,
+            'success' => true,
             'unlocked' => $unlocked,
-            'message'  => $unlocked ? 'Data dibuka untuk Data Entry.' : 'Data dikunci dari Data Entry.',
+            'message' => $unlocked ? 'Data dibuka untuk Data Entry.' : 'Data dikunci dari Data Entry.',
         ]);
     }
 
@@ -462,6 +469,17 @@ class DataLapanganController extends Controller
         return redirect()->back()->with('success', 'Data berhasil diperbarui');
     }
 
+    /**
+     * Clear/hapus keterangan revisi (AJAX endpoint)
+     */
+    public function clearKeterangan(Request $request, $hashedId): \Illuminate\Http\JsonResponse
+    {
+        $dataLapanganObj = DataLapangan::findByHashedIdOrFail($hashedId);
+        $this->dataLapanganService->updateKeterangan($dataLapanganObj->id, null);
+
+        return response()->json(['success' => true, 'message' => 'Keterangan berhasil dihapus']);
+    }
+
     public function updateEmail(Request $request, $hashedId): RedirectResponse
     {
         $request->validate([
@@ -484,6 +502,89 @@ class DataLapanganController extends Controller
         );
 
         return redirect()->back()->with('success', 'Email '.$email.' berhasil disimpan dan data diverifikasi.');
+    }
+
+    /**
+     * Admin Umum mengajukan pembayaran ke Superadmin (PENDING → PENGAJUAN).
+     */
+    public function ajukanPembayaran($hashedId): RedirectResponse
+    {
+        $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+
+        if ($dataLapangan->status !== 'TERBIT SH') {
+            return redirect()->back()->with('error', 'Hanya data berstatus TERBIT SH yang dapat diajukan.');
+        }
+
+        if ($dataLapangan->status_pembayaran !== 'PENDING') {
+            return redirect()->back()->with('warning', 'Status pembayaran sudah '.$dataLapangan->status_pembayaran.'.');
+        }
+
+        $dataLapangan->update(['status_pembayaran' => 'PENGAJUAN']);
+
+        return redirect()->back()->with('success', 'Pengajuan pembayaran berhasil dikirim ke Superadmin.');
+    }
+
+    /**
+     * Admin Umum — Blast ajukan semua data PENDING → PENGAJUAN.
+     */
+    public function bulkAjukanPembayaran(Request $request): JsonResponse
+    {
+        $data = DataLapangan::where('status', 'TERBIT SH')
+            ->where('status_pembayaran', 'PENDING')
+            ->get();
+
+        if ($data->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data PENDING yang dapat diajukan.',
+            ], 422);
+        }
+
+        $updated = $data->each(fn ($d) => $d->update(['status_pembayaran' => 'PENGAJUAN']));
+
+        return response()->json([
+            'success' => true,
+            'message' => $data->count() . ' data berhasil diajukan ke Superadmin.',
+            'updated' => $data->count(),
+        ]);
+    }
+
+    /**
+     * Superadmin — Ambil daftar data yang sedang PENGAJUAN untuk ditampilkan di modal approval.
+     */
+    public function getPengajuanData(Request $request): JsonResponse
+    {
+        $cutoff = \Carbon\Carbon::create(2026, 5, 1);
+
+        $items = DataLapangan::whereIn('status_pembayaran', ['PENDING', 'PENGAJUAN'])
+            ->whereRaw('UPPER(status) = ?', ['TERBIT SH'])
+            ->with('enumerator')
+            ->orderBy('status_pembayaran', 'asc') // PENDING first, then PENGAJUAN
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(function ($dl) use ($cutoff) {
+                $nominal = \Carbon\Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
+                return [
+                    'hashed_id'      => $dl->hashed_id,
+                    'no_registrasi'  => $dl->no_registrasi,
+                    'nama_pu'        => $dl->nama_pu,
+                    'nik'            => $dl->nik,
+                    'pendamping'     => $dl->enumerator->nama_lengkap ?? '-',
+                    'nominal'        => $nominal,
+                    'nominal_fmt'    => 'Rp ' . number_format($nominal, 0, ',', '.'),
+                    'status_pembayaran' => $dl->status_pembayaran,
+                ];
+            });
+
+        $total = $items->sum('nominal');
+
+        return response()->json([
+            'success' => true,
+            'data'    => $items,
+            'total'   => $total,
+            'total_fmt' => 'Rp ' . number_format($total, 0, ',', '.'),
+            'count'   => $items->count(),
+        ]);
     }
 
     public function checkEmail(Request $request): JsonResponse
@@ -668,8 +769,7 @@ class DataLapanganController extends Controller
             'dataLapangan',
             'dataEntryOSS',
             'dataEntrySihalal',
-            'verifikators'
-        , 'routePrefix'));
+            'verifikators', 'routePrefix'));
     }
 
     /**
@@ -691,7 +791,7 @@ class DataLapanganController extends Controller
     {
         $this->dataLapanganService->update($dataLapangan, $request->validated());
 
-        return Redirect::route($this->routePrefix() . '.data-lapangans.index')
+        return Redirect::route($this->routePrefix().'.data-lapangans.index')
             ->with('success', 'DataLapangan updated successfully');
     }
 
@@ -719,7 +819,7 @@ class DataLapanganController extends Controller
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
         $this->dataLapanganService->delete($dataLapangan->id);
 
-        return Redirect::route($this->routePrefix() . '.data-lapangans.index')
+        return Redirect::route($this->routePrefix().'.data-lapangans.index')
             ->with('success', 'DataLapangan deleted successfully');
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -13,12 +14,16 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    use HasRoutePrefix;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        return view('superadmin.user.index');
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.user.index', compact('routePrefix'));
     }
 
     /**
@@ -79,8 +84,9 @@ class UserController extends Controller
     public function create(): View
     {
         $user = new User;
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.user.create', compact('user'));
+        return view('superadmin.user.create', compact('user', 'routePrefix'));
     }
 
     /**
@@ -100,8 +106,9 @@ class UserController extends Controller
     public function show($hashedId): View
     {
         $user = User::findByHashedIdOrFail($hashedId);
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.user.show', compact('user'));
+        return view('superadmin.user.show', compact('user', 'routePrefix'));
     }
 
     /**
@@ -110,8 +117,9 @@ class UserController extends Controller
     public function edit($hashedId): View
     {
         $user = User::findByHashedIdOrFail($hashedId);
+        $routePrefix = $this->routePrefix();
 
-        return view('superadmin.user.edit', compact('user'));
+        return view('superadmin.user.edit', compact('user', 'routePrefix'));
     }
 
     /**

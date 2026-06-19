@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\Superadmin\Settingwebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -10,11 +11,14 @@ use Illuminate\Support\Facades\Storage;
 
 class SettingwebsiteController extends Controller
 {
+    use HasRoutePrefix;
     public function index()
     {
-        $setting    = Settingwebsite::first() ?? new Settingwebsite();
-        $envContent = $this->getEnv();
-        return view('superadmin.settingwebsite.index', compact('setting', 'envContent'));
+        $setting     = Settingwebsite::first() ?? new Settingwebsite();
+        $envContent  = $this->getEnv();
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.settingwebsite.index', compact('setting', 'envContent', 'routePrefix'));
     }
 
     public function update(Request $request)

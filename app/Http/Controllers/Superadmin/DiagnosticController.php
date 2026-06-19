@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -11,10 +12,13 @@ use Illuminate\Support\Facades\Http;
 
 class DiagnosticController extends Controller
 {
+    use HasRoutePrefix;
     // ─── Show the diagnostic page ───────────────────────────────────────
     public function index()
     {
-        return view('superadmin.home.troubleshoot');
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.home.troubleshoot', compact('routePrefix'));
     }
 
     // ─── Run all checks and return JSON ────────────────────────────────

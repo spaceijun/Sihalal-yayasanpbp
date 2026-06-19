@@ -68,6 +68,13 @@
                         'msg' => 'Progress Anda sedang menunggu untuk direview oleh admin.',
                         'note' => null,
                     ],
+                    'VALIDASI_ADMIN' => [
+                        'color' => 'info',
+                        'icon' => 'la-user-check',
+                        'title' => 'Sedang Divalidasi Admin',
+                        'msg' => 'Progress Anda sedang dalam proses validasi oleh Admin Umum.',
+                        'note' => null,
+                    ],
                     'DITERIMA' => [
                         'color' => 'success',
                         'icon' => 'la-check-circle',

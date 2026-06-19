@@ -24,13 +24,27 @@
                     </svg>
                     Export Excel
                 </button>
-                <a href="{{ route($routePrefix . '.data-lapangans.data-revisi') }}" class="adm-btn-secondary" style="gap:6px;">
+                <a href="{{ route($routePrefix . '.data-lapangans.data-revisi') }}" class="adm-btn-secondary"
+                    style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <polyline points="1 4 1 10 7 10" />
                         <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
                     </svg>
                     Data Revisi
                 </a>
+                @if ($routePrefix === 'superadmin')
+                    <button id="btnOpenApproval" class="adm-btn"
+                        style="gap:6px;background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;border:none;">
+                        <svg viewBox="0 0 24 24"
+                            style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        Approval Pembayaran
+                        <span id="pengajuanBadge"
+                            style="display:none;background:#E11D48;color:#fff;border-radius:99px;font-size:10px;padding:1px 6px;font-weight:700;">0</span>
+                    </button>
+                @endif
                 <a href="{{ route($routePrefix . '.data-lapangans.create') }}" class="adm-btn-primary" style="gap:6px;">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
@@ -95,26 +109,57 @@
             </div>
         </div>
 
-        {{-- ── BULK ACTION BAR ── --}}
-        <div id="bulkActionBar" class="d-none"
-            style="display:none;align-items:center;gap:12px;padding:12px 18px;background:var(--adm-blue-lt);border:1px solid rgba(26,95,200,0.2);border-radius:var(--adm-radius);margin-bottom:16px;box-shadow:var(--adm-shadow-sm);">
-            <div style="display:flex;align-items:center;gap:6px;">
-                <span class="adm-count-badge" id="selectedCount"
-                    style="min-width:24px;height:24px;border-radius:50%;font-size:12px;">0</span>
-                <span style="font-weight:600;color:var(--adm-text-dark);font-size:13px;">data terpilih</span>
+        {{-- ── BULK ACTION BAR (Superadmin: Tandai Dibayar) ── --}}
+        @if ($routePrefix === 'superadmin')
+            <div id="bulkActionBar" class="d-none"
+                style="display:none;align-items:center;gap:12px;padding:12px 18px;background:var(--adm-blue-lt);border:1px solid rgba(26,95,200,0.2);border-radius:var(--adm-radius);margin-bottom:16px;box-shadow:var(--adm-shadow-sm);">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="adm-count-badge" id="selectedCount"
+                        style="min-width:24px;height:24px;border-radius:50%;font-size:12px;">0</span>
+                    <span style="font-weight:600;color:var(--adm-text-dark);font-size:13px;">data terpilih</span>
+                </div>
+                <div style="margin-left:auto;display:flex;gap:8px;">
+                    <button id="btnCancelSelect" class="adm-btn-secondary"
+                        style="font-size:12px;padding:0 12px;height:32px;">Batal</button>
+                    <button id="btnBulkDibayar" class="adm-btn success"
+                        style="font-size:12px;padding:0 14px;height:32px;background:linear-gradient(135deg,var(--adm-green),#127d62);border:none;box-shadow:none;">
+                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Tandai Dibayar
+                    </button>
+                </div>
             </div>
-            <div style="margin-left:auto;display:flex;gap:8px;">
-                <button id="btnCancelSelect" class="adm-btn-secondary"
-                    style="font-size:12px;padding:0 12px;height:32px;">Batal</button>
-                <button id="btnBulkDibayar" class="adm-btn success"
-                    style="font-size:12px;padding:0 14px;height:32px;background:linear-gradient(135deg,var(--adm-green),#127d62);border:none;box-shadow:none;">
-                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;">
-                        <polyline points="20 6 9 17 4 12" />
+        @endif
+
+        {{-- ── BULK ACTION BAR (Admin Umum: Blast Ajukan) ── --}}
+        @if ($routePrefix === 'admin-umum')
+            <div id="bulkAjukanBar"
+                style="display:flex;align-items:center;gap:12px;padding:12px 18px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--adm-radius);margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#1A5FC8;stroke-width:2.2;">
+                        <path d="M22 2L11 13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
                     </svg>
-                    Tandai Dibayar
-                </button>
+                    <span style="font-weight:600;color:#1E40AF;font-size:13px;">Blast Ajukan Pembayaran ke
+                        Bagian Keuangan</span>
+                    <span style="font-size:12px;color:#3B82F6;">— semua data yang status TERBIT SH tetapi belum DIBAYAR
+                        akan diajukan
+                        sekaligus</span>
+                </div>
+                <div style="margin-left:auto;">
+                    <button id="btnBlastAjukan" class="adm-btn"
+                        style="font-size:12px;padding:0 16px;height:34px;background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;border:none;gap:6px;">
+                        <svg viewBox="0 0 24 24"
+                            style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                            <path d="M22 2L11 13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        Ajukan Semua
+                    </button>
+                </div>
             </div>
-        </div>
+        @endif
 
         {{-- ── CARD CONTAINER ── --}}
         <div class="adm-card">
@@ -203,63 +248,209 @@
         </div>
     </div>
 
-    {{-- ── MODAL BULK PAYMENT ── --}}
-    <div id="modalBulkPayment" class="modal fade" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
-            <div class="modal-content"
-                style="border:none;border-radius:var(--adm-radius);box-shadow:0 15px 30px rgba(0,0,0,0.15);overflow:hidden;">
-                <div class="modal-header"
-                    style="background:#fff;border-bottom:1px solid var(--adm-border);padding:16px 20px;">
-                    <h5 class="modal-title"
-                        style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--adm-text-dark);display:flex;align-items:center;gap:8px;">
-                        <svg viewBox="0 0 24 24"
-                            style="width:20px;height:20px;stroke:var(--adm-green);fill:none;stroke-width:2.2;">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                        Konfirmasi Pembayaran
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                        style="font-size:12px;opacity:0.6;"></button>
-                </div>
-                <div class="modal-body" style="padding:24px 20px;background:#fcfdfe;">
-                    <div style="text-align:center;margin-bottom:16px;">
-                        <div
-                            style="width:48px;height:48px;border-radius:50%;background:var(--adm-green-lt);color:var(--adm-green);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+    {{-- ── MODAL APPROVAL PEMBAYARAN (Superadmin) ── --}}
+    @if ($routePrefix === 'superadmin')
+        <div id="modalApprovalPembayaran" class="modal fade" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content"
+                    style="border:none;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                    <div class="modal-header"
+                        style="background:linear-gradient(135deg,#1A5FC8,#0F3A8A);border-radius:14px 14px 0 0;padding:16px 20px;">
+                        <h5 class="modal-title"
+                            style="color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;">
                             <svg viewBox="0 0 24 24"
-                                style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;">
-                                <rect x="2" y="4" width="20" height="16" rx="2" />
-                                <line x1="12" y1="10" x2="12" y2="14" />
-                                <line x1="8" y1="12" x2="16" y2="12" />
+                                style="width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
                             </svg>
+                            Approval Pembayaran — Data Belum Dibayar
+                            <span id="approvalCountBadge"
+                                style="background:rgba(255,255,255,0.25);border-radius:99px;padding:1px 10px;font-size:12px;">0
+                                data</span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" style="padding:0;">
+                        <div
+                            style="padding:14px 20px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;">
+                            <div style="font-size:13px;color:#475569;">Pilih data yang akan disetujui pembayarannya, lalu
+                                klik <strong>Tandai Dibayar</strong>.</div>
+                            <div style="font-size:14px;font-weight:700;color:#059669;">Total: <span
+                                    id="approvalTotalNominal">Rp 0</span></div>
                         </div>
-                        <p style="margin:0;font-size:14px;color:var(--adm-text-dark);font-weight:600;">Tandai Dibayar</p>
-                        <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);line-height:1.5;">
-                            Anda akan menandai <strong id="modalSelectedCount"
-                                style="color:var(--adm-green);font-size:13.5px;">0</strong> data pelaku usaha sebagai
-                            <strong>DIBAYAR</strong>.
-                        </p>
+                        <div style="max-height:420px;overflow-y:auto;">
+                            <table class="adm-table w-100" id="approvalTable" style="margin:0;font-size:13px;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px;text-align:center;">
+                                            <input type="checkbox" id="checkAllApproval"
+                                                style="cursor:pointer;transform:scale(1.1);">
+                                        </th>
+                                        <th>#</th>
+                                        <th>No. Reg</th>
+                                        <th>Nama PU</th>
+                                        <th>NIK</th>
+                                        <th>Pendamping</th>
+                                        <th class="tc">Nominal Tagihan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approvalTableBody">
+                                    <tr>
+                                        <td colspan="8" class="tc" style="padding:30px;color:#94A3B8;">Memuat
+                                            data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            style="padding:12px 20px;background:#F8FAFC;border-top:1px solid #E2E8F0;display:flex;align-items:center;gap:8px;">
+                            <span id="approvalSelectedInfo" style="font-size:12.5px;color:#64748B;">0 data dipilih</span>
+                            <span style="font-size:12.5px;color:#64748B;">•</span>
+                            <span id="approvalSelectedNominal" style="font-size:12.5px;font-weight:600;color:#059669;">Rp
+                                0</span>
+                        </div>
                     </div>
-                    <div
-                        style="background:#fff;border:1px dashed var(--adm-border-mid);border-radius:8px;padding:12px 14px;font-size:11.5px;color:var(--adm-text-muted);line-height:1.6;">
-                        <span style="font-weight:700;color:var(--adm-text-dark);display:block;margin-bottom:2px;">Catatan
-                            Penting:</span>
-                        Proses ini akan mengaktifkan pembuatan cashflow pemasukan/pengeluaran otomatis dan mengirim
-                        notifikasi WhatsApp kepada masing-masing Pendamping.
+                    <div class="modal-footer" style="border-top:1px solid #E2E8F0;padding:14px 20px;gap:8px;">
+                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
+                            style="height:34px;font-size:12.5px;">Tutup</button>
+                        <button type="button" id="btnConfirmApproval" class="adm-btn"
+                            style="height:34px;font-size:12.5px;background:linear-gradient(135deg,#059669,#065F46);color:#fff;border:none;gap:6px;"
+                            disabled>
+                            <svg viewBox="0 0 24 24"
+                                style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Tandai Dibayar
+                        </button>
                     </div>
-                </div>
-                <div class="modal-footer"
-                    style="background:#fff;border-top:1px solid var(--adm-border);padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">
-                    <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
-                        style="height:34px;font-size:12.5px;">Batal</button>
-                    <button type="button" id="btnConfirmBulkDibayar" class="adm-btn-primary"
-                        style="background:linear-gradient(135deg,var(--adm-green),#0f6e56);box-shadow:0 2px 8px rgba(15,110,86,0.2);height:34px;font-size:12.5px;border:none;">
-                        Ya, Tandai Dibayar
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
+
+    {{-- ── MODAL BULK PAYMENT ── --}}
+    @if ($routePrefix === 'superadmin')
+        <div id="modalBulkPayment" class="modal fade" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+                <div class="modal-content"
+                    style="border:none;border-radius:var(--adm-radius);box-shadow:0 15px 30px rgba(0,0,0,0.15);overflow:hidden;">
+                    <div class="modal-header"
+                        style="background:#fff;border-bottom:1px solid var(--adm-border);padding:16px 20px;">
+                        <h5 class="modal-title"
+                            style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--adm-text-dark);display:flex;align-items:center;gap:8px;">
+                            <svg viewBox="0 0 24 24"
+                                style="width:20px;height:20px;stroke:var(--adm-green);fill:none;stroke-width:2.2;">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            Konfirmasi Pembayaran
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            style="font-size:12px;opacity:0.6;"></button>
+                    </div>
+                    <div class="modal-body" style="padding:24px 20px;background:#fcfdfe;">
+                        <div style="text-align:center;margin-bottom:16px;">
+                            <div
+                                style="width:48px;height:48px;border-radius:50%;background:var(--adm-green-lt);color:var(--adm-green);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                                <svg viewBox="0 0 24 24"
+                                    style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                                    <line x1="12" y1="10" x2="12" y2="14" />
+                                    <line x1="8" y1="12" x2="16" y2="12" />
+                                </svg>
+                            </div>
+                            <p style="margin:0;font-size:14px;color:var(--adm-text-dark);font-weight:600;">Tandai Dibayar
+                            </p>
+                            <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);line-height:1.5;">
+                                Anda akan menandai <strong id="modalSelectedCount"
+                                    style="color:var(--adm-green);font-size:13.5px;">0</strong> data pelaku usaha sebagai
+                                <strong>DIBAYAR</strong>.
+                            </p>
+                        </div>
+                        <div
+                            style="background:#fff;border:1px dashed var(--adm-border-mid);border-radius:8px;padding:12px 14px;font-size:11.5px;color:var(--adm-text-muted);line-height:1.6;">
+                            <span
+                                style="font-weight:700;color:var(--adm-text-dark);display:block;margin-bottom:2px;">Catatan
+                                Penting:</span>
+                            Proses ini akan mengaktifkan pembuatan cashflow pemasukan/pengeluaran otomatis dan mengirim
+                            notifikasi WhatsApp kepada masing-masing Pendamping.
+                        </div>
+                    </div>
+                    <div class="modal-footer"
+                        style="background:#fff;border-top:1px solid var(--adm-border);padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">
+                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
+                            style="height:34px;font-size:12.5px;">Batal</button>
+                        <button type="button" id="btnConfirmBulkDibayar" class="adm-btn-primary"
+                            style="background:linear-gradient(135deg,var(--adm-green),#0f6e56);box-shadow:0 2px 8px rgba(15,110,86,0.2);height:34px;font-size:12.5px;border:none;">
+                            Ya, Tandai Dibayar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ── MODAL BULK AJUKAN (Admin Umum) ── --}}
+    @if ($routePrefix === 'admin-umum')
+        <div id="modalBulkAjukan" class="modal fade" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+                <div class="modal-content"
+                    style="border:none;border-radius:var(--adm-radius);box-shadow:0 15px 30px rgba(0,0,0,0.15);overflow:hidden;">
+                    <div class="modal-header"
+                        style="background:#fff;border-bottom:1px solid var(--adm-border);padding:16px 20px;">
+                        <h5 class="modal-title"
+                            style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--adm-text-dark);display:flex;align-items:center;gap:8px;">
+                            <svg viewBox="0 0 24 24"
+                                style="width:20px;height:20px;stroke:#1A5FC8;fill:none;stroke-width:2.2;">
+                                <path d="M22 2L11 13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                            Konfirmasi Pengajuan
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            style="font-size:12px;opacity:0.6;"></button>
+                    </div>
+                    <div class="modal-body" style="padding:24px 20px;background:#fcfdfe;">
+                        <div style="text-align:center;margin-bottom:16px;">
+                            <div
+                                style="width:48px;height:48px;border-radius:50%;background:rgba(26,95,200,0.1);color:#1A5FC8;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                                <svg viewBox="0 0 24 24"
+                                    style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                                    <path d="M22 2L11 13" />
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                                </svg>
+                            </div>
+                            <p style="margin:0;font-size:14px;color:var(--adm-text-dark);font-weight:600;">Ajukan Semua
+                                Pembayaran</p>
+                            <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);line-height:1.5;">
+                                Anda akan mengajukan semua data pembayaran berstatus <strong>TERBIT SH</strong> tetapi belum
+                                DIBAYAR ke
+                                Bagian Keuangan.
+                            </p>
+                        </div>
+                        <div
+                            style="background:#fff;border:1px dashed var(--adm-border-mid);border-radius:8px;padding:12px 14px;font-size:11.5px;color:var(--adm-text-muted);line-height:1.6;">
+                            <span
+                                style="font-weight:700;color:var(--adm-text-dark);display:block;margin-bottom:2px;">Catatan
+                                Penting:</span>
+                            Data yang diajukan akan masuk ke antrean approval bagian Keuangan dan status pembayarannya
+                            berubah
+                            menjadi <strong>PENGAJUAN</strong>.
+                        </div>
+                    </div>
+                    <div class="modal-footer"
+                        style="background:#fff;border-top:1px solid var(--adm-border);padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">
+                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
+                            style="height:34px;font-size:12.5px;">Batal</button>
+                        <button type="button" id="btnConfirmBulkAjukan" class="adm-btn"
+                            style="background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;box-shadow:0 2px 8px rgba(26,95,200,0.2);height:34px;font-size:12.5px;border:none;">
+                            Ya, Ajukan Semua
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @push('scripts')
         <script>
@@ -275,6 +466,11 @@
 
                 const filterStatus = document.getElementById('filterStatus');
                 const filterPayment = document.getElementById('filterPayment');
+
+                function attachCheckboxHandlers() {
+                    document.querySelectorAll('.row-checkbox').forEach(cb =>
+                        cb.addEventListener('change', () => window.updateBulkBar && window.updateBulkBar()));
+                }
 
                 // ── Init DataTable ──
                 const table = $('#dataLapanganTable').DataTable({
@@ -450,7 +646,8 @@
                             const url = this.dataset.url;
                             this.disabled = true;
                             const origHtml = this.innerHTML;
-                            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                            this.innerHTML =
+                                '<span class="spinner-border spinner-border-sm"></span>';
                             try {
                                 const res = await fetch(url, {
                                     method: 'POST',
@@ -477,87 +674,256 @@
                     });
                 }
 
-                // ── Bulk Payment ──
-                const bulkBar = document.getElementById('bulkActionBar');
-                const selectedCountEl = document.getElementById('selectedCount');
-                const btnBulkDibayar = document.getElementById('btnBulkDibayar');
-                const btnCancelSelect = document.getElementById('btnCancelSelect');
-                const modalBulkPayment = new bootstrap.Modal(document.getElementById('modalBulkPayment'));
-                const modalSelectedCount = document.getElementById('modalSelectedCount');
-                const btnConfirmBulk = document.getElementById('btnConfirmBulkDibayar');
-
-                function updateBulkBar() {
-                    const checked = document.querySelectorAll('.row-checkbox:checked');
-                    const all = document.querySelectorAll('.row-checkbox');
-                    const ca = document.getElementById('checkAll');
-                    if (checked.length > 0) {
-                        bulkBar.classList.remove('d-none');
-                        bulkBar.style.display = 'flex';
-                        selectedCountEl.textContent = `${checked.length}`;
-                    } else {
-                        bulkBar.classList.add('d-none');
-                        bulkBar.style.display = 'none';
-                    }
-                    if (ca) {
-                        ca.checked = all.length > 0 && checked.length === all.length;
-                        ca.indeterminate = checked.length > 0 && checked.length < all.length;
-                    }
-                }
-
-                function attachCheckboxHandlers() {
-                    document.querySelectorAll('.row-checkbox').forEach(cb =>
-                        cb.addEventListener('change', updateBulkBar));
-                }
-
+                // ── Check All (always available) ──
                 document.getElementById('checkAll').addEventListener('change', function() {
                     document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
-                    updateBulkBar();
+                    if (window.updateBulkBar) window.updateBulkBar();
                 });
 
-                btnBulkDibayar.addEventListener('click', function() {
-                    const checked = document.querySelectorAll('.row-checkbox:checked');
-                    if (!checked.length) return;
-                    modalSelectedCount.textContent = checked.length;
-                    modalBulkPayment.show();
-                });
+                // ── Role detection ──
+                const ROLE_PREFIX = '{{ $routePrefix }}';
 
-                btnConfirmBulk.addEventListener('click', async function() {
-                    const checked = document.querySelectorAll('.row-checkbox:checked');
-                    if (!checked.length) return;
-                    const ids = Array.from(checked).map(cb => cb.value);
-                    modalBulkPayment.hide();
-                    btnBulkDibayar.disabled = true;
-                    btnBulkDibayar.innerHTML =
-                        '<span class="spinner-border spinner-border-sm"></span> Memproses...';
-                    try {
-                        const res = await fetch(BULK_PAYMENT_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': getCsrfToken()
-                            },
-                            credentials: 'same-origin',
-                            body: JSON.stringify({
-                                ids
-                            })
-                        });
-                        const data = await res.json();
-                        if (data.success) table.ajax.reload(null, false);
-                        else alert(data.message || 'Gagal memperbarui data');
-                    } catch {
-                        alert('Terjadi kesalahan');
-                    } finally {
-                        btnBulkDibayar.disabled = false;
+                // ── Bulk Payment (Superadmin only) ──
+                if (ROLE_PREFIX === 'superadmin') {
+                    const bulkBar = document.getElementById('bulkActionBar');
+                    const selectedCountEl = document.getElementById('selectedCount');
+                    const btnBulkDibayar = document.getElementById('btnBulkDibayar');
+                    const btnCancelSelect = document.getElementById('btnCancelSelect');
+                    const modalBulkPayment = new bootstrap.Modal(document.getElementById('modalBulkPayment'));
+                    const modalSelectedCount = document.getElementById('modalSelectedCount');
+                    const btnConfirmBulk = document.getElementById('btnConfirmBulkDibayar');
+
+                    window.updateBulkBar = function() {
+                        const checked = document.querySelectorAll('.row-checkbox:checked');
+                        const all = document.querySelectorAll('.row-checkbox');
+                        const ca = document.getElementById('checkAll');
+                        if (checked.length > 0) {
+                            bulkBar.classList.remove('d-none');
+                            bulkBar.style.display = 'flex';
+                            selectedCountEl.textContent = checked.length;
+                        } else {
+                            bulkBar.classList.add('d-none');
+                            bulkBar.style.display = 'none';
+                        }
+                        if (ca) {
+                            ca.checked = all.length > 0 && checked.length === all.length;
+                            ca.indeterminate = checked.length > 0 && checked.length < all.length;
+                        }
+                    };
+
+                    btnBulkDibayar.addEventListener('click', function() {
+                        const checked = document.querySelectorAll('.row-checkbox:checked');
+                        if (!checked.length) return;
+                        modalSelectedCount.textContent = checked.length;
+                        modalBulkPayment.show();
+                    });
+
+                    btnConfirmBulk.addEventListener('click', async function() {
+                        const checked = document.querySelectorAll('.row-checkbox:checked');
+                        if (!checked.length) return;
+                        const ids = Array.from(checked).map(cb => cb.value);
+                        modalBulkPayment.hide();
+                        btnBulkDibayar.disabled = true;
                         btnBulkDibayar.innerHTML =
-                            '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> Tandai Dibayar';
-                    }
-                });
+                            '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+                        try {
+                            const res = await fetch(BULK_PAYMENT_URL, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': getCsrfToken()
+                                },
+                                credentials: 'same-origin',
+                                body: JSON.stringify({
+                                    ids
+                                })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                table.ajax.reload(null, false);
+                                loadApprovalData();
+                            } else alert(data.message || 'Gagal memperbarui data');
+                        } catch {
+                            alert('Terjadi kesalahan');
+                        } finally {
+                            btnBulkDibayar.disabled = false;
+                            btnBulkDibayar.innerHTML =
+                                '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> Tandai Dibayar';
+                        }
+                    });
 
-                btnCancelSelect.addEventListener('click', function() {
-                    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
-                    updateBulkBar();
-                });
+                    btnCancelSelect.addEventListener('click', function() {
+                        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+                        window.updateBulkBar();
+                    });
+
+                    // ── Approval Modal (Superadmin) ──
+                    const PENGAJUAN_DATA_URL = '{{ route('superadmin.data-lapangans.pengajuan-data') }}';
+                    const modalApproval = new bootstrap.Modal(document.getElementById('modalApprovalPembayaran'));
+                    let approvalItems = [];
+
+                    async function loadApprovalData() {
+                        try {
+                            const res = await fetch(PENGAJUAN_DATA_URL, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': getCsrfToken()
+                                },
+                                credentials: 'same-origin'
+                            });
+                            const json = await res.json();
+                            approvalItems = json.data || [];
+                            const count = json.count || 0;
+                            // Update badge
+                            const badge = document.getElementById('pengajuanBadge');
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'inline';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                            document.getElementById('approvalCountBadge').textContent = count + ' data';
+                            document.getElementById('approvalTotalNominal').textContent = json.total_fmt || 'Rp 0';
+                            renderApprovalTable(approvalItems);
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+
+                    function renderApprovalTable(items) {
+                        const tbody = document.getElementById('approvalTableBody');
+                        if (!items.length) {
+                            tbody.innerHTML =
+                                '<tr><td colspan="8" class="tc" style="padding:30px;color:#94A3B8;">Tidak ada data TERBIT SH yang belum dibayar.</td></tr>';
+                            return;
+                        }
+                        tbody.innerHTML = items.map((d, i) => `
+                            <tr>
+                                <td class="tc"><input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);"></td>
+                                <td>${i+1}</td>
+                                <td style="font-size:12px;font-weight:600;">${d.no_registrasi || '-'}</td>
+                                <td style="font-weight:600;">${d.nama_pu}</td>
+                                <td style="font-family:monospace;font-size:12px;">${d.nik}</td>
+                                <td style="font-size:12px;">${d.pendamping}</td>
+                                <td class="tc"><span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span></td>
+                            </tr>`).join('');
+                        attachApprovalCheckboxes();
+                    }
+
+                    function attachApprovalCheckboxes() {
+                        document.querySelectorAll('.approval-cb').forEach(cb => cb.addEventListener('change',
+                            updateApprovalSummary));
+                        document.getElementById('checkAllApproval').addEventListener('change', function() {
+                            document.querySelectorAll('.approval-cb').forEach(cb => cb.checked = this.checked);
+                            updateApprovalSummary();
+                        });
+                    }
+
+                    function updateApprovalSummary() {
+                        const checked = document.querySelectorAll('.approval-cb:checked');
+                        const total = Array.from(checked).reduce((s, cb) => s + parseInt(cb.dataset.nominal), 0);
+                        document.getElementById('approvalSelectedInfo').textContent = checked.length + ' data dipilih';
+                        document.getElementById('approvalSelectedNominal').textContent = 'Rp ' + total.toLocaleString(
+                            'id-ID');
+                        document.getElementById('btnConfirmApproval').disabled = checked.length === 0;
+                        const all = document.querySelectorAll('.approval-cb');
+                        const chkAll = document.getElementById('checkAllApproval');
+                        if (chkAll) {
+                            chkAll.checked = all.length > 0 && checked.length === all.length;
+                            chkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                        }
+                    }
+
+                    document.getElementById('btnOpenApproval').addEventListener('click', function() {
+                        loadApprovalData();
+                        modalApproval.show();
+                    });
+
+                    document.getElementById('btnConfirmApproval').addEventListener('click', async function() {
+                        const checked = document.querySelectorAll('.approval-cb:checked');
+                        if (!checked.length) return;
+                        const ids = Array.from(checked).map(cb => cb.dataset.id);
+                        this.disabled = true;
+                        this.innerHTML =
+                            '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+                        try {
+                            const res = await fetch(BULK_PAYMENT_URL, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': getCsrfToken()
+                                },
+                                credentials: 'same-origin',
+                                body: JSON.stringify({
+                                    ids
+                                })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                table.ajax.reload(null, false);
+                                await loadApprovalData();
+                                renderApprovalTable(approvalItems);
+                                updateApprovalSummary();
+                                alert(data.message);
+                            } else alert(data.message || 'Gagal');
+                        } catch {
+                            alert('Terjadi kesalahan');
+                        } finally {
+                            this.disabled = false;
+                            this.innerHTML =
+                                '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;"><polyline points="20 6 9 17 4 12"/></svg> Tandai Dibayar';
+                        }
+                    });
+
+                    // Load badge count on page load
+                    loadApprovalData();
+
+                } else {
+                    // admin-umum: no bulk checkbox bar, updateBulkBar is no-op
+                    window.updateBulkBar = function() {};
+                }
+
+                // ── Blast Ajukan Pembayaran (Admin Umum only) ──
+                const btnBlastAjukan = document.getElementById('btnBlastAjukan');
+                if (btnBlastAjukan) {
+                    const BLAST_URL =
+                        '{{ $routePrefix === 'admin-umum' ? route('admin-umum.data-lapangans.bulk-ajukan-pembayaran') : '#' }}';
+                    const modalBulkAjukan = new bootstrap.Modal(document.getElementById('modalBulkAjukan'));
+                    const btnConfirmBulkAjukan = document.getElementById('btnConfirmBulkAjukan');
+
+                    btnBlastAjukan.addEventListener('click', function() {
+                        modalBulkAjukan.show();
+                    });
+
+                    btnConfirmBulkAjukan.addEventListener('click', async function() {
+                        modalBulkAjukan.hide();
+                        btnBlastAjukan.disabled = true;
+                        btnBlastAjukan.innerHTML =
+                            '<span class="spinner-border spinner-border-sm"></span> Mengajukan...';
+                        try {
+                            const res = await fetch(BLAST_URL, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': getCsrfToken()
+                                },
+                                credentials: 'same-origin'
+                            });
+                            const data = await res.json();
+                            alert(data.message || (data.success ? 'Berhasil!' : 'Gagal'));
+                            if (data.success) table.ajax.reload(null, false);
+                        } catch {
+                            alert('Terjadi kesalahan');
+                        } finally {
+                            btnBlastAjukan.disabled = false;
+                            btnBlastAjukan.innerHTML =
+                                '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ajukan Semua';
+                        }
+                    });
+                }
             });
         </script>
     @endpush

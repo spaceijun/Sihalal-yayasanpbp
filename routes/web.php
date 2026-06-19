@@ -109,6 +109,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/enumerators/{id}/generate-user', [EnumeratorController::class, 'generateUser'])->name('enumerators.generate-user');
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
+        Route::get('/data-lapangans/pengajuan-data', [DataLapanganController::class, 'getPengajuanData'])->name('data-lapangans.pengajuan-data');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
         Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
@@ -123,6 +124,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('data-lapangans/bulk-payment', [DataLapanganController::class, 'bulkUpdateStatusPayment'])->name('data-lapangans.bulk-payment');
         Route::post('data-lapangans/{id}/toggle-unlock', [DataLapanganController::class, 'toggleUnlockForDataEntry'])->name('data-lapangans.toggle-unlock');
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
+        Route::post('/data-lapangans/{id}/clear-keterangan', [DataLapanganController::class, 'clearKeterangan'])->name('data-lapangans.clear-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
@@ -242,6 +244,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('dashboard', [AdminUmumDashboardController::class, 'index']);
 
         // Data Lapangan (read-only operations & status update)
+        Route::get('/data-lapangans/pengajuan-data', [DataLapanganController::class, 'getPengajuanData'])->name('data-lapangans.pengajuan-data');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
         Route::get('/data-lapangans/check-email', [DataLapanganController::class, 'checkEmail'])->name('data-lapangans.check-email');
@@ -252,6 +255,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::post('data-lapangans/bulk-payment', [DataLapanganController::class, 'bulkUpdateStatusPayment'])->name('data-lapangans.bulk-payment');
         Route::post('data-lapangans/{id}/toggle-unlock', [DataLapanganController::class, 'toggleUnlockForDataEntry'])->name('data-lapangans.toggle-unlock');
         Route::post('/data-lapangans/{id}/update-keterangan', [DataLapanganController::class, 'updateKeterangan'])->name('data-lapangans.update-keterangan');
+        Route::post('/data-lapangans/{id}/clear-keterangan', [DataLapanganController::class, 'clearKeterangan'])->name('data-lapangans.clear-keterangan');
         Route::post('data-lapangan/{dataLapangan}/upload-file', [DataLapanganController::class, 'uploadFile'])->name('data-lapangans.upload-file');
         Route::post('data-lapangans/{dataLapangan}/delete-file', [DataLapanganController::class, 'deleteFile'])->name('data-lapangans.delete-file');
         Route::get('/datalapangan/{id}/download-foto-ktp', [DataLapanganController::class, 'downloadFotoKTP'])->name('datalapangan.download-foto-ktp');
@@ -263,6 +267,8 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
+        Route::post('/data-lapangans/{id}/ajukan-pembayaran', [DataLapanganController::class, 'ajukanPembayaran'])->name('data-lapangans.ajukan-pembayaran');
+        Route::post('/data-lapangans/bulk-ajukan-pembayaran', [DataLapanganController::class, 'bulkAjukanPembayaran'])->name('data-lapangans.bulk-ajukan-pembayaran');
 
         // Laporan Harian
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');
@@ -274,6 +280,14 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         // Human Resources — Data Entry
         Route::resource('data-entries', DataEntryController::class);
         Route::get('/data-entries-data', [DataEntryController::class, 'data'])->name('data-entries.data');
+
+        // Data Entry Progress — Admin Umum
+        Route::get('/data-entry-progress/data', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'data'])->name('data-entry-progress.data');
+        Route::resource('data-entry-progress', App\Http\Controllers\AdminUmum\DataEntryProgressController::class)->only(['index', 'show']);
+        Route::patch('/data-entry-progress/{progress}/validasi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'validasi'])->name('data-entry-progress.validasi');
+        Route::patch('/data-entry-progress/{progress}/revisi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'revisi'])->name('data-entry-progress.revisi');
+        Route::patch('/data-entry-progress/{progress}/tolak', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'tolak'])->name('data-entry-progress.tolak');
+        Route::post('/data-entry-progress/bulk-validasi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'bulkValidasi'])->name('data-entry-progress.bulk-validasi');
 
         // Human Resources — Enumerator
         Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');

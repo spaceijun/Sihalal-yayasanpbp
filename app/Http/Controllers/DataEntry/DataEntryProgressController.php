@@ -54,6 +54,7 @@ class DataEntryProgressController extends Controller
 
         $statusColors = [
             'PENDING' => 'bg-warning text-dark',
+            'VALIDASI_ADMIN' => 'bg-info text-white',
             'DITERIMA' => 'bg-success text-white',
             'REVISI'   => 'bg-info text-white',
             'DITOLAK'  => 'bg-danger text-white',

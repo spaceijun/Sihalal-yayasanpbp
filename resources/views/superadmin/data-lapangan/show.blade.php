@@ -137,10 +137,33 @@
                         {{-- Tombol aksi --}}
                         @if (in_array($dataLapangan->status, ['PENDING', 'REVISI']))
                             <div class="dl-actions-group" style="margin-bottom:1rem;">
-                                <button type="button" class="dl-btn dl-btn-success" data-bs-toggle="modal"
-                                    data-bs-target="#modalUpdateEmail">
+                                <button type="button" class="dl-btn dl-btn-success" id="btnOpenUpdateEmail"
+                                    data-bs-toggle="modal" data-bs-target="#modalUpdateEmail">
                                     <i class="las la-check-circle"></i> Update Email &amp; Verifikasi
                                 </button>
+                            </div>
+                        @endif
+
+                        {{-- Tombol Ajukan Pembayaran (Admin Umum, TERBIT SH + PENDING) --}}
+                        @if ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'PENDING' && Auth::user()->role === 'admin_umum')
+                            <div class="dl-actions-group" style="margin-bottom:1rem;">
+                                <form action="{{ route('admin-umum.data-lapangans.ajukan-pembayaran', $dataLapangan->hashed_id) }}" method="POST"
+                                    onsubmit="return confirm('Ajukan data pembayaran ini ke Superadmin?')">
+                                    @csrf
+                                    <button type="submit" class="dl-btn dl-btn-primary">
+                                        <i class="las la-paper-plane"></i> Ajukan Pembayaran ke Superadmin
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'PENGAJUAN')
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-clock" style="color:#2563EB;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#1E40AF;"><strong>Menunggu Persetujuan</strong> — Pengajuan pembayaran sudah dikirim ke Superadmin.</div>
+                            </div>
+                        @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'DIBAYAR')
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-check-circle" style="color:#059669;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#065F46;"><strong>Pembayaran Lunas</strong> — Superadmin telah menyetujui pembayaran.</div>
                             </div>
                         @endif
 
@@ -646,81 +669,82 @@
                                 sebelum melanjutkan.</div>
                         </div>
 
-                        @php
-                            $checklist = [
-                                [
-                                    'id' => 'foto',
-                                    'name' => 'q_foto',
-                                    'label' =>
-                                        'Apakah <strong>Foto</strong> sudah dicek dan dalam kondisi benar serta sesuai?',
-                                    'yes_val' => 'ya',
-                                    'yes_txt' => 'Ya',
-                                    'no_txt' => 'Tidak',
-                                    'warn_id' => 'warn_foto',
-                                    'warn_msg' => 'Foto harus dicek terlebih dahulu.',
-                                ],
-                                [
-                                    'id' => 'nik',
-                                    'name' => 'q_nik',
-                                    'label' =>
-                                        'Apakah <strong>NIK</strong> sudah dicek melalui <a href="https://oss.go.id" target="_blank" class="fw-semibold">oss.go.id</a>?',
-                                    'yes_val' => 'sudah',
-                                    'yes_txt' => 'Sudah',
-                                    'no_txt' => 'Belum',
-                                    'warn_id' => 'warn_nik',
-                                    'warn_msg' => 'NIK harus dicek melalui oss.go.id.',
-                                ],
-                                [
-                                    'id' => 'email',
-                                    'name' => 'q_email',
-                                    'label' => 'Apakah <strong>Email</strong> sudah dibuat?',
-                                    'yes_val' => 'ya',
-                                    'yes_txt' => 'Ya',
-                                    'no_txt' => 'Belum',
-                                    'warn_id' => 'warn_email_q',
-                                    'warn_msg' => 'Email harus sudah dibuat.',
-                                ],
-                            ];
-                        @endphp
-
-                        @foreach ($checklist as $i => $q)
-                            <div class="dl-check-card" id="card_{{ $q['id'] }}">
-                                <div class="dl-check-q">
-                                    <span class="dl-check-num">{{ $i + 1 }}</span>
-                                    {!! $q['label'] !!}
-                                </div>
-                                <div class="dl-radio-group">
-                                    <label class="dl-radio-label">
-                                        <input type="radio" name="{{ $q['name'] }}" value="{{ $q['yes_val'] }}"
-                                            class="check-answer">
-                                        <i class="las la-check" style="color:var(--dl-green);font-size:13px;"></i>
-                                        {{ $q['yes_txt'] }}
-                                    </label>
-                                    <label class="dl-radio-label">
-                                        <input type="radio" name="{{ $q['name'] }}" value="tidak"
-                                            class="check-answer">
-                                        <i class="las la-times" style="color:var(--dl-rose);font-size:13px;"></i>
-                                        {{ $q['no_txt'] }}
-                                    </label>
-                                </div>
-                                <div id="{{ $q['warn_id'] }}"
-                                    style="display:none;margin-top:8px;font-size:12px;color:var(--dl-rose);padding:6px 10px;background:var(--dl-rose-lt);border-radius:6px;">
-                                    <i class="las la-times-circle me-1"></i>{{ $q['warn_msg'] }}
-                                </div>
-                            </div>
-                        @endforeach
-
-                        {{-- Q4 --}}
-                        <div class="dl-check-card" id="cardQ4">
+                        {{-- Validasi Foto KTP --}}
+                        <div class="dl-check-card" id="card_foto_ktp">
                             <div class="dl-check-q">
-                                <span class="dl-check-num">4</span>
+                                <span class="dl-check-num">1</span>
+                                Validasi <strong>Foto KTP</strong> — Centang semua setelah dicek
+                            </div>
+                            {{-- Tampilkan foto KTP untuk dicek --}}
+                            @if ($dataLapangan->foto_ktp)
+                                <div style="margin-bottom:10px;">
+                                    <img src="{{ asset('storage/' . $dataLapangan->foto_ktp) }}"
+                                        style="max-width:100%;max-height:180px;border-radius:8px;border:1.5px solid var(--dl-border);cursor:pointer;"
+                                        onclick="viewFullImage('{{ asset('storage/' . $dataLapangan->foto_ktp) }}','Foto KTP')"
+                                        alt="Foto KTP">
+                                </div>
+                            @else
+                                <div style="padding:10px;background:#F1F5F9;border-radius:8px;font-size:12px;color:var(--dl-muted);margin-bottom:10px;"><i class="las la-image me-1"></i>Foto KTP belum tersedia</div>
+                            @endif
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_foto_valid" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                    <i class="las la-image" style="color:var(--dl-blue);"></i>
+                                    Foto KTP sudah divalidasi (jelas &amp; terbaca)
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_nama_sesuai" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                    <i class="las la-user" style="color:var(--dl-blue);"></i>
+                                    Nama di data (<strong>{{ $dataLapangan->nama_pu }}</strong>) sesuai nama di KTP
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_nik_sesuai" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                    <i class="las la-id-card" style="color:var(--dl-blue);"></i>
+                                    NIK di data (<strong>{{ $dataLapangan->nik }}</strong>) sesuai NIK di KTP
+                                </label>
+                            </div>
+                            <div id="warn_foto_ktp"
+                                style="display:none;margin-top:8px;font-size:12px;color:var(--dl-rose);padding:6px 10px;background:var(--dl-rose-lt);border-radius:6px;">
+                                <i class="las la-times-circle me-1"></i>Semua validasi foto KTP harus dicentang.
+                            </div>
+                        </div>
+
+                        {{-- Cek NIK via OSS --}}
+                        <div class="dl-check-card" id="card_nik">
+                            <div class="dl-check-q">
+                                <span class="dl-check-num">2</span>
+                                Apakah <strong>NIK</strong> sudah dicek melalui oss.go.id?
+                                <a href="https://ui-login.oss.go.id/register" target="_blank"
+                                    class="dl-btn dl-btn-sm dl-btn-primary" style="margin-left:10px;padding:3px 10px;font-size:11px;">
+                                    <i class="las la-external-link-alt"></i> Buka oss.go.id
+                                </a>
+                            </div>
+                            <div class="dl-radio-group">
+                                <label class="dl-radio-label">
+                                    <input type="radio" name="q_nik" value="sudah" class="check-answer">
+                                    <i class="las la-check" style="color:var(--dl-green);font-size:13px;"></i> Sudah
+                                </label>
+                                <label class="dl-radio-label">
+                                    <input type="radio" name="q_nik" value="tidak" class="check-answer">
+                                    <i class="las la-times" style="color:var(--dl-rose);font-size:13px;"></i> Belum
+                                </label>
+                            </div>
+                            <div id="warn_nik"
+                                style="display:none;margin-top:8px;font-size:12px;color:var(--dl-rose);padding:6px 10px;background:var(--dl-rose-lt);border-radius:6px;">
+                                <i class="las la-times-circle me-1"></i>NIK harus dicek melalui oss.go.id.
+                            </div>
+                        </div>
+
+                        {{-- Q3: Hapus Keterangan --}}
+                        <div class="dl-check-card" id="cardQ3">
+                            <div class="dl-check-q">
+                                <span class="dl-check-num">3</span>
                                 Apakah ada komentar pada <strong>Form Keterangan Revisi</strong>?
                             </div>
                             <div class="dl-radio-group">
                                 <label class="dl-radio-label">
-                                    <input type="radio" name="q_keterangan" value="ya" class="check-answer">
-                                    <i class="las la-check" style="color:var(--dl-amber);font-size:13px;"></i> Ya, sudah
-                                    dihapus
+                                    <input type="radio" name="q_keterangan" value="ya" class="check-answer" onclick="clearKeterangan()">
+                                    <i class="las la-check" style="color:var(--dl-amber);font-size:13px;"></i> Ya, hapus
                                 </label>
                                 <label class="dl-radio-label">
                                     <input type="radio" name="q_keterangan" value="tidak" class="check-answer">
@@ -2019,44 +2043,72 @@
     <script>
         // ── CHECKLIST ──
         function validateChecklist() {
-            const checks = [{
-                    name: 'q_foto',
-                    val: 'ya',
-                    warn: 'warn_foto'
-                },
-                {
-                    name: 'q_nik',
-                    val: 'sudah',
-                    warn: 'warn_nik'
-                },
-                {
-                    name: 'q_email',
-                    val: 'ya',
-                    warn: 'warn_email_q'
-                },
-            ];
             let valid = true;
-            checks.forEach(c => {
-                const el = document.querySelector(`input[name="${c.name}"]:checked`);
-                const warnEl = document.getElementById(c.warn);
-                if (!el || el.value !== c.val) {
-                    warnEl.style.display = 'block';
-                    valid = false;
-                } else {
-                    warnEl.style.display = 'none';
-                }
-            });
+
+            // 1. KTP checkboxes — semua harus dicentang
+            const ktpChecks = document.querySelectorAll('.ktp-check');
+            const allKtpChecked = Array.from(ktpChecks).every(c => c.checked);
+            const warnKtp = document.getElementById('warn_foto_ktp');
+            if (!allKtpChecked) {
+                warnKtp.style.display = 'block';
+                document.getElementById('card_foto_ktp').style.borderColor = 'var(--dl-rose)';
+                valid = false;
+            } else {
+                warnKtp.style.display = 'none';
+                document.getElementById('card_foto_ktp').style.borderColor = 'var(--dl-border)';
+            }
+
+            // 2. NIK radio button
+            const nikEl = document.querySelector('input[name="q_nik"]:checked');
+            const warnNik = document.getElementById('warn_nik');
+            if (!nikEl || nikEl.value !== 'sudah') {
+                warnNik.style.display = 'block';
+                valid = false;
+            } else {
+                warnNik.style.display = 'none';
+            }
+
+            // 3. Keterangan Q3
             const qKet = document.querySelector('input[name="q_keterangan"]:checked');
             if (!qKet) {
                 valid = false;
-                const card = document.getElementById('cardQ4');
-                card.style.borderColor = 'var(--dl-rose)';
-                setTimeout(() => card.style.borderColor = 'var(--dl-border)', 2000);
+                const card = document.getElementById('cardQ3');
+                if (card) {
+                    card.style.borderColor = 'var(--dl-rose)';
+                    setTimeout(() => card.style.borderColor = 'var(--dl-border)', 2000);
+                }
             }
+
             if (valid) {
                 document.getElementById('stepChecklist').classList.add('d-none');
                 document.getElementById('stepForm').classList.remove('d-none');
             }
+        }
+
+        // ── Hapus Keterangan saat radio "Ya, hapus" dipilih ──
+        function clearKeterangan() {
+            // Submit form hapus keterangan via AJAX atau redirect
+            const hashedId = '{{ $dataLapangan->hashed_id }}';
+            fetch(`{{ url('/') }}/superadmin/data-lapangans/${hashedId}/clear-keterangan`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI keterangan di halaman utama
+                    const revisiAlert = document.querySelector('.dl-card-body .dl-revisi-alert');
+                    if (revisiAlert) revisiAlert.remove();
+                    // Clear textarea di form keterangan
+                    const textarea = document.querySelector('textarea[name="keterangan"]');
+                    if (textarea) textarea.value = '';
+                }
+            })
+            .catch(err => console.error('Gagal menghapus keterangan:', err));
         }
 
         function backToChecklist() {
@@ -2065,9 +2117,16 @@
         }
 
         document.getElementById('modalUpdateEmail').addEventListener('hidden.bs.modal', function() {
+            // Reset KTP checkboxes
+            document.querySelectorAll('.ktp-check').forEach(c => c.checked = false);
+            document.getElementById('card_foto_ktp').style.borderColor = 'var(--dl-border)';
+            // Reset radio buttons
             document.querySelectorAll('#stepChecklist input[type="radio"]').forEach(r => r.checked = false);
-            ['warn_foto', 'warn_nik', 'warn_email_q'].forEach(id => document.getElementById(id).style.display =
-                'none');
+            // Hide all warnings
+            ['warn_foto_ktp', 'warn_nik'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
             document.getElementById('stepChecklist').classList.remove('d-none');
             document.getElementById('stepForm').classList.add('d-none');
         });

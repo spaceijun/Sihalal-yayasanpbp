@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use App\Models\AppVersion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\View\View;
 
 class AppVersionController extends Controller
 {
+    use HasRoutePrefix;
     /**
      * Display a listing of the resource.
      */
@@ -19,7 +21,9 @@ class AppVersionController extends Controller
     {
         $appVersions = AppVersion::paginate();
 
-        return view('superadmin.app-version.index', compact('appVersions'))
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.app-version.index', compact('appVersions', 'routePrefix'))
             ->with('i', ($request->input('page', 1) - 1) * $appVersions->perPage());
     }
 
@@ -30,7 +34,9 @@ class AppVersionController extends Controller
     {
         $appVersion = new AppVersion();
 
-        return view('superadmin.app-version.create', compact('appVersion'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.app-version.create', compact('appVersion', 'routePrefix'));
     }
 
     /**
@@ -51,7 +57,9 @@ class AppVersionController extends Controller
     {
         $appVersion = AppVersion::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.app-version.show', compact('appVersion'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.app-version.show', compact('appVersion', 'routePrefix'));
     }
 
     /**
@@ -61,7 +69,9 @@ class AppVersionController extends Controller
     {
         $appVersion = AppVersion::findByHashedIdOrFail($hashedId);
 
-        return view('superadmin.app-version.edit', compact('appVersion'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.app-version.edit', compact('appVersion', 'routePrefix'));
     }
 
     /**

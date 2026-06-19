@@ -190,6 +190,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('admin-umum/data-entry-progress') }}"
+                        class="nav-link {{ Request::is('admin-umum/data-entry-progress*') ? 'active' : '' }}">
+                        <i data-feather="trending-up"></i>Data Entry Progress
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('admin-umum/pengumumen') }}"
                         class="nav-link {{ Request::is('admin-umum/pengumumen*') ? 'active' : '' }}">
                         <i data-feather="align-justify"></i>Pengumuman Data Entry
@@ -198,12 +204,6 @@
 
                 {{-- Human Resources --}}
                 <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
-                <li class="nav-item">
-                    <a href="{{ url('admin-umum/recruitment-posts') }}"
-                        class="nav-link {{ Request::is('admin-umum/recruitment-posts*') ? 'active' : '' }}">
-                        <i data-feather="briefcase"></i>Lowongan Pekerjaan
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a href="{{ url('admin-umum/enumerators') }}"
                         class="nav-link {{ Request::is('admin-umum/enumerators*') ? 'active' : '' }}">

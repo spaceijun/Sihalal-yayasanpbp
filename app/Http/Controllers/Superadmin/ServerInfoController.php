@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +16,12 @@ use Illuminate\Support\Facades\DB;
  */
 class ServerInfoController extends Controller
 {
+    use HasRoutePrefix;
     public function index()
     {
-        return view('superadmin.home.server-info');
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.home.server-info', compact('routePrefix'));
     }
 
     public function realtime(Request $request)

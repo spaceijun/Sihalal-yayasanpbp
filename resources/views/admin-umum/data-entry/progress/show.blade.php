@@ -226,7 +226,7 @@
                                     <div class="flex-grow-1">
                                         <div class="fw-semibold mb-1"
                                             style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--vz-danger);">
-                                            Catatan Superadmin
+                                            Catatan Admin
                                         </div>
                                         <div class="p-3 rounded-3"
                                             style="background:rgba(var(--vz-danger-rgb),.06);font-size:13px;border-left:3px solid var(--vz-danger);">
@@ -331,7 +331,7 @@
                                         'label' => 'Foto KTP',
                                         'foto' => $dl->foto_ktp,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-ktp',
+                                            $routePrefix . '.datalapangan.download-foto-ktp',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'KTP',
@@ -340,7 +340,7 @@
                                         'label' => 'Foto Rumah',
                                         'foto' => $dl->foto_rumah,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-rumah-pdf',
+                                            $routePrefix . '.datalapangan.download-foto-rumah-pdf',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'PDF',
@@ -349,7 +349,7 @@
                                         'label' => 'Foto Pendamping',
                                         'foto' => $dl->foto_pendamping,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-pendamping',
+                                            $routePrefix . '.datalapangan.download-foto-pendamping',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'Download',
@@ -543,6 +543,75 @@
 
             </div>
         </div>
+
+        {{-- ========== RIWAYAT PROGRESS ========== --}}
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-transparent border-bottom d-flex align-items-center gap-2 py-3">
+                <span class="rounded d-flex align-items-center justify-content-center"
+                    style="width:28px;height:28px;background:rgba(var(--vz-primary-rgb),.12);">
+                    <i class="las la-history" style="font-size:14px;color:var(--vz-primary);"></i>
+                </span>
+                <h6 class="mb-0 fw-semibold">Riwayat Progress</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-borderless mb-0" style="font-size:14px;">
+                    <thead>
+                        <tr class="border-bottom bg-light">
+                            <th style="width: 50px; font-size:12px; padding: 12px 16px;" class="text-center">#</th>
+                            <th style="font-size:12px; padding: 12px 16px;">Tanggal</th>
+                            <th style="font-size:12px; padding: 12px 16px;">Status</th>
+                            <th style="font-size:12px; padding: 12px 16px;">Verifikator</th>
+                            <th style="font-size:12px; padding: 12px 16px;">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($progresses as $idx => $p)
+                            <tr class="border-bottom">
+                                <td class="text-center py-3 px-4" style="vertical-align: middle;">{{ $idx + 1 }}</td>
+                                <td class="py-3 pe-4" style="vertical-align: middle;">{{ $p->actioned_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                                <td class="py-3 pe-4" style="vertical-align: middle;">
+                                    @php
+                                        $badge = match ($p->status) {
+                                            'PENDING' => 'bg-warning text-dark',
+                                            'VALIDASI_ADMIN' => 'bg-info text-white',
+                                            'DITERIMA' => 'bg-success text-white',
+                                            'REVISI' => 'bg-warning text-dark',
+                                            'DITOLAK' => 'bg-danger text-white',
+                                            default => 'bg-secondary text-white',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $badge }} px-3 py-2">{{ $p->status }}</span>
+                                </td>
+                                <td class="py-3 pe-4" style="vertical-align: middle;">
+                                    @if ($p->verifikator)
+                                        <strong>{{ $p->verifikator->nama_lengkap }}</strong>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 pe-4" style="vertical-align: middle;">
+                                    @if ($p->keterangan_revisi)
+                                        <span class="text-danger">{{ $p->keterangan_revisi }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Tidak ada riwayat progress.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                @if ($progresses->hasPages())
+                    <div class="card-footer bg-light py-2">
+                        {{ $progresses->withQueryString()->links() }}
+                    </div>
+                @endif
+            </div>
+        </div>
+
     </section>
 
 
@@ -568,7 +637,7 @@
                             style="width:28px;height:28px;background:rgba(var(--vz-success-rgb),.2);">
                             <i class="las la-check" style="font-size:15px;color:var(--vz-success);"></i>
                         </span>
-                        <span id="modalTerimaTitle">Terima Progress</span>
+                        <span id="modalTerimaTitle">Validasi Progress</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -697,7 +766,7 @@
                     </button>
                     <button type="button" class="btn btn-success fw-semibold" id="btnKonfirmasiTerima"
                         style="display:none;">
-                        <i class="las la-check me-1"></i>Ya, Terima
+                        <i class="las la-check me-1"></i>Ya, Validasi
                     </button>
                 </div>
             </div>
@@ -834,13 +903,21 @@
             // Lanjut ke step verifikator
             document.getElementById('btnLanjutVerifikasi').addEventListener('click', function() {
                 if (!_validasiPertanyaan()) return;
-                document.getElementById('stepPertanyaan').style.display = 'none';
-                document.getElementById('stepVerifikator').style.display = 'block';
-                document.getElementById('btnLanjutVerifikasi').style.display = 'none';
-                document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
+
+                // SIHALAL untuk role Admin Umum langsung submit ke route validasi
+                if (_terimaEntryType === 'SIHALAL') {
+                    document.getElementById('formTerima').action =
+                        `/admin-umum/data-entry-progress/${_terimaProgressId}/validasi`;
+                    document.getElementById('formTerima').submit();
+                } else {
+                    document.getElementById('stepPertanyaan').style.display = 'none';
+                    document.getElementById('stepVerifikator').style.display = 'block';
+                    document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+                    document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
+                }
             });
 
-            // Konfirmasi terima — submit form
+            // Konfirmasi terima/validasi — submit form (untuk OSS)
             document.getElementById('btnKonfirmasiTerima').addEventListener('click', function() {
                 const verifikatorId = document.getElementById('selectVerifikator').value;
                 const tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
@@ -863,7 +940,7 @@
                 document.getElementById('terimaVerifikatorId').value = verifikatorId;
                 document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
                 document.getElementById('formTerima').action =
-                    `/superadmin/data-entry-progress/${_terimaProgressId}/terima`;
+                    `/admin-umum/data-entry-progress/${_terimaProgressId}/validasi`;
                 document.getElementById('formTerima').submit();
             });
         });
@@ -872,7 +949,16 @@
         function submitTerima(hashedId, entryType) {
             _terimaProgressId = hashedId;
             _terimaEntryType = entryType;
-            document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
+
+            // Set title berdasarkan entry type
+            if (entryType === 'OSS') {
+                document.getElementById('modalTerimaTitle').textContent = 'Terima Progress OSS';
+            } else if (entryType === 'SIHALAL') {
+                document.getElementById('modalTerimaTitle').textContent = 'Validasi Progress SIHALAL';
+            } else {
+                document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
+            }
+
             _resetModalTerima(entryType);
             new bootstrap.Modal(document.getElementById('modalTerima')).show();
         }
@@ -898,11 +984,14 @@
 
             if (entryType === 'OSS') {
                 document.getElementById('pertanyaanOSS').style.display = 'block';
+                document.getElementById('btnLanjutVerifikasi').innerHTML = '<i class="las la-arrow-right me-1"></i>Lanjut ke Verifikasi';
             } else if (entryType === 'SIHALAL') {
                 document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+                document.getElementById('btnLanjutVerifikasi').innerHTML = '<i class="las la-check me-1"></i>Ya, Validasi';
             } else {
                 document.getElementById('pertanyaanOSS').style.display = 'block';
                 document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+                document.getElementById('btnLanjutVerifikasi').innerHTML = '<i class="las la-arrow-right me-1"></i>Lanjut ke Verifikasi';
             }
         }
 
@@ -927,7 +1016,7 @@
                     valid = false;
                 } else {
                     document.getElementById('errorSIHALAL').style.display = 'none';
-                    if (cek.value === 'belum' && verval.value === 'belum') {
+                    if (cek.value === 'belum' || verval.value === 'belum') {
                         document.getElementById('alertSiHalalBelum').style.removeProperty('display');
                         valid = false;
                     } else {
@@ -941,7 +1030,7 @@
         function cekSiHalalValid() {
             const cek = document.querySelector('input[name="siHalalCek"]:checked');
             const verval = document.querySelector('input[name="siHalalVerval"]:checked');
-            if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
+            if (cek && verval && (cek.value === 'belum' || verval.value === 'belum')) {
                 document.getElementById('alertSiHalalBelum').style.removeProperty('display');
             } else {
                 document.getElementById('alertSiHalalBelum').style.display = 'none';
@@ -950,14 +1039,14 @@
 
         // ── bukaModalRevisi ────────────────────────────────────
         function bukaModalRevisi(hashedId) {
-            document.getElementById('formRevisi').action = `/superadmin/data-entry-progress/${hashedId}/revisi`;
+            document.getElementById('formRevisi').action = `/admin-umum/data-entry-progress/${hashedId}/revisi`;
             document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
             new bootstrap.Modal(document.getElementById('modalRevisi')).show();
         }
 
         // ── bukaModalTolak ─────────────────────────────────────
         function bukaModalTolak(hashedId) {
-            document.getElementById('formTolak').action = `/superadmin/data-entry-progress/${hashedId}/tolak`;
+            document.getElementById('formTolak').action = `/admin-umum/data-entry-progress/${hashedId}/tolak`;
             document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
             new bootstrap.Modal(document.getElementById('modalTolak')).show();
         }

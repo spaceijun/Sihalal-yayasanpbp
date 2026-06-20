@@ -263,7 +263,10 @@ class VerifikatorController extends Controller
     {
         $verifikator = new Verifikator();
 
-        return view('superadmin.verifikator.create', compact('verifikator'));
+        return view('superadmin.verifikator.create', [
+            'routePrefix' => $this->routePrefix(),
+            'verifikator' => $verifikator,
+        ]);
     }
 
     /**

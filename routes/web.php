@@ -110,6 +110,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
         Route::get('/data-lapangans/pengajuan-data', [DataLapanganController::class, 'getPengajuanData'])->name('data-lapangans.pengajuan-data');
+        Route::get('/data-lapangans/export-approval-pdf', [DataLapanganController::class, 'exportApprovalPdf'])->name('data-lapangans.export-approval-pdf');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
         Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
@@ -282,12 +283,13 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('/data-entries-data', [DataEntryController::class, 'data'])->name('data-entries.data');
 
         // Data Entry Progress — Admin Umum
+        Route::get('/data-entry-progress', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'index'])->name('data-entry-progress.index');
         Route::get('/data-entry-progress/data', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'data'])->name('data-entry-progress.data');
-        Route::resource('data-entry-progress', App\Http\Controllers\AdminUmum\DataEntryProgressController::class)->only(['index', 'show']);
+        Route::post('/data-entry-progress/bulk-validasi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'bulkValidasi'])->name('data-entry-progress.bulk-validasi');
+        Route::get('/data-entry-progress/{progress}', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'show'])->name('data-entry-progress.show');
         Route::patch('/data-entry-progress/{progress}/validasi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'validasi'])->name('data-entry-progress.validasi');
         Route::patch('/data-entry-progress/{progress}/revisi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'revisi'])->name('data-entry-progress.revisi');
         Route::patch('/data-entry-progress/{progress}/tolak', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'tolak'])->name('data-entry-progress.tolak');
-        Route::post('/data-entry-progress/bulk-validasi', [App\Http\Controllers\AdminUmum\DataEntryProgressController::class, 'bulkValidasi'])->name('data-entry-progress.bulk-validasi');
 
         // Human Resources — Enumerator
         Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');

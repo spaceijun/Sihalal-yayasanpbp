@@ -310,18 +310,32 @@
                                 0</span>
                         </div>
                     </div>
-                    <div class="modal-footer" style="border-top:1px solid #E2E8F0;padding:14px 20px;gap:8px;">
-                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
-                            style="height:34px;font-size:12.5px;">Tutup</button>
-                        <button type="button" id="btnConfirmApproval" class="adm-btn"
-                            style="height:34px;font-size:12.5px;background:linear-gradient(135deg,#059669,#065F46);color:#fff;border:none;gap:6px;"
-                            disabled>
+                    <div class="modal-footer" style="border-top:1px solid #E2E8F0;padding:14px 20px;gap:8px;justify-content:space-between;">
+                        <a href="{{ route('superadmin.data-lapangans.export-approval-pdf') }}" target="_blank"
+                            class="adm-btn"
+                            style="height:34px;font-size:12.5px;background:linear-gradient(135deg,#DC2626,#991B1B);color:#fff;border:none;gap:6px;text-decoration:none;display:inline-flex;align-items:center;">
                             <svg viewBox="0 0 24 24"
                                 style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;">
-                                <polyline points="20 6 9 17 4 12" />
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
                             </svg>
-                            Tandai Dibayar
-                        </button>
+                            Export PDF
+                        </a>
+                        <div style="display:flex;gap:8px;">
+                            <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
+                                style="height:34px;font-size:12.5px;">Tutup</button>
+                            <button type="button" id="btnConfirmApproval" class="adm-btn"
+                                style="height:34px;font-size:12.5px;background:linear-gradient(135deg,#059669,#065F46);color:#fff;border:none;gap:6px;"
+                                disabled>
+                                <svg viewBox="0 0 24 24"
+                                    style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                Tandai Dibayar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -561,7 +575,7 @@
                     },
                     pageLength: 25,
                     order: [
-                        [2, 'desc']
+                        [3, 'asc']
                     ],
                     responsive: true,
                     drawCallback: function() {
@@ -798,16 +812,26 @@
                                 '<tr><td colspan="8" class="tc" style="padding:30px;color:#94A3B8;">Tidak ada data TERBIT SH yang belum dibayar.</td></tr>';
                             return;
                         }
-                        tbody.innerHTML = items.map((d, i) => `
-                            <tr>
-                                <td class="tc"><input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);"></td>
+                        tbody.innerHTML = items.map((d, i) => {
+                            const isInaktif = d.enumerator_status === 'Tidak Aktif';
+                            const checkboxCell = isInaktif ?
+                                `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
+                                `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
+                            const rowStyle = isInaktif ? 'background:#FFF5F5;' : '';
+                            const pendampingCell = isInaktif ?
+                                `${d.pendamping} <span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>` :
+                                d.pendamping;
+                            return `
+                            <tr style="${rowStyle}">
+                                <td class="tc">${checkboxCell}</td>
                                 <td>${i+1}</td>
                                 <td style="font-size:12px;font-weight:600;">${d.no_registrasi || '-'}</td>
                                 <td style="font-weight:600;">${d.nama_pu}</td>
                                 <td style="font-family:monospace;font-size:12px;">${d.nik}</td>
-                                <td style="font-size:12px;">${d.pendamping}</td>
-                                <td class="tc"><span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span></td>
-                            </tr>`).join('');
+                                <td style="font-size:12px;">${pendampingCell}</td>
+                                <td class="tc"><span style="font-weight:700;color:${isInaktif ? '#94A3B8' : '#059669'};">${isInaktif ? '<em style="font-size:11px;color:#94A3B8;">Ditahan</em>' : d.nominal_fmt}</span></td>
+                            </tr>`;
+                        }).join('');
                         attachApprovalCheckboxes();
                     }
 

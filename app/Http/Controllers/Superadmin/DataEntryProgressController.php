@@ -40,33 +40,6 @@ class DataEntryProgressController extends Controller
     }
 
     /**
-     * Resolve status data_lapangans berdasarkan new_data dari progress.
-     * OSS  → PROGRESS OSS
-     * SIHALAL / status_update → PROGRESS SIHALAL
-     */
-    private function resolveNewStatusFromProgress(DataEntryProgress $progress): ?string
-    {
-        $newData = $progress->new_data;
-
-        // Ambil langsung dari new_data['status'] jika tersedia
-        if (!empty($newData['status'])) {
-            return $newData['status'];
-        }
-
-        // Fallback: derive dari file_type
-        if (!empty($newData['file_type'])) {
-            return match ($newData['file_type']) {
-                'oss'           => 'PROGRESS OSS',
-                'sihalal'       => 'PROGRESS SIHALAL',
-                'status_update' => 'PROGRESS SIHALAL',
-                default         => null,
-            };
-        }
-
-        return null;
-    }
-
-    /**
      * Cek apakah data entry masih punya progress PENDING selain progress yang baru saja diproses.
      */
     private function cekAdaPending(int $dataEntryId): bool
@@ -79,6 +52,7 @@ class DataEntryProgressController extends Controller
 
     /**
      * Yajra DataTables JSON endpoint untuk tabel progress di halaman index.
+     * Superadmin hanya melihat VALIDASI_ADMIN (sudah divalidasi Admin Umum)
      */
     public function data(Request $request)
     {
@@ -91,8 +65,8 @@ class DataEntryProgressController extends Controller
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
         } else {
-            // Default: Superadmin hanya melihat VALIDASI_ADMIN (sudah divalidasi Admin Umum) dan REVISI
-            $query->whereIn('status', ['VALIDASI_ADMIN', 'REVISI']);
+            // Default: Superadmin hanya melihat VALIDASI_ADMIN
+            $query->where('status', 'VALIDASI_ADMIN');
         }
 
         if ($request->filled('entry_type')) {
@@ -102,7 +76,8 @@ class DataEntryProgressController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('checkbox', function ($p) {
-                if ($p->status !== 'PENDING') return '';
+                // Checkbox untuk VALIDASI_ADMIN
+                if ($p->status !== 'VALIDASI_ADMIN') return '';
                 return '<input type="checkbox" name="progress_ids[]" value="' . $p->hashed_id . '" class="form-check-input row-check">';
             })
             ->addColumn('tanggal', fn($p) => $p->actioned_at?->format('d/m/Y H:i') ?? '-')
@@ -156,7 +131,8 @@ class DataEntryProgressController extends Controller
                 return '<button type="button" class="adm-btn ' . $cls . '" onclick="lihatKeterangan(' . $kr . ',' . $ku . ')">' . $label . '</button>';
             })
             ->addColumn('aksi', function ($p) {
-                if ($p->status === 'PENDING') {
+                // Aksi untuk VALIDASI_ADMIN saja
+                if ($p->status === 'VALIDASI_ADMIN') {
                     $type = $p->dataEntry?->entry_type;
                     return '<div class="adm-actions">
                         <button type="button" class="adm-btn success icon-only" title="Terima" onclick="submitTerima(\'' . $p->hashed_id . '\',\'' . $type . '\')">
@@ -202,8 +178,8 @@ class DataEntryProgressController extends Controller
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
         } else {
-            // Default: Superadmin hanya melihat VALIDASI_ADMIN (sudah divalidasi Admin Umum) dan REVISI
-            $query->whereIn('status', ['VALIDASI_ADMIN', 'REVISI']);
+            // Default: Superadmin hanya melihat VALIDASI_ADMIN
+            $query->where('status', 'VALIDASI_ADMIN');
         }
 
         if ($request->filled('entry_type')) {
@@ -241,6 +217,11 @@ class DataEntryProgressController extends Controller
 
     public function show(DataEntryProgress $progress): View
     {
+        // Superadmin hanya bisa melihat VALIDASI_ADMIN
+        if ($progress->status !== 'VALIDASI_ADMIN') {
+            abort(403, 'Anda tidak memiliki akses untuk melihat data ini.');
+        }
+
         $progress->load(['dataLapangan.enumerator', 'dataEntry.user', 'verifikator']);
 
         $progresses = DataEntryProgress::with(['dataLapangan', 'dataEntry.user', 'verifikator'])
@@ -260,22 +241,23 @@ class DataEntryProgressController extends Controller
 
     /**
      * Terima satu progress.
-     * Status data_lapangans baru diubah di sini sesuai new_data['status'] / file_type.
-     * OSS  → PROGRESS OSS
-     * SIHALAL / status_update → PROGRESS SIHALAL
-     * VALIDASI_ADMIN (dari Admin Umum) → terima dan ubah sesuai entry_type
+     * Superadmin hanya bisa menerima VALIDASI_ADMIN.
+     *
+     * Logika:
+     * - VALIDASI_ADMIN (SIHALAL): terima → DITERIMA, data_lapangans = PROGRESS SIHALAL
      */
     public function terima(Request $request, DataEntryProgress $progress): RedirectResponse
     {
+        // Superadmin hanya bisa menerima VALIDASI_ADMIN
+        if ($progress->status !== 'VALIDASI_ADMIN') {
+            return redirect()->back()->with('error', 'Hanya progress berstatus VALIDASI ADMIN yang dapat diterima.');
+        }
+
+        // Wajib pilih verifikator
         $request->validate([
             'verifikator_id'     => 'required|exists:verifikators,id',
             'tanggal_verifikasi' => 'required|date',
         ]);
-
-        // Superadmin bisa menerima PENDING atau VALIDASI_ADMIN
-        if (!in_array($progress->status, ['PENDING', 'VALIDASI_ADMIN'])) {
-            return redirect()->back()->with('error', 'Hanya progress berstatus PENDING atau VALIDASI ADMIN yang dapat diterima.');
-        }
 
         $progress->update([
             'status'             => 'DITERIMA',
@@ -284,19 +266,10 @@ class DataEntryProgressController extends Controller
             'actioned_at'        => now(),
         ]);
 
-        // Update status data_lapangans sekarang — setelah progress diterima superadmin
+        // Update data_lapangans ke PROGRESS SIHALAL
         $dataLapangan = $progress->dataLapangan;
         if ($dataLapangan) {
-            // Jika dari VALIDASI_ADMIN (SIHALAL), ubah langsung ke PROGRESS SIHALAL
-            if ($progress->status === 'VALIDASI_ADMIN') {
-                $dataLapangan->update(['status' => 'PROGRESS SIHALAL']);
-            } else {
-                // Untuk PENDING baru, gunakan resolveNewStatusFromProgress
-                $newStatus = $this->resolveNewStatusFromProgress($progress);
-                if ($newStatus) {
-                    $dataLapangan->update(['status' => $newStatus]);
-                }
-            }
+            $dataLapangan->update(['status' => 'PROGRESS SIHALAL']);
         }
 
         $dataEntry = $progress->dataEntry;
@@ -304,9 +277,8 @@ class DataEntryProgressController extends Controller
             return redirect()->back()->with('success', 'Progress berhasil diterima.');
         }
 
-        // Cek apakah masih ada data PENDING lain setelah progress ini diterima
+        // Cek apakah masih ada PENDING lain
         $adaPending = $this->cekAdaPending($dataEntry->id);
-
         if ($adaPending) {
             return redirect()->back()->with(
                 'success',
@@ -315,9 +287,8 @@ class DataEntryProgressController extends Controller
             );
         }
 
-        // Tidak ada pending — coba buat tagihan
+        // Buat tagihan
         $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
-
         if ($penagihan) {
             return redirect()->back()->with(
                 'success',
@@ -336,8 +307,9 @@ class DataEntryProgressController extends Controller
             'keterangan_revisi' => 'required|string|max:1000',
         ]);
 
-        if ($progress->status !== 'PENDING') {
-            return redirect()->back()->with('error', 'Hanya progress berstatus PENDING yang dapat direvisi.');
+        // Superadmin hanya bisa minta revisi untuk VALIDASI_ADMIN
+        if ($progress->status !== 'VALIDASI_ADMIN') {
+            return redirect()->back()->with('error', 'Hanya progress berstatus VALIDASI ADMIN yang dapat direvisi.');
         }
 
         $progress->update([
@@ -345,8 +317,6 @@ class DataEntryProgressController extends Controller
             'keterangan_revisi' => $request->keterangan_revisi,
             'actioned_at'       => now(),
         ]);
-
-        // Status data_lapangans TIDAK berubah saat revisi
 
         // Kirim notifikasi WhatsApp ke telephone data entry
         $dataEntry = $progress->dataEntry;
@@ -370,8 +340,9 @@ class DataEntryProgressController extends Controller
             'keterangan_revisi' => 'required|string|max:1000',
         ]);
 
-        if ($progress->status !== 'PENDING') {
-            return redirect()->back()->with('error', 'Hanya progress berstatus PENDING yang dapat ditolak.');
+        // Superadmin hanya bisa menolak VALIDASI_ADMIN
+        if ($progress->status !== 'VALIDASI_ADMIN') {
+            return redirect()->back()->with('error', 'Hanya progress berstatus VALIDASI ADMIN yang dapat ditolak.');
         }
 
         $progress->update([
@@ -380,32 +351,9 @@ class DataEntryProgressController extends Controller
             'actioned_at'       => now(),
         ]);
 
-        $dataLapangan = $progress->dataLapangan;
-        $oldData      = $progress->old_data;
-
-        // // DEBUG — hapus setelah fix
-        // Log::info('TOLAK DEBUG', [
-        //     'progress_id'         => $progress->id,
-        //     'old_data'            => $oldData,
-        //     'dataLapangan_id'     => $dataLapangan?->id,
-        //     'dataLapangan_status' => $dataLapangan?->status,
-        // ]);
-
-        // Rollback status data_lapangans ke status sebelum upload/update
-        if ($dataLapangan && !empty($oldData['status'])) {
-            $dataLapangan->update(['status' => $oldData['status']]);
-        }
-
-        // Pindahkan email_sihalal ke old_email_sihalal, kosongkan email_sihalal
-        // agar data_entry berikutnya dapat mengisi ulang
-        if ($dataLapangan && $dataLapangan->email_sihalal) {
-            $dataLapangan->update([
-                'old_email_sihalal' => $dataLapangan->email_sihalal,
-                'email_sihalal'     => null,
-            ]);
-        }
-
         // Lepas lock editing dan tandai data available kembali
+        // data_lapangans.status TIDAK berubah saat ditolak
+        $dataLapangan = $progress->dataLapangan;
         if ($dataLapangan) {
             $dataLapangan->update([
                 'is_being_edited'            => false,
@@ -420,8 +368,10 @@ class DataEntryProgressController extends Controller
 
     /**
      * Terima banyak progress sekaligus.
-     * progress_ids[] berisi hashed_id — di-decode dulu ke id asli.
-     * Status data_lapangans masing-masing baru diubah di sini.
+     * Superadmin hanya bisa bulk terima VALIDASI_ADMIN.
+     *
+     * Logika:
+     * - VALIDASI_ADMIN (SIHALAL): terima → DITERIMA, data_lapangans = PROGRESS SIHALAL
      */
     public function bulkTerima(Request $request): RedirectResponse
     {
@@ -443,12 +393,13 @@ class DataEntryProgressController extends Controller
             return redirect()->back()->with('error', 'Tidak ada progress valid yang dipilih.');
         }
 
+        // Superadmin hanya bisa bulk terima VALIDASI_ADMIN
         $progresses = DataEntryProgress::whereIn('id', $realIds)
-            ->where('status', 'PENDING')
+            ->where('status', 'VALIDASI_ADMIN')
             ->get();
 
         if ($progresses->isEmpty()) {
-            return redirect()->back()->with('error', 'Tidak ada progress PENDING yang dipilih.');
+            return redirect()->back()->with('error', 'Tidak ada progress VALIDASI ADMIN yang dipilih.');
         }
 
         $dataEntryIds = [];
@@ -461,13 +412,10 @@ class DataEntryProgressController extends Controller
                 'actioned_at'        => now(),
             ]);
 
-            // Update status data_lapangans sekarang — setelah progress diterima superadmin
+            // Update status data_lapangans ke PROGRESS SIHALAL
             $dataLapangan = $progress->dataLapangan;
             if ($dataLapangan) {
-                $newStatus = $this->resolveNewStatusFromProgress($progress);
-                if ($newStatus) {
-                    $dataLapangan->update(['status' => $newStatus]);
-                }
+                $dataLapangan->update(['status' => 'PROGRESS SIHALAL']);
             }
 
             if ($progress->data_entry_id) {
@@ -476,7 +424,6 @@ class DataEntryProgressController extends Controller
         }
 
         $penagihanDibuat = 0;
-        $adaPendingInfo  = false;
 
         foreach (array_unique($dataEntryIds) as $dataEntryId) {
             $dataEntry = DataEntry::find($dataEntryId);
@@ -486,7 +433,6 @@ class DataEntryProgressController extends Controller
 
             // Cek apakah masih ada PENDING setelah bulk diterima
             if ($this->cekAdaPending($dataEntryId)) {
-                $adaPendingInfo = true;
                 continue; // Lewati pembuatan tagihan untuk data entry ini
             }
 
@@ -501,10 +447,6 @@ class DataEntryProgressController extends Controller
 
         if ($penagihanDibuat > 0) {
             $msg .= " {$penagihanDibuat} tagihan baru otomatis dibuat.";
-        }
-
-        if ($adaPendingInfo) {
-            $msg .= ' Beberapa tagihan ditahan karena masih ada data lain yang menunggu review.';
         }
 
         return redirect()->back()->with('success', $msg);

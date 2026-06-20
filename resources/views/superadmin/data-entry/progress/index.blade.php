@@ -7,6 +7,15 @@
     <div class="adm-page">
         @include('layouts.messages')
 
+        {{-- Determine bulk action route based on role --}}
+        @php
+            $bulkActionRoute =
+                $routePrefix === 'superadmin'
+                    ? 'superadmin.data-entry-progress.bulk-terima'
+                    : 'admin-umum.data-entry-progress.bulk-validasi';
+            $bulkActionLabel = $routePrefix === 'superadmin' ? 'Terima Semua Dipilih' : 'Validasi Semua Dipilih';
+        @endphp
+
         {{-- PAGE HEADER --}}
         <div class="adm-header">
             <div class="adm-header-left">
@@ -18,39 +27,46 @@
                 <svg viewBox="0 0 24 24">
                     <polyline points="20 6 9 17 4 12" />
                 </svg>
-                <span id="bulkBtnText">Terima Semua Dipilih</span>
+                <span id="bulkBtnText">{{ $bulkActionLabel }}</span>
             </button>
         </div>
 
         {{-- STAT TABS --}}
+        {{-- Untuk Admin Umum: PENDING + REVISI. Untuk Superadmin: VALIDASI_ADMIN + REVISI --}}
         <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
-            <button type="button" class="adm-btn primary" id="tab-default" onclick="setTab('')">
-                Butuh Review
-                @if ($countPending + $countValidasiAdmin + $countRevisi > 0)
-                    <span class="adm-count-badge" id="badge-default">{{ $countPending + $countValidasiAdmin + $countRevisi }}</span>
-                @endif
-            </button>
-            <button type="button" class="adm-btn" id="tab-PENDING" onclick="setTab('PENDING')">
-                Pending
-                @if ($countPending > 0)
-                    <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
-                        id="badge-PENDING">{{ $countPending }}</span>
-                @endif
-            </button>
-            <button type="button" class="adm-btn" id="tab-VALIDASI_ADMIN" onclick="setTab('VALIDASI_ADMIN')">
-                Validasi Admin
-                @if ($countValidasiAdmin > 0)
-                    <span class="adm-count-badge" style="background:#e0f2fe;color:#0369a1;"
-                        id="badge-VALIDASI_ADMIN">{{ $countValidasiAdmin }}</span>
-                @endif
-            </button>
-            <button type="button" class="adm-btn" id="tab-REVISI" onclick="setTab('REVISI')">
-                Revisi
-                @if ($countRevisi > 0)
-                    <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
-                        id="badge-REVISI">{{ $countRevisi }}</span>
-                @endif
-            </button>
+            @if ($routePrefix === 'admin-umum')
+                {{-- Admin Umum: PENDING + REVISI --}}
+                <button type="button" class="adm-btn primary" id="tab-PENDING" onclick="setTab('PENDING')">
+                    Pending
+                    @if ($countPending > 0)
+                        <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
+                            id="badge-PENDING">{{ $countPending }}</span>
+                    @endif
+                </button>
+                <button type="button" class="adm-btn" id="tab-REVISI" onclick="setTab('REVISI')">
+                    Revisi
+                    @if ($countRevisi > 0)
+                        <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
+                            id="badge-REVISI">{{ $countRevisi }}</span>
+                    @endif
+                </button>
+            @else
+                {{-- Superadmin: VALIDASI_ADMIN + REVISI --}}
+                <button type="button" class="adm-btn primary" id="tab-VALIDASI_ADMIN" onclick="setTab('VALIDASI_ADMIN')">
+                    Validasi Admin
+                    @if ($countValidasiAdmin > 0)
+                        <span class="adm-count-badge" style="background:#e0f2fe;color:#0369a1;"
+                            id="badge-VALIDASI_ADMIN">{{ $countValidasiAdmin }}</span>
+                    @endif
+                </button>
+                <button type="button" class="adm-btn" id="tab-REVISI" onclick="setTab('REVISI')">
+                    Revisi
+                    @if ($countRevisi > 0)
+                        <span class="adm-count-badge" style="background:var(--adm-amber-lt);color:var(--adm-amber);"
+                            id="badge-REVISI">{{ $countRevisi }}</span>
+                    @endif
+                </button>
+            @endif
             <button type="button" class="adm-btn" id="tab-DITERIMA" onclick="setTab('DITERIMA')">
                 Diterima
                 @if ($countDiterima > 0)
@@ -103,7 +119,7 @@
             </div>
 
             {{-- TABLE --}}
-            <form id="bulkForm" action="{{ route($routePrefix . '.data-entry-progress.bulk-terima') }}" method="POST">
+            <form id="bulkForm" action="{{ route($bulkActionRoute) }}" method="POST">
                 @csrf
                 <input type="hidden" name="verifikator_id" id="bulkVerifikatorId">
                 <input type="hidden" name="tanggal_verifikasi" id="bulkTanggalVerifikasi">
@@ -153,6 +169,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    @if ($routePrefix === 'admin-umum')
+                        <div class="adm-alert adm-alert-info" style="margin-bottom:15px;">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <div>Dengan menyetujui, Anda menyatakan data ini sudah sesuai dan akan diteruskan ke Pusat untuk divalidasi akhir.</div>
+                        </div>
+                    @endif
                     <div id="stepPertanyaan">
                         <div id="pertanyaanOSS" style="display:none;">
                             <div class="adm-alert adm-alert-warning">
@@ -413,236 +439,337 @@
     </div>
 
     @push('scripts')
-    <script>
-    var _activeStatus = '';
-    $(document).ready(function () {
-        var _searchTimer;
+        <script>
+            var _defaultStatus = '{{ $routePrefix === 'admin-umum' ? 'PENDING' : 'VALIDASI_ADMIN' }}';
+            var _activeStatus = _defaultStatus;
+            var _routeBase = '{{ $routePrefix === 'admin-umum' ? '/admin-umum' : '/superadmin' }}/data-entry-progress';
+            var _isAdminUmum = {{ $routePrefix === 'admin-umum' ? 'true' : 'false' }};
+            var _terimaAction = '{{ $routePrefix === 'admin-umum' ? 'validasi' : 'terima' }}';
+            $(document).ready(function() {
+                var _searchTimer;
 
-        var table = $('#progressTable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: true,
-            ajax: {
-                url: '{{ route($routePrefix . '.data-entry-progress.data') }}',
-                type: 'GET',
-                data: function (d) {
-                    d.status     = window._activeStatus;
-                    d.entry_type = $('#filterEntryType').val();
-                }
-            },
-            columns: [
-                { data: 'checkbox',         name: 'checkbox',         orderable: false, searchable: false },
-                { data: 'DT_RowIndex',       name: 'DT_RowIndex',      orderable: false, searchable: false },
-                { data: 'tanggal',           name: 'actioned_at' },
-                { data: 'data_entry_cell',   name: 'data_entry_cell',  orderable: false },
-                { data: 'type_badge',        name: 'type_badge',       orderable: false, searchable: false },
-                { data: 'nama_pu_cell',      name: 'nama_pu_cell',     orderable: false },
-                { data: 'status_badge',      name: 'status_badge',     orderable: false, searchable: false },
-                { data: 'verifikator_cell',  name: 'verifikator_cell', orderable: false, searchable: false },
-                { data: 'keterangan_cell',   name: 'keterangan_cell',  orderable: false, searchable: false },
-                { data: 'aksi',              name: 'aksi',             orderable: false, searchable: false },
-            ],
-            dom: 'rt<"adm-card-footer d-flex justify-content-between align-items-center"ip>',
-            language: {
-                processing: '<div class="text-center py-4"><div class="spinner-border" style="color:var(--adm-blue);width:2rem;height:2rem;" role="status"></div></div>',
-                emptyTable:  '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Tidak ada data progress.</p></div>',
-                zeroRecords: '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Data tidak ditemukan.</p></div>',
-                info:        'Menampilkan _START_–_END_ dari _TOTAL_ data',
-                infoEmpty:   'Tidak ada data',
-                paginate:    { previous: '‹', next: '›' },
-            },
-            pageLength: 20,
-            order: [[2, 'desc']],
-            drawCallback: function () {
-                // Re-wire row-check events after each draw
-                document.getElementById('checkAll').checked = false;
-                document.querySelectorAll('.row-check').forEach(function (cb) {
-                    cb.addEventListener('change', updateBulkButton);
+                var table = $('#progressTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    searching: true,
+                    ajax: {
+                        url: '{{ route($routePrefix . '.data-entry-progress.data') }}',
+                        type: 'GET',
+                        data: function(d) {
+                            d.status = window._activeStatus;
+                            d.entry_type = $('#filterEntryType').val();
+                        }
+                    },
+                    columns: [{
+                            data: 'checkbox',
+                            name: 'checkbox',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'tanggal',
+                            name: 'actioned_at'
+                        },
+                        {
+                            data: 'data_entry_cell',
+                            name: 'data_entry_cell',
+                            orderable: false
+                        },
+                        {
+                            data: 'type_badge',
+                            name: 'type_badge',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'nama_pu_cell',
+                            name: 'nama_pu_cell',
+                            orderable: false
+                        },
+                        {
+                            data: 'status_badge',
+                            name: 'status_badge',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'verifikator_cell',
+                            name: 'verifikator_cell',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'keterangan_cell',
+                            name: 'keterangan_cell',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'aksi',
+                            name: 'aksi',
+                            orderable: false,
+                            searchable: false
+                        },
+                    ],
+                    dom: 'rt<"adm-card-footer d-flex justify-content-between align-items-center"ip>',
+                    language: {
+                        processing: '<div class="text-center py-4"><div class="spinner-border" style="color:var(--adm-blue);width:2rem;height:2rem;" role="status"></div></div>',
+                        emptyTable: '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Tidak ada data progress.</p></div>',
+                        zeroRecords: '<div class="adm-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Data tidak ditemukan.</p></div>',
+                        info: 'Menampilkan _START_–_END_ dari _TOTAL_ data',
+                        infoEmpty: 'Tidak ada data',
+                        paginate: {
+                            previous: '‹',
+                            next: '›'
+                        },
+                    },
+                    pageLength: 20,
+                    order: [
+                        [2, 'desc']
+                    ],
+                    drawCallback: function() {
+                        // Re-wire row-check events after each draw
+                        document.getElementById('checkAll').checked = false;
+                        document.querySelectorAll('.row-check').forEach(function(cb) {
+                            cb.addEventListener('change', updateBulkButton);
+                        });
+                        updateBulkButton();
+                    }
                 });
-                updateBulkButton();
+
+                // Search input — debounced
+                $('#dtSearch').on('input', function() {
+                    clearTimeout(_searchTimer);
+                    var val = this.value;
+                    _searchTimer = setTimeout(function() {
+                        table.search(val).draw();
+                    }, 400);
+                });
+
+                // Entry type filter
+                $('#filterEntryType').on('change', function() {
+                    table.ajax.reload();
+                });
+
+                // checkAll
+                document.getElementById('checkAll').addEventListener('change', function() {
+                    document.querySelectorAll('.row-check').forEach(function(cb) {
+                        cb.checked = this.checked;
+                    }, this);
+                    updateBulkButton();
+                });
+
+                // Modal wiring — Lanjut ke Verifikasi
+                document.getElementById('btnLanjutVerifikasi').addEventListener('click', function() {
+                    if (!_validasiPertanyaan()) return;
+
+                    // Admin Umum + SIHALAL: langsung submit ke /validasi tanpa step verifikator
+                    if (_isAdminUmum && _terimaEntryType === 'SIHALAL') {
+                        document.getElementById('formTerima').action =
+                            _routeBase + '/' + _terimaProgressId + '/' + _terimaAction;
+                        bootstrap.Modal.getInstance(document.getElementById('modalTerima'))?.hide();
+                        document.getElementById('formTerima').submit();
+                        return;
+                    }
+
+                    // Semua kasus lain: tampilkan step verifikator
+                    document.getElementById('stepPertanyaan').style.display = 'none';
+                    document.getElementById('stepVerifikator').style.display = 'block';
+                    document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+                    document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
+                });
+
+                document.getElementById('btnKonfirmasiTerima').addEventListener('click', function() {
+                    var verifikatorId = document.getElementById('selectVerifikator').value;
+                    var tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
+                    var valid = true;
+                    if (!verifikatorId) {
+                        document.getElementById('errorVerifikator').style.display = 'block';
+                        valid = false;
+                    } else {
+                        document.getElementById('errorVerifikator').style.display = 'none';
+                    }
+                    if (!tanggalVerifikasi) {
+                        document.getElementById('errorTanggal').style.display = 'block';
+                        valid = false;
+                    } else {
+                        document.getElementById('errorTanggal').style.display = 'none';
+                    }
+                    if (!valid) return;
+                    if (_terimaMode === 'single') {
+                        document.getElementById('terimaVerifikatorId').value = verifikatorId;
+                        document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
+                        document.getElementById('formTerima').action =
+                            _routeBase + '/' + _terimaProgressId + '/' + _terimaAction;
+                        document.getElementById('formTerima').submit();
+                    } else {
+                        document.getElementById('bulkVerifikatorId').value = verifikatorId;
+                        document.getElementById('bulkTanggalVerifikasi').value = tanggalVerifikasi;
+                        document.getElementById('bulkForm').submit();
+                    }
+                });
+            });
+
+            // Tab state
+            function setTab(status) {
+                window._activeStatus = status;
+                // Visual: clear all, set active
+                ['PENDING', 'VALIDASI_ADMIN', 'REVISI', 'DITERIMA', 'DITOLAK'].forEach(function(k) {
+                    var btn = document.getElementById('tab-' + k);
+                    if (!btn) return;
+                    btn.className = 'adm-btn' + (k === status ? ' primary' : '');
+                });
+                $('#progressTable').DataTable().ajax.reload();
             }
-        });
 
-        // Search input — debounced
-        $('#dtSearch').on('input', function () {
-            clearTimeout(_searchTimer);
-            var val = this.value;
-            _searchTimer = setTimeout(function () { table.search(val).draw(); }, 400);
-        });
-
-        // Entry type filter
-        $('#filterEntryType').on('change', function () { table.ajax.reload(); });
-
-        // checkAll
-        document.getElementById('checkAll').addEventListener('change', function () {
-            document.querySelectorAll('.row-check').forEach(function (cb) { cb.checked = this.checked; }, this);
-            updateBulkButton();
-        });
-
-        // Modal wiring
-        document.getElementById('btnLanjutVerifikasi').addEventListener('click', function () {
-            if (!_validasiPertanyaan()) return;
-            document.getElementById('stepPertanyaan').style.display = 'none';
-            document.getElementById('stepVerifikator').style.display = 'block';
-            document.getElementById('btnLanjutVerifikasi').style.display = 'none';
-            document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
-        });
-
-        document.getElementById('btnKonfirmasiTerima').addEventListener('click', function () {
-            var verifikatorId    = document.getElementById('selectVerifikator').value;
-            var tanggalVerifikasi = document.getElementById('inputTanggalVerifikasi').value;
-            var valid = true;
-            if (!verifikatorId) {
-                document.getElementById('errorVerifikator').style.display = 'block'; valid = false;
-            } else { document.getElementById('errorVerifikator').style.display = 'none'; }
-            if (!tanggalVerifikasi) {
-                document.getElementById('errorTanggal').style.display = 'block'; valid = false;
-            } else { document.getElementById('errorTanggal').style.display = 'none'; }
-            if (!valid) return;
-            if (_terimaMode === 'single') {
-                document.getElementById('terimaVerifikatorId').value    = verifikatorId;
-                document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
-                document.getElementById('formTerima').action =
-                    '/superadmin/data-entry-progress/' + _terimaProgressId + '/terima';
-                document.getElementById('formTerima').submit();
-            } else {
-                document.getElementById('bulkVerifikatorId').value    = verifikatorId;
-                document.getElementById('bulkTanggalVerifikasi').value = tanggalVerifikasi;
-                document.getElementById('bulkForm').submit();
+            function resetFilter() {
+                window._activeStatus = _defaultStatus;
+                document.getElementById('dtSearch').value = '';
+                document.getElementById('filterEntryType').value = '';
+                setTab(_defaultStatus);
+                $('#progressTable').DataTable().search('').ajax.reload();
             }
-        });
-    });
 
-    // Tab state
-    function setTab(status) {
-        window._activeStatus = status;
-        // Visual: clear all, set active
-        ['default','PENDING','VALIDASI_ADMIN','REVISI','DITERIMA','DITOLAK'].forEach(function (k) {
-            var btn = document.getElementById('tab-' + k);
-            if (!btn) return;
-            btn.className = 'adm-btn' + (k === (status || 'default') ? ' primary' : '');
-        });
-        $('#progressTable').DataTable().ajax.reload();
-    }
+            function updateBulkButton() {
+                var checked = document.querySelectorAll('.row-check:checked').length;
+                var btn = document.getElementById('btnBulkTerima');
+                btn.disabled = checked === 0;
+                var actionLabel = '{{ $routePrefix === 'superadmin' ? 'Terima' : 'Validasi' }}';
+                document.getElementById('bulkBtnText').textContent =
+                    checked > 0 ? actionLabel + ' ' + checked + ' Yang Dipilih' : (actionLabel + ' Semua Dipilih');
+            }
 
-    function resetFilter() {
-        window._activeStatus = '';
-        document.getElementById('dtSearch').value = '';
-        document.getElementById('filterEntryType').value = '';
-        setTab('');
-        $('#progressTable').DataTable().search('').ajax.reload();
-    }
+            var _terimaMode = 'single',
+                _terimaProgressId = null,
+                _terimaEntryType = null;
 
-    function updateBulkButton() {
-        var checked = document.querySelectorAll('.row-check:checked').length;
-        var btn = document.getElementById('btnBulkTerima');
-        btn.disabled = checked === 0;
-        document.getElementById('bulkBtnText').textContent =
-            checked > 0 ? 'Terima ' + checked + ' Yang Dipilih' : 'Terima Semua Dipilih';
-    }
+            function submitTerima(hashedId, entryType) {
+                _terimaMode = 'single';
+                _terimaProgressId = hashedId;
+                _terimaEntryType = entryType;
+                document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
+                _resetModalTerima(entryType);
+                new bootstrap.Modal(document.getElementById('modalTerima')).show();
+            }
 
-    var _terimaMode = 'single', _terimaProgressId = null, _terimaEntryType = null;
+            function submitBulkTerima() {
+                if (document.querySelectorAll('.row-check:checked').length === 0) return;
+                _terimaMode = 'bulk';
+                _terimaEntryType = null;
+                var checked = document.querySelectorAll('.row-check:checked').length;
+                document.getElementById('modalTerimaTitle').textContent = 'Terima ' + checked + ' Progress';
+                _resetModalTerima(null);
+                new bootstrap.Modal(document.getElementById('modalTerima')).show();
+            }
 
-    function submitTerima(hashedId, entryType) {
-        _terimaMode = 'single';
-        _terimaProgressId = hashedId;
-        _terimaEntryType = entryType;
-        document.getElementById('modalTerimaTitle').textContent = 'Terima Progress';
-        _resetModalTerima(entryType);
-        new bootstrap.Modal(document.getElementById('modalTerima')).show();
-    }
-
-    function submitBulkTerima() {
-        if (document.querySelectorAll('.row-check:checked').length === 0) return;
-        _terimaMode = 'bulk';
-        _terimaEntryType = null;
-        var checked = document.querySelectorAll('.row-check:checked').length;
-        document.getElementById('modalTerimaTitle').textContent = 'Terima ' + checked + ' Progress';
-        _resetModalTerima(null);
-        new bootstrap.Modal(document.getElementById('modalTerima')).show();
-    }
-
-    function _resetModalTerima(entryType) {
-        document.getElementById('stepPertanyaan').style.display = 'block';
-        document.getElementById('stepVerifikator').style.display = 'none';
-        document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
-        document.getElementById('btnKonfirmasiTerima').style.display = 'none';
-        document.getElementById('selectVerifikator').value = '';
-        document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';
-        document.getElementById('errorVerifikator').style.display = 'none';
-        document.getElementById('errorTanggal').style.display = 'none';
-        document.getElementById('pertanyaanOSS').style.display = 'none';
-        document.getElementById('pertanyaanSIHALAL').style.display = 'none';
-        document.getElementById('alertSiHalalBelum').style.display = 'none';
-        document.getElementById('errorOSS').style.display = 'none';
-        document.getElementById('errorSIHALAL').style.display = 'none';
-        document.querySelectorAll('input[name="ossCheck"]').forEach(function (r) { r.checked = false; });
-        document.querySelectorAll('input[name="siHalalCek"]').forEach(function (r) { r.checked = false; });
-        document.querySelectorAll('input[name="siHalalVerval"]').forEach(function (r) { r.checked = false; });
-        if (entryType === 'OSS') {
-            document.getElementById('pertanyaanOSS').style.display = 'block';
-        } else if (entryType === 'SIHALAL') {
-            document.getElementById('pertanyaanSIHALAL').style.display = 'block';
-        } else {
-            document.getElementById('pertanyaanOSS').style.display = 'block';
-            document.getElementById('pertanyaanSIHALAL').style.display = 'block';
-        }
-    }
-
-    function _validasiPertanyaan() {
-        var valid = true;
-        if (_terimaEntryType === 'OSS' || _terimaEntryType === null) {
-            var ossCheck = document.querySelector('input[name="ossCheck"]:checked');
-            if (!ossCheck) { document.getElementById('errorOSS').style.display = 'block'; valid = false; }
-            else { document.getElementById('errorOSS').style.display = 'none'; }
-        }
-        if (_terimaEntryType === 'SIHALAL' || _terimaEntryType === null) {
-            var cek    = document.querySelector('input[name="siHalalCek"]:checked');
-            var verval = document.querySelector('input[name="siHalalVerval"]:checked');
-            if (!cek || !verval) { document.getElementById('errorSIHALAL').style.display = 'block'; valid = false; }
-            else {
+            function _resetModalTerima(entryType) {
+                document.getElementById('stepPertanyaan').style.display = 'block';
+                document.getElementById('stepVerifikator').style.display = 'none';
+                document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
+                document.getElementById('btnKonfirmasiTerima').style.display = 'none';
+                document.getElementById('selectVerifikator').value = '';
+                document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';
+                document.getElementById('errorVerifikator').style.display = 'none';
+                document.getElementById('errorTanggal').style.display = 'none';
+                document.getElementById('pertanyaanOSS').style.display = 'none';
+                document.getElementById('pertanyaanSIHALAL').style.display = 'none';
+                document.getElementById('alertSiHalalBelum').style.display = 'none';
+                document.getElementById('errorOSS').style.display = 'none';
                 document.getElementById('errorSIHALAL').style.display = 'none';
-                if (cek.value === 'belum' && verval.value === 'belum') {
-                    document.getElementById('alertSiHalalBelum').style.display = 'flex'; valid = false;
-                } else { document.getElementById('alertSiHalalBelum').style.display = 'none'; }
+                document.querySelectorAll('input[name="ossCheck"]').forEach(function(r) {
+                    r.checked = false;
+                });
+                document.querySelectorAll('input[name="siHalalCek"]').forEach(function(r) {
+                    r.checked = false;
+                });
+                document.querySelectorAll('input[name="siHalalVerval"]').forEach(function(r) {
+                    r.checked = false;
+                });
+                if (entryType === 'OSS') {
+                    document.getElementById('pertanyaanOSS').style.display = 'block';
+                } else if (entryType === 'SIHALAL') {
+                    document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+                } else {
+                    document.getElementById('pertanyaanOSS').style.display = 'block';
+                    document.getElementById('pertanyaanSIHALAL').style.display = 'block';
+                }
             }
-        }
-        return valid;
-    }
 
-    function cekSiHalalValid() {
-        var cek    = document.querySelector('input[name="siHalalCek"]:checked');
-        var verval = document.querySelector('input[name="siHalalVerval"]:checked');
-        if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
-            document.getElementById('alertSiHalalBelum').style.display = 'flex';
-        } else { document.getElementById('alertSiHalalBelum').style.display = 'none'; }
-    }
+            function _validasiPertanyaan() {
+                var valid = true;
+                if (_terimaEntryType === 'OSS' || _terimaEntryType === null) {
+                    var ossCheck = document.querySelector('input[name="ossCheck"]:checked');
+                    if (!ossCheck) {
+                        document.getElementById('errorOSS').style.display = 'block';
+                        valid = false;
+                    } else {
+                        document.getElementById('errorOSS').style.display = 'none';
+                    }
+                }
+                if (_terimaEntryType === 'SIHALAL' || _terimaEntryType === null) {
+                    var cek = document.querySelector('input[name="siHalalCek"]:checked');
+                    var verval = document.querySelector('input[name="siHalalVerval"]:checked');
+                    if (!cek || !verval) {
+                        document.getElementById('errorSIHALAL').style.display = 'block';
+                        valid = false;
+                    } else {
+                        document.getElementById('errorSIHALAL').style.display = 'none';
+                        if (cek.value === 'belum' && verval.value === 'belum') {
+                            document.getElementById('alertSiHalalBelum').style.display = 'flex';
+                            valid = false;
+                        } else {
+                            document.getElementById('alertSiHalalBelum').style.display = 'none';
+                        }
+                    }
+                }
+                return valid;
+            }
 
-    function bukaModalRevisi(hashedId) {
-        document.getElementById('formRevisi').action = '/superadmin/data-entry-progress/' + hashedId + '/revisi';
-        document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
-        new bootstrap.Modal(document.getElementById('modalRevisi')).show();
-    }
+            function cekSiHalalValid() {
+                var cek = document.querySelector('input[name="siHalalCek"]:checked');
+                var verval = document.querySelector('input[name="siHalalVerval"]:checked');
+                if (cek && verval && cek.value === 'belum' && verval.value === 'belum') {
+                    document.getElementById('alertSiHalalBelum').style.display = 'flex';
+                } else {
+                    document.getElementById('alertSiHalalBelum').style.display = 'none';
+                }
+            }
 
-    function bukaModalTolak(hashedId) {
-        document.getElementById('formTolak').action = '/superadmin/data-entry-progress/' + hashedId + '/tolak';
-        document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
-        new bootstrap.Modal(document.getElementById('modalTolak')).show();
-    }
+            function bukaModalRevisi(hashedId) {
+                document.getElementById('formRevisi').action = _routeBase + '/' + hashedId + '/revisi';
+                document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
+                new bootstrap.Modal(document.getElementById('modalRevisi')).show();
+            }
 
-    function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
-        var revisiWrapper = document.getElementById('keteranganRevisiWrapper');
-        var updateWrapper = document.getElementById('keteranganUpdateWrapper');
-        if (keteranganRevisi) {
-            document.getElementById('keteranganRevisiText').textContent = keteranganRevisi;
-            revisiWrapper.style.display = 'block';
-        } else { revisiWrapper.style.display = 'none'; }
-        if (keteranganUpdate) {
-            document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
-            updateWrapper.style.display = 'block';
-        } else { updateWrapper.style.display = 'none'; }
-        new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
-    }
-    </script>
+            function bukaModalTolak(hashedId) {
+                document.getElementById('formTolak').action = _routeBase + '/' + hashedId + '/tolak';
+                document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
+                new bootstrap.Modal(document.getElementById('modalTolak')).show();
+            }
+
+            function lihatKeterangan(keteranganRevisi, keteranganUpdate) {
+                var revisiWrapper = document.getElementById('keteranganRevisiWrapper');
+                var updateWrapper = document.getElementById('keteranganUpdateWrapper');
+                if (keteranganRevisi) {
+                    document.getElementById('keteranganRevisiText').textContent = keteranganRevisi;
+                    revisiWrapper.style.display = 'block';
+                } else {
+                    revisiWrapper.style.display = 'none';
+                }
+                if (keteranganUpdate) {
+                    document.getElementById('keteranganUpdateText').textContent = keteranganUpdate;
+                    updateWrapper.style.display = 'block';
+                } else {
+                    updateWrapper.style.display = 'none';
+                }
+                new bootstrap.Modal(document.getElementById('modalKeterangan')).show();
+            }
+        </script>
     @endpush
 @endsection

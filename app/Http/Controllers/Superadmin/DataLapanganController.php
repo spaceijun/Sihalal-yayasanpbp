@@ -82,7 +82,7 @@ class DataLapanganController extends Controller
 
         // LEFT JOIN enumerators so Yajra can search/sort on enumerator name
         $query = DataLapangan::query()
-            ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama')
+            ->select('data_lapangans.*', 'enumerators.nama_lengkap as enumerator_nama', 'enumerators.status as enumerator_status')
             ->leftJoin('enumerators', 'enumerators.id', '=', 'data_lapangans.enumerator_id');
 
         // Custom filters sent as extra AJAX params from the view
@@ -103,6 +103,12 @@ class DataLapanganController extends Controller
             ->addColumn('tanggal', fn ($dl) => $dl->created_at ? $dl->created_at->format('d/m/Y') : '-')
             ->addColumn('pendamping_cell', function ($dl) {
                 $nama = e($dl->enumerator_nama ?? '-');
+                $status = $dl->enumerator_status ?? null;
+
+                if ($status === 'Tidak Aktif') {
+                    return '<span style="font-size:12.5px;">'.$nama.'</span>'
+                        .' <span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>';
+                }
 
                 return '<span style="font-size:12.5px;">'.$nama.'</span>';
             })
@@ -178,7 +184,13 @@ class DataLapanganController extends Controller
             })
             ->addColumn('checkbox', function ($dl) {
                 if ($dl->status_pembayaran === 'PENGAJUAN') {
-                    return '<input type="checkbox" class="row-checkbox adm-checkbox" value="'.e($dl->hashed_id).'">';
+                    $enumeratorAktif = ($dl->enumerator_status ?? 'Aktif') === 'Aktif';
+                    if ($enumeratorAktif) {
+                        return '<input type="checkbox" class="row-checkbox adm-checkbox" value="'.e($dl->hashed_id).'">';
+                    }
+
+                    // Enumerator Tidak Aktif — pembayaran ditahan
+                    return '<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:600;cursor:help;">⏸ Hold</span>';
                 }
 
                 return '';
@@ -544,7 +556,7 @@ class DataLapanganController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data->count() . ' data berhasil diajukan ke Superadmin.',
+            'message' => $data->count().' data berhasil diajukan ke Superadmin.',
             'updated' => $data->count(),
         ]);
     }
@@ -564,27 +576,85 @@ class DataLapanganController extends Controller
             ->get()
             ->map(function ($dl) use ($cutoff) {
                 $nominal = \Carbon\Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
+                $enumeratorStatus = $dl->enumerator->status ?? 'Aktif';
+
                 return [
-                    'hashed_id'      => $dl->hashed_id,
-                    'no_registrasi'  => $dl->no_registrasi,
-                    'nama_pu'        => $dl->nama_pu,
-                    'nik'            => $dl->nik,
-                    'pendamping'     => $dl->enumerator->nama_lengkap ?? '-',
-                    'nominal'        => $nominal,
-                    'nominal_fmt'    => 'Rp ' . number_format($nominal, 0, ',', '.'),
+                    'hashed_id' => $dl->hashed_id,
+                    'no_registrasi' => $dl->no_registrasi,
+                    'nama_pu' => $dl->nama_pu,
+                    'nik' => $dl->nik,
+                    'pendamping' => $dl->enumerator->nama_lengkap ?? '-',
+                    'enumerator_status' => $enumeratorStatus,
+                    'nominal' => $nominal,
+                    'nominal_fmt' => 'Rp '.number_format($nominal, 0, ',', '.'),
                     'status_pembayaran' => $dl->status_pembayaran,
                 ];
-            });
+            })
+            ->sortBy('pendamping')
+            ->values();
 
         $total = $items->sum('nominal');
 
         return response()->json([
             'success' => true,
-            'data'    => $items,
-            'total'   => $total,
-            'total_fmt' => 'Rp ' . number_format($total, 0, ',', '.'),
-            'count'   => $items->count(),
+            'data' => $items,
+            'total' => $total,
+            'total_fmt' => 'Rp '.number_format($total, 0, ',', '.'),
+            'count' => $items->count(),
         ]);
+    }
+
+    /**
+     * Export Approval Pembayaran ke PDF.
+     */
+    public function exportApprovalPdf(): Response
+    {
+        $cutoff = \Carbon\Carbon::create(2026, 5, 1);
+
+        $items = DataLapangan::whereIn('status_pembayaran', ['PENDING', 'PENGAJUAN'])
+            ->whereRaw('UPPER(status) = ?', ['TERBIT SH'])
+            ->with('enumerator')
+            ->orderBy('status_pembayaran', 'asc')
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(function ($dl) use ($cutoff) {
+                $nominal = \Carbon\Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
+                $enumeratorStatus = $dl->enumerator->status ?? 'Aktif';
+
+                return [
+                    'hashed_id' => $dl->hashed_id,
+                    'no_registrasi' => $dl->no_registrasi,
+                    'nama_pu' => $dl->nama_pu,
+                    'nik' => $dl->nik,
+                    'pendamping' => $dl->enumerator->nama_lengkap ?? '-',
+                    'enumerator_status' => $enumeratorStatus,
+                    'nominal' => $nominal,
+                    'nominal_fmt' => 'Rp '.number_format($nominal, 0, ',', '.'),
+                    'status_pembayaran' => $dl->status_pembayaran,
+                ];
+            })
+            ->sortBy('pendamping')
+            ->values();
+
+        $exportedAt = now()->locale('id')->isoFormat('D MMMM YYYY, HH:mm');
+        $tahun = now()->year;
+
+        $pdf = Pdf::loadView('superadmin.data-lapangan.partials.approval-pembayaran-pdf', compact(
+            'items',
+            'exportedAt',
+            'tahun',
+        ))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont' => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'dpi' => 96,
+            ]);
+
+        $filename = 'approval-pembayaran-'.now()->format('Ymd-His').'.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function checkEmail(Request $request): JsonResponse

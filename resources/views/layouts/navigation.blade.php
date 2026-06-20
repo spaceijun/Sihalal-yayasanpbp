@@ -49,6 +49,12 @@
                         <i data-feather="align-justify"></i>Pengumuman Data Entry
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/tickets') }}"
+                        class="nav-link {{ $current_url == 'superadmin/tickets' ? 'active' : '' }}">
+                        <i data-feather="send"></i>Ticket Data Entry
+                    </a>
+                </li>
 
                 {{-- Human Resources --}}
                 <li class="menu-title"><span data-key="t-menu">Human Resources</span></li>
@@ -80,12 +86,6 @@
                     <a href="{{ url('superadmin/laporan-harian') }}"
                         class="nav-link {{ $current_url == 'superadmin/laporan-harian' ? 'active' : '' }}">
                         <i data-feather="calendar"></i>Laporan Harian
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('superadmin/tickets') }}"
-                        class="nav-link {{ $current_url == 'superadmin/tickets' ? 'active' : '' }}">
-                        <i data-feather="send"></i>Tickets
                     </a>
                 </li>
                 <li class="nav-item">
@@ -167,28 +167,14 @@
             @elseif ($role == 'admin_umum')
                 {{-- Dashboard --}}
                 <li class="nav-item">
-                    <a href="{{ url('admin-umum') }}" class="nav-link {{ Request::is('admin-umum') || Request::is('admin-umum/dashboard') ? 'active' : '' }}">
+                    <a href="{{ url('admin-umum') }}"
+                        class="nav-link {{ Request::is('admin-umum') || Request::is('admin-umum/dashboard') ? 'active' : '' }}">
                         <i data-feather="home"></i>Dashboard
-                    </a>
-                </li>
-
-                {{-- Management --}}
-                <li class="menu-title"><span data-key="t-menu">Management</span></li>
-                <li class="nav-item">
-                    <a href="{{ url('admin-umum/koordinators') }}"
-                        class="nav-link {{ Request::is('admin-umum/koordinators*') ? 'active' : '' }}">
-                        <i data-feather="user"></i>Koordinator
                     </a>
                 </li>
 
                 {{-- Data Entry --}}
                 <li class="menu-title"><span data-key="t-menu">Data Entry</span></li>
-                <li class="nav-item">
-                    <a href="{{ url('admin-umum/data-entries') }}"
-                        class="nav-link {{ Request::is('admin-umum/data-entries*') ? 'active' : '' }}">
-                        <i data-feather="file-text"></i>Data Entry
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a href="{{ url('admin-umum/data-entry-progress') }}"
                         class="nav-link {{ Request::is('admin-umum/data-entry-progress*') ? 'active' : '' }}">
@@ -199,6 +185,12 @@
                     <a href="{{ url('admin-umum/pengumumen') }}"
                         class="nav-link {{ Request::is('admin-umum/pengumumen*') ? 'active' : '' }}">
                         <i data-feather="align-justify"></i>Pengumuman Data Entry
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/tickets') }}"
+                        class="nav-link {{ Request::is('admin-umum/tickets') ? 'active' : '' }}">
+                        <i data-feather="send"></i>Ticket Data Entry
                     </a>
                 </li>
 
@@ -229,12 +221,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('admin-umum/tickets') }}"
-                        class="nav-link {{ Request::is('admin-umum/tickets') ? 'active' : '' }}">
-                        <i data-feather="send"></i>Tickets
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ url('admin-umum/ticket-pendampings') }}"
                         class="nav-link {{ Request::is('admin-umum/ticket-pendampings*') ? 'active' : '' }}">
                         <i data-feather="message-square"></i>Ticket Pendamping
@@ -244,19 +230,12 @@
                 {{-- Master Data --}}
                 <li class="menu-title"><span data-key="t-menu">Master Data</span></li>
                 <li class="nav-item">
-                    <a href="{{ url('admin-umum/company-profile') }}"
-                        class="nav-link {{ Request::is('admin-umum/company-profile*') ? 'active' : '' }}">
-                        <i data-feather="globe"></i>Company Profile
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ url('admin-umum/resep-makanans') }}"
                         class="nav-link {{ Request::is('admin-umum/resep-makanans*') ? 'active' : '' }}">
                         <i data-feather="file-text"></i>Resep Makanan
                     </a>
                 </li>
             @elseif ($role == 'koordinator')
-
                 @include('layouts.navigation-koordinator')
             @elseif ($role == 'data_entry')
                 @include('layouts.navigation-data-entry')

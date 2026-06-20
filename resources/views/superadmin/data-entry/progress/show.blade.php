@@ -82,8 +82,11 @@
             </div>
         </div>
 
-        {{-- ===== ACTION BAR (hanya muncul jika PENDING atau VALIDASI_ADMIN) ===== --}}
-        @if (in_array($progress->status, ['PENDING', 'VALIDASI_ADMIN']))
+        {{-- ===== ACTION BAR: admin-umum pakai $canAct, superadmin pakai VALIDASI_ADMIN/REVISI ===== --}}
+        @php
+            $showActionBar = isset($canAct) ? $canAct : in_array($progress->status, ['VALIDASI_ADMIN', 'REVISI']);
+        @endphp
+        @if ($showActionBar)
             <div class="card border-0 shadow-sm mb-4 overflow-hidden">
                 <div class="d-flex align-items-center gap-3 px-4 py-3"
                     style="background:rgba(var(--vz-warning-rgb),.07);border-left:4px solid var(--vz-warning);">
@@ -331,7 +334,7 @@
                                         'label' => 'Foto KTP',
                                         'foto' => $dl->foto_ktp,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-ktp',
+                                            $routePrefix . '.datalapangan.download-foto-ktp',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'KTP',
@@ -340,7 +343,7 @@
                                         'label' => 'Foto Rumah',
                                         'foto' => $dl->foto_rumah,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-rumah-pdf',
+                                            $routePrefix . '.datalapangan.download-foto-rumah-pdf',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'PDF',
@@ -349,7 +352,7 @@
                                         'label' => 'Foto Pendamping',
                                         'foto' => $dl->foto_pendamping,
                                         'dl_route' => route(
-                                            'superadmin.datalapangan.download-foto-pendamping',
+                                            $routePrefix . '.datalapangan.download-foto-pendamping',
                                             $dl->hashed_id,
                                         ),
                                         'dl_label' => 'Download',
@@ -559,35 +562,47 @@
     {{-- ========================================= --}}
     {{-- MODAL TERIMA (dengan step verifikasi)     --}}
     {{-- ========================================= --}}
-    <div class="modal fade" id="modalTerima" tabindex="-1" aria-hidden="true">
+    <div class="modal fade adm-modal" id="modalTerima" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom" style="background:rgba(var(--vz-success-rgb),.08);">
-                    <h5 class="modal-title d-flex align-items-center gap-2">
-                        <span class="rounded d-flex align-items-center justify-content-center"
-                            style="width:28px;height:28px;background:rgba(var(--vz-success-rgb),.2);">
-                            <i class="las la-check" style="font-size:15px;color:var(--vz-success);"></i>
-                        </span>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
                         <span id="modalTerimaTitle">Terima Progress</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body">
+                    @if ($routePrefix === 'admin-umum')
+                        <div class="adm-alert adm-alert-info" style="margin-bottom:15px;">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <div>Dengan menyetujui, Anda menyatakan data ini sudah sesuai dan akan diteruskan ke Pusat untuk
+                                divalidasi akhir.</div>
+                        </div>
+                    @endif
 
                     {{-- STEP 1: Pertanyaan --}}
                     <div id="stepPertanyaan">
-
                         {{-- OSS --}}
                         <div id="pertanyaanOSS" style="display:none;">
-                            <div class="alert alert-warning d-flex gap-2 mb-3 py-2" style="font-size:13px;">
-                                <i class="las la-exclamation-triangle mt-1 flex-shrink-0"></i>
-                                <div><strong>Perhatian!</strong> Pastikan Anda telah memeriksa file sebelum melanjutkan.
-                                </div>
+                            <div class="adm-alert adm-alert-warning">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                <div><strong>Perhatian!</strong> Pastikan Anda telah memeriksa file sebelum melanjutkan.</div>
                             </div>
-                            <div class="mb-2">
-                                <label class="fw-semibold" style="font-size:13px;">Apakah File OSS yang diajukan sudah
-                                    benar?</label>
-                                <div class="mt-2">
+                            <div style="margin-top:12px;">
+                                <label style="font-weight:600;font-size:13px;">Apakah File OSS yang diajukan sudah benar?</label>
+                                <div style="margin-top:8px;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="ossCheck" id="ossYa"
                                             value="ya">
@@ -595,127 +610,127 @@
                                             benar.</label>
                                     </div>
                                 </div>
-                                <div id="errorOSS" class="text-danger mt-1" style="display:none;font-size:12px;">
-                                    Anda harus mengkonfirmasi file OSS sudah benar.
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- SIHALAL --}}
-                        <div id="pertanyaanSIHALAL" style="display:none;">
-                            <div class="alert alert-info d-flex gap-2 mb-3 py-2" style="font-size:13px;">
-                                <i class="las la-info-circle mt-1 flex-shrink-0"></i>
-                                <div><strong>Catatan:</strong> Kedua tahap wajib sudah selesai sebelum melanjutkan
-                                    verifikasi.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="fw-semibold" style="font-size:13px;">1. Apakah data ini sudah dicek pada
-                                    Website Sihalal?</label>
-                                <div class="mt-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="siHalalCek"
-                                            id="siHalalCekYa" value="ya" onchange="cekSiHalalValid()">
-                                        <label class="form-check-label" for="siHalalCekYa">Ya, sudah saya cek.</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="siHalalCek"
-                                            id="siHalalCekBelum" value="belum" onchange="cekSiHalalValid()">
-                                        <label class="form-check-label text-danger" for="siHalalCekBelum">Belum
-                                            dicek.</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <label class="fw-semibold" style="font-size:13px;">2. Apakah data ini sudah diverifikasi
-                                    dan di-Verval pada Website Sihalal?</label>
-                                <div class="mt-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="siHalalVerval"
-                                            id="siHalalVervalYa" value="ya" onchange="cekSiHalalValid()">
-                                        <label class="form-check-label" for="siHalalVervalYa">Ya, sudah saya verif dan
-                                            Verval.</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="siHalalVerval"
-                                            id="siHalalVervalBelum" value="belum" onchange="cekSiHalalValid()">
-                                        <label class="form-check-label text-danger" for="siHalalVervalBelum">Belum diverif
-                                            dan Verval.</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="alertSiHalalBelum" class="alert alert-danger d-flex gap-2 py-2 mt-2"
-                                style="display:none!important;font-size:13px;">
-                                <i class="las la-times-circle mt-1 flex-shrink-0"></i>
-                                <div><strong>Tidak dapat melanjutkan!</strong> Data harus sudah dicek dan di-Verval pada
-                                    Website Sihalal.</div>
-                            </div>
-                            <div id="errorSIHALAL" class="text-danger mt-1" style="display:none;font-size:12px;">
-                                Harap jawab kedua pertanyaan di atas.
+                                <div id="errorOSS" class="adm-error-msg" style="display:none;margin-top:6px;">Anda harus
+                                    mengkonfirmasi file OSS sudah benar.</div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- STEP 2: Verifikator --}}
-                    <div id="stepVerifikator" style="display:none;">
-                        <div class="alert alert-success d-flex gap-2 mb-3 py-2" style="font-size:13px;">
-                            <i class="las la-check-circle mt-1 flex-shrink-0"></i>
-                            <div>Pemeriksaan selesai. Silahkan pilih verifikator dan tanggal verifikasi.</div>
+                    {{-- SIHALAL --}}
+                    <div id="pertanyaanSIHALAL" style="display:none;">
+                        <div class="adm-alert adm-alert-info">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <div><strong>Catatan:</strong> Kedua tahap wajib sudah selesai sebelum melanjutkan
+                                verifikasi.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold" style="font-size:13px;">
-                                Verifikator <span class="text-danger">*</span>
-                            </label>
-                            <select id="selectVerifikator" class="form-select" required>
-                                <option value="">-- Pilih Verifikator --</option>
-                                @foreach ($verifikators as $v)
-                                    <option value="{{ $v->id }}">
-                                        {{ $v->nama_lengkap }} (Rp
-                                        {{ number_format($v->rate_per_data, 0, ',', '.') }}/data)
-                                    </option>
-                                @endforeach
-                            </select>
-                            <div id="errorVerifikator" class="text-danger mt-1" style="display:none;font-size:12px;">
-                                Verifikator wajib dipilih.
+                        <div style="margin-top:12px;">
+                            <label style="font-weight:600;font-size:13px;">1. Apakah data ini sudah dicek pada Website
+                                Sihalal?</label>
+                            <div style="margin-top:8px;">
+                                <div class="form-check"><input class="form-check-input" type="radio" name="siHalalCek"
+                                        id="siHalalCekYa" value="ya" onchange="cekSiHalalValid()"><label
+                                        class="form-check-label" for="siHalalCekYa">Ya, sudah saya cek.</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" name="siHalalCek"
+                                        id="siHalalCekBelum" value="belum" onchange="cekSiHalalValid()"><label
+                                        class="form-check-label text-danger" for="siHalalCekBelum">Belum dicek.</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-1">
-                            <label class="form-label fw-semibold" style="font-size:13px;">
-                                Tanggal Verifikasi <span class="text-danger">*</span>
-                            </label>
-                            <input type="date" id="inputTanggalVerifikasi" class="form-control"
-                                value="{{ now()->toDateString() }}" required>
-                            <div id="errorTanggal" class="text-danger mt-1" style="display:none;font-size:12px;">
-                                Tanggal verifikasi wajib diisi.
+                        <div style="margin-top:12px;">
+                            <label style="font-weight:600;font-size:13px;">2. Apakah data ini sudah diverifikasi dan
+                                di-Verval pada Website Sihalal?</label>
+                            <div style="margin-top:8px;">
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="siHalalVerval" id="siHalalVervalYa" value="ya"
+                                        onchange="cekSiHalalValid()"><label class="form-check-label"
+                                        for="siHalalVervalYa">Ya, sudah saya verif dan Verval.</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="siHalalVerval" id="siHalalVervalBelum" value="belum"
+                                        onchange="cekSiHalalValid()"><label class="form-check-label text-danger"
+                                        for="siHalalVervalBelum">Belum diverif dan Verval.</label></div>
                             </div>
                         </div>
+                        <div id="alertSiHalalBelum" class="adm-alert adm-alert-danger"
+                            style="display:none;margin-top:10px;">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="15" y1="9" x2="9" y2="15" />
+                                <line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
+                            <div><strong>Tidak dapat melanjutkan!</strong> Data harus sudah dicek dan di-Verval pada
+                                Website Sihalal.</div>
+                        </div>
+                        <div id="errorSIHALAL" class="adm-error-msg" style="display:none;margin-top:6px;">Harap jawab
+                            kedua pertanyaan di atas.</div>
                     </div>
                 </div>
-                <div class="modal-footer border-top">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary fw-semibold" id="btnLanjutVerifikasi">
-                        <i class="las la-arrow-right me-1"></i>Lanjut ke Verifikasi
-                    </button>
-                    <button type="button" class="btn btn-success fw-semibold" id="btnKonfirmasiTerima"
-                        style="display:none;">
-                        <i class="las la-check me-1"></i>Ya, Terima
-                    </button>
+
+                {{-- STEP 2: Verifikator --}}
+                <div id="stepVerifikator" style="display:none;">
+                    <div class="adm-alert adm-alert-success">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <div>Pemeriksaan selesai. Silahkan pilih verifikator dan tanggal verifikasi.</div>
+                    </div>
+                    <div class="adm-field" style="margin-top:12px;">
+                        <label class="adm-label">Verifikator <span class="req">*</span></label>
+                        <select id="selectVerifikator" class="adm-field-select" required>
+                            <option value="">-- Pilih Verifikator --</option>
+                            @foreach ($verifikators as $v)
+                                <option value="{{ $v->id }}">{{ $v->nama_lengkap }} (Rp
+                                    {{ number_format($v->rate_per_data, 0, ',', '.') }}/data)</option>
+                            @endforeach
+                        </select>
+                        <div id="errorVerifikator" class="adm-error-msg" style="display:none;">Verifikator wajib
+                            dipilih.</div>
+                    </div>
+                    <div class="adm-field" style="margin-top:12px;">
+                        <label class="adm-label">Tanggal Verifikasi <span class="req">*</span></label>
+                        <input type="date" id="inputTanggalVerifikasi" class="adm-input"
+                            value="{{ now()->toDateString() }}" required>
+                        <div id="errorTanggal" class="adm-error-msg" style="display:none;">Tanggal verifikasi wajib
+                            diisi.</div>
+                    </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="adm-btn-primary" id="btnLanjutVerifikasi">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                    Lanjut ke Verifikasi
+                </button>
+                <button type="button" class="adm-btn-primary adm-btn-success" id="btnKonfirmasiTerima"
+                    style="display:none;">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Ya, Terima
+                </button>
+            </div>
         </div>
+    </div>
     </div>
 
     {{-- ========================================= --}}
     {{-- MODAL MINTA REVISI                        --}}
     {{-- ========================================= --}}
-    <div class="modal fade" id="modalRevisi" tabindex="-1" aria-hidden="true">
+    <div class="modal fade adm-modal" id="modalRevisi" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom" style="background:rgba(var(--vz-warning-rgb),.1);">
-                    <h5 class="modal-title d-flex align-items-center gap-2">
-                        <span class="rounded d-flex align-items-center justify-content-center"
-                            style="width:28px;height:28px;background:rgba(var(--vz-warning-rgb),.2);">
-                            <i class="las la-edit" style="font-size:15px;color:var(--vz-warning);"></i>
-                        </span>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
                         Minta Revisi
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -723,23 +738,30 @@
                 <form id="formRevisi" method="POST" action="">
                     @csrf
                     @method('PATCH')
-                    <div class="modal-body p-4">
-                        <div class="alert alert-warning d-flex gap-2 mb-4 py-2" style="font-size:13px;">
-                            <i class="las la-info-circle mt-1 flex-shrink-0"></i>
+                    <div class="modal-body">
+                        <div class="adm-alert adm-alert-warning">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
                             <div>Catatan ini akan ditampilkan ke data entry sebagai panduan perbaikan.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Catatan Revisi <span class="text-danger">*</span>
-                            </label>
-                            <textarea name="keterangan_revisi" class="form-control" rows="4"
-                                placeholder="Jelaskan apa yang perlu diperbaiki..." required></textarea>
+                        <div class="adm-field" style="margin-top:14px;">
+                            <label class="adm-label">Catatan Revisi <span class="req">*</span></label>
+                            <textarea name="keterangan_revisi" class="adm-textarea" rows="4"
+                                placeholder="Jelaskan apa yang perlu diperbaiki oleh data entry..." required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-warning fw-semibold">
-                            <i class="las la-paper-plane me-1"></i>Kirim Revisi
+                    <div class="modal-footer">
+                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="adm-btn-primary"
+                            style="background:linear-gradient(135deg,#B86800,#a05800);">
+                            <svg viewBox="0 0 24 24">
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                            Kirim Revisi
                         </button>
                     </div>
                 </form>
@@ -747,18 +769,16 @@
         </div>
     </div>
 
-    {{-- ========================================= --}}
-    {{-- MODAL TOLAK                               --}}
-    {{-- ========================================= --}}
-    <div class="modal fade" id="modalTolak" tabindex="-1" aria-hidden="true">
+    <div class="modal fade adm-modal" id="modalTolak" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom" style="background:rgba(var(--vz-danger-rgb),.08);">
-                    <h5 class="modal-title d-flex align-items-center gap-2">
-                        <span class="rounded d-flex align-items-center justify-content-center"
-                            style="width:28px;height:28px;background:rgba(var(--vz-danger-rgb),.15);">
-                            <i class="las la-times-circle" style="font-size:15px;color:var(--vz-danger);"></i>
-                        </span>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
                         Tolak Progress
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -766,25 +786,32 @@
                 <form id="formTolak" method="POST" action="">
                     @csrf
                     @method('PATCH')
-                    <div class="modal-body p-4">
-                        <div class="d-flex gap-2 p-3 rounded-3 mb-4"
-                            style="background:rgba(var(--vz-danger-rgb),.07);border-left:3px solid var(--vz-danger);font-size:13px;">
-                            <i class="las la-exclamation-triangle mt-1 flex-shrink-0" style="color:var(--vz-danger);"></i>
-                            <div>Tindakan ini bersifat <strong>permanen</strong>. Data akan ditolak dan tidak dapat
-                                dikembalikan ke status PENDING.</div>
+                    <div class="modal-body">
+                        <div class="adm-alert adm-alert-danger">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                            <div>Tindakan ini bersifat <strong>permanen</strong>. Data tidak dapat dikembalikan ke status
+                                PENDING.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Alasan Penolakan <span class="text-danger">*</span>
-                            </label>
-                            <textarea name="keterangan_revisi" class="form-control" rows="4" placeholder="Jelaskan alasan penolakan..."
+                        <div class="adm-field" style="margin-top:14px;">
+                            <label class="adm-label">Alasan Penolakan <span class="req">*</span></label>
+                            <textarea name="keterangan_revisi" class="adm-textarea" rows="4" placeholder="Jelaskan alasan penolakan..."
                                 required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger fw-semibold">
-                            <i class="las la-times me-1"></i>Tolak Progress
+                    <div class="modal-footer">
+                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="adm-btn-primary"
+                            style="background:linear-gradient(135deg,var(--adm-red),#b91c1c);">
+                            <svg viewBox="0 0 24 24">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Tolak
                         </button>
                     </div>
                 </form>
@@ -795,21 +822,26 @@
     {{-- ========================================= --}}
     {{-- MODAL FULL IMAGE (untuk foto)             --}}
     {{-- ========================================= --}}
-    <div class="modal fade" id="modalProgressFullImage" tabindex="-1" aria-hidden="true">
+    <div class="modal fade adm-modal-plain" id="modalProgressFullImage" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom">
+            <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title" id="progressFullImageTitle">Foto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body text-center p-3">
+                <div class="modal-body text-center" style="padding:20px;">
                     <img id="progressFullImageSrc" src="" alt="" class="img-fluid rounded"
                         style="max-height:580px;">
                 </div>
-                <div class="modal-footer border-top">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success fw-semibold" onclick="downloadProgressImage()">
-                        <i class="las la-download me-1"></i>Download
+                <div class="modal-footer">
+                    <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="adm-btn-primary adm-btn-success" onclick="downloadProgressImage()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Download
                     </button>
                 </div>
             </div>
@@ -834,6 +866,16 @@
             // Lanjut ke step verifikator
             document.getElementById('btnLanjutVerifikasi').addEventListener('click', function() {
                 if (!_validasiPertanyaan()) return;
+
+                // Admin Umum + SIHALAL: langsung submit tanpa step verifikator
+                if (_isAdminUmum && _terimaEntryType === 'SIHALAL') {
+                    document.getElementById('formTerima').action =
+                        `/${_routePrefix}/data-entry-progress/${_terimaProgressId}/${_terimaAction}`;
+                    bootstrap.Modal.getInstance(document.getElementById('modalTerima'))?.hide();
+                    document.getElementById('formTerima').submit();
+                    return;
+                }
+
                 document.getElementById('stepPertanyaan').style.display = 'none';
                 document.getElementById('stepVerifikator').style.display = 'block';
                 document.getElementById('btnLanjutVerifikasi').style.display = 'none';
@@ -863,12 +905,16 @@
                 document.getElementById('terimaVerifikatorId').value = verifikatorId;
                 document.getElementById('terimaTanggalVerifikasi').value = tanggalVerifikasi;
                 document.getElementById('formTerima').action =
-                    `/superadmin/data-entry-progress/${_terimaProgressId}/terima`;
+                    `/${_routePrefix}/data-entry-progress/${_terimaProgressId}/${_terimaAction}`;
                 document.getElementById('formTerima').submit();
             });
         });
 
-        // ── submitTerima ───────────────────────────────────────
+        // ── State & route config ────────────────────────────────
+        const _routePrefix = '{{ $routePrefix }}';
+        const _isAdminUmum = {{ $routePrefix === 'admin-umum' ? 'true' : 'false' }};
+        const _terimaAction = _isAdminUmum ? 'validasi' : 'terima';
+
         function submitTerima(hashedId, entryType) {
             _terimaProgressId = hashedId;
             _terimaEntryType = entryType;
@@ -950,14 +996,14 @@
 
         // ── bukaModalRevisi ────────────────────────────────────
         function bukaModalRevisi(hashedId) {
-            document.getElementById('formRevisi').action = `/superadmin/data-entry-progress/${hashedId}/revisi`;
+            document.getElementById('formRevisi').action = `/${_routePrefix}/data-entry-progress/${hashedId}/revisi`;
             document.querySelector('#formRevisi textarea[name="keterangan_revisi"]').value = '';
             new bootstrap.Modal(document.getElementById('modalRevisi')).show();
         }
 
         // ── bukaModalTolak ─────────────────────────────────────
         function bukaModalTolak(hashedId) {
-            document.getElementById('formTolak').action = `/superadmin/data-entry-progress/${hashedId}/tolak`;
+            document.getElementById('formTolak').action = `/${_routePrefix}/data-entry-progress/${hashedId}/tolak`;
             document.querySelector('#formTolak textarea[name="keterangan_revisi"]').value = '';
             new bootstrap.Modal(document.getElementById('modalTolak')).show();
         }

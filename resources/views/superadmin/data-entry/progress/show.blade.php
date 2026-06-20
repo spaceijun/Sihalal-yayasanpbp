@@ -598,10 +598,12 @@
                                     <line x1="12" y1="9" x2="12" y2="13" />
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
                                 </svg>
-                                <div><strong>Perhatian!</strong> Pastikan Anda telah memeriksa file sebelum melanjutkan.</div>
+                                <div><strong>Perhatian!</strong> Pastikan Anda telah memeriksa file sebelum melanjutkan.
+                                </div>
                             </div>
                             <div style="margin-top:12px;">
-                                <label style="font-weight:600;font-size:13px;">Apakah File OSS yang diajukan sudah benar?</label>
+                                <label style="font-weight:600;font-size:13px;">Apakah File OSS yang diajukan sudah
+                                    benar?</label>
                                 <div style="margin-top:8px;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="ossCheck" id="ossYa"
@@ -667,56 +669,66 @@
                         <div id="errorSIHALAL" class="adm-error-msg" style="display:none;margin-top:6px;">Harap jawab
                             kedua pertanyaan di atas.</div>
                     </div>
-                </div>
 
-                {{-- STEP 2: Verifikator --}}
-                <div id="stepVerifikator" style="display:none;">
-                    <div class="adm-alert adm-alert-success">
+                    {{-- STEP 2: Verifikator --}}
+                    <div id="stepVerifikator" style="display:none;">
+                        <div class="adm-alert adm-alert-success">
+                            <svg viewBox="0 0 24 24">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <div>Pemeriksaan selesai. Silahkan pilih verifikator dan tanggal verifikasi.</div>
+                        </div>
+                        <div class="adm-field" style="margin-top:12px;">
+                            <label class="adm-label">Verifikator <span class="req">*</span></label>
+                            <select id="selectVerifikator" class="adm-field-select" required>
+                                <option value="">-- Pilih Verifikator --</option>
+                                @foreach ($verifikators as $v)
+                                    <option value="{{ $v->id }}">{{ $v->nama_lengkap }} (Rp
+                                        {{ number_format($v->rate_per_data, 0, ',', '.') }}/data)</option>
+                                @endforeach
+                            </select>
+                            <div id="errorVerifikator" class="adm-error-msg" style="display:none;">Verifikator wajib
+                                dipilih.</div>
+                        </div>
+                        <div class="adm-field" style="margin-top:12px;">
+                            <label class="adm-label">Tanggal Verifikasi <span class="req">*</span></label>
+                            <input type="date" id="inputTanggalVerifikasi" class="adm-input"
+                                value="{{ now()->toDateString() }}" required>
+                            <div id="errorTanggal" class="adm-error-msg" style="display:none;">Tanggal verifikasi wajib
+                                diisi.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <a href="https://ptsp.halal.go.id" target="_blank" rel="noopener noreferrer"
+                        class="adm-btn-primary adm-btn-success" id="btnWebSihalal">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                        Web Sihalal
+                    </a>
+                    <button type="button" class="adm-btn-primary" id="btnLanjutVerifikasi">
+                        <svg viewBox="0 0 24 24">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                        Lanjut ke Verifikasi
+                    </button>
+                    <button type="button" class="adm-btn-primary adm-btn-success" id="btnKonfirmasiTerima"
+                        style="display:none;">
                         <svg viewBox="0 0 24 24">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
-                        <div>Pemeriksaan selesai. Silahkan pilih verifikator dan tanggal verifikasi.</div>
-                    </div>
-                    <div class="adm-field" style="margin-top:12px;">
-                        <label class="adm-label">Verifikator <span class="req">*</span></label>
-                        <select id="selectVerifikator" class="adm-field-select" required>
-                            <option value="">-- Pilih Verifikator --</option>
-                            @foreach ($verifikators as $v)
-                                <option value="{{ $v->id }}">{{ $v->nama_lengkap }} (Rp
-                                    {{ number_format($v->rate_per_data, 0, ',', '.') }}/data)</option>
-                            @endforeach
-                        </select>
-                        <div id="errorVerifikator" class="adm-error-msg" style="display:none;">Verifikator wajib
-                            dipilih.</div>
-                    </div>
-                    <div class="adm-field" style="margin-top:12px;">
-                        <label class="adm-label">Tanggal Verifikasi <span class="req">*</span></label>
-                        <input type="date" id="inputTanggalVerifikasi" class="adm-input"
-                            value="{{ now()->toDateString() }}" required>
-                        <div id="errorTanggal" class="adm-error-msg" style="display:none;">Tanggal verifikasi wajib
-                            diisi.</div>
-                    </div>
+                        Ya, Terima
+                    </button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="adm-btn-primary" id="btnLanjutVerifikasi">
-                    <svg viewBox="0 0 24 24">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                    Lanjut ke Verifikasi
-                </button>
-                <button type="button" class="adm-btn-primary adm-btn-success" id="btnKonfirmasiTerima"
-                    style="display:none;">
-                    <svg viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Ya, Terima
-                </button>
-            </div>
         </div>
-    </div>
     </div>
 
     {{-- ========================================= --}}
@@ -879,6 +891,7 @@
                 document.getElementById('stepPertanyaan').style.display = 'none';
                 document.getElementById('stepVerifikator').style.display = 'block';
                 document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+                document.getElementById('btnWebSihalal').style.display = 'none';
                 document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
             });
 
@@ -927,6 +940,7 @@
             document.getElementById('stepPertanyaan').style.display = 'block';
             document.getElementById('stepVerifikator').style.display = 'none';
             document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
+            document.getElementById('btnWebSihalal').style.display = 'inline-flex';
             document.getElementById('btnKonfirmasiTerima').style.display = 'none';
             document.getElementById('selectVerifikator').value = '';
             document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';

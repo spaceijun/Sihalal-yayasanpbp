@@ -176,7 +176,8 @@
                                 <line x1="12" y1="16" x2="12" y2="12" />
                                 <line x1="12" y1="8" x2="12.01" y2="8" />
                             </svg>
-                            <div>Dengan menyetujui, Anda menyatakan data ini sudah sesuai dan akan diteruskan ke Pusat untuk divalidasi akhir.</div>
+                            <div>Dengan menyetujui, Anda menyatakan data ini sudah sesuai dan akan diteruskan ke Pusat untuk
+                                divalidasi akhir.</div>
                         </div>
                     @endif
                     <div id="stepPertanyaan">
@@ -288,6 +289,17 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <a href="https://ptsp.halal.go.id" target="_blank" rel="noopener noreferrer"
+                        class="adm-btn-primary adm-btn-success" id="btnWebSihalal">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                        Web Sihalal
+                    </a>
                     <button type="button" class="adm-btn-primary" id="btnLanjutVerifikasi">
                         <svg viewBox="0 0 24 24">
                             <line x1="5" y1="12" x2="19" y2="12" />
@@ -582,6 +594,7 @@
                     document.getElementById('stepPertanyaan').style.display = 'none';
                     document.getElementById('stepVerifikator').style.display = 'block';
                     document.getElementById('btnLanjutVerifikasi').style.display = 'none';
+                    document.getElementById('btnWebSihalal').style.display = 'none';
                     document.getElementById('btnKonfirmasiTerima').style.display = 'inline-flex';
                 });
 
@@ -672,6 +685,7 @@
                 document.getElementById('stepPertanyaan').style.display = 'block';
                 document.getElementById('stepVerifikator').style.display = 'none';
                 document.getElementById('btnLanjutVerifikasi').style.display = 'inline-flex';
+                document.getElementById('btnWebSihalal').style.display = 'inline-flex';
                 document.getElementById('btnKonfirmasiTerima').style.display = 'none';
                 document.getElementById('selectVerifikator').value = '';
                 document.getElementById('inputTanggalVerifikasi').value = '{{ now()->toDateString() }}';

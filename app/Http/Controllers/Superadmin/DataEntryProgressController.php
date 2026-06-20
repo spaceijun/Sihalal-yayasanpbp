@@ -217,11 +217,6 @@ class DataEntryProgressController extends Controller
 
     public function show(DataEntryProgress $progress): View
     {
-        // Superadmin hanya bisa melihat VALIDASI_ADMIN
-        if ($progress->status !== 'VALIDASI_ADMIN') {
-            abort(403, 'Anda tidak memiliki akses untuk melihat data ini.');
-        }
-
         $progress->load(['dataLapangan.enumerator', 'dataEntry.user', 'verifikator']);
 
         $progresses = DataEntryProgress::with(['dataLapangan', 'dataEntry.user', 'verifikator'])

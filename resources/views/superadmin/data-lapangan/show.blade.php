@@ -145,10 +145,14 @@
                         @endif
 
                         {{-- Tombol Ajukan Pembayaran (Admin Umum, TERBIT SH + PENDING) --}}
-                        @if ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'PENDING' && Auth::user()->role === 'admin_umum')
+                        @if (
+                            $dataLapangan->status === 'TERBIT SH' &&
+                                $dataLapangan->status_pembayaran === 'PENDING' &&
+                                Auth::user()->role === 'admin_umum')
                             <div class="dl-actions-group" style="margin-bottom:1rem;">
-                                <form action="{{ route('admin-umum.data-lapangans.ajukan-pembayaran', $dataLapangan->hashed_id) }}" method="POST"
-                                    onsubmit="return confirm('Ajukan data pembayaran ini ke Superadmin?')">
+                                <form
+                                    action="{{ route('admin-umum.data-lapangans.ajukan-pembayaran', $dataLapangan->hashed_id) }}"
+                                    method="POST" onsubmit="return confirm('Ajukan data pembayaran ini ke Superadmin?')">
                                     @csrf
                                     <button type="submit" class="dl-btn dl-btn-primary">
                                         <i class="las la-paper-plane"></i> Ajukan Pembayaran ke Superadmin
@@ -156,14 +160,20 @@
                                 </form>
                             </div>
                         @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'PENGAJUAN')
-                            <div style="display:flex;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:1rem;">
-                                <i class="las la-clock" style="color:#2563EB;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
-                                <div style="font-size:13px;color:#1E40AF;"><strong>Menunggu Persetujuan</strong> — Pengajuan pembayaran sudah dikirim ke Superadmin.</div>
+                            <div
+                                style="display:flex;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-clock"
+                                    style="color:#2563EB;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#1E40AF;"><strong>Menunggu Persetujuan</strong> — Pengajuan
+                                    pembayaran sudah dikirim ke Superadmin.</div>
                             </div>
                         @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'DIBAYAR')
-                            <div style="display:flex;gap:10px;padding:12px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1rem;">
-                                <i class="las la-check-circle" style="color:#059669;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
-                                <div style="font-size:13px;color:#065F46;"><strong>Pembayaran Lunas</strong> — Superadmin telah menyetujui pembayaran.</div>
+                            <div
+                                style="display:flex;gap:10px;padding:12px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-check-circle"
+                                    style="color:#059669;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#065F46;"><strong>Pembayaran Lunas</strong> — Superadmin
+                                    telah menyetujui pembayaran.</div>
                             </div>
                         @endif
 
@@ -250,7 +260,8 @@
                         </p>
 
                         @if ($dataLapangan->old_email_sihalal)
-                            <div style="margin-top:6px;padding:6px 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;display:flex;align-items:center;gap:6px;">
+                            <div
+                                style="margin-top:6px;padding:6px 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;display:flex;align-items:center;gap:6px;">
                                 <i class="las la-history" style="color:#DC2626;font-size:14px;"></i>
                                 <span style="font-size:12px;color:#B91C1C;">
                                     Email lama: <strong>{{ $dataLapangan->old_email_sihalal }}</strong>
@@ -577,25 +588,30 @@
                                     class="dl-btn dl-btn-success dl-btn-sm">
                                     <i class="las la-download"></i> Unduh
                                 </a>
-                                {{-- KOREKSI: deleteFile pakai hashed_id --}}
-                                <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
-                                    onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'oss')">
-                                    <i class="las la-trash"></i>
-                                </button>
+                                @if (Auth::user()->role !== 'admin_umum')
+                                    {{-- KOREKSI: deleteFile pakai hashed_id --}}
+                                    <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
+                                        onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'oss')">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                @endif
                             @endif
                         </div>
-                        <form action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
-                            method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="file_type" value="oss">
-                            <div class="dl-upload-group">
-                                <input type="file" name="file" id="file_oss" accept=".pdf" required>
-                                <button type="submit" class="dl-btn dl-btn-primary dl-btn-sm">
-                                    <i class="las la-upload"></i> Upload
-                                </button>
-                            </div>
-                            <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">Format PDF · Maks 5MB</p>
-                        </form>
+                        @if (Auth::user()->role !== 'admin_umum')
+                            <form
+                                action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                                method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="file_type" value="oss">
+                                <div class="dl-upload-group">
+                                    <input type="file" name="file" id="file_oss" accept=".pdf" required>
+                                    <button type="submit" class="dl-btn dl-btn-primary dl-btn-sm">
+                                        <i class="las la-upload"></i> Upload
+                                    </button>
+                                </div>
+                                <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">Format PDF · Maks 5MB</p>
+                            </form>
+                        @endif
 
                         <div style="height:1px;background:var(--dl-border);margin:1.25rem 0;"></div>
 
@@ -614,25 +630,30 @@
                                     class="dl-btn dl-btn-success dl-btn-sm">
                                     <i class="las la-download"></i> Unduh
                                 </a>
-                                {{-- KOREKSI: deleteFile pakai hashed_id --}}
-                                <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
-                                    onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'sihalal')">
-                                    <i class="las la-trash"></i>
-                                </button>
+                                @if (Auth::user()->role !== 'admin_umum')
+                                    {{-- KOREKSI: deleteFile pakai hashed_id --}}
+                                    <button type="button" class="dl-btn dl-btn-danger dl-btn-sm dl-btn-icon-only"
+                                        onclick="deleteFile('{{ $dataLapangan->hashed_id }}', 'sihalal')">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                @endif
                             @endif
                         </div>
-                        <form action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
-                            method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="file_type" value="sihalal">
-                            <div class="dl-upload-group">
-                                <input type="file" name="file" id="file_sihalal" accept=".pdf" required>
-                                <button type="submit" class="dl-btn dl-btn-primary dl-btn-sm">
-                                    <i class="las la-upload"></i> Upload
-                                </button>
-                            </div>
-                            <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">Format PDF · Maks 5MB</p>
-                        </form>
+                        @if (Auth::user()->role !== 'admin_umum')
+                            <form
+                                action="{{ route($routePrefix . '.data-lapangans.upload-file', $dataLapangan->hashed_id) }}"
+                                method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="file_type" value="sihalal">
+                                <div class="dl-upload-group">
+                                    <input type="file" name="file" id="file_sihalal" accept=".pdf" required>
+                                    <button type="submit" class="dl-btn dl-btn-primary dl-btn-sm">
+                                        <i class="las la-upload"></i> Upload
+                                    </button>
+                                </div>
+                                <p style="font-size:11.5px;color:var(--dl-muted);margin:4px 0 0;">Format PDF · Maks 5MB</p>
+                            </form>
+                        @endif
 
                     </div>
                 </div>
@@ -684,21 +705,29 @@
                                         alt="Foto KTP">
                                 </div>
                             @else
-                                <div style="padding:10px;background:#F1F5F9;border-radius:8px;font-size:12px;color:var(--dl-muted);margin-bottom:10px;"><i class="las la-image me-1"></i>Foto KTP belum tersedia</div>
+                                <div
+                                    style="padding:10px;background:#F1F5F9;border-radius:8px;font-size:12px;color:var(--dl-muted);margin-bottom:10px;">
+                                    <i class="las la-image me-1"></i>Foto KTP belum tersedia</div>
                             @endif
                             <div style="display:flex;flex-direction:column;gap:8px;">
-                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
-                                    <input type="checkbox" id="chk_foto_valid" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_foto_valid" class="ktp-check"
+                                        style="width:16px;height:16px;accent-color:var(--dl-green);">
                                     <i class="las la-image" style="color:var(--dl-blue);"></i>
                                     Foto KTP sudah divalidasi (jelas &amp; terbaca)
                                 </label>
-                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
-                                    <input type="checkbox" id="chk_nama_sesuai" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_nama_sesuai" class="ktp-check"
+                                        style="width:16px;height:16px;accent-color:var(--dl-green);">
                                     <i class="las la-user" style="color:var(--dl-blue);"></i>
                                     Nama di data (<strong>{{ $dataLapangan->nama_pu }}</strong>) sesuai nama di KTP
                                 </label>
-                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
-                                    <input type="checkbox" id="chk_nik_sesuai" class="ktp-check" style="width:16px;height:16px;accent-color:var(--dl-green);">
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+                                    <input type="checkbox" id="chk_nik_sesuai" class="ktp-check"
+                                        style="width:16px;height:16px;accent-color:var(--dl-green);">
                                     <i class="las la-id-card" style="color:var(--dl-blue);"></i>
                                     NIK di data (<strong>{{ $dataLapangan->nik }}</strong>) sesuai NIK di KTP
                                 </label>
@@ -715,7 +744,8 @@
                                 <span class="dl-check-num">2</span>
                                 Apakah <strong>NIK</strong> sudah dicek melalui oss.go.id?
                                 <a href="https://ui-login.oss.go.id/register" target="_blank"
-                                    class="dl-btn dl-btn-sm dl-btn-primary" style="margin-left:10px;padding:3px 10px;font-size:11px;">
+                                    class="dl-btn dl-btn-sm dl-btn-primary"
+                                    style="margin-left:10px;padding:3px 10px;font-size:11px;">
                                     <i class="las la-external-link-alt"></i> Buka oss.go.id
                                 </a>
                             </div>
@@ -743,7 +773,8 @@
                             </div>
                             <div class="dl-radio-group">
                                 <label class="dl-radio-label">
-                                    <input type="radio" name="q_keterangan" value="ya" class="check-answer" onclick="clearKeterangan()">
+                                    <input type="radio" name="q_keterangan" value="ya" class="check-answer"
+                                        onclick="clearKeterangan()">
                                     <i class="las la-check" style="color:var(--dl-amber);font-size:13px;"></i> Ya, hapus
                                 </label>
                                 <label class="dl-radio-label">
@@ -771,7 +802,8 @@
                                 data verifikasi di bawah ini.</div>
                         </div>
 
-                        <form action="{{ route($routePrefix . '.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
+                        <form
+                            action="{{ route($routePrefix . '.data-lapangans.update-email', $dataLapangan->hashed_id) }}"
                             method="POST" id="formVerifikasi">
                             @csrf
 
@@ -896,7 +928,8 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route($routePrefix . '.data-lapangans.update-email-sihalal', $dataLapangan->hashed_id) }}"
+                <form
+                    action="{{ route($routePrefix . '.data-lapangans.update-email-sihalal', $dataLapangan->hashed_id) }}"
                     method="POST">
                     @csrf @method('PATCH')
                     <div class="modal-body">
@@ -2090,25 +2123,25 @@
             // Submit form hapus keterangan via AJAX atau redirect
             const hashedId = '{{ $dataLapangan->hashed_id }}';
             fetch(`{{ url('/') }}/superadmin/data-lapangans/${hashedId}/clear-keterangan`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI keterangan di halaman utama
-                    const revisiAlert = document.querySelector('.dl-card-body .dl-revisi-alert');
-                    if (revisiAlert) revisiAlert.remove();
-                    // Clear textarea di form keterangan
-                    const textarea = document.querySelector('textarea[name="keterangan"]');
-                    if (textarea) textarea.value = '';
-                }
-            })
-            .catch(err => console.error('Gagal menghapus keterangan:', err));
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI keterangan di halaman utama
+                        const revisiAlert = document.querySelector('.dl-card-body .dl-revisi-alert');
+                        if (revisiAlert) revisiAlert.remove();
+                        // Clear textarea di form keterangan
+                        const textarea = document.querySelector('textarea[name="keterangan"]');
+                        if (textarea) textarea.value = '';
+                    }
+                })
+                .catch(err => console.error('Gagal menghapus keterangan:', err));
         }
 
         function backToChecklist() {

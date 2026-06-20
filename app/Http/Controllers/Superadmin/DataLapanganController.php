@@ -341,6 +341,10 @@ class DataLapanganController extends Controller
      */
     public function uploadFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
+        if (auth()->user()->role === 'admin_umum') {
+            return redirect()->back()->with('error', 'Role Admin Umum tidak diperbolehkan mengupload file.');
+        }
+
         $request->validate([
             'file' => 'required|mimes:pdf|max:5120',
             'file_type' => 'required|in:oss,sihalal',
@@ -434,6 +438,10 @@ class DataLapanganController extends Controller
      */
     public function deleteFile(Request $request, DataLapangan $dataLapangan): RedirectResponse
     {
+        if (auth()->user()->role === 'admin_umum') {
+            return redirect()->back()->with('error', 'Role Admin Umum tidak diperbolehkan menghapus file.');
+        }
+
         $fileType = $request->file_type;
         $deleted = $this->fileService->deleteFile($dataLapangan, $fileType);
 

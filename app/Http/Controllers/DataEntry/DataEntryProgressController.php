@@ -34,8 +34,14 @@ class DataEntryProgressController extends Controller
         }
 
         $query = DataEntryProgress::query()
-            ->select('data_entry_progress.*', 'data_lapangans.nama_pu', 'data_lapangans.nik')
+            ->select(
+                'data_entry_progress.*',
+                'data_lapangans.nama_pu',
+                'data_lapangans.nik',
+                'verifikators.nama_lengkap as nama_verifikator'
+            )
             ->join('data_lapangans', 'data_lapangans.id', '=', 'data_entry_progress.data_lapangan_id')
+            ->leftJoin('verifikators', 'verifikators.id', '=', 'data_entry_progress.verifikator_id')
             ->where('data_entry_progress.data_entry_id', $dataEntry->id)
             ->where('data_entry_progress.action', 'created');
 
@@ -75,13 +81,14 @@ class DataEntryProgressController extends Controller
                 $cls = $statusColors[$p->status] ?? 'bg-secondary text-white';
                 return '<span class="badge ' . $cls . '">' . e($p->status) . '</span>';
             })
+            ->addColumn('nama_verifikator', fn($p) => $p->nama_verifikator ?? '<span class="text-muted fst-italic">Belum diverifikasi</span>')
             ->addColumn('aksi', function ($p) {
                 $showUrl = route('data-entry.progress.show', $p->dataLapangan->hashed_id);
                 return '<a href="' . $showUrl . '" class="btn btn-sm btn-primary">
                     <i class="las la-eye"></i> Detail
                 </a>';
             })
-            ->rawColumns(['action_badge', 'status_badge', 'aksi'])
+            ->rawColumns(['action_badge', 'status_badge', 'nama_verifikator', 'aksi'])
             ->make(true);
     }
 

@@ -20,8 +20,12 @@
                     Semua Waktu
                 </a>
                 <a href="{{ route($routePrefix . '.ranking-pendamping.index', ['periode' => 'bulan_ini']) }}"
-                    class="period-pill {{ $periode === 'bulan_ini' ? 'active' : '' }}">
-                    Bulan Ini
+                    class="period-pill {{ $periode === 'bulan_ini' ? 'active' : '' }}"
+                    title="Periode: {{ $periodRange['start'] }} – {{ $periodRange['end'] }}">
+                    Periode Ini
+                    @if ($periode === 'bulan_ini')
+                        <span class="pill-range-tag">{{ $periodRange['start'] }} – {{ $periodRange['end'] }}</span>
+                    @endif
                 </a>
             </div>
         </div>
@@ -71,7 +75,13 @@
                         </svg>
                         Hall of Fame – Top 3
                     </div>
-                    <span class="adm-count-badge">{{ now()->isoFormat('MMMM Y') }}</span>
+                    <span class="adm-count-badge">
+                        @if ($periode === 'bulan_ini')
+                            {{ $periodRange['start'] }} – {{ $periodRange['end'] }}
+                        @else
+                            Semua Waktu
+                        @endif
+                    </span>
                 </div>
 
                 @php
@@ -480,6 +490,19 @@
 
         .period-pill.active:hover {
             color: #fff;
+        }
+
+        .pill-range-tag {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 10.5px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, .22);
+            color: #fff;
+            vertical-align: middle;
+            white-space: nowrap;
         }
     </style>
 @endsection

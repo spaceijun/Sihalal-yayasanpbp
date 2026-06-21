@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Models\Enumerator;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 
 class RankingPendampingController extends Controller
@@ -17,29 +17,46 @@ class RankingPendampingController extends Controller
             ? $request->get('periode')
             : 'all';
 
+        // ── Hitung rentang periode bergilir tanggal-25 ──────────────────────
+        // Periode berjalan: tgl 25 bulan lalu 00:00 s.d. tgl 24 bulan ini 23:59
+        // Reset terjadi setiap kali tanggal menyentuh angka 25.
+        $today = now();
+        if ($today->day >= 25) {
+            // Sudah melewati tanggal 25 bulan ini → periode mulai tgl 25 bulan ini
+            $periodeStart = $today->copy()->startOfMonth()->addDays(24); // tgl 25
+            $periodeEnd = $periodeStart->copy()->addMonth()->subDay()->endOfDay(); // tgl 24 bulan depan 23:59
+        } else {
+            // Belum sampai tgl 25 → periode mulai tgl 25 bulan lalu
+            $periodeStart = $today->copy()->subMonth()->startOfMonth()->addDays(24); // tgl 25 bulan lalu
+            $periodeEnd = $today->copy()->startOfMonth()->addDays(23)->endOfDay(); // tgl 24 bulan ini 23:59
+        }
+
+        $periodRange = [
+            'start' => $periodeStart->isoFormat('D MMM YYYY'),
+            'end' => $periodeEnd->isoFormat('D MMM YYYY'),
+        ];
+        // ────────────────────────────────────────────────────────────────────
+
         $limit = 10;
 
         $query = Enumerator::query()
             ->with('koordinator:id,nama_lengkap')
             ->withCount([
-                'dataLapangans as total_pengajuan' => function ($q) use ($periode) {
+                'dataLapangans as total_pengajuan' => function ($q) use ($periode, $periodeStart, $periodeEnd) {
                     if ($periode === 'bulan_ini') {
-                        $q->whereMonth('created_at', now()->month)
-                            ->whereYear('created_at', now()->year);
+                        $q->whereBetween('created_at', [$periodeStart, $periodeEnd]);
                     }
                 },
-                'dataLapangans as terbit_sh' => function ($q) use ($periode) {
+                'dataLapangans as terbit_sh' => function ($q) use ($periode, $periodeStart, $periodeEnd) {
                     $q->where('status', 'TERBIT SH');
                     if ($periode === 'bulan_ini') {
-                        $q->whereMonth('created_at', now()->month)
-                            ->whereYear('created_at', now()->year);
+                        $q->whereBetween('created_at', [$periodeStart, $periodeEnd]);
                     }
                 },
-                'dataLapangans as progress' => function ($q) use ($periode) {
+                'dataLapangans as progress' => function ($q) use ($periode, $periodeStart, $periodeEnd) {
                     $q->whereNotIn('status', ['TERBIT SH', 'DITOLAK']);
                     if ($periode === 'bulan_ini') {
-                        $q->whereMonth('created_at', now()->month)
-                            ->whereYear('created_at', now()->year);
+                        $q->whereBetween('created_at', [$periodeStart, $periodeEnd]);
                     }
                 },
             ]);
@@ -52,12 +69,12 @@ class RankingPendampingController extends Controller
         $maxPengajuan = $enumerators->max('total_pengajuan') ?: 1;
 
         $enumerators = $enumerators->map(function (Enumerator $e, int $i) use ($maxPengajuan) {
-            $e->rank           = $i + 1;
+            $e->rank = $i + 1;
             $e->progress_ratio = round($e->total_pengajuan / $maxPengajuan * 100);
 
-            $words      = explode(' ', trim($e->nama_lengkap));
+            $words = explode(' ', trim($e->nama_lengkap));
             $e->inisial = strtoupper(
-                substr($words[0], 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : '')
+                substr($words[0], 0, 1).(isset($words[1]) ? substr($words[1], 0, 1) : '')
             );
 
             return $e;
@@ -65,9 +82,9 @@ class RankingPendampingController extends Controller
 
         $stats = [
             'total_enumerator' => Enumerator::count(),
-            'total_pengajuan'  => $enumerators->sum('total_pengajuan'),
-            'total_terbit_sh'  => $enumerators->sum('terbit_sh'),
-            'total_progress'   => $enumerators->sum('progress'),
+            'total_pengajuan' => $enumerators->sum('total_pengajuan'),
+            'total_terbit_sh' => $enumerators->sum('terbit_sh'),
+            'total_progress' => $enumerators->sum('progress'),
         ];
 
         $routePrefix = $this->routePrefix();
@@ -77,6 +94,7 @@ class RankingPendampingController extends Controller
             'maxPengajuan',
             'stats',
             'periode',
+            'periodRange',
             'routePrefix'));
     }
 }

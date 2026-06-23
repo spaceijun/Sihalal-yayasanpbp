@@ -1,507 +1,232 @@
 @extends('layouts.app')
+@section('template_title') Ubah Profil @endsection
+
+@push('styles')
+<style>
+    /* ── Password Strength & Toggle styling (not present in admin-ui.css) ── */
+    .pw-strength-bar {
+        height: 4px;
+        border-radius: 4px;
+        background: var(--adm-border, #edf0f7);
+        margin-top: 6px;
+        overflow: hidden;
+    }
+    .pw-strength-fill {
+        height: 100%;
+        border-radius: 4px;
+        width: 0%;
+        transition: width .3s, background .3s;
+    }
+    .pw-strength-label {
+        font-size: 11px;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+    .adm-input-wrap {
+        position: relative;
+    }
+    .adm-input-wrap .adm-input {
+        padding-right: 40px;
+    }
+    .adm-toggle-pw {
+        position: absolute;
+        right: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: var(--adm-text-muted, #8a99b3);
+        display: flex;
+        align-items: center;
+    }
+    .adm-toggle-pw svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="page-content">
-        <div class="container-fluid">
-            @include('layouts.messages')
-            <div class="position-relative mx-n4 mt-n4">
-                <div class="profile-wid-bg profile-setting-img">
-                    <img src="{{ asset('assets/images/profile-bg.jpg') }}" class="profile-wid-img" alt="">
-                    <div class="overlay-content">
-                        <div class="text-end p-3">
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="adm-page">
+    @include('layouts.messages')
 
-            <div class="row">
-                <div class="col-xxl-3">
-                    <div class="card mt-n5">
-                        <div class="card-body p-4">
-                            <div class="text-center">
-                                <div class="profile-user position-relative d-inline-block mx-auto  mb-4">
-                                    <img src="{{ asset('assets/images/users/avatar-1.jpg') }}"
-                                        class="rounded-circle avatar-xl img-thumbnail user-profile-image material-shadow"
-                                        alt="user-profile-image">
-                                    <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
-                                        <input id="profile-img-file-input" type="file" class="profile-img-file-input">
-                                        <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
-                                            <span class="avatar-title rounded-circle bg-light text-body material-shadow">
-                                                <i class="ri-camera-fill"></i>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <h5 class="fs-16 mb-1">{{ Auth::user()->name }}</h5>
-                                <p class="text-muted mb-0">{{ Auth::user()->email }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end card-->
-                </div>
-                <!--end col-->
-                <div class="col-xxl-9">
-                    <div class="card mt-xxl-n5">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#personalDetails" role="tab">
-                                        <i class="las la-home"></i> Personal Details
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#changePassword" role="tab">
-                                        <i class="las la-key"></i> Change Password
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#experience" role="tab">
-                                        <i class="las la-briefcase"></i> Experience
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#privacy" role="tab">
-                                        <i class="las la-lock"></i> Privacy Policy
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="personalDetails" role="tabpanel">
-                                    <form action="{{ route($routePrefix . '.profile.update') }}" method="post">
-                                        @csrf
-                                        @method('patch')
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="name" class="form-label">Name</label>
-                                                    <input type="text" class="form-control" name="name" id="name"
-                                                        placeholder="Enter your firstname"
-                                                        value="{{ old('name', $user->name) }}">
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="role" class="form-label">Role</label>
-                                                    <input type="text" class="form-control" name="role" id="role"
-                                                        placeholder="Enter your firstname"
-                                                        value="{{ old('role', $user->role) }}" readonly>
-                                                </div>
-                                            </div>
-                                            {{-- end col --}}
-                                            <div class="col-lg-12">
-                                                <div class="mb-3">
-                                                    <label for="email" class="form-label">Email Address</label>
-                                                    <input type="email" class="form-control" id="email" name="email"
-                                                        placeholder="Enter your email"
-                                                        value="{{ old('email', $user->email) }}">
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-12">
-                                                <div class="hstack gap-2 justify-content-end">
-                                                    <button type="submit" class="btn btn-primary">Updates</button>
-                                                    <button type="button" class="btn btn-soft-success">Cancel</button>
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                        </div>
-                                        <!--end row-->
-                                    </form>
-                                </div>
-                                <!--end tab-pane-->
-                                <div class="tab-pane" id="changePassword" role="tabpanel">
-                                    <form action="javascript:void(0);">
-                                        <div class="row g-2">
-                                            <div class="col-lg-4">
-                                                <div>
-                                                    <label for="oldpasswordInput" class="form-label">Old Password*</label>
-                                                    <input type="password" class="form-control" id="oldpasswordInput"
-                                                        placeholder="Enter current password">
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-4">
-                                                <div>
-                                                    <label for="newpasswordInput" class="form-label">New Password*</label>
-                                                    <input type="password" class="form-control" id="newpasswordInput"
-                                                        placeholder="Enter new password">
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-4">
-                                                <div>
-                                                    <label for="confirmpasswordInput" class="form-label">Confirm
-                                                        Password*</label>
-                                                    <input type="password" class="form-control" id="confirmpasswordInput"
-                                                        placeholder="Confirm password">
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-12">
-                                                <div class="mb-3">
-                                                    <a href="javascript:void(0);"
-                                                        class="link-primary text-decoration-underline">Forgot Password
-                                                        ?</a>
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                            <div class="col-lg-12">
-                                                <div class="text-end">
-                                                    <button type="submit" class="btn btn-success">Change
-                                                        Password</button>
-                                                </div>
-                                            </div>
-                                            <!--end col-->
-                                        </div>
-                                        <!--end row-->
-                                    </form>
-                                    <div class="mt-4 mb-3 border-bottom pb-2">
-                                        <div class="float-end">
-                                            <a href="javascript:void(0);" class="link-primary">All Logout</a>
-                                        </div>
-                                        <h5 class="card-title">Login History</h5>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="flex-shrink-0 avatar-sm">
-                                            <div
-                                                class="avatar-title bg-light text-primary rounded-3 fs-18 material-shadow">
-                                                <i class="ri-smartphone-line"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6>iPhone 12 Pro</h6>
-                                            <p class="text-muted mb-0">Los Angeles, United States - March 16 at 2:47PM</p>
-                                        </div>
-                                        <div>
-                                            <a href="javascript:void(0);">Logout</a>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="flex-shrink-0 avatar-sm">
-                                            <div
-                                                class="avatar-title bg-light text-primary rounded-3 fs-18 material-shadow">
-                                                <i class="ri-tablet-line"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6>Apple iPad Pro</h6>
-                                            <p class="text-muted mb-0">Washington, United States - November 06 at 10:43AM
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <a href="javascript:void(0);">Logout</a>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="flex-shrink-0 avatar-sm">
-                                            <div
-                                                class="avatar-title bg-light text-primary rounded-3 fs-18 material-shadow">
-                                                <i class="ri-smartphone-line"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6>Galaxy S21 Ultra 5G</h6>
-                                            <p class="text-muted mb-0">Conneticut, United States - June 12 at 3:24PM</p>
-                                        </div>
-                                        <div>
-                                            <a href="javascript:void(0);">Logout</a>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0 avatar-sm">
-                                            <div
-                                                class="avatar-title bg-light text-primary rounded-3 fs-18 material-shadow">
-                                                <i class="ri-macbook-line"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6>Dell Inspiron 14</h6>
-                                            <p class="text-muted mb-0">Phoenix, United States - July 26 at 8:10AM</p>
-                                        </div>
-                                        <div>
-                                            <a href="javascript:void(0);">Logout</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--end tab-pane-->
-                                <div class="tab-pane" id="experience" role="tabpanel">
-                                    <form>
-                                        <div id="newlink">
-                                            <div id="1">
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-3">
-                                                            <label for="jobTitle" class="form-label">Job Title</label>
-                                                            <input type="text" class="form-control" id="jobTitle"
-                                                                placeholder="Job title" value="Lead Designer / Developer">
-                                                        </div>
-                                                    </div>
-                                                    <!--end col-->
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="companyName" class="form-label">Company
-                                                                Name</label>
-                                                            <input type="text" class="form-control" id="companyName"
-                                                                placeholder="Company name" value="Themesbrand">
-                                                        </div>
-                                                    </div>
-                                                    <!--end col-->
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="experienceYear" class="form-label">Experience
-                                                                Years</label>
-                                                            <div class="row">
-                                                                <div class="col-lg-5">
-                                                                    <select class="form-control" data-choices
-                                                                        data-choices-search-false name="experienceYear"
-                                                                        id="experienceYear">
-                                                                        <option value="">Select years</option>
-                                                                        <option value="Choice 1">2001</option>
-                                                                        <option value="Choice 2">2002</option>
-                                                                        <option value="Choice 3">2003</option>
-                                                                        <option value="Choice 4">2004</option>
-                                                                        <option value="Choice 5">2005</option>
-                                                                        <option value="Choice 6">2006</option>
-                                                                        <option value="Choice 7">2007</option>
-                                                                        <option value="Choice 8">2008</option>
-                                                                        <option value="Choice 9">2009</option>
-                                                                        <option value="Choice 10">2010</option>
-                                                                        <option value="Choice 11">2011</option>
-                                                                        <option value="Choice 12">2012</option>
-                                                                        <option value="Choice 13">2013</option>
-                                                                        <option value="Choice 14">2014</option>
-                                                                        <option value="Choice 15">2015</option>
-                                                                        <option value="Choice 16">2016</option>
-                                                                        <option value="Choice 17" selected>2017</option>
-                                                                        <option value="Choice 18">2018</option>
-                                                                        <option value="Choice 19">2019</option>
-                                                                        <option value="Choice 20">2020</option>
-                                                                        <option value="Choice 21">2021</option>
-                                                                        <option value="Choice 22">2022</option>
-                                                                    </select>
-                                                                </div>
-                                                                <!--end col-->
-                                                                <div class="col-auto align-self-center">
-                                                                    to
-                                                                </div>
-                                                                <!--end col-->
-                                                                <div class="col-lg-5">
-                                                                    <select class="form-control" data-choices
-                                                                        data-choices-search-false
-                                                                        name="choices-single-default2">
-                                                                        <option value="">Select years</option>
-                                                                        <option value="Choice 1">2001</option>
-                                                                        <option value="Choice 2">2002</option>
-                                                                        <option value="Choice 3">2003</option>
-                                                                        <option value="Choice 4">2004</option>
-                                                                        <option value="Choice 5">2005</option>
-                                                                        <option value="Choice 6">2006</option>
-                                                                        <option value="Choice 7">2007</option>
-                                                                        <option value="Choice 8">2008</option>
-                                                                        <option value="Choice 9">2009</option>
-                                                                        <option value="Choice 10">2010</option>
-                                                                        <option value="Choice 11">2011</option>
-                                                                        <option value="Choice 12">2012</option>
-                                                                        <option value="Choice 13">2013</option>
-                                                                        <option value="Choice 14">2014</option>
-                                                                        <option value="Choice 15">2015</option>
-                                                                        <option value="Choice 16">2016</option>
-                                                                        <option value="Choice 17">2017</option>
-                                                                        <option value="Choice 18">2018</option>
-                                                                        <option value="Choice 19">2019</option>
-                                                                        <option value="Choice 20" selected>2020</option>
-                                                                        <option value="Choice 21">2021</option>
-                                                                        <option value="Choice 22">2022</option>
-                                                                    </select>
-                                                                </div>
-                                                                <!--end col-->
-                                                            </div>
-                                                            <!--end row-->
-                                                        </div>
-                                                    </div>
-                                                    <!--end col-->
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-3">
-                                                            <label for="jobDescription" class="form-label">Job
-                                                                Description</label>
-                                                            <textarea class="form-control" id="jobDescription" rows="3" placeholder="Enter description">You always want to make sure that your fonts work well together and try to limit the number of fonts you use to three or less. Experiment and play around with the fonts that you already have in the software you're working with reputable font websites. </textarea>
-                                                        </div>
-                                                    </div>
-                                                    <!--end col-->
-                                                    <div class="hstack gap-2 justify-content-end">
-                                                        <a class="btn btn-success"
-                                                            href="javascript:deleteEl(1)">Delete</a>
-                                                    </div>
-                                                </div>
-                                                <!--end row-->
-                                            </div>
-                                        </div>
-                                        <div id="newForm" style="display: none;">
-
-                                        </div>
-                                        <div class="col-lg-12">
-                                            <div class="hstack gap-2">
-                                                <button type="submit" class="btn btn-success">Update</button>
-                                                <a href="javascript:new_link()" class="btn btn-primary">Add New</a>
-                                            </div>
-                                        </div>
-                                        <!--end col-->
-                                    </form>
-                                </div>
-                                <!--end tab-pane-->
-                                <div class="tab-pane" id="privacy" role="tabpanel">
-                                    <div class="mb-4 pb-2">
-                                        <h5 class="card-title text-decoration-underline mb-3">Security:</h5>
-                                        <div class="d-flex flex-column flex-sm-row mb-4 mb-sm-0">
-                                            <div class="flex-grow-1">
-                                                <h6 class="fs-14 mb-1">Two-factor Authentication</h6>
-                                                <p class="text-muted">Two-factor authentication is an enhanced security
-                                                    meansur. Once enabled, you'll be required to give two types of
-                                                    identification when you log into Google Authentication and SMS are
-                                                    Supported.</p>
-                                            </div>
-                                            <div class="flex-shrink-0 ms-sm-3">
-                                                <a href="javascript:void(0);" class="btn btn-sm btn-primary">Enable
-                                                    Two-facor Authentication</a>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column flex-sm-row mb-4 mb-sm-0 mt-2">
-                                            <div class="flex-grow-1">
-                                                <h6 class="fs-14 mb-1">Secondary Verification</h6>
-                                                <p class="text-muted">The first factor is a password and the second
-                                                    commonly includes a text with a code sent to your smartphone, or
-                                                    biometrics using your fingerprint, face, or retina.</p>
-                                            </div>
-                                            <div class="flex-shrink-0 ms-sm-3">
-                                                <a href="javascript:void(0);" class="btn btn-sm btn-primary">Set up
-                                                    secondary method</a>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column flex-sm-row mb-4 mb-sm-0 mt-2">
-                                            <div class="flex-grow-1">
-                                                <h6 class="fs-14 mb-1">Backup Codes</h6>
-                                                <p class="text-muted mb-sm-0">A backup code is automatically generated for
-                                                    you when you turn on two-factor authentication through your iOS or
-                                                    Android Twitter app. You can also generate a backup code on twitter.com.
-                                                </p>
-                                            </div>
-                                            <div class="flex-shrink-0 ms-sm-3">
-                                                <a href="javascript:void(0);" class="btn btn-sm btn-primary">Generate
-                                                    backup codes</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <h5 class="card-title text-decoration-underline mb-3">Application Notifications:
-                                        </h5>
-                                        <ul class="list-unstyled mb-0">
-                                            <li class="d-flex">
-                                                <div class="flex-grow-1">
-                                                    <label for="directMessage" class="form-check-label fs-14">Direct
-                                                        messages</label>
-                                                    <p class="text-muted">Messages from people you follow</p>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            id="directMessage" checked />
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex mt-2">
-                                                <div class="flex-grow-1">
-                                                    <label class="form-check-label fs-14" for="desktopNotification">
-                                                        Show desktop notifications
-                                                    </label>
-                                                    <p class="text-muted">Choose the option you want as your default
-                                                        setting. Block a site: Next to "Not allowed to send notifications,"
-                                                        click Add.</p>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            id="desktopNotification" checked />
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex mt-2">
-                                                <div class="flex-grow-1">
-                                                    <label class="form-check-label fs-14" for="emailNotification">
-                                                        Show email notifications
-                                                    </label>
-                                                    <p class="text-muted"> Under Settings, choose Notifications. Under
-                                                        Select an account, choose the account to enable notifications for.
-                                                    </p>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            id="emailNotification" />
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex mt-2">
-                                                <div class="flex-grow-1">
-                                                    <label class="form-check-label fs-14" for="chatNotification">
-                                                        Show chat notifications
-                                                    </label>
-                                                    <p class="text-muted">To prevent duplicate mobile notifications from
-                                                        the Gmail and Chat apps, in settings, turn off Chat notifications.
-                                                    </p>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            id="chatNotification" />
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex mt-2">
-                                                <div class="flex-grow-1">
-                                                    <label class="form-check-label fs-14" for="purchaesNotification">
-                                                        Show purchase notifications
-                                                    </label>
-                                                    <p class="text-muted">Get real-time purchase alerts to protect yourself
-                                                        from fraudulent charges.</p>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            id="purchaesNotification" />
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h5 class="card-title text-decoration-underline mb-3">Delete This Account:</h5>
-                                        <p class="text-muted">Go to the Data & Privacy section of your profile Account.
-                                            Scroll to "Your data & privacy options." Delete your Profile Account. Follow the
-                                            instructions to delete your account :</p>
-                                        <div>
-                                            <input type="password" class="form-control" id="passwordInput"
-                                                placeholder="Enter your password" value="make@321654987"
-                                                style="max-width: 265px;">
-                                        </div>
-                                        <div class="hstack gap-2 mt-3">
-                                            <a href="javascript:void(0);" class="btn btn-soft-danger">Close & Delete This
-                                                Account</a>
-                                            <a href="javascript:void(0);" class="btn btn-light">Cancel</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--end tab-pane-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-            </div>
-            <!--end row-->
-
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1>Ubah Profil</h1>
+            <p>Kelola informasi profil dan keamanan akun Anda</p>
         </div>
-        <!-- container-fluid -->
     </div>
+
+    <div class="adm-form-grid cols-2" style="align-items: start; gap: 20px;">
+        
+        {{-- ── SEKSI INFORMASI PROFIL ── --}}
+        <div class="adm-form-section">
+            <div class="adm-form-section-header">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Informasi Profil
+            </div>
+            <form action="{{ route('superadmin.profile.update') }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="adm-form-body">
+                    <div class="adm-form-grid cols-1" style="gap: 14px;">
+                        {{-- Nama --}}
+                        <div class="adm-field">
+                            <label class="adm-label" for="name">Nama Lengkap <span class="req">*</span></label>
+                            <input type="text" name="name" id="name"
+                                class="adm-input @error('name') is-invalid @enderror"
+                                value="{{ old('name', $user->name) }}"
+                                placeholder="Nama lengkap Anda" required>
+                            @error('name') <span class="adm-error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{-- Email --}}
+                        <div class="adm-field">
+                            <label class="adm-label" for="email">Alamat Email <span class="req">*</span></label>
+                            <input type="email" name="email" id="email"
+                                class="adm-input @error('email') is-invalid @enderror"
+                                value="{{ old('email', $user->email) }}"
+                                placeholder="email@example.com" required>
+                            @error('email') <span class="adm-error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{-- Role (Readonly) --}}
+                        <div class="adm-field">
+                            <label class="adm-label" for="role_display">Role</label>
+                            <input type="text" id="role_display" class="adm-input"
+                                value="{{ $user->role }}" readonly
+                                style="background:var(--adm-bg-light,#f8f9fc); color:var(--adm-text-muted,#8a99b3); cursor:not-allowed;">
+                            <span class="adm-hint">Role akun Anda bersifat permanen.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adm-form-actions">
+                    <button type="submit" class="adm-btn-primary">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- ── SEKSI UBAH PASSWORD ── --}}
+        <div class="adm-form-section">
+            <div class="adm-form-section-header">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Ubah Password
+            </div>
+            <form action="{{ route('superadmin.profile.password.update') }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="adm-form-body">
+                    <div class="adm-form-grid cols-1" style="gap: 14px;">
+                        {{-- Password Baru --}}
+                        <div class="adm-field">
+                            <label class="adm-label" for="password">Password Baru <span class="req">*</span></label>
+                            <div class="adm-input-wrap">
+                                <input type="password" name="password" id="password"
+                                    class="adm-input @error('password') is-invalid @enderror"
+                                    placeholder="Masukkan password baru" required>
+                                <button type="button" class="adm-toggle-pw" data-target="password" title="Tampilkan/Sembunyikan">
+                                    <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="icon-eye-off" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            <div class="pw-strength-bar" aria-hidden="true">
+                                <div class="pw-strength-fill" id="pw-strength-fill"></div>
+                            </div>
+                            <span class="pw-strength-label" id="pw-strength-label"></span>
+                            @error('password') <span class="adm-error-msg">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{-- Konfirmasi Password --}}
+                        <div class="adm-field">
+                            <label class="adm-label" for="password_confirmation">Konfirmasi Password Baru <span class="req">*</span></label>
+                            <div class="adm-input-wrap">
+                                <input type="password" name="password_confirmation" id="password_confirmation"
+                                    class="adm-input @error('password_confirmation') is-invalid @enderror"
+                                    placeholder="Ulangi password baru" required>
+                                <button type="button" class="adm-toggle-pw" data-target="password_confirmation" title="Tampilkan/Sembunyikan">
+                                    <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="icon-eye-off" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            @error('password_confirmation') <span class="adm-error-msg">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="adm-form-actions">
+                    <button type="submit" class="adm-btn-primary">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Perbarui Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    // ── Password show/hide toggle ──────────────────────────────────────
+    document.querySelectorAll('.adm-toggle-pw').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const input   = document.getElementById(this.dataset.target);
+            const iconEye    = this.querySelector('.icon-eye');
+            const iconEyeOff = this.querySelector('.icon-eye-off');
+            const isHidden = input.type === 'password';
+            input.type        = isHidden ? 'text' : 'password';
+            iconEye.style.display    = isHidden ? 'none'  : '';
+            iconEyeOff.style.display = isHidden ? ''      : 'none';
+        });
+    });
+
+    // ── Password strength indicator ────────────────────────────────────
+    const pwInput  = document.getElementById('password');
+    const fill     = document.getElementById('pw-strength-fill');
+    const label    = document.getElementById('pw-strength-label');
+
+    const levels = [
+        { min: 0,  color: '#ef4444', text: '',                    width: '0%'   },
+        { min: 1,  color: '#ef4444', text: 'Sangat lemah',        width: '20%'  },
+        { min: 4,  color: '#f97316', text: 'Lemah',               width: '40%'  },
+        { min: 6,  color: '#eab308', text: 'Cukup',               width: '60%'  },
+        { min: 8,  color: '#22c55e', text: 'Kuat',                width: '80%'  },
+        { min: 12, color: '#16a34a', text: 'Sangat kuat',         width: '100%' },
+    ];
+
+    function calcStrength(val) {
+        let score = 0;
+        if (val.length >= 8)                         score++;
+        if (val.length >= 12)                        score++;
+        if (/[A-Z]/.test(val))                       score++;
+        if (/[a-z]/.test(val))                       score++;
+        if (/[0-9]/.test(val))                       score++;
+        if (/[^A-Za-z0-9]/.test(val))               score++;
+        return score;
+    }
+
+    if (pwInput) {
+        pwInput.addEventListener('input', function () {
+            const score = calcStrength(this.value);
+            const level = levels.slice().reverse().find(l => score >= l.min / 2) || levels[0];
+            const pct   = Math.min(100, Math.round((score / 6) * 100));
+            fill.style.width      = pct + '%';
+            fill.style.background = pct === 0 ? '#e2e8f0' : level.color;
+            label.textContent     = pct === 0 ? '' : level.text;
+            label.style.color     = level.color;
+        });
+    }
+})();
+</script>
+@endpush

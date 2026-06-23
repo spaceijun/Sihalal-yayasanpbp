@@ -216,6 +216,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [ProfileController::class, 'edit'])->name('edit');
             Route::patch('/', [ProfileController::class, 'update'])->name('update');
+            Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
             Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         });
         // App Version

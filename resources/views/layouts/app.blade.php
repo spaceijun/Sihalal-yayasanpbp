@@ -529,10 +529,14 @@
                             <div class="dropdown-menu dropdown-menu-end">
                                 <!-- item-->
                                 {{-- Untuk Superadmin --}}
-                                @if (auth()->check() && auth()->user()->role === 'superadmin')
-                                    <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
-                                    {{-- Untuk Admin Umum --}}
-                                @elseif (auth()->check() && auth()->user()->role === 'admin_umum')
+                                 @if (auth()->check() && auth()->user()->role === 'superadmin')
+                                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
+                                     <a class="dropdown-item" href="{{ route('superadmin.profile.edit') }}">
+                                         <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+                                         <span class="align-middle">Ubah Profil</span>
+                                     </a>
+                                     {{-- Untuk Admin Umum --}}
+                                 @elseif (auth()->check() && auth()->user()->role === 'admin_umum')
                                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
                                     {{-- Untuk Koordinator --}}
                                 @elseif (auth()->check() && auth()->user()->role === 'koordinator')

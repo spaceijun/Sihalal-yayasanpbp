@@ -164,6 +164,12 @@
                         <i data-feather="smartphone"></i>App Versions
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('superadmin.profile.edit') }}"
+                        class="nav-link {{ Request::is('superadmin/profile*') ? 'active' : '' }}">
+                        <i data-feather="user"></i>Ubah Profil
+                    </a>
+                </li>
             @elseif ($role == 'admin_umum')
                 {{-- Dashboard --}}
                 <li class="nav-item">

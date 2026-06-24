@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminUmum;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
 use App\Models\Verifikator;
 use App\Services\DataEntryPenagihanService;
@@ -41,6 +42,17 @@ class DataEntryProgressController extends Controller
             'countDiterima' => DataEntryProgress::where('action', 'created')->where('status', 'DITERIMA')->count(),
             'countDitolak' => DataEntryProgress::where('action', 'created')->where('status', 'DITOLAK')->count(),
         ];
+    }
+
+    /**
+     * Cek apakah data entry masih punya progress PENDING yang menunggu review.
+     */
+    private function cekAdaPending(int $dataEntryId): bool
+    {
+        return DataEntryProgress::where('data_entry_id', $dataEntryId)
+            ->where('action', 'created')
+            ->where('status', 'PENDING')
+            ->exists();
     }
 
     /**
@@ -268,6 +280,20 @@ class DataEntryProgressController extends Controller
                 'actioned_at' => now(),
             ]);
 
+            // Jika entry type OSS, cek dan buat tagihan otomatis
+            $dataEntry = $progress->dataEntry;
+            if ($dataEntry && $entryType === 'OSS' && ! $this->cekAdaPending($dataEntry->id)) {
+                $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
+                if ($penagihan) {
+                    return redirect()->back()->with(
+                        'success',
+                        'Progress berhasil diterima. '.
+                            'Tagihan baru sebesar Rp '.number_format($penagihan->nominal, 0, ',', '.').
+                            ' ('.$penagihan->jumlah_paket.' paket) otomatis dibuat.'
+                    );
+                }
+            }
+
             return redirect()->back()->with('success', 'Progress berhasil diterima.');
         }
 
@@ -299,6 +325,20 @@ class DataEntryProgressController extends Controller
             $dataLapangan = $progress->dataLapangan;
             if ($dataLapangan) {
                 $dataLapangan->update(['status' => 'PROGRESS OSS']);
+            }
+
+            // Cek dan buat tagihan otomatis jika sudah ≥ 15 data DITERIMA
+            $dataEntry = $progress->dataEntry;
+            if ($dataEntry && ! $this->cekAdaPending($dataEntry->id)) {
+                $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
+                if ($penagihan) {
+                    return redirect()->back()->with(
+                        'success',
+                        'Progress OSS berhasil diterima dan status diubah ke PROGRESS OSS. '.
+                            'Tagihan baru sebesar Rp '.number_format($penagihan->nominal, 0, ',', '.').
+                            ' ('.$penagihan->jumlah_paket.' paket) otomatis dibuat.'
+                    );
+                }
             }
 
             return redirect()->back()->with('success', 'Progress OSS berhasil diterima dan status diubah ke PROGRESS OSS.');
@@ -355,6 +395,7 @@ class DataEntryProgressController extends Controller
         $sihalalCount = 0;
         $ossCount = 0;
         $revisiCount = 0;
+        $ossDataEntryIds = [];
 
         foreach ($progresses as $progress) {
             $dataEntry = $progress->dataEntry;
@@ -369,6 +410,11 @@ class DataEntryProgressController extends Controller
                     'actioned_at' => now(),
                 ]);
                 $revisiCount++;
+
+                // Jika REVISI dengan entry_type OSS, tandai untuk cek tagihan
+                if ($entryType === 'OSS' && $progress->data_entry_id) {
+                    $ossDataEntryIds[] = $progress->data_entry_id;
+                }
 
             } elseif ($entryType === 'SIHALAL') {
                 // SIHALAL: Ubah status progress menjadi VALIDASI_ADMIN
@@ -392,7 +438,30 @@ class DataEntryProgressController extends Controller
                 if ($dataLapangan) {
                     $dataLapangan->update(['status' => 'PROGRESS OSS']);
                 }
+
+                if ($progress->data_entry_id) {
+                    $ossDataEntryIds[] = $progress->data_entry_id;
+                }
                 $ossCount++;
+            }
+        }
+
+        // Cek dan buat tagihan untuk setiap data entry OSS yang punya data DITERIMA ≥ 15
+        $penagihanDibuat = 0;
+        foreach (array_unique($ossDataEntryIds) as $dataEntryId) {
+            $dataEntry = DataEntry::find($dataEntryId);
+            if (! $dataEntry) {
+                continue;
+            }
+
+            // Tahan pembuatan tagihan jika masih ada PENDING lain
+            if ($this->cekAdaPending($dataEntryId)) {
+                continue;
+            }
+
+            $penagihan = $this->penagihanService->cekDanBuatTagihan($dataEntry);
+            if ($penagihan) {
+                $penagihanDibuat++;
             }
         }
 
@@ -405,6 +474,9 @@ class DataEntryProgressController extends Controller
         }
         if ($ossCount > 0) {
             $msg .= " {$ossCount} OSS langsung diterima (PROGRESS OSS).";
+        }
+        if ($penagihanDibuat > 0) {
+            $msg .= " {$penagihanDibuat} tagihan baru otomatis dibuat.";
         }
 
         return redirect()->back()->with('success', $msg);

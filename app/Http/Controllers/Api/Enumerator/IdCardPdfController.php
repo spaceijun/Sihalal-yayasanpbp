@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Enumerator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enumerator;
-use App\Models\Superadmin\SettingWebsite;
+use App\Models\Superadmin\Settingwebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -42,7 +42,7 @@ class IdCardPdfController extends Controller
         }
 
         // Ambil setting website untuk favicon/logo
-        $settingWebsite = SettingWebsite::first() ?? new SettingWebsite();
+        $settingWebsite = Settingwebsite::first() ?? new Settingwebsite();
 
         // ── Generate PDF ──
         $pdf = Pdf::loadView(

@@ -7,7 +7,9 @@ use App\Models\Enumerator;
 use App\Models\SettingWebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller API untuk Download ID Card PDF
@@ -19,7 +21,7 @@ class IdCardPdfController extends Controller
     /**
      * Download ID Card PDF untuk enumerator yang sedang login.
      */
-    public function __invoke(): JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    public function __invoke(): JsonResponse|StreamedResponse|Response
     {
         // Ambil enumerator yang login
         $enumerator = Enumerator::where('user_id', Auth::id())->first();

@@ -8,7 +8,9 @@ use App\Models\Enumerator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller API untuk Export PDF Laporan Enumerator
@@ -21,7 +23,7 @@ class ExportPdfEnumeratorController extends Controller
      * Export PDF laporan enumerator untuk periode tertentu.
      * Hanya mengembalikan data enumerator yang sedang login.
      */
-    public function __invoke(Request $request): JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    public function __invoke(Request $request): JsonResponse|StreamedResponse|Response
     {
         // Ambil enumerator yang login
         $enumerator = Enumerator::with(['koordinator', 'bank'])

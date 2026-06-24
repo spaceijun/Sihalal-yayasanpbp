@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Enumerator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller API untuk Download Surat Tugas PDF
@@ -18,7 +20,7 @@ class SuratTugasPdfController extends Controller
     /**
      * Download Surat Tugas PDF untuk enumerator yang sedang login.
      */
-    public function __invoke(): JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    public function __invoke(): JsonResponse|StreamedResponse|Response
     {
         // Ambil enumerator yang login
         $enumerator = Enumerator::with(['koordinator', 'bank'])

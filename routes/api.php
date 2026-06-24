@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Enumerator\EnumeratorController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
 use App\Http\Controllers\Api\Enumerator\TicketController as EnumeratorTicketController;
+use App\Http\Controllers\Api\Enumerator\DataBankEnumeratorController;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\RankingPendampingApiController;
 use App\Http\Controllers\Api\RingkasanController;
@@ -109,6 +110,12 @@ Route::middleware([
         Route::prefix('cashflow')->name('cashflow.')->group(function () {
             Route::get('/', [CashflowEnumeratorController::class, 'index'])->name('index');
             Route::get('/{id}', [CashflowEnumeratorController::class, 'show'])->name('show');
+        });
+
+        // Data Bank (Master Bank)
+        Route::prefix('data-bank')->name('data-bank.')->group(function () {
+            Route::get('/', [DataBankEnumeratorController::class, 'index'])->name('index');
+            Route::get('/{id}', [DataBankEnumeratorController::class, 'show'])->name('show');
         });
 
         // Pengumuman

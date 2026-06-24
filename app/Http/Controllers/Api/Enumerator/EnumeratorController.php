@@ -159,7 +159,20 @@ class EnumeratorController extends Controller
                 ->store('foto-diri', 'public');
         }
 
+        // Update table enumerators
         $enumerator->update($data);
+
+        // Update table users (hanya name dan telephone)
+        $userData = [];
+        if (isset($data['nama_lengkap'])) {
+            $userData['name'] = $data['nama_lengkap'];
+        }
+        if (isset($data['telephone'])) {
+            $userData['telephone'] = $data['telephone'];
+        }
+        if (!empty($userData)) {
+            $enumerator->user->update($userData);
+        }
 
         return response()->json([
             'success' => true,

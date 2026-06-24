@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Enumerator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enumerator;
-use App\Models\SettingWebsite;
+use App\Models\Superadmin\SettingWebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;

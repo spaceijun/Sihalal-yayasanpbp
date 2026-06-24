@@ -5,6 +5,9 @@ use App\Http\Controllers\Api\AnalisisHalalController;
 use App\Http\Controllers\Api\Enumerator\CashflowEnumeratorController;
 use App\Http\Controllers\Api\Enumerator\DataLapanganEnumController;
 use App\Http\Controllers\Api\Enumerator\EnumeratorController;
+use App\Http\Controllers\Api\Enumerator\ExportPdfEnumeratorController;
+use App\Http\Controllers\Api\Enumerator\IdCardPdfController;
+use App\Http\Controllers\Api\Enumerator\SuratTugasPdfController;
 use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
 use App\Http\Controllers\Api\Enumerator\TicketController as EnumeratorTicketController;
@@ -74,6 +77,15 @@ Route::middleware([
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
 
         Route::get('dashboard', [HomeApiController::class, 'index'])->name('dashboard');
+
+        // Export PDF Laporan
+        Route::get('/export-pdf', ExportPdfEnumeratorController::class)->name('export-pdf');
+
+        // Download Surat Tugas PDF
+        Route::get('/surat-tugas', SuratTugasPdfController::class)->name('surat-tugas');
+
+        // Download ID Card PDF
+        Route::get('/id-card', IdCardPdfController::class)->name('id-card');
 
         // FCM Token
         Route::post('/fcm-token', [FcmController::class, 'store']);

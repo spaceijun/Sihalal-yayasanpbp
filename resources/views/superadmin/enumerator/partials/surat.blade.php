@@ -255,10 +255,8 @@
     <!-- Halaman 1: Surat Pemberitahuan -->
     <div class="page">
         <div class="header">
-            <img src="https://kawulohalal.id/assets/images/logo-pbp.png" alt="Logo Yayasan"
-                class="logo-left" />
-            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal"
-                class="logo-right" />
+            <img src="https://kawulohalal.id/assets/images/logo-pbp.png" alt="Logo Yayasan" class="logo-left" />
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal" class="logo-right" />
             <div class="header-text">
                 <h3>Yayasan Permata Bakti Pertiwi</h3>
                 <h1>"KAWULO HALAL"</h1>
@@ -349,23 +347,19 @@
         <div class="signature-wrapper clearfix">
             <div class="signature-date">Jakarta, {{ now()->locale('id')->translatedFormat('d F Y') }}</div>
             <div class="signature-stack">
-                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp"
-                    alt="Stempel" />
-                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign"
-                    alt="Tanda Tangan" />
+                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp" alt="Stempel" />
+                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign" alt="Tanda Tangan" />
             </div>
             <div class="signature-name">Mohammad Faizun Aziz</div>
-            <div class="signature-role">HR Departmen</div>
+            <div class="signature-role">Human Capital Manager</div>
         </div>
     </div>
 
     <!-- Halaman 2: Surat Tugas -->
     <div class="page">
         <div class="header">
-            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Yayasan"
-                class="logo-left" />
-            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal"
-                class="logo-right" />
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Yayasan" class="logo-left" />
+            <img src="https://kawulohalal.id/assets/images/stample.png" alt="Logo Halal" class="logo-right" />
             <div class="header-text">
                 <h3>Yayasan Permata Bakti Pertiwi</h3>
                 <h1>"KAWULO HALAL"</h1>
@@ -401,7 +395,7 @@
                 <tr>
                     <td>Jabatan</td>
                     <td>:</td>
-                    <td>HR Departmen</td>
+                    <td>Human Capital Manager</td>
                 </tr>
                 <tr>
                     <td>Alamat</td>
@@ -458,13 +452,11 @@
         <div class="signature-wrapper clearfix">
             <div class="signature-date">Jakarta, {{ now()->locale('id')->translatedFormat('d F Y') }}</div>
             <div class="signature-stack">
-                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp"
-                    alt="Stempel" />
-                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign"
-                    alt="Tanda Tangan" />
+                <img src="https://kawulohalal.id/assets/images/stample.png" class="img-stamp" alt="Stempel" />
+                <img src="https://kawulohalal.id/assets/images/signature.png" class="img-sign" alt="Tanda Tangan" />
             </div>
             <div class="signature-name">Mohammad Faizun Aziz</div>
-            <div class="signature-role">HR Departmen</div>
+            <div class="signature-role">Human Capital Manager</div>
         </div>
     </div>
 </body>

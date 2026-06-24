@@ -1,4 +1,4 @@
-﻿@extends('layouts.guest')
+@extends('layouts.guest')
 @section('title', 'Form Data Lapangan')
 @section('content')
 
@@ -1161,6 +1161,20 @@
                                         accept="image/*" required>
                                     <span class="fh-hint">JPG/PNG. Maks 10MB</span>
                                     @error('foto_pendamping')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label" for="foto_proses">
+                                        Foto Proses
+                                        <span
+                                            style="font-size:10px;font-weight:400;color:#B0BCCE;text-transform:none;letter-spacing:0;margin-left:4px;">(opsional)</span>
+                                    </label>
+                                    <input type="file" id="foto_proses" name="foto_proses"
+                                        class="fh-file-input @error('foto_proses') is-invalid @enderror"
+                                        accept="image/*">
+                                    <span class="fh-hint">JPG/PNG. Maks 10MB — boleh dikosongkan</span>
+                                    @error('foto_proses')
                                         <span class="fh-error">{{ $message }}</span>
                                     @enderror
                                 </div>

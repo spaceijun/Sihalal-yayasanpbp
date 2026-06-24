@@ -122,21 +122,17 @@
                                         <span class="pill pill-red">
                                             <i class="las la-times-circle"></i> Tidak Aktif
                                         </span>
-                                        <form action="{{ route($routePrefix . '.enumerators.aktivasi', $enumerator->hashed_id) }}"
-                                            method="POST"
-                                            onsubmit="return confirm('Aktifkan kembali {{ $enumerator->nama_lengkap }}?')">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="btn-aktivasi">
-                                                <i class="las la-user-check"></i> Aktifkan Kembali
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn-aktivasi" data-bs-toggle="modal"
+                                            data-bs-target="#modalAktivasi">
+                                            <i class="las la-user-check"></i> Aktifkan Kembali
+                                        </button>
                                     @endif
                                 </div>
                                 @if ($enumerator->status == 'Tidak Aktif')
                                     <div class="status-warning">
                                         <i class="las la-info-circle"></i>
                                         <span>Pendamping ini dinonaktifkan karena tidak memenuhi target minimal
-                                            20 data lapangan dalam 30 hari terakhir.</span>
+                                            20 data lapangan dalam periode 25 s.d. 25.</span>
                                     </div>
                                 @endif
                             </div>
@@ -191,6 +187,73 @@
 
                     </div>
                 </div>
+
+                {{-- ─── Riwayat Pengaktifan Kembali ─── --}}
+                <div class="info-card">
+                    <div class="ic-header">
+                        <div class="ic-icon" style="background:#f0fdf4;color:#16a34a">
+                            <i class="las la-history"></i>
+                        </div>
+                        <h6>Riwayat Pengaktifan Kembali</h6>
+                        <span class="ms-auto" style="font-size:11px;color:var(--text-muted)">
+                            {{ $enumerator->aktivasiLogs->count() }} catatan
+                        </span>
+                    </div>
+                    <div class="ic-body p-0">
+                        @if ($enumerator->aktivasiLogs->isEmpty())
+                            <div class="empty-log">
+                                <i class="las la-clipboard-list"></i>
+                                <span>Belum ada riwayat pengaktifan kembali</span>
+                            </div>
+                        @else
+                            <div class="log-table-wrap">
+                                <table class="log-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Tanggal Aktivasi</th>
+                                            <th>Diaktifkan Oleh</th>
+                                            <th>Surat Pernyataan</th>
+                                            <th>Catatan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($enumerator->aktivasiLogs as $i => $log)
+                                            <tr>
+                                                <td class="log-no">{{ $i + 1 }}</td>
+                                                <td>
+                                                    <div class="log-date">
+                                                        <i class="las la-calendar-check"></i>
+                                                        {{ $log->tanggal_aktivasi->format('d M Y') }}
+                                                    </div>
+                                                    <div class="log-time">{{ $log->tanggal_aktivasi->format('H:i') }} WIB
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="log-admin">{{ $log->diaktifkan_oleh ?? '-' }}</span>
+                                                </td>
+                                                <td>
+                                                    @if ($log->surat_pernyataan)
+                                                        <a href="{{ asset('storage/' . $log->surat_pernyataan) }}"
+                                                            target="_blank" class="log-file-link">
+                                                            <i class="las la-file-download"></i> Lihat File
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted" style="font-size:12px">—</span>
+                                                    @endif
+                                                </td>
+                                                <td class="log-catatan">
+                                                    {{ $log->catatan ?: '—' }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
 
             {{-- RIGHT: Foto + Dokumen --}}
@@ -246,6 +309,90 @@
         </div>
 
     </section>
+
+    {{-- ─── MODAL: Aktivasi Kembali ─── --}}
+    @if ($enumerator->status == 'Tidak Aktif')
+        <div class="modal fade" id="modalAktivasi" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+                    <div class="modal-header" style="border-bottom:1px solid var(--border);padding:14px 20px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div
+                                style="width:32px;height:32px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#16a34a">
+                                <i class="las la-user-check"></i>
+                            </div>
+                            <h5 class="modal-title mb-0" style="font-size:14px;font-weight:700;color:var(--text-primary)">
+                                Aktifkan Kembali — {{ $enumerator->nama_lengkap }}
+                            </h5>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route($routePrefix . '.enumerators.aktivasi', $enumerator->hashed_id) }}"
+                        method="POST" enctype="multipart/form-data" id="formAktivasi">
+                        @csrf
+                        <div class="modal-body" style="padding:24px">
+
+                            {{-- Info --}}
+                            <div class="modal-info-box">
+                                <i class="las la-info-circle"></i>
+                                <span>Upload Surat Pernyataan Pengaktifan Kembali sebagai bukti persetujuan
+                                    resmi. File akan tersimpan dalam riwayat aktivasi pendamping ini.</span>
+                            </div>
+
+                            {{-- Upload Surat Pernyataan --}}
+                            <div class="mb-3 mt-4">
+                                <label class="form-label-custom" for="surat_pernyataan">
+                                    Surat Pernyataan Pengaktifan <span class="required-dot">*</span>
+                                </label>
+                                <div class="file-drop-zone" id="fileDropZone"
+                                    onclick="document.getElementById('surat_pernyataan').click()">
+                                    <div class="fdz-icon" id="fdzIcon">
+                                        <i class="las la-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="fdz-text" id="fdzText">
+                                        <strong>Klik untuk pilih file</strong> atau drag &amp; drop
+                                    </div>
+                                    <div class="fdz-sub">PDF, JPG, PNG — Maks. 5 MB</div>
+                                    <div class="fdz-preview" id="fdzPreview" style="display:none">
+                                        <i class="las la-file-alt fdz-file-icon"></i>
+                                        <span id="fdzFileName" class="fdz-file-name"></span>
+                                        <span id="fdzFileSize" class="fdz-file-size"></span>
+                                    </div>
+                                </div>
+                                <input type="file" id="surat_pernyataan" name="surat_pernyataan"
+                                    accept=".pdf,.jpg,.jpeg,.png" class="d-none" required>
+                                @error('surat_pernyataan')
+                                    <div class="field-error"><i class="las la-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- Catatan --}}
+                            <div class="mb-1">
+                                <label class="form-label-custom" for="catatan_aktivasi">Catatan <span
+                                        style="color:var(--text-muted);font-weight:400">(opsional)</span></label>
+                                <textarea id="catatan_aktivasi" name="catatan" rows="3" class="form-input-custom"
+                                    placeholder="Misal: Diaktifkan kembali atas persetujuan koordinator..."></textarea>
+                                @error('catatan')
+                                    <div class="field-error"><i class="las la-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                        </div>
+                        <div class="modal-footer" style="border-top:1px solid var(--border);padding:12px 20px;gap:8px">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                                <i class="las la-times me-1"></i>Batal
+                            </button>
+                            <button type="submit" class="btn-submit-aktivasi" id="btnSubmitAktivasi">
+                                <i class="las la-user-check me-1"></i> Aktifkan Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- ─── MODAL: Foto ─── --}}
     <div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
@@ -885,6 +1032,273 @@
             padding-left: 0 !important;
             padding-right: 0 !important;
         }
+
+        /* ─── LOG TABLE ─── */
+        .log-table-wrap {
+            overflow-x: auto;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .log-table thead tr {
+            background: #f7f9fd;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-table th {
+            padding: 10px 16px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .log-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f4fb;
+            vertical-align: middle;
+            color: var(--text-primary);
+        }
+
+        .log-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .log-table tbody tr:hover td {
+            background: #f7f9fd;
+        }
+
+        .log-no {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            width: 32px;
+            text-align: center;
+        }
+
+        .log-date {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .log-date i {
+            color: var(--accent-green);
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .log-admin {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .log-file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            padding: 4px 10px;
+            background: var(--accent-light);
+            border-radius: 6px;
+            border: 1px solid #c7d2fe;
+            transition: opacity .15s;
+        }
+
+        .log-file-link:hover {
+            opacity: .8;
+        }
+
+        .log-catatan {
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-width: 160px;
+        }
+
+        .empty-log {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 32px 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .empty-log i {
+            font-size: 36px;
+            opacity: 0.35;
+        }
+
+        /* ─── MODAL FORM AKTIVASI ─── */
+        .modal-info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 12.5px;
+            color: #1e40af;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .modal-info-box i {
+            flex-shrink: 0;
+            margin-top: 1px;
+            font-size: 16px;
+        }
+
+        .form-label-custom {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .required-dot {
+            color: var(--accent-rose);
+        }
+
+        .file-drop-zone {
+            border: 2px dashed var(--border-bright);
+            border-radius: var(--radius-sm);
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            background: #fafbff;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .file-drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .file-drop-zone.has-file {
+            border-color: var(--accent-green);
+            background: #f0fdf4;
+        }
+
+        .fdz-icon {
+            font-size: 32px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .fdz-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .fdz-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .fdz-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fdz-file-icon {
+            font-size: 28px;
+            color: var(--accent-green);
+        }
+
+        .fdz-file-name {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .fdz-file-size {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .form-input-custom {
+            width: 100%;
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-primary);
+            background: #fafbff;
+            resize: vertical;
+            transition: border-color .2s;
+            outline: none;
+        }
+
+        .form-input-custom:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+        }
+
+        .field-error {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--accent-rose);
+            margin-top: 6px;
+        }
+
+        .btn-submit-aktivasi {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: opacity .15s, transform .15s;
+        }
+
+        .btn-submit-aktivasi:hover {
+            opacity: .88;
+            transform: translateY(-1px);
+        }
+
+        .btn-submit-aktivasi:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -952,6 +1366,74 @@
                     alert('Gagal membuat ID Card');
                     document.body.removeChild(overlay);
                 });
+        }
+
+        // ─── File Drop Zone ───
+        const fileInput = document.getElementById('surat_pernyataan');
+        const dropZone = document.getElementById('fileDropZone');
+        const fdzIcon = document.getElementById('fdzIcon');
+        const fdzText = document.getElementById('fdzText');
+        const fdzSub = dropZone ? dropZone.querySelector('.fdz-sub') : null;
+        const fdzPreview = document.getElementById('fdzPreview');
+        const fdzFileName = document.getElementById('fdzFileName');
+        const fdzFileSize = document.getElementById('fdzFileSize');
+        const btnSubmit = document.getElementById('btnSubmitAktivasi');
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function showFilePreview(file) {
+            fdzIcon.style.display = 'none';
+            fdzText.style.display = 'none';
+            if (fdzSub) fdzSub.style.display = 'none';
+            fdzPreview.style.display = 'flex';
+            fdzFileName.textContent = file.name;
+            fdzFileSize.textContent = formatBytes(file.size);
+            dropZone.classList.add('has-file');
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) showFilePreview(this.files[0]);
+            });
+
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', function() {
+                this.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    showFilePreview(file);
+                }
+            });
+        }
+
+        // Disable submit jika modal aktivasi dibuka ulang
+        const modalAktivasi = document.getElementById('modalAktivasi');
+        if (modalAktivasi) {
+            modalAktivasi.addEventListener('hidden.bs.modal', function() {
+                const form = document.getElementById('formAktivasi');
+                if (form) form.reset();
+                if (fdzPreview) fdzPreview.style.display = 'none';
+                if (fdzIcon) fdzIcon.style.display = '';
+                if (fdzText) fdzText.style.display = '';
+                if (fdzSub) fdzSub.style.display = '';
+                if (dropZone) dropZone.classList.remove('has-file');
+            });
         }
     </script>
 @endsection

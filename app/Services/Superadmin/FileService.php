@@ -84,6 +84,7 @@ class FileService
             'foto_ktp',
             'foto_rumah',
             'foto_pendamping',
+            'foto_proses',
             'foto_produk',
             'foto_produk_2',
             'foto_produk_3',

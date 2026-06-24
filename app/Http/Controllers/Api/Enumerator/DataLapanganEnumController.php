@@ -25,14 +25,15 @@ class DataLapanganEnumController extends Controller
 
     // Mapping input field (dengan dash) → kolom database (dengan underscore)
     const FOTO_FIELDS = [
-        'foto-ktp'        => 'foto_ktp',
-        'foto-rumah'      => 'foto_rumah',
+        'foto-ktp' => 'foto_ktp',
+        'foto-rumah' => 'foto_rumah',
         'foto-pendamping' => 'foto_pendamping',
-        'foto-produk'     => 'foto_produk',
-        'foto-produk-2'   => 'foto_produk_2',
-        'foto-produk-3'   => 'foto_produk_3',
-        'foto-produk-4'   => 'foto_produk_4',
-        'foto-produk-5'   => 'foto_produk_5',
+        'foto-proses' => 'foto_proses',
+        'foto-produk' => 'foto_produk',
+        'foto-produk-2' => 'foto_produk_2',
+        'foto-produk-3' => 'foto_produk_3',
+        'foto-produk-4' => 'foto_produk_4',
+        'foto-produk-5' => 'foto_produk_5',
     ];
 
     /**
@@ -41,16 +42,16 @@ class DataLapanganEnumController extends Controller
     public function index(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'search'   => 'nullable|string|max:255',
-            'status'   => 'nullable|string|in:' . implode(',', self::STATUS_LIST),
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|string|in:'.implode(',', self::STATUS_LIST),
             'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -59,31 +60,31 @@ class DataLapanganEnumController extends Controller
             $query = DataLapangan::where('enumerator_id', $enumeratorId);
 
             if ($request->filled('search')) {
-                $query->where('nama_pu', 'like', '%' . $request->search . '%');
+                $query->where('nama_pu', 'like', '%'.$request->search.'%');
             }
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
 
             $data = $query->latest()->paginate($request->get('per_page', 10));
-            $data->getCollection()->transform(fn($item) => $this->formatData($item));
+            $data->getCollection()->transform(fn ($item) => $this->formatData($item));
 
             return response()->json([
-                'status'         => true,
-                'message'        => 'Data lapangan berhasil diambil',
-                'filters'        => [
-                    'search'   => $request->search,
-                    'status'   => $request->status,
+                'status' => true,
+                'message' => 'Data lapangan berhasil diambil',
+                'filters' => [
+                    'search' => $request->search,
+                    'status' => $request->status,
                     'per_page' => $request->get('per_page', 10),
                 ],
                 'status_options' => self::STATUS_LIST,
-                'data'           => $data,
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan saat mengambil data',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -101,20 +102,20 @@ class DataLapanganEnumController extends Controller
                 ->firstOrFail();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Detail data lapangan berhasil diambil',
-                'data'    => $this->formatData($dataLapangan),
+                'data' => $this->formatData($dataLapangan),
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -131,17 +132,17 @@ class DataLapanganEnumController extends Controller
         if (! $enumerator || $enumerator->status === 'Tidak Aktif') {
             $jumlah30Hari = $enumerator
                 ? $enumerator->dataLapangans()
-                ->where('created_at', '>=', Carbon::now()->subDays(30))
-                ->count()
+                    ->where('created_at', '>=', Carbon::now()->subDays(30))
+                    ->count()
                 : 0;
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Anda tidak dapat mengajukan data lapangan karena akun enumerator Anda tidak aktif. Silakan hubungi koordinator.',
-                'data'    => [
-                    'status_enumerator'   => $enumerator?->status ?? 'Tidak Ditemukan',
+                'data' => [
+                    'status_enumerator' => $enumerator?->status ?? 'Tidak Ditemukan',
                     'jumlah_data_30_hari' => $jumlah30Hari,
-                    'minimal_required'    => 20,
+                    'minimal_required' => 20,
                 ],
             ], 403);
         }
@@ -149,38 +150,39 @@ class DataLapanganEnumController extends Controller
 
         $validator = Validator::make($request->all(), [
             // Data wajib
-            'nama_pu'         => 'required|string|max:255',
-            'nik'             => 'required|string|size:16',
-            'telephone'       => 'required|string|max:15',
-            'nama_produk'     => 'required|string|max:255',
-            'alamat'          => 'required|string',
-            'foto-ktp'        => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'foto-rumah'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'nama_pu' => 'required|string|max:255',
+            'nik' => 'required|string|size:16',
+            'telephone' => 'required|string|max:15',
+            'nama_produk' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'foto-ktp' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'foto-rumah' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'foto-pendamping' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'foto-produk'     => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'foto-proses' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'foto-produk' => 'required|image|mimes:jpg,jpeg,png|max:2048',
 
             // NIB
-            'has_nib'         => 'required|in:true,false,1,0',
-            'file_oss'        => 'nullable|file|mimes:pdf|max:5120|required_if:has_nib,true,has_nib,1',
+            'has_nib' => 'required|in:true,false,1,0',
+            'file_oss' => 'nullable|file|mimes:pdf|max:5120|required_if:has_nib,true,has_nib,1',
 
             // Produk tambahan (opsional)
-            'nama_produk_2'   => 'nullable|string|max:255',
-            'nama_produk_3'   => 'nullable|string|max:255',
-            'nama_produk_4'   => 'nullable|string|max:255',
-            'nama_produk_5'   => 'nullable|string|max:255',
+            'nama_produk_2' => 'nullable|string|max:255',
+            'nama_produk_3' => 'nullable|string|max:255',
+            'nama_produk_4' => 'nullable|string|max:255',
+            'nama_produk_5' => 'nullable|string|max:255',
 
             // Foto produk tambahan — wajib jika nama produk yang bersangkutan diisi
-            'foto-produk-2'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_2',
-            'foto-produk-3'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_3',
-            'foto-produk-4'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_4',
-            'foto-produk-5'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_5',
+            'foto-produk-2' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_2',
+            'foto-produk-3' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_3',
+            'foto-produk-4' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_4',
+            'foto-produk-5' => 'nullable|image|mimes:jpg,jpeg,png|max:2048|required_with:nama_produk_5',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -191,10 +193,11 @@ class DataLapanganEnumController extends Controller
             $hasNib = filter_var($request->has_nib, FILTER_VALIDATE_BOOLEAN);
 
             // Upload foto wajib
-            $uploadedPaths['foto_ktp']       = $request->file('foto-ktp')->store('foto-ktp', 'public');
-            $uploadedPaths['foto_rumah']      = $request->file('foto-rumah')->store('foto-rumah', 'public');
+            $uploadedPaths['foto_ktp'] = $request->file('foto-ktp')->store('foto-ktp', 'public');
+            $uploadedPaths['foto_rumah'] = $request->file('foto-rumah')->store('foto-rumah', 'public');
             $uploadedPaths['foto_pendamping'] = $request->file('foto-pendamping')->store('foto-pendamping', 'public');
-            $uploadedPaths['foto_produk']     = $request->file('foto-produk')->store('foto-produk', 'public');
+            $uploadedPaths['foto_proses'] = $request->file('foto-proses')->store('foto-proses', 'public');
+            $uploadedPaths['foto_produk'] = $request->file('foto-produk')->store('foto-produk', 'public');
 
             // Upload foto produk tambahan jika ada
             foreach (
@@ -217,12 +220,12 @@ class DataLapanganEnumController extends Controller
 
             $dataLapangan = $this->createData(array_merge([
                 'enumerator_id' => $enumerator->id,
-                'nama_pu'       => $request->nama_pu,
-                'nik'           => $request->nik,
-                'telephone'     => $request->telephone,
-                'nama_produk'   => $request->nama_produk,
-                'alamat'        => $request->alamat,
-                'has_nib'       => $hasNib,  // ← simpan nilai asli pilihan user
+                'nama_pu' => $request->nama_pu,
+                'nik' => $request->nik,
+                'telephone' => $request->telephone,
+                'nama_produk' => $request->nama_produk,
+                'alamat' => $request->alamat,
+                'has_nib' => $hasNib,  // ← simpan nilai asli pilihan user
                 'nama_produk_2' => $request->nama_produk_2,
                 'nama_produk_3' => $request->nama_produk_3,
                 'nama_produk_4' => $request->nama_produk_4,
@@ -230,9 +233,9 @@ class DataLapanganEnumController extends Controller
             ], $uploadedPaths));
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data lapangan berhasil disimpan',
-                'data'    => $this->formatData($dataLapangan),
+                'data' => $this->formatData($dataLapangan),
             ], 201);
         } catch (\Exception $e) {
             // Rollback semua file yang sudah terupload
@@ -241,9 +244,9 @@ class DataLapanganEnumController extends Controller
             }
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan data',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -268,12 +271,12 @@ class DataLapanganEnumController extends Controller
         }
 
         $validator = Validator::make($request->all(), array_merge([
-            'nama_pu'       => 'sometimes|required|string|max:255',
-            'nik'           => 'sometimes|required|string|size:16',
-            'telephone'     => 'sometimes|required|string|max:15',
-            'nama_produk'   => 'sometimes|required|string|max:255',
-            'alamat'        => 'sometimes|required|string',
-            'has_nib'       => 'sometimes|in:true,false,1,0',
+            'nama_pu' => 'sometimes|required|string|max:255',
+            'nik' => 'sometimes|required|string|size:16',
+            'telephone' => 'sometimes|required|string|max:15',
+            'nama_produk' => 'sometimes|required|string|max:255',
+            'alamat' => 'sometimes|required|string',
+            'has_nib' => 'sometimes|in:true,false,1,0',
             'nama_produk_2' => 'nullable|string|max:255',
             'nama_produk_3' => 'nullable|string|max:255',
             'nama_produk_4' => 'nullable|string|max:255',
@@ -282,9 +285,9 @@ class DataLapanganEnumController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -301,15 +304,33 @@ class DataLapanganEnumController extends Controller
             $dataToUpdate = ['status' => 'PENDING'];
 
             // Field teks
-            if ($request->has('nama_pu'))      $dataToUpdate['nama_pu']       = strtoupper($request->nama_pu);
-            if ($request->has('nik'))           $dataToUpdate['nik']           = $request->nik;
-            if ($request->has('telephone'))     $dataToUpdate['telephone']     = $request->telephone;
-            if ($request->has('nama_produk'))   $dataToUpdate['nama_produk']   = $request->nama_produk;
-            if ($request->has('alamat'))        $dataToUpdate['alamat']        = $request->alamat;
-            if ($request->has('nama_produk_2')) $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
-            if ($request->has('nama_produk_3')) $dataToUpdate['nama_produk_3'] = $request->nama_produk_3;
-            if ($request->has('nama_produk_4')) $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
-            if ($request->has('nama_produk_5')) $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
+            if ($request->has('nama_pu')) {
+                $dataToUpdate['nama_pu'] = strtoupper($request->nama_pu);
+            }
+            if ($request->has('nik')) {
+                $dataToUpdate['nik'] = $request->nik;
+            }
+            if ($request->has('telephone')) {
+                $dataToUpdate['telephone'] = $request->telephone;
+            }
+            if ($request->has('nama_produk')) {
+                $dataToUpdate['nama_produk'] = $request->nama_produk;
+            }
+            if ($request->has('alamat')) {
+                $dataToUpdate['alamat'] = $request->alamat;
+            }
+            if ($request->has('nama_produk_2')) {
+                $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
+            }
+            if ($request->has('nama_produk_3')) {
+                $dataToUpdate['nama_produk_3'] = $request->nama_produk_3;
+            }
+            if ($request->has('nama_produk_4')) {
+                $dataToUpdate['nama_produk_4'] = $request->nama_produk_4;
+            }
+            if ($request->has('nama_produk_5')) {
+                $dataToUpdate['nama_produk_5'] = $request->nama_produk_5;
+            }
 
             // Update has_nib — simpan nilai asli pilihan user ke DB
             // Jika false, hapus file_oss yang sudah ada
@@ -330,45 +351,53 @@ class DataLapanganEnumController extends Controller
                         ? 'foto-produk'
                         : $inputKey;
 
-                    $newPaths[$dbColumn]     = $request->file($inputKey)->store($folder, 'public');
+                    $newPaths[$dbColumn] = $request->file($inputKey)->store($folder, 'public');
                     $dataToUpdate[$dbColumn] = $newPaths[$dbColumn];
-                    $oldPaths[$dbColumn]     = $dataLapangan->getOriginal($dbColumn);
+                    $oldPaths[$dbColumn] = $dataLapangan->getOriginal($dbColumn);
                 }
             }
 
             // Upload file OSS baru jika ada
             if ($request->hasFile('file_oss')) {
-                $newPaths['file_oss']     = $request->file('file_oss')->store('files/oss', 'public');
+                $newPaths['file_oss'] = $request->file('file_oss')->store('files/oss', 'public');
                 $dataToUpdate['file_oss'] = $newPaths['file_oss'];
-                $oldPaths['file_oss']     = $dataLapangan->getOriginal('file_oss');
+                $oldPaths['file_oss'] = $dataLapangan->getOriginal('file_oss');
             }
 
             $dataLapangan->update($dataToUpdate);
 
             // Hapus file lama setelah update berhasil
             foreach ($oldPaths as $oldPath) {
-                if ($oldPath) Storage::disk('public')->delete($oldPath);
+                if ($oldPath) {
+                    Storage::disk('public')->delete($oldPath);
+                }
             }
 
             $dataLapangan->refresh();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data lapangan berhasil diperbarui',
-                'data'    => $this->formatData($dataLapangan),
+                'data' => $this->formatData($dataLapangan),
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            foreach ($newPaths as $path) Storage::disk('public')->delete($path);
+            foreach ($newPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
-            foreach ($newPaths as $path) Storage::disk('public')->delete($path);
+            foreach ($newPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan saat memperbarui data',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -401,19 +430,19 @@ class DataLapanganEnumController extends Controller
             $dataLapangan->delete();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data lapangan berhasil dihapus',
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan saat menghapus data',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -428,26 +457,27 @@ class DataLapanganEnumController extends Controller
 
         return DB::transaction(function () use ($data) {
             return DataLapangan::create([
-                'enumerator_id'   => $data['enumerator_id'],
-                'nama_pu'         => $data['nama_pu'],
-                'nik'             => $data['nik'],
-                'telephone'       => $data['telephone'],
-                'nama_produk'     => $data['nama_produk'],
-                'nama_produk_2'   => $data['nama_produk_2'] ?? null,
-                'nama_produk_3'   => $data['nama_produk_3'] ?? null,
-                'nama_produk_4'   => $data['nama_produk_4'] ?? null,
-                'nama_produk_5'   => $data['nama_produk_5'] ?? null,
-                'alamat'          => $data['alamat'],
-                'foto_ktp'        => $data['foto_ktp'],
-                'foto_rumah'      => $data['foto_rumah'],
+                'enumerator_id' => $data['enumerator_id'],
+                'nama_pu' => $data['nama_pu'],
+                'nik' => $data['nik'],
+                'telephone' => $data['telephone'],
+                'nama_produk' => $data['nama_produk'],
+                'nama_produk_2' => $data['nama_produk_2'] ?? null,
+                'nama_produk_3' => $data['nama_produk_3'] ?? null,
+                'nama_produk_4' => $data['nama_produk_4'] ?? null,
+                'nama_produk_5' => $data['nama_produk_5'] ?? null,
+                'alamat' => $data['alamat'],
+                'foto_ktp' => $data['foto_ktp'],
+                'foto_rumah' => $data['foto_rumah'],
                 'foto_pendamping' => $data['foto_pendamping'],
-                'foto_produk'     => $data['foto_produk'],
-                'foto_produk_2'   => $data['foto_produk_2'] ?? null,
-                'foto_produk_3'   => $data['foto_produk_3'] ?? null,
-                'foto_produk_4'   => $data['foto_produk_4'] ?? null,
-                'foto_produk_5'   => $data['foto_produk_5'] ?? null,
-                'file_oss'        => $data['file_oss'] ?? null,
-                'has_nib'         => $data['has_nib'] ?? false,
+                'foto_proses' => $data['foto_proses'],
+                'foto_produk' => $data['foto_produk'],
+                'foto_produk_2' => $data['foto_produk_2'] ?? null,
+                'foto_produk_3' => $data['foto_produk_3'] ?? null,
+                'foto_produk_4' => $data['foto_produk_4'] ?? null,
+                'foto_produk_5' => $data['foto_produk_5'] ?? null,
+                'file_oss' => $data['file_oss'] ?? null,
+                'has_nib' => $data['has_nib'] ?? false,
             ]);
         });
     }
@@ -455,39 +485,40 @@ class DataLapanganEnumController extends Controller
     private function formatData(DataLapangan $item): array
     {
         return [
-            'id'                  => $item->id,
-            'no_registrasi'       => $item->no_registrasi,
-            'enumerator_id'       => $item->enumerator_id,
-            'nama_pu'             => $item->nama_pu,
-            'nik'                 => $item->nik,
-            'email'               => $item->email,
-            'telephone'           => $item->telephone,
-            'nama_produk'         => $item->nama_produk,
-            'nama_produk_2'       => $item->nama_produk_2,
-            'nama_produk_3'       => $item->nama_produk_3,
-            'nama_produk_4'       => $item->nama_produk_4,
-            'nama_produk_5'       => $item->nama_produk_5,
-            'alamat'              => $item->alamat,
-            'foto_ktp'            => $item->foto_ktp        ? Storage::url($item->foto_ktp)        : null,
-            'foto_rumah'          => $item->foto_rumah      ? Storage::url($item->foto_rumah)      : null,
-            'foto_pendamping'     => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
-            'foto_produk'         => $item->foto_produk     ? Storage::url($item->foto_produk)     : null,
-            'foto_produk_2'       => $item->foto_produk_2   ? Storage::url($item->foto_produk_2)   : null,
-            'foto_produk_3'       => $item->foto_produk_3   ? Storage::url($item->foto_produk_3)   : null,
-            'foto_produk_4'       => $item->foto_produk_4   ? Storage::url($item->foto_produk_4)   : null,
-            'foto_produk_5'       => $item->foto_produk_5   ? Storage::url($item->foto_produk_5)   : null,
-            'file_oss'            => $item->file_oss        ? Storage::url($item->file_oss)        : null,
+            'id' => $item->id,
+            'no_registrasi' => $item->no_registrasi,
+            'enumerator_id' => $item->enumerator_id,
+            'nama_pu' => $item->nama_pu,
+            'nik' => $item->nik,
+            'email' => $item->email,
+            'telephone' => $item->telephone,
+            'nama_produk' => $item->nama_produk,
+            'nama_produk_2' => $item->nama_produk_2,
+            'nama_produk_3' => $item->nama_produk_3,
+            'nama_produk_4' => $item->nama_produk_4,
+            'nama_produk_5' => $item->nama_produk_5,
+            'alamat' => $item->alamat,
+            'foto_ktp' => $item->foto_ktp ? Storage::url($item->foto_ktp) : null,
+            'foto_rumah' => $item->foto_rumah ? Storage::url($item->foto_rumah) : null,
+            'foto_pendamping' => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,
+            'foto_proses' => $item->foto_proses ? Storage::url($item->foto_proses) : null,
+            'foto_produk' => $item->foto_produk ? Storage::url($item->foto_produk) : null,
+            'foto_produk_2' => $item->foto_produk_2 ? Storage::url($item->foto_produk_2) : null,
+            'foto_produk_3' => $item->foto_produk_3 ? Storage::url($item->foto_produk_3) : null,
+            'foto_produk_4' => $item->foto_produk_4 ? Storage::url($item->foto_produk_4) : null,
+            'foto_produk_5' => $item->foto_produk_5 ? Storage::url($item->foto_produk_5) : null,
+            'file_oss' => $item->file_oss ? Storage::url($item->file_oss) : null,
             'has_nib' => $item->has_nib !== null
                 ? (bool) $item->has_nib
                 : (bool) $item->file_oss,
-            'status'              => $item->status,
-            'status_pembayaran'   => $item->status_pembayaran,
-            'verifikator'         => $item->verifikator,
-            'tanggal_verifikasi'  => $item->tanggal_verifikasi,
-            'keterangan'          => $item->keterangan,
-            'file_sihalal'        => $item->file_sihalal ? Storage::url($item->file_sihalal) : null,
-            'created_at'          => $item->created_at,
-            'updated_at'          => $item->updated_at,
+            'status' => $item->status,
+            'status_pembayaran' => $item->status_pembayaran,
+            'verifikator' => $item->verifikator,
+            'tanggal_verifikasi' => $item->tanggal_verifikasi,
+            'keterangan' => $item->keterangan,
+            'file_sihalal' => $item->file_sihalal ? Storage::url($item->file_sihalal) : null,
+            'created_at' => $item->created_at,
+            'updated_at' => $item->updated_at,
         ];
     }
 }

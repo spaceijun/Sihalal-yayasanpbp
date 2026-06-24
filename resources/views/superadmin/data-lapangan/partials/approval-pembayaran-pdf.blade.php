@@ -147,7 +147,11 @@
             background: #f8fafc;
         }
 
-        .main-table tbody tr.held td {
+        .main-table tbody tr.held-pending td {
+            background: #fffbeb;
+        }
+
+        .main-table tbody tr.held-inaktif td {
             background: #fff5f5;
         }
 
@@ -261,10 +265,19 @@
         $iconTelp = approvalLogoBase64('https://cdn-icons-png.flaticon.com/16/597/597177.png');
         $iconWeb = approvalLogoBase64('https://cdn-icons-png.flaticon.com/16/364/364089.png');
 
-        $totalData = $items->count();
-        $bisa_dibayar = $items->where('enumerator_status', 'Aktif')->count();
-        $ditahan = $items->where('enumerator_status', 'Tidak Aktif')->count();
-        $totalNominal = $items->where('enumerator_status', 'Aktif')->sum('nominal');
+        $totalData   = $items->count();
+
+        // Bisa dibayar: status PENGAJUAN dan pendamping Aktif
+        $bisa_dibayar   = $items->filter(fn($d) => $d['status_pembayaran'] === 'PENGAJUAN' && $d['enumerator_status'] === 'Aktif')->count();
+
+        // Hold karena masih PENDING (belum diajukan ke keuangan)
+        $ditahan_pending = $items->where('status_pembayaran', 'PENDING')->count();
+
+        // Hold karena pendamping Tidak Aktif (walaupun sudah PENGAJUAN)
+        $ditahan_inaktif = $items->filter(fn($d) => $d['enumerator_status'] === 'Tidak Aktif')->count();
+
+        $totalDitahan   = $ditahan_pending + $ditahan_inaktif;
+        $totalNominal   = $items->filter(fn($d) => $d['status_pembayaran'] === 'PENGAJUAN' && $d['enumerator_status'] === 'Aktif')->sum('nominal');
 
         // Group per pendamping
         $grouped = $items->groupBy('pendamping');
@@ -341,9 +354,8 @@
 
     {{-- ── JUDUL LAPORAN ── --}}
     <div class="report-title-wrap">
-        <div class="report-title">Laporan Approval Pembayaran — Data Belum Dibayar</div>
-        <div class="report-subtitle">Data dengan status TERBIT SH yang menunggu pembayaran (PENDING &amp; PENGAJUAN)
-        </div>
+        <div class="report-title">Laporan Approval Pembayaran — Data Siap Disetujui</div>
+        <div class="report-subtitle">Data PENGAJUAN yang siap dibayar &amp; data PENDING yang masih di-hold</div>
     </div>
     <hr class="report-divider">
 
@@ -368,13 +380,13 @@
             <td>{{ $totalData }} record</td>
         </tr>
         <tr>
-            <td class="key">Dapat Dibayar</td>
+            <td class="key">Siap Dibayar</td>
             <td class="sep">:</td>
-            <td>{{ $bisa_dibayar }} data (Pendamping Aktif)</td>
+            <td>{{ $bisa_dibayar }} data (PENGAJUAN + Pendamping Aktif)</td>
             <td class="gap"></td>
-            <td class="key">Ditahan</td>
+            <td class="key">Di-Hold</td>
             <td class="sep">:</td>
-            <td>{{ $ditahan }} data (Pendamping Tidak Aktif)</td>
+            <td>{{ $totalDitahan }} data ({{ $ditahan_pending }} PENDING, {{ $ditahan_inaktif }} Pend. Tdk Aktif)</td>
         </tr>
     </table>
 
@@ -382,27 +394,27 @@
     <table class="ringkasan-table">
         <tr class="ring-head">
             <td style="width:33.33%; background:#1e3a8a; padding:5px 10px; text-align:center;">
-                <span class="ring-lbl">Total Data</span>
+                <span class="ring-lbl">Siap Dibayar (PENGAJUAN)</span>
             </td>
-            <td style="width:33.33%; background:#15803d; padding:5px 10px; text-align:center;">
-                <span class="ring-lbl">Dapat Dibayar</span>
+            <td style="width:33.33%; background:#b45309; padding:5px 10px; text-align:center;">
+                <span class="ring-lbl">Hold — Masih PENDING</span>
             </td>
             <td style="width:33.33%; background:#b91c1c; padding:5px 10px; text-align:center;">
-                <span class="ring-lbl">Ditahan (Hold)</span>
+                <span class="ring-lbl">Hold — Pend. Tidak Aktif</span>
             </td>
         </tr>
         <tr class="ring-val-row">
             <td style="width:33.33%;">
-                <span class="ring-val" style="color:#1e3a8a;">{{ $totalData }}</span>
-                <span class="ring-desc">PENDING &amp; PENGAJUAN</span>
-            </td>
-            <td style="width:33.33%;">
-                <span class="ring-val" style="color:#15803d;">{{ $bisa_dibayar }}</span>
+                <span class="ring-val" style="color:#1e3a8a;">{{ $bisa_dibayar }}</span>
                 <span class="ring-desc">Rp {{ number_format($totalNominal, 0, ',', '.') }}</span>
             </td>
             <td style="width:33.33%;">
-                <span class="ring-val" style="color:#b91c1c;">{{ $ditahan }}</span>
-                <span class="ring-desc">Pendamping berstatus Tidak Aktif</span>
+                <span class="ring-val" style="color:#b45309;">{{ $ditahan_pending }}</span>
+                <span class="ring-desc">Belum diajukan ke keuangan</span>
+            </td>
+            <td style="width:33.33%;">
+                <span class="ring-val" style="color:#b91c1c;">{{ $ditahan_inaktif }}</span>
+                <span class="ring-desc">Pembayaran ditahan otomatis</span>
             </td>
         </tr>
     </table>
@@ -424,8 +436,12 @@
         <tbody>
             @forelse($items as $i => $d)
                 @php
-                    $isHold = $d['enumerator_status'] === 'Tidak Aktif';
-                    $rowClass = $isHold ? 'held' : ($i % 2 === 1 ? 'even' : '');
+                    $isPending   = $d['status_pembayaran'] === 'PENDING';
+                    $isInaktif   = $d['enumerator_status'] === 'Tidak Aktif';
+                    $isHold      = $isPending || $isInaktif;
+                    $rowClass    = $isPending  ? 'held-pending'
+                                 : ($isInaktif ? 'held-inaktif'
+                                 : ($i % 2 === 1 ? 'even' : ''));
                 @endphp
                 <tr class="{{ $rowClass }}">
                     <td class="tc">{{ $i + 1 }}</td>
@@ -434,22 +450,24 @@
                     <td class="mono">{{ $d['nik'] }}</td>
                     <td>{{ $d['pendamping'] }}</td>
                     <td class="tc">
-                        @if ($isHold)
+                        @if ($isInaktif)
                             <span class="badge badge-nonaktif">Tidak Aktif</span>
                         @else
                             <span class="badge badge-aktif">Aktif</span>
                         @endif
                     </td>
                     <td class="tc">
-                        @if ($d['status_pembayaran'] === 'PENGAJUAN')
-                            <span class="badge badge-pengajuan">Pengajuan</span>
-                        @else
+                        @if ($isPending)
                             <span class="badge badge-pending">Pending</span>
+                        @else
+                            <span class="badge badge-pengajuan">Pengajuan</span>
                         @endif
                     </td>
                     <td class="tc">
-                        @if ($isHold)
-                            <span class="badge badge-hold">&#9646; Hold</span>
+                        @if ($isPending)
+                            <span class="badge badge-pending">&#9646; Belum Diajukan</span>
+                        @elseif ($isInaktif)
+                            <span class="badge badge-hold">&#9646; Ditahan</span>
                         @else
                             <span style="font-weight:700; color:#15803d;">{{ $d['nominal_fmt'] }}</span>
                         @endif

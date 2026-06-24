@@ -58,6 +58,7 @@ class DataLapangan extends Model
         'nama_produk_4',
         'nama_produk_5',
         'alamat',
+        'foto_proses',
         'foto_ktp',
         'foto_rumah',
         'foto_pendamping',

@@ -310,7 +310,8 @@
                                 0</span>
                         </div>
                     </div>
-                    <div class="modal-footer" style="border-top:1px solid #E2E8F0;padding:14px 20px;gap:8px;justify-content:space-between;">
+                    <div class="modal-footer"
+                        style="border-top:1px solid #E2E8F0;padding:14px 20px;gap:8px;justify-content:space-between;">
                         <a href="{{ route('superadmin.data-lapangans.export-approval-pdf') }}" target="_blank"
                             class="adm-btn"
                             style="height:34px;font-size:12.5px;background:linear-gradient(135deg,#DC2626,#991B1B);color:#fff;border:none;gap:6px;text-decoration:none;display:inline-flex;align-items:center;">
@@ -809,18 +810,36 @@
                         const tbody = document.getElementById('approvalTableBody');
                         if (!items.length) {
                             tbody.innerHTML =
-                                '<tr><td colspan="8" class="tc" style="padding:30px;color:#94A3B8;">Tidak ada data TERBIT SH yang belum dibayar.</td></tr>';
+                                '<tr><td colspan="8" class="tc" style="padding:30px;color:#94A3B8;">Tidak ada data TERBIT SH yang memerlukan approval pembayaran.</td></tr>';
                             return;
                         }
                         tbody.innerHTML = items.map((d, i) => {
+                            const isPending = d.status_pembayaran === 'PENDING';
                             const isInaktif = d.enumerator_status === 'Tidak Aktif';
-                            const checkboxCell = isInaktif ?
+
+                            // HOLD jika status_pembayaran masih PENDING (belum diajukan)
+                            const checkboxCell = isPending ?
+                                `<span title="Data masih PENDING — belum diajukan ke keuangan" style="font-size:11px;color:#D97706;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
+                                isInaktif ?
                                 `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
                                 `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
-                            const rowStyle = isInaktif ? 'background:#FFF5F5;' : '';
-                            const pendampingCell = isInaktif ?
-                                `${d.pendamping} <span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>` :
-                                d.pendamping;
+
+                            const rowStyle = isPending ? 'background:#FFFBEB;' :
+                                isInaktif ? 'background:#FFF5F5;' :
+                                '';
+
+                            const statusLabel = isPending ?
+                                `<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#D97706;border:1px solid #D9770633;border-radius:4px;padding:1px 5px;">PENDING</span>` :
+                                isInaktif ?
+                                `<span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>` :
+                                `<span style="font-size:10px;font-weight:700;background:#DBEAFE;color:#2563EB;border:1px solid #2563EB33;border-radius:4px;padding:1px 5px;">PENGAJUAN</span>`;
+
+                            const nominalCell = isPending ?
+                                `<em style="font-size:11px;color:#D97706;">Belum Diajukan</em>` :
+                                isInaktif ?
+                                `<em style="font-size:11px;color:#94A3B8;">Ditahan</em>` :
+                                `<span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span>`;
+
                             return `
                             <tr style="${rowStyle}">
                                 <td class="tc">${checkboxCell}</td>
@@ -828,8 +847,8 @@
                                 <td style="font-size:12px;font-weight:600;">${d.no_registrasi || '-'}</td>
                                 <td style="font-weight:600;">${d.nama_pu}</td>
                                 <td style="font-family:monospace;font-size:12px;">${d.nik}</td>
-                                <td style="font-size:12px;">${pendampingCell}</td>
-                                <td class="tc"><span style="font-weight:700;color:${isInaktif ? '#94A3B8' : '#059669'};">${isInaktif ? '<em style="font-size:11px;color:#94A3B8;">Ditahan</em>' : d.nominal_fmt}</span></td>
+                                <td style="font-size:12px;">${d.pendamping} ${statusLabel}</td>
+                                <td class="tc">${nominalCell}</td>
                             </tr>`;
                         }).join('');
                         attachApprovalCheckboxes();

@@ -434,6 +434,7 @@
                                 ),
                                 'dl_label' => 'KTP',
                                 'dl_class' => 'dl-btn-primary',
+                                'roles' => null, // semua role
                             ],
                             [
                                 'label' => 'Foto Rumah',
@@ -446,43 +447,79 @@
                                 ),
                                 'dl_label' => 'PDF',
                                 'dl_class' => 'dl-btn-ghost',
+                                'roles' => null,
                             ],
                             [
                                 'label' => 'Foto Pendamping',
                                 'modal' => 'modalFotoPendamping',
                                 'foto' => $dataLapangan->foto_pendamping,
-                                // KOREKSI: pakai hashed_id bukan id
                                 'dl_route' => route(
                                     'superadmin.datalapangan.download-foto-pendamping',
                                     $dataLapangan->hashed_id,
                                 ),
                                 'dl_label' => 'Download',
                                 'dl_class' => 'dl-btn-success',
+                                'roles' => null,
+                            ],
+                            [
+                                'label' => 'Foto Proses',
+                                'modal' => 'modalFotoProses',
+                                'foto' => $dataLapangan->foto_proses,
+                                'dl_route' => $dataLapangan->foto_proses
+                                    ? asset('storage/' . $dataLapangan->foto_proses)
+                                    : '#',
+                                'dl_label' => 'Download',
+                                'dl_class' => 'dl-btn-success',
+                                'roles' => ['superadmin', 'admin_umum', 'data_entry'],
                             ],
                         ];
                     @endphp
 
                     @foreach ($staticPhotos as $p)
-                        <div class="dl-photo-row">
-                            <div class="dl-photo-label">
-                                @if (!empty($p['foto']))
-                                    <img src="{{ asset('storage/' . $p['foto']) }}" class="dl-photo-thumb"
-                                        alt="">
-                                @else
-                                    <div class="dl-photo-thumb-placeholder"><i class="las la-image"></i></div>
-                                @endif
-                                {{ $p['label'] }}
+                        @php
+                            // Verifikasi role — null = semua role
+                            $allowedRoles = $p['roles'] ?? null;
+                            $userRole = Auth::user()->role ?? '';
+                            $roleOk = $allowedRoles === null || in_array($userRole, $allowedRoles);
+                            // Untuk foto opsional (foto_proses), sembunyikan jika kosong
+                            $fotoOpsional = $p['modal'] === 'modalFotoProses';
+                        @endphp
+                        @if ($roleOk && (!$fotoOpsional || !empty($p['foto'])))
+                            <div class="dl-photo-row">
+                                <div class="dl-photo-label">
+                                    @if (!empty($p['foto']))
+                                        <img src="{{ asset('storage/' . $p['foto']) }}" class="dl-photo-thumb"
+                                            alt="">
+                                    @else
+                                        <div class="dl-photo-thumb-placeholder"><i class="las la-image"></i></div>
+                                    @endif
+                                    {{ $p['label'] }}
+                                    @if ($fotoOpsional)
+                                        <span
+                                            style="font-size:10px;color:var(--dl-muted);font-weight:400;">(opsional)</span>
+                                    @endif
+                                </div>
+                                <div class="dl-photo-actions">
+                                    @if (!empty($p['foto']))
+                                        <button type="button" class="dl-btn dl-btn-ghost dl-btn-icon-only"
+                                            data-bs-toggle="modal" data-bs-target="#{{ $p['modal'] }}">
+                                            <i class="las la-eye"></i>
+                                        </button>
+                                        @if ($fotoOpsional)
+                                            <a href="{{ $p['dl_route'] }}" download
+                                                class="dl-btn {{ $p['dl_class'] }} dl-btn-sm">
+                                                <i class="las la-download"></i> {{ $p['dl_label'] }}
+                                            </a>
+                                        @else
+                                            <a href="{{ $p['dl_route'] }}"
+                                                class="dl-btn {{ $p['dl_class'] }} dl-btn-sm">
+                                                <i class="las la-download"></i> {{ $p['dl_label'] }}
+                                            </a>
+                                        @endif
+                                    @endif
+                                </div>
                             </div>
-                            <div class="dl-photo-actions">
-                                <button type="button" class="dl-btn dl-btn-ghost dl-btn-icon-only"
-                                    data-bs-toggle="modal" data-bs-target="#{{ $p['modal'] }}">
-                                    <i class="las la-eye"></i>
-                                </button>
-                                <a href="{{ $p['dl_route'] }}" class="dl-btn {{ $p['dl_class'] }} dl-btn-sm">
-                                    <i class="las la-download"></i> {{ $p['dl_label'] }}
-                                </a>
-                            </div>
-                        </div>
+                        @endif
                     @endforeach
 
                     {{-- Foto Produk (semua slot yang ada fotonya) --}}
@@ -707,7 +744,8 @@
                             @else
                                 <div
                                     style="padding:10px;background:#F1F5F9;border-radius:8px;font-size:12px;color:var(--dl-muted);margin-bottom:10px;">
-                                    <i class="las la-image me-1"></i>Foto KTP belum tersedia</div>
+                                    <i class="las la-image me-1"></i>Foto KTP belum tersedia
+                                </div>
                             @endif
                             <div style="display:flex;flex-direction:column;gap:8px;">
                                 <label
@@ -1048,6 +1086,32 @@
             </div>
         </div>
     @endforeach
+
+    {{-- Modal Foto Proses (opsional, hanya tampil jika ada & role diizinkan) --}}
+    @if ($dataLapangan->foto_proses && in_array(Auth::user()->role ?? '', ['superadmin', 'admin_umum', 'data_entry']))
+        <div class="modal fade dl-modal" id="modalFotoProses" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="las la-images" style="color:var(--dl-teal);"></i> Foto Proses
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center p-3">
+                        <img src="{{ asset('storage/' . $dataLapangan->foto_proses) }}" alt="Foto Proses"
+                            class="img-fluid rounded" style="max-height:520px;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                        <a href="{{ asset('storage/' . $dataLapangan->foto_proses) }}" download
+                            class="dl-btn dl-btn-success">
+                            <i class="las la-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- Modals Foto Spotcheck --}}
     @if ($dataLapangan->spotchecks && $dataLapangan->spotchecks->count() > 0)

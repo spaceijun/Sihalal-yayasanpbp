@@ -113,7 +113,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/data-lapangans/export-approval-pdf', [DataLapanganController::class, 'exportApprovalPdf'])->name('data-lapangans.export-approval-pdf');
         Route::get('/data-lapangans/export', [DataLapanganController::class, 'export'])->name('data-lapangans.export');
         Route::get('/data-lapangans/data', [DataLapanganController::class, 'data'])->name('data-lapangans.data');
-        Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
+        Route::post('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
         Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
         Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
         Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
@@ -299,7 +299,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::post('/enumerators/{id}/generate-user', [EnumeratorController::class, 'generateUser'])->name('enumerators.generate-user');
         Route::get('enumerators/{id}/surat-tugas', [EnumeratorController::class, 'suratTugas'])->name('enumerators.surat-tugas');
         Route::get('enumerators/{id}/id-card', [EnumeratorController::class, 'idCard'])->name('enumerators.id-card');
-        Route::patch('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
+        Route::post('enumerators/{id}/aktivasi', [EnumeratorController::class, 'aktivasi'])->name('enumerators.aktivasi');
         Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
         Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
         Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');

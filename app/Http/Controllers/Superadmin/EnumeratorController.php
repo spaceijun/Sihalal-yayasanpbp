@@ -10,6 +10,7 @@ use App\Models\DataLapangan;
 use App\Models\Enumerator;
 use App\Models\Superadmin\Koordinator;
 use App\Models\User;
+use App\Services\Superadmin\EnumeratorService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\Facades\DataTables;
+
 
 class EnumeratorController extends Controller
 {
@@ -221,7 +223,7 @@ class EnumeratorController extends Controller
     public function show($hashedId)
     {
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
-        $enumerator->load(['koordinator', 'bank']);
+        $enumerator->load(['koordinator', 'bank', 'aktivasiLogs']);
 
         $routePrefix = $this->routePrefix();
 
@@ -363,20 +365,30 @@ class EnumeratorController extends Controller
 
     /**
      * Aktifkan kembali enumerator yang berstatus Tidak Aktif.
+     * Membutuhkan upload Surat Pernyataan Pengaktifan Kembali.
      */
-    public function aktivasi($hashedId): RedirectResponse
+    public function aktivasi(Request $request, $hashedId): RedirectResponse
     {
+        $request->validate([
+            'surat_pernyataan' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'catatan'          => ['nullable', 'string', 'max:500'],
+        ], [
+            'surat_pernyataan.required' => 'Surat Pernyataan Pengaktifan wajib diupload.',
+            'surat_pernyataan.mimes'    => 'Format file harus PDF, JPG, atau PNG.',
+            'surat_pernyataan.max'      => 'Ukuran file maksimal 5 MB.',
+        ]);
+
         $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
 
-        if ($enumerator->status === 'Tidak Aktif') {
-            $enumerator->update(['status' => 'Aktif']);
+        try {
+            $service = new EnumeratorService();
+            $service->aktivasi($enumerator, $request->file('surat_pernyataan'), $request->catatan);
 
             return Redirect::back()
                 ->with('success', "Enumerator {$enumerator->nama_lengkap} berhasil diaktifkan kembali.");
+        } catch (\InvalidArgumentException $e) {
+            return Redirect::back()->with('error', $e->getMessage());
         }
-
-        return Redirect::back()
-            ->with('error', 'Enumerator sudah berstatus Aktif.');
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Traits\HasHashedId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 /**
  * Class Enumerator
  *
@@ -50,6 +51,15 @@ class Enumerator extends Model
     public function dataLapangans(): HasMany
     {
         return $this->hasMany(DataLapangan::class, 'enumerator_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function aktivasiLogs(): HasMany
+    {
+        return $this->hasMany(EnumeratorAktivasiLog::class, 'enumerator_id', 'id')
+            ->latest('tanggal_aktivasi');
     }
 
     /**

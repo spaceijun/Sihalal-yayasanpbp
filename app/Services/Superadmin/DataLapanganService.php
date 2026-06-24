@@ -63,6 +63,7 @@ class DataLapanganService
             'foto_ktp'         => $validatedData['foto_ktp_path'],
             'foto_rumah'       => $validatedData['foto_rumah_path'],
             'foto_pendamping'  => $validatedData['foto_pendamping_path'],
+            'foto_proses'      => $validatedData['foto_proses_path'] ?? null,
             'foto_produk'      => $validatedData['foto_produk_path'],
         ];
 

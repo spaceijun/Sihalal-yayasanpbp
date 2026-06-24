@@ -33,6 +33,10 @@ document.addEventListener("DOMContentLoaded", function () {
             endpoint: "/upload/foto_pendamping",
             fieldName: "foto_pendamping",
         },
+        foto_proses: {
+            endpoint: "/upload/foto_proses",
+            fieldName: "foto_proses",
+        },
         foto_produk: {
             endpoint: "/upload/foto_produk",
             fieldName: "foto_produk",
@@ -46,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         foto_ktp: { targetSizeKB: 1200, maxWidthPx: 1920 }, // KTP butuh resolusi lebih tinggi
         foto_rumah: { targetSizeKB: 800, maxWidthPx: 1280 },
         foto_pendamping: { targetSizeKB: 800, maxWidthPx: 1280 },
+        foto_proses: { targetSizeKB: 800, maxWidthPx: 1280 },
         foto_produk: { targetSizeKB: 800, maxWidthPx: 1280 },
         dynamic: { targetSizeKB: 800, maxWidthPx: 1280 }, // slot produk tambahan
     };
@@ -613,7 +618,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ================================================================
        VALIDASI FILE FOTO UTAMA (statis)
     ================================================================ */
-    ["foto_ktp", "foto_rumah", "foto_pendamping", "foto_produk"].forEach(
+    ["foto_ktp", "foto_rumah", "foto_pendamping", "foto_proses", "foto_produk"].forEach(
         (id) => {
             const inp = document.getElementById(id);
             if (!inp) return;
@@ -715,10 +720,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const STATIC_STEPS = [
-        { name: "foto_ktp", label: "Foto KTP" },
-        { name: "foto_rumah", label: "Foto Rumah" },
-        { name: "foto_pendamping", label: "Foto Pendamping" },
-        { name: "foto_produk", label: "Foto Produk 1" },
+        { name: "foto_ktp", label: "Foto KTP", required: true },
+        { name: "foto_rumah", label: "Foto Rumah", required: true },
+        { name: "foto_pendamping", label: "Foto Pendamping", required: true },
+        { name: "foto_proses", label: "Foto Proses", required: false },
+        { name: "foto_produk", label: "Foto Produk 1", required: true },
     ];
 
     function buildUploadStepsHTML(steps) {
@@ -1220,16 +1226,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 <path d="M12 2 a10 10 0 0 1 10 10" stroke-linecap="round"/>
             </svg> Menyimpan...`;
 
-        // -- Build steps (dengan compressConfig per jenis foto) --
-        const staticUploadSteps = STATIC_STEPS.map((s) => ({
-            name: s.name,
-            label: s.label,
-            fileInput: document.getElementById(s.name),
-            endpoint: UPLOAD_ENDPOINTS[s.name]?.endpoint || `/upload/${s.name}`,
-            fieldName: UPLOAD_ENDPOINTS[s.name]?.fieldName || s.name,
-            pathKey: `${s.name}_path`,
-            compressConfig: COMPRESS_CONFIG[s.name] || COMPRESS_CONFIG.dynamic,
-        }));
+        // Hanya upload step yang memiliki file yang dipilih
+        const staticUploadSteps = STATIC_STEPS
+            .filter((s) => {
+                if (s.required) return true; // wajib selalu masuk step
+                // opsional: masuk step hanya jika ada file
+                const inp = document.getElementById(s.name);
+                return !!inp?.files[0];
+            })
+            .map((s) => ({
+                name: s.name,
+                label: s.label,
+                fileInput: document.getElementById(s.name),
+                endpoint: UPLOAD_ENDPOINTS[s.name]?.endpoint || `/upload/${s.name}`,
+                fieldName: UPLOAD_ENDPOINTS[s.name]?.fieldName || s.name,
+                pathKey: `${s.name}_path`,
+                compressConfig: COMPRESS_CONFIG[s.name] || COMPRESS_CONFIG.dynamic,
+            }));
 
         const dynamicUploadSteps = activeSlots.map((slot) => ({
             name: `foto_produk_${slot}`,

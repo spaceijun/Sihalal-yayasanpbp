@@ -579,7 +579,7 @@ class DataLapanganController extends Controller
         $items = DataLapangan::whereIn('status_pembayaran', ['PENDING', 'PENGAJUAN'])
             ->whereRaw('UPPER(status) = ?', ['TERBIT SH'])
             ->with('enumerator')
-            ->orderBy('status_pembayaran', 'asc') // PENDING first, then PENGAJUAN
+            ->orderByRaw("FIELD(status_pembayaran, 'PENGAJUAN', 'PENDING')") // PENGAJUAN dulu
             ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($dl) use ($cutoff) {
@@ -601,14 +601,16 @@ class DataLapanganController extends Controller
             ->sortBy('pendamping')
             ->values();
 
-        $total = $items->sum('nominal');
+        // Hanya PENGAJUAN yang dihitung sebagai "siap approval" dan untuk total
+        $pengajuanItems = $items->filter(fn ($d) => $d['status_pembayaran'] === 'PENGAJUAN');
+        $total = $pengajuanItems->sum('nominal');
 
         return response()->json([
             'success' => true,
             'data' => $items,
             'total' => $total,
             'total_fmt' => 'Rp '.number_format($total, 0, ',', '.'),
-            'count' => $items->count(),
+            'count' => $pengajuanItems->count(), // badge hanya PENGAJUAN
         ]);
     }
 

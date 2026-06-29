@@ -31,11 +31,13 @@
     <link href="{{ asset('assets/css/compro-ui.css') }}" rel="stylesheet" type="text/css" />
 
     <style>
-        /* Spesifik halaman recruitment — tidak ada di compro-ui.css */
+        /* Spesifik halaman recruitment */
         .job-card-kh {
-            background: var(--kh-white);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid #EAF1FB;
+            border: 1px solid rgba(47, 143, 230, 0.08);
+            box-shadow: var(--kh-shadow-sm);
             transition: var(--kh-transition);
             height: 100%;
             overflow: hidden;
@@ -48,7 +50,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: var(--kh-gradient);
             transform: scaleX(0);
             transform-origin: left;
@@ -58,11 +60,68 @@
         .job-card-kh:hover {
             transform: translateY(-8px);
             box-shadow: var(--kh-shadow-lg);
-            border-color: var(--kh-primary-light);
+            border-color: rgba(47, 143, 230, 0.18);
         }
 
         .job-card-kh:hover::before {
             transform: scaleX(1);
+        }
+
+        .job-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--kh-sky);
+            color: var(--kh-primary);
+            font-size: 1.5rem;
+            transition: var(--kh-transition);
+        }
+
+        .job-card-kh:hover .job-icon-wrapper {
+            background: var(--kh-gradient);
+            color: #fff;
+            transform: rotate(6deg) scale(1.05);
+        }
+
+        .benefit-card-modern {
+            padding: 1.25rem;
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid rgba(47, 143, 230, 0.08);
+            box-shadow: var(--kh-shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--kh-transition);
+            height: 100%;
+        }
+
+        .benefit-card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--kh-shadow);
+            border-color: rgba(47, 143, 230, 0.18);
+        }
+
+        .benefit-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--kh-sky);
+            color: var(--kh-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            transition: var(--kh-transition);
+        }
+
+        .benefit-card-modern:hover .benefit-icon-wrapper {
+            background: var(--kh-gradient);
+            color: #fff;
         }
 
         .empty-state {
@@ -111,11 +170,9 @@
             <div class="container">
                 <div class="row g-3 justify-content-center">
                     <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="0">
-                        <div class="benefit-card"
-                            style="padding: 1rem; flex-direction: row; display: flex; align-items: center; gap: 0.75rem;">
-                            <div class="benefit-icon bg-kh-soft flex-shrink-0"
-                                style="width: 44px; height: 44px; margin-bottom: 0;">
-                                <i class="ri-money-dollar-circle-line text-kh"></i>
+                        <div class="benefit-card-modern">
+                            <div class="benefit-icon-wrapper">
+                                <i class="ri-money-dollar-circle-line"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Gaji Kompetitif</h6>
@@ -124,11 +181,9 @@
                         </div>
                     </div>
                     <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
-                        <div class="benefit-card"
-                            style="padding: 1rem; flex-direction: row; display: flex; align-items: center; gap: 0.75rem;">
-                            <div class="benefit-icon bg-kh-soft flex-shrink-0"
-                                style="width: 44px; height: 44px; margin-bottom: 0;">
-                                <i class="ri-time-line text-kh"></i>
+                        <div class="benefit-card-modern">
+                            <div class="benefit-icon-wrapper">
+                                <i class="ri-time-line"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Fleksibel</h6>
@@ -137,11 +192,9 @@
                         </div>
                     </div>
                     <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
-                        <div class="benefit-card"
-                            style="padding: 1rem; flex-direction: row; display: flex; align-items: center; gap: 0.75rem;">
-                            <div class="benefit-icon bg-kh-soft flex-shrink-0"
-                                style="width: 44px; height: 44px; margin-bottom: 0;">
-                                <i class="ri-graduation-cap-line text-kh"></i>
+                        <div class="benefit-card-modern">
+                            <div class="benefit-icon-wrapper">
+                                <i class="ri-graduation-cap-line"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Pelatihan</h6>
@@ -150,11 +203,9 @@
                         </div>
                     </div>
                     <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
-                        <div class="benefit-card"
-                            style="padding: 1rem; flex-direction: row; display: flex; align-items: center; gap: 0.75rem;">
-                            <div class="benefit-icon bg-kh-soft flex-shrink-0"
-                                style="width: 44px; height: 44px; margin-bottom: 0;">
-                                <i class="ri-team-line text-kh"></i>
+                        <div class="benefit-card-modern">
+                            <div class="benefit-icon-wrapper">
+                                <i class="ri-team-line"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Tim Solid</h6>
@@ -226,9 +277,8 @@
                                                     @endif
                                                 </ul>
                                             </div>
-                                            <div
-                                                class="avatar-lg bg-kh-soft rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 ms-3">
-                                                <i class="ri-briefcase-4-line text-kh fs-5"></i>
+                                            <div class="job-icon-wrapper ms-3">
+                                                <i class="ri-briefcase-4-line"></i>
                                             </div>
                                         </div>
                                         @if ($post->deskripsi)
@@ -262,31 +312,18 @@
             </div>
         </section>
 
-        <!-- ========== CTA BANNER ========== -->
-        <section class="py-5 gradient-kh cta-section position-relative">
-            <div class="container position-relative">
-                <div class="row align-items-center gy-4">
-                    <div class="col-sm-8">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avatar-lg flex-shrink-0">
-                                <div class="avatar-title bg-white bg-opacity-25 rounded-3">
-                                    <i class="ri-user-add-line text-white fs-2"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="text-white mb-1">Tidak Menemukan Posisi yang Cocok?</h4>
-                                <p class="text-white text-opacity-75 mb-0">Kirimkan CV Anda, kami akan menghubungi
-                                    saat ada posisi yang sesuai.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-4 text-sm-end">
-                        <a href="{{ route('publik.contact') }}"
-                            class="btn btn-light btn-lg fw-bold shadow shine-hover">
-                            <i class="ri-arrow-right-line align-bottom me-1"></i> Hubungi Kami
-                        </a>
-                    </div>
-                </div>
+        <!-- ========== CTA BOTTOM ========== -->
+        <section class="py-5 position-relative" style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+            <div class="footer-section::after"></div>
+            <div class="container position-relative text-center py-4" style="z-index: 2;">
+                <span style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
+                    <i class="ri-user-add-line" style="font-size: 2.2rem;"></i>
+                </span>
+                <h3 class="text-white fw-bold mb-2">Tidak Menemukan Posisi yang Cocok?</h3>
+                <p class="text-white text-opacity-75 mb-4" style="max-width:480px; margin:0 auto; font-size: 0.95rem;">Kirimkan CV Anda ke kami, kami akan menghubungi Anda saat ada posisi yang sesuai.</p>
+                <a href="{{ route('publik.contact') }}" class="btn btn-light btn-lg fw-bold px-5 py-3 shadow shine-hover">
+                    <i class="ri-mail-line align-middle me-2"></i> Hubungi Kami
+                </a>
             </div>
         </section>
         @include('publik.company-profile.partials.footer')

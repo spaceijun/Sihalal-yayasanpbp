@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipArchive;
 use Yajra\DataTables\Facades\DataTables;
 
 
@@ -311,6 +312,84 @@ class EnumeratorController extends Controller
         return response()->streamDownload(function () use ($path) {
             readfile($path);
         }, $filename);
+    }
+
+    /**
+     * Download semua foto enumerator dalam format ZIP
+     * Route: /enumerators/{id}/download-zip?type=all|foto_pendamping|foto_produk
+     */
+    public function downloadZip(Request $request, $hashedId)
+    {
+        $enumerator = Enumerator::findByHashedIdOrFail($hashedId);
+        $enumerator->load('dataLapangans');
+
+        $type = $request->input('type', 'all');
+        $allowed = ['all', 'foto_pendamping', 'foto_produk'];
+
+        if (! in_array($type, $allowed)) {
+            abort(403, 'Tipe foto tidak diizinkan.');
+        }
+
+        // Kumpulkan file yang akan dimasukkan ke ZIP
+        $files = [];
+
+        if ($type === 'all' || $type === 'foto_pendamping') {
+            foreach ($enumerator->dataLapangans->whereNotNull('foto_pendamping') as $data) {
+                $path = storage_path('app/public/' . $data->foto_pendamping);
+                if (file_exists($path)) {
+                    $ext = pathinfo($path, PATHINFO_EXTENSION);
+                    $namaPu = preg_replace('/[^A-Za-z0-9_\-]/', '_', $data->nama_pu ?? 'noname');
+                    $files[] = [
+                        'path'     => $path,
+                        'filename' => 'pendamping/' . $data->id . '_' . $namaPu . '.' . $ext,
+                    ];
+                }
+            }
+        }
+
+        if ($type === 'all' || $type === 'foto_produk') {
+            foreach ($enumerator->dataLapangans->whereNotNull('foto_produk') as $data) {
+                $path = storage_path('app/public/' . $data->foto_produk);
+                if (file_exists($path)) {
+                    $ext = pathinfo($path, PATHINFO_EXTENSION);
+                    $namaProduk = preg_replace('/[^A-Za-z0-9_\-]/', '_', $data->nama_produk ?? 'noname');
+                    $files[] = [
+                        'path'     => $path,
+                        'filename' => 'produk/' . $data->id . '_' . $namaProduk . '.' . $ext,
+                    ];
+                }
+            }
+        }
+
+        if (empty($files)) {
+            return redirect()->back()->with('error', 'Tidak ada foto yang tersedia untuk diunduh.');
+        }
+
+        // Buat file ZIP sementara
+        $tempZip = tempnam(sys_get_temp_dir(), 'gallery_zip_') . '.zip';
+        $zip = new ZipArchive();
+
+        if ($zip->open($tempZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            abort(500, 'Gagal membuat file ZIP.');
+        }
+
+        foreach ($files as $file) {
+            $zip->addFile($file['path'], $file['filename']);
+        }
+
+        $zip->close();
+
+        $typeLabel = match ($type) {
+            'foto_pendamping' => 'pendamping',
+            'foto_produk'     => 'produk',
+            default           => 'semua-foto',
+        };
+
+        $zipFilename = 'gallery_' . $typeLabel . '_KH-' . $enumerator->no_registrasi . '_' . now()->format('Ymd_His') . '.zip';
+
+        return response()->download($tempZip, $zipFilename, [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(true);
     }
 
     /**

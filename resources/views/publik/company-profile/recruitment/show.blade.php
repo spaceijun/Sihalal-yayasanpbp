@@ -33,14 +33,16 @@
     <style>
         /* Spesifik halaman detail lowongan */
         .job-header-card {
-            background: var(--kh-white);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid #EAF1FB;
+            border: 1px solid rgba(47, 143, 230, 0.08);
             padding: 2rem;
             box-shadow: var(--kh-shadow);
             margin-bottom: 1.5rem;
             position: relative;
             overflow: hidden;
+            transition: var(--kh-transition);
         }
 
         .job-header-card::before {
@@ -53,10 +55,35 @@
             background: var(--kh-gradient);
         }
 
+        .job-header-card:hover {
+            border-color: rgba(47, 143, 230, 0.15);
+            box-shadow: var(--kh-shadow-lg);
+        }
+
+        .job-icon-wrapper-lg {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--kh-sky);
+            color: var(--kh-primary);
+            font-size: 2.2rem;
+            transition: var(--kh-transition);
+        }
+
+        .job-header-card:hover .job-icon-wrapper-lg {
+            background: var(--kh-primary);
+            color: #fff;
+            transform: rotate(6deg) scale(1.05);
+        }
+
         .content-card {
-            background: var(--kh-white);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid #EAF1FB;
+            border: 1px solid rgba(47, 143, 230, 0.08);
             padding: 2rem;
             box-shadow: var(--kh-shadow-sm);
             margin-bottom: 1.5rem;
@@ -65,6 +92,7 @@
 
         .content-card:hover {
             box-shadow: var(--kh-shadow);
+            border-color: rgba(47, 143, 230, 0.15);
         }
 
         .content-title {
@@ -85,6 +113,9 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            background: var(--kh-sky);
+            color: var(--kh-primary);
+            font-size: 1.2rem;
         }
 
         .req-item {
@@ -93,15 +124,15 @@
             gap: 12px;
             padding: 0.875rem 1.25rem;
             border-radius: var(--kh-radius);
-            border: 1px solid rgba(47, 143, 230, 0.1);
-            background: var(--kh-sky-2);
+            border: 1px solid rgba(47, 143, 230, 0.06);
+            background: rgba(47, 143, 230, 0.03);
             margin-bottom: 0.75rem;
             transition: var(--kh-transition);
         }
 
         .req-item:hover {
             background: var(--kh-sky);
-            border-color: rgba(47, 143, 230, 0.2);
+            border-color: rgba(47, 143, 230, 0.15);
             transform: translateX(5px);
         }
 
@@ -123,6 +154,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--kh-shadow-lg);
         }
 
         .cta-box::before {
@@ -138,6 +170,24 @@
         .cta-box>* {
             position: relative;
             z-index: 1;
+        }
+
+        @media (max-width: 767.98px) {
+
+            .content-card,
+            .job-header-card {
+                padding: 1.5rem;
+            }
+
+            .text-muted.lh-lg {
+                padding-left: 0 !important;
+                margin-top: 1rem;
+            }
+
+            .job-details-wrapper {
+                padding-left: 0 !important;
+                margin-top: 1rem;
+            }
         }
     </style>
 </head>
@@ -210,9 +260,8 @@
                                     </ul>
                                 </div>
                                 <div class="col-lg-4 text-lg-end">
-                                    <div
-                                        class="avatar-xl bg-kh-soft rounded-3 d-flex align-items-center justify-content-center ms-lg-auto">
-                                        <i class="ri-briefcase-4-line text-kh fs-3"></i>
+                                    <div class="job-icon-wrapper-lg ms-lg-auto">
+                                        <i class="ri-briefcase-4-line"></i>
                                     </div>
                                 </div>
                             </div>
@@ -221,13 +270,14 @@
                         {{-- Deskripsi --}}
                         @if ($post->deskripsi)
                             <div class="content-card" data-aos="fade-up" data-aos-delay="50">
-                                <h3 class="content-title">
-                                    <div class="content-icon bg-kh-soft">
-                                        <i class="ri-file-text-line text-kh"></i>
+                                <h3 class="content-title mb-3">
+                                    <div class="content-icon">
+                                        <i class="ri-file-text-line"></i>
                                     </div>
                                     Deskripsi Pekerjaan
                                 </h3>
-                                <div class="text-muted lh-lg" style="padding-left: 56px;">
+                                <div class="text-muted lh-lg job-details-wrapper"
+                                    style="padding-left: 56px; font-size: 0.95rem;">
                                     {!! nl2br(e($post->deskripsi)) !!}
                                 </div>
                             </div>
@@ -236,13 +286,14 @@
                         {{-- Job Desk --}}
                         @if ($post->jobdesk)
                             <div class="content-card" data-aos="fade-up" data-aos-delay="100">
-                                <h3 class="content-title">
-                                    <div class="content-icon bg-kh-soft">
-                                        <i class="ri-briefcase-line text-kh"></i>
+                                <h3 class="content-title mb-3">
+                                    <div class="content-icon">
+                                        <i class="ri-briefcase-line"></i>
                                     </div>
                                     Job Desk
                                 </h3>
-                                <div class="text-muted lh-lg" style="padding-left: 56px;">
+                                <div class="text-muted lh-lg job-details-wrapper"
+                                    style="padding-left: 56px; font-size: 0.95rem;">
                                     {!! nl2br(e($post->jobdesk)) !!}
                                 </div>
                             </div>
@@ -251,13 +302,13 @@
                         {{-- Persyaratan --}}
                         @if ($post->requirements && is_array($post->requirements) && count($post->requirements))
                             <div class="content-card" data-aos="fade-up" data-aos-delay="150">
-                                <h3 class="content-title">
-                                    <div class="content-icon bg-kh-soft">
-                                        <i class="ri-checkbox-circle-line text-kh"></i>
+                                <h3 class="content-title mb-3">
+                                    <div class="content-icon">
+                                        <i class="ri-checkbox-circle-line"></i>
                                     </div>
                                     Persyaratan
                                 </h3>
-                                <div style="padding-left: 56px;">
+                                <div class="job-details-wrapper" style="padding-left: 56px;">
                                     @foreach ($post->requirements as $req)
                                         <div class="req-item">
                                             <div class="req-check">
@@ -274,15 +325,15 @@
                         {{-- Pakta Integritas --}}
                         @if ($post->template_pakta_integritas)
                             <div class="content-card" data-aos="fade-up" data-aos-delay="200">
-                                <h3 class="content-title">
-                                    <div class="content-icon bg-kh-soft">
-                                        <i class="ri-file-paper-2-line text-kh"></i>
+                                <h3 class="content-title mb-3">
+                                    <div class="content-icon">
+                                        <i class="ri-file-paper-2-line"></i>
                                     </div>
                                     Pakta Integritas
                                 </h3>
-                                <div style="padding-left: 56px;">
+                                <div class="job-details-wrapper" style="padding-left: 56px;">
                                     <a href="{{ Storage::url($post->template_pakta_integritas) }}" target="_blank"
-                                        class="btn btn-kh-outline">
+                                        class="btn btn-kh-outline px-4 py-2">
                                         <i class="ri-file-download-line me-1 align-bottom"></i>
                                         Download Pakta Integritas
                                     </a>
@@ -317,13 +368,20 @@
         </section>
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 gradient-kh-dark cta-section position-relative">
-            <div class="container position-relative text-center">
-                <i class="ri-message-3-line text-white opacity-25" style="font-size: 5rem;"></i>
-                <h3 class="text-white fw-bold mt-3 mb-2">Punya Pertanyaan Lain?</h3>
-                <p class="text-white text-opacity-75 mb-4">Tim kami siap membantu Anda 24/7</p>
-                <a href="{{ route('publik.contact') }}" class="btn btn-light btn-lg fw-bold px-5 shadow shine-hover">
-                    <i class="ri-message-3-line align-bottom me-1"></i> Hubungi Kami
+        <section class="py-5 position-relative"
+            style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+            <div class="container position-relative text-center py-4" style="z-index: 2;">
+                <span
+                    style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
+                    <i class="ri-chat-3-line" style="font-size: 2.2rem;"></i>
+                </span>
+                <h3 class="text-white fw-bold mb-2">Punya Pertanyaan Lain?</h3>
+                <p class="text-white text-opacity-75 mb-4"
+                    style="max-width:480px; margin:0 auto; font-size: 0.95rem;">Tim kami siap membantu dan memberikan
+                    informasi yang Anda butuhkan.</p>
+                <a href="{{ route('publik.contact') }}"
+                    class="btn btn-light btn-lg fw-bold px-5 py-3 shadow shine-hover">
+                    <i class="ri-message-2-line align-middle me-2"></i> Hubungi Kami
                 </a>
             </div>
         </section>

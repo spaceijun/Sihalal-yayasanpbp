@@ -47,14 +47,15 @@
         }
 
         .hero-contact .kh-blob {
-            opacity: 0.5;
+            opacity: 0.35;
         }
 
         .hero-contact-title {
-            font-size: clamp(2rem, 4vw, 3.25rem);
+            font-size: clamp(2.25rem, 5vw, 3.5rem);
             font-weight: 800;
-            line-height: 1.15;
+            line-height: 1.2;
             color: var(--kh-dark);
+            letter-spacing: -1px;
         }
 
         .hero-contact-title .highlight {
@@ -66,22 +67,25 @@
 
         /* Contact info cards */
         .contact-card {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid #EAF1FB;
-            padding: 2rem;
+            border: 1px solid rgba(47, 143, 230, 0.12);
+            padding: 2.5rem 2rem;
             text-align: center;
             transition: var(--kh-transition);
             height: 100%;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(47, 143, 230, 0.03);
         }
 
         .contact-card::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: var(--kh-gradient-soft);
+            background: linear-gradient(135deg, rgba(47, 143, 230, 0.02) 0%, rgba(25, 180, 160, 0.02) 100%);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
@@ -93,8 +97,8 @@
 
         .contact-card:hover {
             transform: translateY(-8px);
-            box-shadow: var(--kh-shadow-lg);
-            border-color: var(--kh-primary-light);
+            box-shadow: 0 20px 40px rgba(47, 143, 230, 0.08);
+            border-color: rgba(47, 143, 230, 0.25);
         }
 
         .contact-card:hover::before {
@@ -102,20 +106,22 @@
         }
 
         .contact-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 20px;
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.25rem;
+            margin: 0 auto 1.5rem;
             transition: var(--kh-transition);
-            background: var(--kh-sky);
+            background: rgba(47, 143, 230, 0.08);
+            color: var(--kh-primary);
         }
 
         .contact-card:hover .contact-icon {
-            transform: scale(1.12) rotate(6deg);
+            transform: scale(1.1) rotate(4deg);
             background: var(--kh-gradient);
+            color: #fff;
         }
 
         .contact-card:hover .contact-icon i {
@@ -123,16 +129,17 @@
         }
 
         .contact-title {
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 1.15rem;
+            font-weight: 750;
             color: var(--kh-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .contact-value {
             color: var(--kh-text);
-            font-weight: 500;
-            margin-bottom: 0.25rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
         }
 
         .contact-note {
@@ -145,52 +152,57 @@
         .form-card {
             background: #fff;
             border-radius: var(--kh-radius-lg);
-            border: 1px solid #EAF1FB;
-            padding: 2.5rem;
-            box-shadow: var(--kh-shadow);
+            border: 1px solid rgba(47, 143, 230, 0.1);
+            padding: 3rem;
+            box-shadow: 0 15px 45px rgba(47, 143, 230, 0.05);
         }
 
         .form-kh .form-control,
         .form-kh .form-select {
             border-radius: 12px;
-            padding: 0.875rem 1rem;
+            padding: 0.875rem 1.15rem;
             border: 2px solid #EAF1FB;
             transition: var(--kh-transition);
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FDFEFF;
+            font-size: 0.95rem;
         }
 
         .form-kh .form-control:focus,
         .form-kh .form-select:focus {
             border-color: var(--kh-primary);
-            box-shadow: 0 0 0 4px rgba(47, 143, 230, 0.12);
+            box-shadow: 0 0 0 4px rgba(47, 143, 230, 0.1);
+            background-color: #fff;
         }
 
         .form-kh label {
             font-weight: 600;
             color: var(--kh-dark);
             margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .form-kh textarea {
             resize: vertical;
-            min-height: 140px;
+            min-height: 150px;
         }
 
         /* FAQ */
         .faq-section {
-            background: var(--kh-sky-2);
+            background: linear-gradient(180deg, #FFFFFF 0%, #F4FAFF 100%);
         }
 
         .faq-card {
             background: #fff;
-            border-radius: var(--kh-radius);
-            padding: 1.25rem 1.5rem;
+            border-radius: 18px;
+            padding: 1.5rem;
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
-            border: 1px solid #EAF1FB;
+            gap: 1.25rem;
+            border: 1px solid rgba(47, 143, 230, 0.08);
             transition: var(--kh-transition);
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 5px 15px rgba(47, 143, 230, 0.02);
         }
 
         .faq-card:last-child {
@@ -198,25 +210,27 @@
         }
 
         .faq-card:hover {
-            transform: translateX(6px);
-            box-shadow: var(--kh-shadow);
-            border-color: var(--kh-primary-light);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(47, 143, 230, 0.06);
+            border-color: rgba(47, 143, 230, 0.18);
         }
 
         .faq-icon {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            background: var(--kh-sky);
+            background: rgba(47, 143, 230, 0.08);
+            color: var(--kh-primary);
             transition: var(--kh-transition);
         }
 
         .faq-card:hover .faq-icon {
             background: var(--kh-gradient);
+            color: #fff;
         }
 
         .faq-card:hover .faq-icon i {
@@ -226,24 +240,25 @@
         .faq-question {
             font-weight: 700;
             color: var(--kh-dark);
-            margin-bottom: 0.25rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
         }
 
         .faq-answer {
             color: var(--kh-text-light);
-            font-size: 0.875rem;
+            font-size: 0.88rem;
+            line-height: 1.6;
             margin: 0;
         }
 
         @media (max-width: 768px) {
             .hero-contact {
-                padding-top: 7rem;
-                padding-bottom: 3rem;
+                padding-top: 8rem;
+                padding-bottom: 4rem;
             }
 
             .form-card {
-                padding: 1.5rem;
+                padding: 1.75rem;
             }
         }
     </style>
@@ -256,24 +271,25 @@
 
         <!-- ========== HERO ========== -->
         <section class="hero-contact" id="hero">
-            <!-- Decorative blobs sama seperti home -->
+            <!-- Decorative blobs -->
             <div class="kh-blob kh-blob-1"></div>
             <div class="kh-blob kh-blob-2"></div>
 
             <div class="container position-relative text-center" style="z-index: 1;">
                 <div class="row justify-content-center">
-                    <div class="col-lg-7">
-                        <div class="hero-badge mb-4 animate-fade-in-up" style="margin: 0 auto 1.5rem;">
-                            <i class="ri-customer-service-2-line text-kh"></i>
-                            <span class="small fw-semibold">Hubungi Kami</span>
+                    <div class="col-lg-8">
+                        <div class="modern-badge mb-4 animate-fade-in-up" style="margin: 0 auto 1.5rem;">
+                            <i class="ri-customer-service-2-line"></i>
+                            <span>Hubungi Kami</span>
                         </div>
                         <h1 class="hero-contact-title mb-4 animate-fade-in-up delay-100">
                             Ada Pertanyaan?<br>
                             <span class="highlight">Kami Siap Membantu</span>
                         </h1>
-                        <p class="hero-lead lead mb-0 animate-fade-in-up delay-200"
-                            style="max-width: 520px; margin: 0 auto;">
-                            Jangan ragu untuk menghubungi kami. Tim kami siap membantu Anda 24/7.
+                        <p class="hero-lead lead mb-0 animate-fade-in-up delay-200 text-muted"
+                            style="max-width: 540px; margin: 0 auto; line-height: 1.7; font-size: 1.05rem;">
+                            Jangan ragu untuk menghubungi kami. Tim ahli pendamping halal kami siap melayani dan
+                            mendampingi bisnis Anda.
                         </p>
                     </div>
                 </div>
@@ -286,31 +302,38 @@
                 <div class="row g-4">
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
                         <div class="contact-card">
-                            <div class="contact-icon">
-                                <i class="ri-phone-line text-kh fs-3"></i>
-                            </div>
+                            <span
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(47,143,230,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-primary);transition:var(--kh-transition);"
+                                class="contact-icon-wrapper">
+                                <i class="ri-phone-line" style="font-size:1.6rem;"></i>
+                            </span>
                             <h5 class="contact-title">Telepon / WhatsApp</h5>
-                            <p class="contact-value">+62 897-6774-482</p>
+                            <p class="contact-value" style="color:var(--kh-primary);">+62 897-6774-482</p>
                             <p class="contact-note">Senin – Jumat, 08.00 – 17.00</p>
                         </div>
                     </div>
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                         <div class="contact-card">
-                            <div class="contact-icon">
-                                <i class="ri-mail-line text-kh fs-3"></i>
-                            </div>
+                            <span
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(25,180,160,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-secondary);transition:var(--kh-transition);"
+                                class="contact-icon-wrapper">
+                                <i class="ri-mail-line" style="font-size:1.6rem;"></i>
+                            </span>
                             <h5 class="contact-title">Email</h5>
-                            <p class="contact-value">info@kawulohalal.id</p>
+                            <p class="contact-value" style="color:var(--kh-secondary);">info@kawulohalal.id</p>
                             <p class="contact-note">Respon dalam 24 jam</p>
                         </div>
                     </div>
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                         <div class="contact-card">
-                            <div class="contact-icon">
-                                <i class="ri-map-pin-line text-kh fs-3"></i>
-                            </div>
+                            <span
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(22,36,59,0.06);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-dark);transition:var(--kh-transition);"
+                                class="contact-icon-wrapper">
+                                <i class="ri-map-pin-line" style="font-size:1.6rem;"></i>
+                            </span>
                             <h5 class="contact-title">Alamat</h5>
-                            <p class="contact-value">Virtual Office On Jakarta Selatan, DKI Jakarta</p>
+                            <p class="contact-value" style="color:var(--kh-dark);">Virtual Office On Jakarta Selatan
+                            </p>
                             <p class="contact-note">Layanan seluruh Indonesia</p>
                         </div>
                     </div>
@@ -324,15 +347,19 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <div class="text-center mb-5" data-aos="fade-up">
-                            <span class="badge bg-kh-soft text-kh px-3 py-2 mb-3">
-                                <i class="ri-mail-send-line me-1 align-bottom"></i> Kirim Pesan
-                            </span>
-                            <h2 class="fw-bold mb-2">Kirim <span class="text-kh">Pesan</span></h2>
-                            <p class="text-muted">Isi formulir di bawah ini dan kami akan segera menghubungi Anda.</p>
+                            <div class="modern-badge modern-badge-emerald mb-3" style="margin: 0 auto;">
+                                <i class="ri-mail-send-line"></i>
+                                <span>Kirim Pesan</span>
+                            </div>
+                            <h2 class="section-title mb-2">Hubungi Kami Secara <span class="text-kh">Langsung</span>
+                            </h2>
+                            <p class="section-subtitle">Isi formulir di bawah ini dan tim kami akan segera menghubungi
+                                Anda kembali.</p>
                         </div>
 
                         @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert"
+                                style="border-radius: 12px;">
                                 <strong><i class="ri-checkbox-circle-line me-1"></i> Berhasil!</strong>
                                 {{ session('success') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
@@ -388,7 +415,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-12">
-                                        <button type="submit" class="btn btn-kh btn-lg w-100">
+                                        <button type="submit" class="btn btn-kh btn-lg w-100 shadow py-3">
                                             <i class="ri-send-plane-line me-1 align-bottom"></i> Kirim Pesan
                                         </button>
                                     </div>
@@ -405,57 +432,60 @@
             <div class="container">
                 <div class="row align-items-center g-5">
                     <div class="col-lg-5" data-aos="fade-right">
-                        <span class="badge bg-kh-soft text-kh px-3 py-2 mb-3">
-                            <i class="ri-question-line me-1 align-bottom"></i> FAQ
-                        </span>
-                        <h2 class="fw-bold mb-3 lh-base">
+                        <div class="modern-badge mb-3">
+                            <i class="ri-question-line"></i>
+                            <span>Pertanyaan Umum</span>
+                        </div>
+                        <h2 class="section-title mb-3 lh-base">
                             Pertanyaan yang<br><span class="text-kh">Sering Diajukan</span>
                         </h2>
-                        <p class="text-muted mb-4">
-                            Temukan jawaban untuk pertanyaan yang paling sering diajukan tentang sertifikasi halal.
+                        <p class="section-subtitle text-start mb-4" style="max-width:100%;">
+                            Temukan jawaban cepat untuk pertanyaan yang paling sering diajukan mengenai layanan
+                            sertifikasi halal kami.
                         </p>
-                        <a href="{{ route('publik.about') }}" class="btn btn-kh">
-                            <i class="ri-arrow-right-line align-bottom me-1"></i> Pelajari Lebih
+                        <a href="{{ route('publik.about') }}" class="btn btn-kh-outline btn-lg px-4 py-3">
+                            <i class="ri-arrow-right-line align-bottom me-1"></i> Pelajari Lebih Lanjut
                         </a>
                     </div>
                     <div class="col-lg-7" data-aos="fade-left" data-aos-delay="100">
                         <div class="faq-card">
                             <div class="faq-icon">
-                                <i class="ri-time-line text-kh fs-5"></i>
+                                <i class="ri-time-line" style="font-size: 1.25rem;"></i>
                             </div>
                             <div>
                                 <h6 class="faq-question">Berapa lama proses sertifikasi halal?</h6>
-                                <p class="faq-answer">Umumnya 30 hari kerja sejak dokumen lengkap diterima.</p>
+                                <p class="faq-answer">Umumnya membutuhkan waktu hingga 30 hari kerja sejak seluruh
+                                    dokumen persyaratan dinyatakan lengkap.</p>
                             </div>
                         </div>
                         <div class="faq-card">
                             <div class="faq-icon">
-                                <i class="ri-file-list-3-line text-kh fs-5"></i>
+                                <i class="ri-file-list-3-line" style="font-size: 1.25rem;"></i>
                             </div>
                             <div>
                                 <h6 class="faq-question">Apa saja dokumen yang diperlukan?</h6>
-                                <p class="faq-answer">NIB, daftar produk, informasi bahan baku, dan layout proses
-                                    produksi.</p>
+                                <p class="faq-answer">Dokumen utama meliputi NIB, daftar nama produk, daftar bahan baku
+                                    beserta sertifikat halalnya, dan diagram alir proses produksi.</p>
                             </div>
                         </div>
                         <div class="faq-card">
                             <div class="faq-icon">
-                                <i class="ri-money-dollar-circle-line text-kh fs-5"></i>
+                                <i class="ri-money-dollar-circle-line" style="font-size: 1.25rem;"></i>
                             </div>
                             <div>
                                 <h6 class="faq-question">Berapa biaya sertifikasi halal?</h6>
-                                <p class="faq-answer">Biaya tergantung jenis dan jumlah produk. Konsultasi gratis
-                                    tersedia untuk Anda.</p>
+                                <p class="faq-answer">Biaya bergantung pada jenis layanan dan kapasitas bisnis Anda.
+                                    Hubungi tim kami untuk konsultasi biaya secara gratis.</p>
                             </div>
                         </div>
                         <div class="faq-card">
                             <div class="faq-icon">
-                                <i class="ri-graduation-cap-line text-kh fs-5"></i>
+                                <i class="ri-graduation-cap-line" style="font-size: 1.25rem;"></i>
                             </div>
                             <div>
                                 <h6 class="faq-question">Apakah ada pelatihan Penyelia Halal?</h6>
-                                <p class="faq-answer">Ya, pelatihan Penyelia Halal tersedia dalam paket layanan
-                                    sertifikasi kami.</p>
+                                <p class="faq-answer">Ya, kami menyediakan paket pendampingan lengkap yang mencakup
+                                    pembekalan dan penunjukan Penyelia Halal bersertifikat.</p>
                             </div>
                         </div>
                     </div>
@@ -464,28 +494,33 @@
         </section>
 
         <!-- ========== CTA ========== -->
-        <section class="py-5 gradient-kh cta-section position-relative">
-            <div class="container position-relative">
-                <div class="row align-items-center gy-4">
-                    <div class="col-sm-8">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avatar-lg flex-shrink-0">
-                                <div class="avatar-title bg-white bg-opacity-25 rounded-3">
-                                    <i class="ri-shield-check-fill text-white fs-2"></i>
+        <section class="py-5 position-relative" style="background: var(--kh-white);">
+            <div class="container">
+                <div class="cta-box-modern" data-aos="zoom-in" data-aos-duration="800">
+                    <div class="cta-bg-blob"></div>
+                    <div class="row align-items-center gy-4 position-relative" style="z-index: 2;">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                                <span
+                                    style="width:64px;height:64px;min-width:64px;border-radius:16px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);display:inline-flex;align-items:center;justify-content:center;"
+                                    class="d-none d-sm-inline-flex">
+                                    <i class="ri-shield-check-fill text-white" style="font-size:1.8rem;"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-white fw-bold mb-2">Ingin Mendaftarkan Produk Anda?</h3>
+                                    <p class="text-white mb-0" style="opacity:0.85;max-width:580px;">
+                                        Jangan tunda lagi. Daftarkan produk Anda sekarang untuk meraih kepercayaan
+                                        konsumen lebih cepat.
+                                    </p>
                                 </div>
                             </div>
-                            <div>
-                                <h4 class="text-white mb-1">Ingin Mendaftarkan Produk Anda?</h4>
-                                <p class="text-white text-opacity-75 mb-0">Jangan tunda lagi. Daftarkan produk Anda
-                                    sekarang dan raih kepercayaan konsumen.</p>
-                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4 text-sm-end">
-                        <a href="{{ route('publik.contact') }}"
-                            class="btn btn-light btn-lg fw-bold shadow shine-hover">
-                            <i class="ri-edit-line align-bottom me-1"></i> Daftar Sekarang
-                        </a>
+                        <div class="col-md-4 text-md-end text-center">
+                            <a href="{{ route('publik.contact') }}"
+                                class="btn btn-light btn-lg fw-bold px-4 py-3 shadow shine-hover">
+                                <i class="ri-edit-line align-middle me-2"></i> Daftar Sekarang
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

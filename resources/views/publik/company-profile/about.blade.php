@@ -35,6 +35,118 @@
     <link href="{{ asset('assets/css/public-pages.css') }}" rel="stylesheet" type="text/css" />
     <!-- Kawulo Halal Modern Theme Css -->
     <link href="{{ asset('assets/css/compro-ui.css') }}" rel="stylesheet" type="text/css" />
+
+    <style>
+        /* ── Page-specific styles (about only) ── */
+        .hero-title {
+            font-size: clamp(2.25rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--kh-dark);
+            letter-spacing: -1px;
+        }
+
+        .hero-title .highlight {
+            background: var(--kh-gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-float-badge-modern {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(47, 143, 230, 0.15);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 35px rgba(47, 143, 230, 0.08);
+            z-index: 2;
+        }
+
+        /* Value cards override inside About Page */
+        .value-card-modern {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(47, 143, 230, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: var(--kh-transition);
+        }
+
+        .value-card-modern:hover {
+            transform: translateY(-5px);
+            background: #fff;
+            border-color: rgba(47, 143, 230, 0.2);
+            box-shadow: 0 10px 25px rgba(47, 143, 230, 0.05);
+        }
+
+        .value-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            background: rgba(47, 143, 230, 0.08);
+            color: var(--kh-primary);
+        }
+
+        .value-card-modern:hover .value-icon-wrapper {
+            background: var(--kh-gradient);
+            color: #fff;
+        }
+
+        /* Accordion Modernization */
+        .accordion-modern .accordion-item {
+            background: #fff;
+            border: 1px solid rgba(47, 143, 230, 0.06) !important;
+            border-radius: 16px !important;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(47, 143, 230, 0.02);
+            transition: var(--kh-transition);
+        }
+
+        .accordion-modern .accordion-item:hover {
+            border-color: rgba(47, 143, 230, 0.15) !important;
+            box-shadow: 0 10px 25px rgba(47, 143, 230, 0.05);
+        }
+
+        .accordion-modern .accordion-button {
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--kh-dark) !important;
+            background: #fff !important;
+            border: none;
+            box-shadow: none !important;
+        }
+
+        .accordion-modern .accordion-button:not(.collapsed) {
+            color: var(--kh-primary) !important;
+            border-bottom: 1px solid rgba(47, 143, 230, 0.06);
+        }
+
+        .accordion-modern .accordion-body {
+            padding: 1.5rem;
+            font-size: 0.925rem;
+            line-height: 1.8;
+            color: var(--kh-text-light);
+            background: #FAFDFF;
+        }
+
+        .accordion-modern .accordion-button::after {
+            background-size: 1rem;
+            transition: var(--kh-transition);
+        }
+    </style>
 </head>
 
 <body>
@@ -44,26 +156,26 @@
 
         <!-- ========== HERO ========== -->
         <section class="section gradient-hero"
-            style="padding-top: 8rem; padding-bottom: 5rem; position: relative; overflow: hidden;">
+            style="padding-top: 9rem; padding-bottom: 5rem; position: relative; overflow: hidden;">
             <div class="kh-blob kh-blob-1"></div>
             <div class="kh-blob kh-blob-2"></div>
             <div class="kh-blob kh-blob-3 d-none d-lg-block"></div>
 
             <div class="container position-relative text-center" style="z-index: 1;">
                 <div class="row justify-content-center">
-                    <div class="col-lg-7" data-aos="fade-up" data-aos-duration="800">
-                        <div class="hero-badge mb-4 animate-fade-in-up" style="display: inline-flex;">
+                    <div class="col-lg-8" data-aos="fade-up" data-aos-duration="800">
+                        <div class="modern-badge mb-4 animate-fade-in-up" style="margin: 0 auto 1.5rem;">
                             <i class="ri-building-line text-kh"></i>
-                            <span class="small fw-semibold">Tentang Kami</span>
+                            <span>Tentang Kami</span>
                         </div>
                         <h1 class="hero-title mb-4 animate-fade-in-up delay-100">
                             Mewujudkan Sertifikasi Halal<br>
                             <span class="highlight">untuk Semua UMKM</span>
                         </h1>
-                        <p class="hero-lead lead mb-0 animate-fade-in-up delay-200"
-                            style="max-width: 580px; margin: 0 auto;">
-                            Kami adalah tim profesional yang berkomitmen membantu pelaku UMKM mendapatkan sertifikat
-                            halal dengan mudah, cepat, dan terjangkau.
+                        <p class="hero-lead lead mb-0 animate-fade-in-up delay-200 text-muted"
+                            style="max-width: 600px; margin: 0 auto; line-height: 1.8; font-size: 1.05rem;">
+                            Kami berkomitmen mendampingi dan mempermudah pelaku usaha UMKM di Indonesia dalam meraih
+                            sertifikasi halal dengan proses yang transparan dan profesional.
                         </p>
                     </div>
                 </div>
@@ -71,33 +183,31 @@
         </section>
 
         <!-- ========== TENTANG KAMI ========== -->
-        <section class="section">
+        <section class="section bg-white">
             <div class="container">
                 <div class="row align-items-center g-5">
                     <!-- Image Side -->
                     <div class="col-lg-6" data-aos="fade-right" data-aos-duration="800">
                         <div class="position-relative">
                             <div
-                                style="border-radius: var(--kh-radius-lg); overflow: hidden; box-shadow: var(--kh-shadow-lg);">
+                                style="border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.06); border: 8px solid rgba(255,255,255,0.85);">
                                 <img src="{{ asset('assets/images/about.jpg') }}" alt="Tim Kawulo Halal"
                                     class="img-fluid w-100">
                             </div>
                             <!-- Float badge -->
-                            <div class="hero-float-badge d-none d-lg-block animate-float"
-                                style="position: absolute; bottom: -20px; right: -20px; background: var(--kh-gradient); border: none; animation-delay: 1s;">
-                                <div class="row g-3 text-center text-white" style="min-width: 240px;">
-                                    <div class="col-4 border-end border-white border-opacity-25">
-                                        <div class="fw-bold fs-5">5+</div>
-                                        <small class="opacity-75" style="color: rgba(255,255,255,0.8);">Tahun</small>
+                            <div class="hero-float-badge-modern d-none d-lg-block animate-float">
+                                <div class="row g-3 text-center" style="min-width: 240px;">
+                                    <div class="col-4 border-end border-light">
+                                        <div class="fw-bold fs-5 text-kh">5+</div>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Tahun</small>
                                     </div>
-                                    <div class="col-4 border-end border-white border-opacity-25">
-                                        <div class="fw-bold fs-5">5000+</div>
-                                        <small class="opacity-75" style="color: rgba(255,255,255,0.8);">UMKM</small>
+                                    <div class="col-4 border-end border-light">
+                                        <div class="fw-bold fs-5 text-emerald">5K+</div>
+                                        <small class="text-muted" style="font-size: 0.75rem;">UMKM</small>
                                     </div>
                                     <div class="col-4">
-                                        <div class="fw-bold fs-5">98%</div>
-                                        <small class="opacity-75"
-                                            style="color: rgba(255,255,255,0.8);">Kepuasan</small>
+                                        <div class="fw-bold fs-5 text-dark">98%</div>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Puas</small>
                                     </div>
                                 </div>
                             </div>
@@ -106,64 +216,65 @@
 
                     <!-- Content Side -->
                     <div class="col-lg-6" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">
-                        <span class="badge bg-kh-soft text-kh px-3 py-2 mb-3">
-                            <i class="ri-heart-line me-1 align-bottom"></i> Siapa Kami
-                        </span>
-                        <h2 class="fw-bold mb-4" style="font-size: 2rem; line-height: 1.3;">
-                            Misi Kami adalah<br>
-                            <span class="text-kh">Melayani dengan Sepenuh Hati</span>
+                        <div class="modern-badge modern-badge-emerald mb-3">
+                            <i class="ri-heart-line"></i>
+                            <span>Siapa Kami</span>
+                        </div>
+                        <h2 class="section-title text-start mb-4" style="line-height: 1.3;">
+                            Misi Utama Kami adalah<br>
+                            Melayani dengan <span class="text-kh">Dedikasi Tinggi</span>
                         </h2>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 1.05rem;">
-                            Kawulo Halal adalah layanan sertifikasi halal yang diinisiasi oleh
-                            <strong>Yayasan Permata Bakti Pertiwi</strong>. Kami hadir untuk membantu pelaku UMKM
-                            di Indonesia mendapatkan sertifikat halal secara mudah, cepat, dan terjangkau.
+                            Kawulo Halal merupakan platform pendampingan sertifikasi halal yang diinisiasi oleh
+                            <strong>Yayasan Permata Bakti Pertiwi</strong>. Kami hadir menjembatani pelaku UMKM di
+                            seluruh Indonesia agar dapat mengakses sertifikasi halal secara cepat dan kredibel.
                         </p>
                         <p class="text-muted mb-5" style="line-height: 1.8; font-size: 1.05rem;">
-                            Dengan pengalaman lebih dari 5 tahun dan tim profesional yang tersebar di berbagai daerah,
-                            kami telah berhasil membantu ribuan pelaku UMKM mendapatkan legitimasi halal untuk produk
-                            mereka.
+                            Berbekal tim pendamping profesional yang berdedikasi tinggi di berbagai wilayah, kami
+                            membantu menyederhanakan birokrasi pengurusan kehalalan produk Anda.
                         </p>
 
-                        <!-- Value Cards menggunakan benefit-card style -->
+                        <!-- Value Cards -->
                         <div class="row g-3">
                             <div class="col-sm-6">
-                                <div class="benefit-card" style="padding: 1.25rem;">
-                                    <div class="benefit-icon bg-kh-soft"
-                                        style="margin-bottom: 0.75rem; width: 48px; height: 48px;">
-                                        <i class="ri-heart-line text-kh"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Integritas</h6>
-                                    <p class="text-muted small mb-0">Jujur & transparan dalam setiap proses</p>
+                                <div class="value-card-modern">
+                                    <span class="value-icon-wrapper">
+                                        <i class="ri-heart-line"></i>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--kh-dark);">Integritas</h6>
+                                    <p class="text-muted small mb-0">Mengedepankan kejujuran & kepatuhan penuh syariah.
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="benefit-card" style="padding: 1.25rem;">
-                                    <div class="benefit-icon bg-kh-soft"
-                                        style="margin-bottom: 0.75rem; width: 48px; height: 48px;">
-                                        <i class="ri-medal-line text-kh"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Profesional</h6>
-                                    <p class="text-muted small mb-0">Tim bersertifikat & berpengalaman</p>
+                                <div class="value-card-modern">
+                                    <span class="value-icon-wrapper"
+                                        style="color:var(--kh-secondary); background:rgba(25,180,160,0.08);">
+                                        <i class="ri-medal-line"></i>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--kh-dark);">Profesional</h6>
+                                    <p class="text-muted small mb-0">Didukung oleh tim pendamping bersertifikat resmi.
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="benefit-card" style="padding: 1.25rem;">
-                                    <div class="benefit-icon bg-kh-soft"
-                                        style="margin-bottom: 0.75rem; width: 48px; height: 48px;">
-                                        <i class="ri-hand-heart-line text-kh"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Pelayanan</h6>
-                                    <p class="text-muted small mb-0">Klien adalah prioritas utama kami</p>
+                                <div class="value-card-modern">
+                                    <span class="value-icon-wrapper"
+                                        style="color:var(--kh-dark); background:rgba(22,36,59,0.06);">
+                                        <i class="ri-hand-heart-line"></i>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--kh-dark);">Pelayanan Prima</h6>
+                                    <p class="text-muted small mb-0">Menjadikan kenyamanan klien sebagai prioritas
+                                        utama.</p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="benefit-card" style="padding: 1.25rem;">
-                                    <div class="benefit-icon bg-kh-soft"
-                                        style="margin-bottom: 0.75rem; width: 48px; height: 48px;">
-                                        <i class="ri-speed-line text-kh"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Efisiensi</h6>
-                                    <p class="text-muted small mb-0">Proses cepat dan mudah dipahami</p>
+                                <div class="value-card-modern">
+                                    <span class="value-icon-wrapper">
+                                        <i class="ri-speed-line"></i>
+                                    </span>
+                                    <h6 class="fw-bold mb-1" style="color: var(--kh-dark);">Efisiensi</h6>
+                                    <p class="text-muted small mb-0">Menyediakan alur pendampingan yang ringkas.</p>
                                 </div>
                             </div>
                         </div>
@@ -173,31 +284,33 @@
         </section>
 
         <!-- ========== STATS ========== -->
-        <section class="stats-section py-5" id="stats">
+        <section class="py-5" style="background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);">
             <div class="container">
-                <div class="row g-0 text-center">
-                    <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="0">
-                        <div class="stat-card">
-                            <div class="stat-number" data-target="5000">0</div>
-                            <div class="stat-label">UMKM Tersertifikasi</div>
+                <div class="stats-glass-card" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="row g-4 text-center">
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card-modern">
+                                <div class="stat-number-modern" data-target="5000">0</div>
+                                <div class="stat-label-modern">UMKM Didampingi</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="100">
-                        <div class="stat-card">
-                            <div class="stat-number" data-target="50">0</div>
-                            <div class="stat-label">Pendamping Halal</div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card-modern">
+                                <div class="stat-number-modern" data-target="50">0</div>
+                                <div class="stat-label-modern">Pendamping Halal</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="200">
-                        <div class="stat-card">
-                            <div class="stat-number" data-target="30">0</div>
-                            <div class="stat-label">Provinsi Coverage</div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card-modern">
+                                <div class="stat-number-modern" data-target="30">0</div>
+                                <div class="stat-label-modern">Cakupan Wilayah</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="300">
-                        <div class="stat-card">
-                            <div class="stat-number" data-target="5">0</div>
-                            <div class="stat-label">Tahun Pengalaman</div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card-modern">
+                                <div class="stat-number-modern" data-target="5">0</div>
+                                <div class="stat-label-modern">Tahun Pengalaman</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -205,72 +318,68 @@
         </section>
 
         <!-- ========== VISI & MISI ========== -->
-        <section class="section">
+        <section class="section bg-white">
             <div class="container">
                 <div class="row justify-content-center mb-5" data-aos="fade-up">
                     <div class="col-lg-7 text-center">
-                        <span class="badge bg-kh-soft text-kh px-3 py-2 mb-3">
-                            <i class="ri-flag-line me-1 align-bottom"></i> Visi & Misi
-                        </span>
-                        <h2 class="fw-bold mb-3">Membangun Ekosistem <span class="text-kh">Halal</span></h2>
-                        <p class="text-muted">Komitmen kami untuk mewujudkan ekosistem halal yang inklusif dan
-                            berkelanjutan.</p>
+                        <div class="modern-badge mb-3" style="margin:0 auto;">
+                            <i class="ri-flag-line"></i>
+                            <span>Visi & Misi</span>
+                        </div>
+                        <h2 class="section-title">Membangun Ekosistem <span class="text-kh">Halal</span></h2>
+                        <p class="section-subtitle">Arah dan visi kami untuk mewujudkan ekosistem halal nasional yang
+                            inklusif.</p>
                     </div>
                 </div>
                 <div class="row g-4">
                     <!-- Visi -->
                     <div class="col-lg-6" data-aos="fade-up" data-aos-delay="0">
-                        <div class="benefit-card h-100" style="border-top: 4px solid var(--kh-secondary);">
-                            <div class="benefit-icon bg-kh-soft"
-                                style="background: rgba(25, 180, 160, 0.1) !important;">
-                                <i class="ri-eye-line" style="color: var(--kh-secondary) !important;"></i>
+                        <div class="benefit-card-modern h-100" style="border-top: 4px solid var(--kh-secondary);">
+                            <div class="benefit-icon-modern"
+                                style="color: var(--kh-secondary); background: rgba(25, 180, 160, 0.08);">
+                                <i class="ri-eye-line"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Visi</h4>
-                            <p class="text-muted mb-0" style="line-height: 1.8;">
-                                Menjadikan Kawulo Halal sebagai <strong>partner utama</strong> sertifikasi halal bagi
-                                UMKM Indonesia, terwujudnya ekosistem halal yang inklusif dan berkelanjutan untuk
-                                seluruh pelaku usaha.
+                            <h4 class="fw-bold mb-3" style="color: var(--kh-dark);">Visi Kami</h4>
+                            <p class="text-muted mb-0" style="line-height: 1.8; font-size: 0.95rem;">
+                                Menjadi mitra pendampingan sertifikasi halal terpercaya dan terdepan di Indonesia,
+                                mewujudkan ekosistem usaha halal yang inklusif dan berkelanjutan bagi seluruh lapisan
+                                pelaku usaha nasional.
                             </p>
                         </div>
                     </div>
                     <!-- Misi -->
                     <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="benefit-card h-100" style="border-top: 4px solid var(--kh-primary);">
-                            <div class="benefit-icon bg-kh-soft">
-                                <i class="ri-flag-line text-kh"></i>
+                        <div class="benefit-card-modern h-100" style="border-top: 4px solid var(--kh-primary);">
+                            <div class="benefit-icon-modern">
+                                <i class="ri-flag-line"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Misi</h4>
+                            <h4 class="fw-bold mb-3" style="color: var(--kh-dark);">Misi Kami</h4>
                             <ul class="list-unstyled vstack gap-3 mb-0">
                                 <li class="d-flex align-items-start gap-2">
-                                    <div
-                                        class="avatar-xxs bg-success bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1">
-                                        <i class="ri-check-line text-success" style="font-size: 0.7rem;"></i>
+                                    <div class="avatar-xxs bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1"
+                                        style="width:20px;height:20px;">
+                                        <i class="ri-check-line text-success" style="font-size: 0.75rem;"></i>
                                     </div>
-                                    <span class="text-muted small">Melakukan sosialisasi dan edukasi tentang pentingnya
-                                        sertifikat halal</span>
+                                    <span class="text-muted small" style="line-height:1.5;">Menyelenggarakan edukasi
+                                        dan literasi masif seputar pentingnya jaminan produk halal.</span>
                                 </li>
                                 <li class="d-flex align-items-start gap-2">
-                                    <div
-                                        class="avatar-xxs bg-success bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1">
-                                        <i class="ri-check-line text-success" style="font-size: 0.7rem;"></i>
+                                    <div class="avatar-xxs bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1"
+                                        style="width:20px;height:20px;">
+                                        <i class="ri-check-line text-success" style="font-size: 0.75rem;"></i>
                                     </div>
-                                    <span class="text-muted small">Memberikan layanan sertifikasi halal yang mudah dan
-                                        terjangkau</span>
+                                    <span class="text-muted small" style="line-height:1.5;">Menyediakan layanan
+                                        konsultasi dan pendampingan sertifikasi halal yang ramah bagi pelaku usaha
+                                        kecil.</span>
                                 </li>
                                 <li class="d-flex align-items-start gap-2">
-                                    <div
-                                        class="avatar-xxs bg-success bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1">
-                                        <i class="ri-check-line text-success" style="font-size: 0.7rem;"></i>
+                                    <div class="avatar-xxs bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1"
+                                        style="width:20px;height:20px;">
+                                        <i class="ri-check-line text-success" style="font-size: 0.75rem;"></i>
                                     </div>
-                                    <span class="text-muted small">Membangun jaringan pendamping halal di seluruh
-                                        Indonesia</span>
-                                </li>
-                                <li class="d-flex align-items-start gap-2">
-                                    <div
-                                        class="avatar-xxs bg-success bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1">
-                                        <i class="ri-check-line text-success" style="font-size: 0.7rem;"></i>
-                                    </div>
-                                    <span class="text-muted small">Mendukung pertumbuhan ekonomi halal Indonesia</span>
+                                    <span class="text-muted small" style="line-height:1.5;">Memperluas jejaring
+                                        pendamping halal profesional dan berintegritas tinggi di seluruh
+                                        Indonesia.</span>
                                 </li>
                             </ul>
                         </div>
@@ -280,117 +389,100 @@
         </section>
 
         <!-- ========== CTA BANNER ========== -->
-        <section class="py-5 gradient-kh cta-section position-relative">
-            <div class="container position-relative">
-                <div class="row align-items-center gy-4">
-                    <div class="col-sm-8">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avatar-lg flex-shrink-0">
-                                <div class="avatar-title bg-white bg-opacity-25 rounded-3">
-                                    <i class="ri-shield-check-fill text-white fs-2"></i>
+        <section class="py-5 position-relative" style="background: var(--kh-white);">
+            <div class="container">
+                <div class="cta-box-modern" data-aos="zoom-in" data-aos-duration="800">
+                    <div class="cta-bg-blob"></div>
+                    <div class="row align-items-center gy-4 position-relative" style="z-index: 2;">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                                <span
+                                    style="width:64px;height:64px;min-width:64px;border-radius:16px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);display:inline-flex;align-items:center;justify-content:center;"
+                                    class="d-none d-sm-inline-flex">
+                                    <i class="ri-shield-check-fill text-white" style="font-size:1.8rem;"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-white fw-bold mb-2">Siap Mendaftarkan Produk Anda?</h3>
+                                    <p class="text-white mb-0" style="opacity:0.85;max-width:580px;">
+                                        Segera hubungi kami dan mulailah perjalanan sertifikasi halal Anda bersama
+                                        pendamping terbaik.
+                                    </p>
                                 </div>
                             </div>
-                            <div>
-                                <h4 class="text-white mb-1">Siap Bergabung dengan Kami?</h4>
-                                <p class="text-white text-opacity-75 mb-0">Jadilah bagian dari ekosistem halal
-                                    Indonesia.</p>
-                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4 text-sm-end">
-                        <a href="{{ route('publik.contact') }}"
-                            class="btn btn-light btn-lg fw-bold shadow shine-hover">
-                            <i class="ri-edit-line align-bottom me-1"></i> Daftar Sekarang
-                        </a>
+                        <div class="col-md-4 text-md-end text-center">
+                            <a href="{{ route('publik.contact') }}"
+                                class="btn btn-light btn-lg fw-bold px-4 py-3 shadow shine-hover">
+                                <i class="ri-edit-line align-middle me-2"></i> Daftar Sekarang
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ========== FAQ ========== -->
-        <section class="section bg-kh-soft">
+        <section class="section" style="background: #F8FBFF;">
             <div class="container">
                 <div class="row justify-content-center mb-5" data-aos="fade-up">
                     <div class="col-lg-7 text-center">
-                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 mb-3">
-                            <i class="ri-question-line me-1 align-bottom"></i> FAQ
-                        </span>
-                        <h2 class="fw-bold mb-3">Pertanyaan yang Sering <span class="text-kh">Diajukan</span></h2>
-                        <p class="text-muted">Temukan jawaban dari pertanyaan umum seputar sertifikasi halal.</p>
+                        <div class="modern-badge modern-badge-emerald mb-3" style="margin:0 auto;">
+                            <i class="ri-question-line"></i>
+                            <span>Tanya Jawab</span>
+                        </div>
+                        <h2 class="section-title">Pertanyaan yang Sering <span class="text-kh">Diajukan</span></h2>
+                        <p class="section-subtitle">Temukan jawaban seputar pengurusan sertifikat halal.</p>
                     </div>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
-                        <div class="accordion" id="faqAccordion">
+                        <div class="accordion accordion-modern animate-fade-in-up" id="faqAccordion">
 
-                            <div class="accordion-item border-0 rounded-3 mb-3 shadow-sm">
+                            <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button fw-semibold rounded-3" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#faq1"
-                                        style="color: var(--kh-dark);">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq1">
                                         Berapa lama proses sertifikasi halal?
                                     </button>
                                 </h2>
                                 <div id="faq1" class="accordion-collapse collapse show"
                                     data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body text-muted" style="line-height: 1.8;">
-                                        Proses sertifikasi halal untuk produk low-risk umumnya memakan waktu sekitar 30
-                                        hari kerja sejak dokumen lengkap diajukan. Dengan bantuan tim Pendamping Halal
-                                        Kawulo Halal, proses ini bisa berjalan lebih cepat dan efisien.
+                                    <div class="accordion-body">
+                                        Proses pendampingan dan verifikasi dokumen halal low-risk umumnya memakan waktu
+                                        30 hari kerja sejak dokumen terkirim lengkap kepada BPJPH.
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="accordion-item border-0 rounded-3 mb-3 shadow-sm">
+                            <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-semibold rounded-3" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#faq2"
-                                        style="color: var(--kh-dark);">
-                                        Apa saja dokumen yang diperlukan?
+                                    <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        Apa saja dokumen utama yang diperlukan?
                                     </button>
                                 </h2>
                                 <div id="faq2" class="accordion-collapse collapse"
                                     data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body text-muted" style="line-height: 1.8;">
-                                        Dokumen yang diperlukan meliputi: NIB (Nomor Induk Berusaha), daftar produk,
-                                        bahan baku, proses produksi, layout tempat produksi, serta sertifikat Penyelia
-                                        Halal dari pelatihan yang kami sediakan.
+                                    <div class="accordion-body">
+                                        Dokumen wajib meliputi: Nomor Induk Berusaha (NIB), list nama dan jenis produk,
+                                        daftar bahan baku yang digunakan (disertai sertifikat halalnya), matriks bahan,
+                                        serta surat penunjukan penyelia halal.
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="accordion-item border-0 rounded-3 mb-3 shadow-sm">
+                            <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-semibold rounded-3" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#faq3"
-                                        style="color: var(--kh-dark);">
-                                        Berapa biaya sertifikasi halal?
+                                    <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Bagaimana dengan biaya pengurusan?
                                     </button>
                                 </h2>
                                 <div id="faq3" class="accordion-collapse collapse"
                                     data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body text-muted" style="line-height: 1.8;">
-                                        Biaya bervariasi tergantung jenis produk dan kompleksitas. Untuk produk
-                                        low-risk, kami menawarkan skema pembayaran fleksibel dan transparan. Hubungi
-                                        tim kami untuk konsultasi gratis dan penawaran harga.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="accordion-item border-0 rounded-3 mb-3 shadow-sm">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-semibold rounded-3" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#faq4"
-                                        style="color: var(--kh-dark);">
-                                        Apakah ada pelatihan untuk Penyelia Halal?
-                                    </button>
-                                </h2>
-                                <div id="faq4" class="accordion-collapse collapse"
-                                    data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body text-muted" style="line-height: 1.8;">
-                                        Ya, kami menyediakan pelatihan Penyelia Halal yang diakui BPJPH. Pelatihan ini
-                                        termasuk dalam paket layanan sertifikasi halal kami dan sertifikatnya berlaku
-                                        untuk multiple produk.
+                                    <div class="accordion-body">
+                                        Biaya ditentukan berdasarkan skala usaha Anda. Hubungi tim kami untuk konsultasi
+                                        gratis guna mendapatkan penawaran alur dan biaya terbaik untuk usaha Anda.
                                     </div>
                                 </div>
                             </div>
@@ -402,13 +494,19 @@
         </section>
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 gradient-kh-dark cta-section position-relative">
-            <div class="container position-relative text-center">
-                <i class="ri-hand-coin-line text-white opacity-25" style="font-size: 5rem;"></i>
-                <h3 class="text-white fw-bold mt-3 mb-2">Punya Pertanyaan?</h3>
-                <p class="text-white text-opacity-75 mb-4">Tim kami siap membantu Anda 24/7</p>
-                <a href="{{ route('publik.contact') }}" class="btn btn-light btn-lg fw-bold px-5 shadow shine-hover">
-                    <i class="ri-message-3-line align-bottom me-1"></i> Hubungi Kami
+        <section class="py-5 position-relative"
+            style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+            <div class="container position-relative text-center py-4" style="z-index: 2;">
+                <span
+                    style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
+                    <i class="ri-chat-smile-3-line" style="font-size: 2.2rem;"></i>
+                </span>
+                <h3 class="text-white fw-bold mb-2">Masih Memiliki Pertanyaan Lain?</h3>
+                <p class="text-white text-opacity-75 mb-4" style="max-width:480px; margin:0 auto;">Tim support
+                    customer care kami siap membantu Anda 24 jam sehari, 7 hari seminggu.</p>
+                <a href="{{ route('publik.contact') }}"
+                    class="btn btn-light btn-lg fw-bold px-5 py-3 shadow shine-hover">
+                    <i class="ri-message-3-line align-middle me-2"></i> Hubungi Kami Sekarang
                 </a>
             </div>
         </section>

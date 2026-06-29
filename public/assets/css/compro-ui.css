@@ -792,3 +792,400 @@ body {
         font-size: 1.9rem;
     }
 }
+
+/* ======================================================================
+   KAWULO HALAL — MODERN & MINIMALIST EXTENSIONS
+   ====================================================================== */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(47, 143, 230, 0.12);
+    box-shadow: 0 20px 60px rgba(47, 143, 230, 0.10);
+    border-radius: var(--kh-radius-lg);
+    transition: var(--kh-transition);
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(47, 143, 230, 0.2);
+    box-shadow: 0 30px 80px rgba(47, 143, 230, 0.14);
+    transform: translateY(-4px);
+}
+
+/* Hero checklist icon override */
+.glass-card .check-icon {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    background: rgba(25, 135, 84, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #198754;
+}
+
+/* Float Badge refinement */
+.hero-float-badge-modern {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 18px;
+    padding: 0.85rem 1.25rem;
+    box-shadow: 0 12px 30px rgba(47, 143, 230, 0.08);
+    animation: float-badge-anim 6s ease-in-out infinite;
+    z-index: 2;
+    transition: var(--kh-transition);
+}
+
+.hero-float-badge-modern:hover {
+    transform: scale(1.05);
+    box-shadow: 0 16px 36px rgba(47, 143, 230, 0.12);
+}
+
+@keyframes float-badge-anim {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(1deg);
+    }
+}
+
+/* Floating Stats Section */
+.stats-floating-container {
+    margin-top: -65px;
+    position: relative;
+    z-index: 10;
+}
+
+.stats-glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 15px 50px rgba(47, 143, 230, 0.08);
+    border-radius: 24px;
+    padding: 2.5rem 1.5rem;
+    transition: var(--kh-transition);
+}
+
+.stats-glass-card:hover {
+    box-shadow: 0 20px 60px rgba(47, 143, 230, 0.12);
+}
+
+.stat-card-modern {
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+}
+
+.stat-card-modern:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(47, 143, 230, 0.15) 30%, rgba(47, 143, 230, 0.15) 70%, transparent);
+}
+
+.stat-number-modern {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1;
+    background: var(--kh-gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
+}
+
+.stat-label-modern {
+    color: var(--kh-text-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Modern Section Headers */
+.section-title {
+    font-size: clamp(2rem, 3.8vw, 2.5rem);
+    font-weight: 800;
+    color: var(--kh-dark);
+    letter-spacing: -0.5px;
+    line-height: 1.25;
+}
+
+.section-subtitle {
+    font-size: 1.05rem;
+    color: var(--kh-text-light);
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Modern Badges */
+.modern-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border-radius: var(--kh-radius-pill);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(47, 143, 230, 0.06);
+    color: var(--kh-primary-dark);
+    border: 1px solid rgba(47, 143, 230, 0.12);
+    box-shadow: 0 2px 8px rgba(47, 143, 230, 0.02);
+}
+
+.modern-badge-emerald {
+    background: rgba(25, 180, 160, 0.06);
+    color: var(--kh-secondary);
+    border: 1px solid rgba(25, 180, 160, 0.12);
+}
+
+.modern-badge-orange {
+    background: rgba(247, 144, 9, 0.06);
+    color: #E67E22;
+    border: 1px solid rgba(247, 144, 9, 0.12);
+}
+
+/* Modern Benefit Cards */
+.benefit-card-modern {
+    background: var(--kh-white);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    transition: var(--kh-transition);
+    border: 1px solid rgba(47, 143, 230, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.benefit-card-modern::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--kh-gradient);
+    transition: var(--kh-transition);
+}
+
+.benefit-card-modern:hover::after {
+    height: 100%;
+}
+
+.benefit-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 45px rgba(47, 143, 230, 0.08);
+    border-color: rgba(47, 143, 230, 0.15);
+}
+
+.benefit-icon-modern {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(47, 143, 230, 0.06);
+    color: var(--kh-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.75rem;
+    transition: var(--kh-transition);
+}
+
+.benefit-card-modern:hover .benefit-icon-modern {
+    background: var(--kh-gradient);
+    color: #fff !important;
+    transform: scale(1.08) rotate(3deg);
+}
+
+.benefit-card-modern:hover .benefit-icon-modern i {
+    color: #fff !important;
+}
+
+/* Modern Article Cards */
+.article-card-modern {
+    background: var(--kh-white);
+    border-radius: 20px;
+    overflow: hidden;
+    height: 100%;
+    transition: var(--kh-transition);
+    border: 1px solid rgba(47, 143, 230, 0.08);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.01);
+}
+
+.article-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 45px rgba(47, 143, 230, 0.08);
+    border-color: rgba(47, 143, 230, 0.15);
+}
+
+.article-img-container {
+    position: relative;
+    overflow: hidden;
+    height: 210px;
+}
+
+.article-card-modern .card-img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-card-modern:hover .card-img {
+    transform: scale(1.06);
+}
+
+/* Modern Testimonial Cards */
+.testimonial-card-modern {
+    background: var(--kh-white);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    transition: var(--kh-transition);
+    border: 1px solid rgba(47, 143, 230, 0.1);
+    box-shadow: 0 2px 12px rgba(47, 143, 230, 0.04);
+    position: relative;
+}
+
+.testimonial-card-modern:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 45px rgba(47, 143, 230, 0.08);
+    border-color: rgba(47, 143, 230, 0.15);
+}
+
+.testimonial-quote-modern {
+    font-size: 5rem;
+    line-height: 1;
+    color: rgba(47, 143, 230, 0.07);
+    font-family: Georgia, serif;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-style: italic;
+}
+
+.testimonial-avatar-modern {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.testimonial-avatar-placeholder {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.testimonial-text {
+    color: var(--kh-text);
+    font-size: 0.93rem;
+    line-height: 1.75;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+}
+
+/* Modern Job Cards */
+.job-card-modern {
+    background: var(--kh-white);
+    border-radius: 20px;
+    padding: 2.25rem 2rem;
+    transition: var(--kh-transition);
+    border: 1px solid rgba(47, 143, 230, 0.08);
+    height: 100%;
+}
+
+.job-card-modern:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 45px rgba(47, 143, 230, 0.08);
+    border-color: rgba(47, 143, 230, 0.15);
+}
+
+/* Modern CTA Banner Box */
+.cta-box-modern {
+    background: var(--kh-gradient-dark);
+    border-radius: 24px;
+    padding: 4rem 3rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--kh-shadow-lg);
+}
+
+.cta-box-modern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.cta-box-modern .cta-bg-blob {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(111, 182, 255, 0.18) 0%, transparent 70%);
+    bottom: -150px;
+    left: -50px;
+    pointer-events: none;
+}
+
+/* Responsive updates for extensions */
+@media (max-width: 768px) {
+    .stats-floating-container {
+        margin-top: -30px;
+    }
+
+    .stat-card-modern {
+        border-bottom: 1px solid rgba(47, 143, 230, 0.08);
+        padding: 1.5rem 0;
+    }
+
+    .stat-card-modern:last-child {
+        border-bottom: none;
+    }
+
+    .stat-card-modern:not(:last-child)::after {
+        display: none;
+    }
+
+    .cta-box-modern {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .cta-box-modern .text-sm-end {
+        text-align: center !important;
+        margin-top: 1.5rem;
+    }
+}

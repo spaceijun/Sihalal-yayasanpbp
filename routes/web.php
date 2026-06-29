@@ -117,6 +117,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
         Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
         Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
+        Route::get('/enumerators/{id}/download-zip', [EnumeratorController::class, 'downloadZip'])->name('enumerators.download-zip');
         // Data Lapangan
         Route::resource('data-lapangans', DataLapanganController::class);
         Route::get('/datalapangan/{id}/download-foto-rumah-pdf', [DataLapanganController::class, 'downloadFotoRumahPdf'])->name('datalapangan.download-foto-rumah-pdf');
@@ -303,6 +304,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('/enumerators/{id}/gallery', [EnumeratorController::class, 'gallery'])->name('enumerators.gallery');
         Route::get('/enumerators/{id}/download-foto/{type}', [EnumeratorController::class, 'downloadFoto'])->name('enumerators.download-foto');
         Route::get('/enumerators/{id}/download-foto/{dataId}/{type}', [EnumeratorController::class, 'downloadFotoByEntry'])->name('enumerators.download-foto-entry');
+        Route::get('/enumerators/{id}/download-zip', [EnumeratorController::class, 'downloadZip'])->name('enumerators.download-zip');
 
         // Ranking Pendamping
         Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');

@@ -33,7 +33,11 @@ class DataLapanganObserver
 
     public function created(DataLapangan $dataLapangan): void
     {
-        $this->logProgress($dataLapangan, 'created', null, $dataLapangan->toArray());
+        // Sengaja tidak mencatat progress saat created.
+        // Data baru selalu masuk via formulir-halal publik (tanpa auth yang relevan),
+        // sehingga mencatat progress di sini akan menimbulkan entri palsu
+        // ketika seorang data_entry kebetulan masih login di browser yang sama.
+        // Progress hanya dicatat pada aksi 'updated' (edit dari panel data-entry).
     }
 
     public function updated(DataLapangan $dataLapangan): void
@@ -47,7 +51,9 @@ class DataLapanganObserver
 
     public function deleted(DataLapangan $dataLapangan): void
     {
-        $this->logProgress($dataLapangan, 'deleted', $dataLapangan->toArray(), null);
+        // Data hanya bisa dihapus oleh Superadmin/Admin Umum — bukan data_entry.
+        // isDataEntry() guard sudah mencegah eksekusi, tapi dikosongkan
+        // untuk konsistensi dengan created() dan menghindari kebingungan di masa mendatang.
     }
 
     // -------------------------------------------------------------------------

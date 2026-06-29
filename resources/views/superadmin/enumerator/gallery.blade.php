@@ -66,29 +66,60 @@
 
                         <hr>
 
-                        {{-- TAB --}}
-                        <ul class="nav nav-tabs mb-3" id="galleryTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="pendamping-tab" data-bs-toggle="tab"
-                                    data-bs-target="#pendamping" type="button" role="tab">
-                                    <i class="las la-user me-1"></i>
-                                    Foto Pendamping
-                                    <span class="badge bg-primary ms-1">
-                                        {{ $enumerator->dataLapangans->whereNotNull('foto_pendamping')->count() }}
-                                    </span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="produk-tab" data-bs-toggle="tab" data-bs-target="#produk"
-                                    type="button" role="tab">
-                                    <i class="las la-box me-1"></i>
-                                    Foto Produk
-                                    <span class="badge bg-success ms-1">
-                                        {{ $enumerator->dataLapangans->whereNotNull('foto_produk')->count() }}
-                                    </span>
-                                </button>
-                            </li>
-                        </ul>
+                        {{-- TAB + tombol Download ZIP --}}
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-0">
+                            <ul class="nav nav-tabs mb-0 flex-grow-1" id="galleryTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="pendamping-tab" data-bs-toggle="tab"
+                                        data-bs-target="#pendamping" type="button" role="tab">
+                                        <i class="las la-user me-1"></i>
+                                        Foto Pendamping
+                                        <span class="badge bg-primary ms-1">
+                                            {{ $enumerator->dataLapangans->whereNotNull('foto_pendamping')->count() }}
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="produk-tab" data-bs-toggle="tab" data-bs-target="#produk"
+                                        type="button" role="tab">
+                                        <i class="las la-box me-1"></i>
+                                        Foto Produk
+                                        <span class="badge bg-success ms-1">
+                                            {{ $enumerator->dataLapangans->whereNotNull('foto_produk')->count() }}
+                                        </span>
+                                    </button>
+                                </li>
+                            </ul>
+
+                            {{-- Tombol Download ZIP --}}
+                            <div class="d-flex gap-2 mb-1 flex-wrap">
+                                <a id="btn-zip-all"
+                                    href="{{ route($routePrefix . '.enumerators.download-zip', $enumerator->hashed_id) }}?type=all"
+                                    class="btn btn-dark btn-sm zip-btn"
+                                    title="Download semua foto (ZIP)">
+                                    <i class="las la-file-archive me-1"></i>
+                                    <span class="btn-label">Semua Foto</span>
+                                    <span class="spinner-border spinner-border-sm d-none ms-1" role="status"></span>
+                                </a>
+                                <a id="btn-zip-pendamping"
+                                    href="{{ route($routePrefix . '.enumerators.download-zip', $enumerator->hashed_id) }}?type=foto_pendamping"
+                                    class="btn btn-outline-primary btn-sm zip-btn"
+                                    title="Download foto pendamping (ZIP)">
+                                    <i class="las la-file-archive me-1"></i>
+                                    <span class="btn-label">ZIP Pendamping</span>
+                                    <span class="spinner-border spinner-border-sm d-none ms-1" role="status"></span>
+                                </a>
+                                <a id="btn-zip-produk"
+                                    href="{{ route($routePrefix . '.enumerators.download-zip', $enumerator->hashed_id) }}?type=foto_produk"
+                                    class="btn btn-outline-success btn-sm zip-btn"
+                                    title="Download foto produk (ZIP)">
+                                    <i class="las la-file-archive me-1"></i>
+                                    <span class="btn-label">ZIP Produk</span>
+                                    <span class="spinner-border spinner-border-sm d-none ms-1" role="status"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mb-3"></div>
 
                         <div class="tab-content" id="galleryTabContent">
 
@@ -214,8 +245,7 @@
                                                                 {{ $data->status }}
                                                             </span>
                                                             {{-- Tombol Download --}}
-                                                            <a href="{{ asset('storage/' . $data->foto_produk) }}"
-                                                                download="produk_{{ $data->id }}_{{ $enumerator->no_registrasi }}"
+                                                            <a href="{{ route($routePrefix . '.enumerators.download-foto-entry', [$enumerator->hashed_id, $data->id, 'foto_produk']) }}"
                                                                 class="btn btn-outline-secondary btn-sm py-0 px-1"
                                                                 title="Download foto">
                                                                 <i class="las la-download"></i>
@@ -267,7 +297,7 @@
             document.getElementById('modalImage').src = imgUrl;
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalSubtitle').innerText = subtitle;
-            document.getElementById('modalDownload').href = downloadUrl; // sudah pakai route controller
+            document.getElementById('modalDownload').href = downloadUrl;
 
             const badge = document.getElementById('modalBadge');
             badge.innerText = status;
@@ -283,5 +313,31 @@
             const modal = new bootstrap.Modal(document.getElementById('fotoModal'));
             modal.show();
         }
+
+        // Loading spinner untuk tombol ZIP
+        document.querySelectorAll('.zip-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const label   = btn.querySelector('.btn-label');
+                const spinner = btn.querySelector('.spinner-border');
+
+                // Tampilkan spinner, ubah teks
+                label.textContent = 'Menyiapkan...';
+                spinner.classList.remove('d-none');
+                btn.classList.add('disabled');
+
+                // Kembalikan tombol setelah 8 detik
+                // (browser sudah mulai unduh sebelum ini)
+                setTimeout(function () {
+                    const origLabels = {
+                        'btn-zip-all'        : 'Semua Foto',
+                        'btn-zip-pendamping' : 'ZIP Pendamping',
+                        'btn-zip-produk'     : 'ZIP Produk',
+                    };
+                    label.textContent = origLabels[btn.id] || 'Download ZIP';
+                    spinner.classList.add('d-none');
+                    btn.classList.remove('disabled');
+                }, 8000);
+            });
+        });
     </script>
 @endsection

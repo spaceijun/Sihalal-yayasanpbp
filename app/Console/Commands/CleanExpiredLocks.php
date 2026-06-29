@@ -9,7 +9,7 @@ class CleanExpiredLocks extends Command
 {
     protected $signature = 'data-lapangan:clean-locks';
     protected $description = 'Bersihkan lock data lapangan yang sudah expired';
-
+a
     public function handle()
     {
         $count = DataLapangan::where('is_being_edited', true)

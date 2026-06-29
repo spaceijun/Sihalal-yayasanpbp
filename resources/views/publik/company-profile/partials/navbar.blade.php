@@ -4,9 +4,9 @@
             <img src="{{ asset('assets/images/logo-dark.png') }}" class="card-logo card-logo-light" alt="Kawulo Halal"
                 height="28">
         </a>
-        <button class="navbar-toggler py-0 fs-20 border-0" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent">
-            <i class="mdi mdi-menu"></i>
+        <button class="navbar-toggler p-2 border-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="ri-menu-3-line fs-24"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto mt-2 mt-lg-0">
@@ -31,8 +31,8 @@
                         href="{{ route('publik.contact') }}">Kontak</a>
                 </li>
             </ul>
-            <div class="d-flex gap-2 flex-wrap justify-content-center mt-2 mt-lg-0">
-                <a href="{{ route('publik.contact') }}" class="btn btn-kh btn-sm">
+            <div class="d-flex gap-2 flex-wrap justify-content-center mt-3 mt-lg-0">
+                <a href="{{ route('publik.contact') }}" class="btn btn-kh px-4 py-2 fs-13">
                     <i class="ri-edit-line align-bottom me-1"></i> Daftar Sekarang
                 </a>
                 @auth
@@ -46,11 +46,11 @@
                             default => '/dashboard',
                         };
                     @endphp
-                    <a href="{{ url($dashboardUrl) }}" class="btn btn-kh-outline btn-sm">
+                    <a href="{{ url($dashboardUrl) }}" class="btn btn-kh-outline px-4 py-2 fs-13">
                         <i class="ri-dashboard-line align-bottom me-1"></i> Dashboard
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-kh-outline btn-sm">
+                    <a href="{{ route('login') }}" class="btn btn-kh-outline px-4 py-2 fs-13">
                         <i class="ri-user-line align-bottom me-1"></i> Login
                     </a>
                 @endauth
@@ -59,3 +59,29 @@
     </div>
 </nav>
 <div class="vertical-overlay" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent.show"></div>
+
+<style>
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 15px 40px rgba(47, 143, 230, 0.12);
+            border: 1px solid rgba(47, 143, 230, 0.08);
+        }
+        .nav-link-kh {
+            padding: 0.75rem 1rem !important;
+        }
+        .nav-link-kh::after {
+            bottom: 4px;
+            left: 1rem;
+            transform: none;
+        }
+        .nav-link-kh:hover::after,
+        .nav-link-kh.active::after {
+            width: 30px;
+        }
+    }
+</style>

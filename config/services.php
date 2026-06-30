@@ -36,8 +36,15 @@ return [
     ],
 
     'kawulohalal' => [
-        'api_key' => env('KAWULOHALAL_API_KEY'),
-        'sender' => env('KAWULOHALAL_SENDER'),
+        // API key (Bearer token) dari dashboard KawalAku Gateway
+        'api_key'  => env('KAWULOHALAL_API_KEY'),
+        // Base URL lokal KawalAku Gateway (kawalakugateway Laravel project)
+        'base_url' => env('KAWULOHALAL_BASE_URL', 'http://kawalakugateway.test'),
+    ],
+
+    'wa_gateway' => [
+        // Node.js Baileys server URL (untuk Socket.IO & QR code scan)
+        'url' => env('WA_GATEWAY_URL', 'http://localhost:3000'),
     ],
 
     'openai' => [

@@ -131,6 +131,35 @@
                     </a>
                 </li>
 
+                {{-- WA Gateway --}}
+                <li class="menu-title"><span data-key="t-menu">WA Gateway</span></li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/wa-gateway-config') }}"
+                        class="nav-link {{ Request::is('superadmin/wa-gateway-config*') ? 'active' : '' }}">
+                        <i data-feather="settings"></i>Pengaturan WA Gateway
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/wa-devices') }}"
+                        class="nav-link {{ Request::is('superadmin/wa-devices*') ? 'active' : '' }}">
+                        <i data-feather="smartphone"></i>Scan Perangkat WA
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ config('services.kawulohalal.base_url', 'http://kawalakugateway.test') }}/superadmin/dashboard"
+                        target="_blank"
+                        class="nav-link">
+                        <i data-feather="monitor"></i>Dashboard Gateway
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ config('services.kawulohalal.base_url', 'http://kawalakugateway.test') }}/superadmin/wa-messages"
+                        target="_blank"
+                        class="nav-link">
+                        <i data-feather="message-circle"></i>Riwayat Pesan WA
+                    </a>
+                </li>
+
                 {{-- Settings --}}
                 <li class="menu-title"><span data-key="t-menu">Settings</span></li>
                 <li class="nav-item">

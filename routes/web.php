@@ -38,6 +38,8 @@ use App\Http\Controllers\Superadmin\TicketPendampingController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
+use App\Http\Controllers\Superadmin\WaDeviceController;
+use App\Http\Controllers\Superadmin\WaGatewayConfigController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -165,12 +167,32 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('arus-kas', CashflowController::class);
         Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');
         Route::get('/cashflows', [CashflowController::class, 'cashflows'])->name('cashflow.index');
-        // WA Gateway Fonnte
-        Route::resource('devices', DeviceController::class);
-        Route::post('send-message', [DeviceController::class, 'sendMessage'])->name('send.message');
-        Route::post('devices/status', [DeviceController::class, 'checkDeviceStatus']);
-        Route::post('devices/activate', [DeviceController::class, 'activateDevice'])->name('devices.activate');
-        Route::post('devices/disconnect', [DeviceController::class, 'disconnect'])->name('devices.disconnect');
+        // WA Gateway - Kawalaku Gateway
+        Route::resource('wa-devices', WaDeviceController::class)->names([
+            'index' => 'wa-devices.index',
+            'create' => 'wa-devices.create',
+            'store' => 'wa-devices.store',
+            'show' => 'wa-devices.show',
+            'edit' => 'wa-devices.edit',
+            'update' => 'wa-devices.update',
+            'destroy' => 'wa-devices.destroy',
+        ]);
+        Route::post('wa-devices/{hashedId}/connect', [WaDeviceController::class, 'connect'])->name('wa-devices.connect');
+        Route::post('wa-devices/{hashedId}/disconnect', [WaDeviceController::class, 'disconnect'])->name('wa-devices.disconnect');
+        Route::post('wa-devices/{hashedId}/generate-qr', [WaDeviceController::class, 'generateQr'])->name('wa-devices.generate-qr');
+        Route::post('wa-devices/{hashedId}/force-reconnect', [WaDeviceController::class, 'forceReconnect'])->name('wa-devices.force-reconnect');
+        Route::get('wa-devices/{hashedId}/status', [WaDeviceController::class, 'getStatus'])->name('wa-devices.get-status');
+        Route::get('wa-devices/{hashedId}/qr-status', [WaDeviceController::class, 'getQrStatus'])->name('wa-devices.qr-status');
+        Route::patch('wa-devices/{hashedId}/features', [WaDeviceController::class, 'updateFeatures'])->name('wa-devices.features');
+        Route::get('wa-devices-statistics', [WaDeviceController::class, 'statistics'])->name('wa-devices.statistics');
+
+        // WA Gateway Settings
+        Route::get('wa-gateway-config', [WaGatewayConfigController::class, 'index'])->name('wa-gateway-config.index');
+        Route::put('wa-gateway-config', [WaGatewayConfigController::class, 'update'])->name('wa-gateway-config.update');
+        Route::post('wa-gateway-config/test-connection', [WaGatewayConfigController::class, 'testConnection'])->name('wa-gateway-config.test-connection');
+        Route::post('wa-gateway-config/send-test-text', [WaGatewayConfigController::class, 'sendTestText'])->name('wa-gateway-config.send-test-text');
+        Route::post('wa-gateway-config/send-test-media', [WaGatewayConfigController::class, 'sendTestMedia'])->name('wa-gateway-config.send-test-media');
+
         // Data Entry Progress
         Route::prefix('data-entry-progress')->name('data-entry-progress.')->group(function () {
             Route::get('/', [SuperadminDataEntryProgressController::class, 'index'])->name('index');

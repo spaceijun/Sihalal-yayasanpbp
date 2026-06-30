@@ -498,7 +498,7 @@ class NotificationService
             "📊 *Detail Pembayaran:*\n" .
             "• Jumlah Data  : *{$jumlahData} data*\n" .
             "• Rate / Data  : *{$rateFormatted}*\n" .
-            "• Total        : *{$totalNominal}*\n\n" .  // ← note di bawah
+            "• Total        : *{$totalFormatted}*\n\n" .
             "✅ *Pembayaran telah dikonfirmasi.*\n\n" .
             "_Dikirim otomatis oleh sistem._\n" .
             "Best Regards,\n" .

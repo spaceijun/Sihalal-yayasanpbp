@@ -311,6 +311,17 @@
                                 Aktifkan WhatsApp Gateway
                             </label>
                         </div>
+
+                        <!-- Bypass SSL Toggle -->
+                        <div class="adm-field"
+                            style="flex-direction: row; align-items: center; gap: 8px; margin-top: 6px;">
+                            <input type="checkbox" name="bypass_ssl" id="bypass_ssl" value="1"
+                                {{ old('bypass_ssl', $configs['bypass_ssl'] ?? false) ? 'checked' : '' }}
+                                style="width: 17px; height: 17px; cursor: pointer;">
+                            <label for="bypass_ssl" class="adm-label" style="cursor: pointer; margin-bottom: 0;">
+                                Bypass Verifikasi SSL (Abaikan error sertifikat self-signed)
+                            </label>
+                        </div>
                     </div>
                 </div>
 

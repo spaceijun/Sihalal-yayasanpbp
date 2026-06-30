@@ -93,6 +93,7 @@ class WaGatewayConfigController extends Controller
             'api_key' => 'nullable|string',
             'default_media_url' => 'nullable|url',
             'enabled' => 'sometimes|boolean',
+            'bypass_ssl' => 'sometimes|boolean',
         ]);
 
         try {
@@ -125,6 +126,12 @@ class WaGatewayConfigController extends Controller
                 'enabled',
                 $request->has('enabled') ? '1' : '0',
                 'Aktifkan/Nonaktifkan WhatsApp Gateway'
+            );
+
+            WaGatewayConfig::setValue(
+                'bypass_ssl',
+                $request->has('bypass_ssl') ? '1' : '0',
+                'Bypass verifikasi SSL (untuk self-signed certificate)'
             );
 
             // Clear cache

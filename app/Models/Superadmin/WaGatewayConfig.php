@@ -41,6 +41,7 @@ class WaGatewayConfig extends Model
             'api_key' => '',
             'enabled' => true,
             'default_media_url' => 'https://kawulohalal.id/assets/logo.png',
+            'bypass_ssl' => false,
         ];
     }
 

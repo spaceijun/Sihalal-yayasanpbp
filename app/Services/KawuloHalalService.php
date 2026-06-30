@@ -36,6 +36,8 @@ class KawuloHalalService
 
     protected bool $enabled;
 
+    protected bool $bypassSsl;
+
     public function __construct()
     {
         // Baca konfigurasi dari database
@@ -52,6 +54,9 @@ class KawuloHalalService
 
         // Enabled status
         $this->enabled = (bool) ($configs['enabled'] ?? true);
+
+        // Bypass SSL status
+        $this->bypassSsl = (bool) ($configs['bypass_ssl'] ?? false);
     }
 
     /**
@@ -95,6 +100,10 @@ class KawuloHalalService
                 ])
                 ->timeout(15)
                 ->connectTimeout(5);
+
+            if ($this->bypassSsl) {
+                $http = $http->withoutVerifying();
+            }
 
             $response = match (strtoupper($method)) {
                 'GET' => $http->get($endpoint, $params),
@@ -153,6 +162,10 @@ class KawuloHalalService
         try {
             $http = Http::timeout(30)
                 ->connectTimeout(10);
+
+            if ($this->bypassSsl) {
+                $http = $http->withoutVerifying();
+            }
 
             $response = match (strtoupper($method)) {
                 'GET' => $http->get($endpoint, $params),
@@ -549,7 +562,11 @@ class KawuloHalalService
         }
 
         try {
-            $response = Http::timeout(5)->get($this->nodeJsUrl);
+            $http = Http::timeout(5);
+            if ($this->bypassSsl) {
+                $http = $http->withoutVerifying();
+            }
+            $response = $http->get($this->nodeJsUrl);
 
             return $response->successful();
         } catch (\Exception $e) {

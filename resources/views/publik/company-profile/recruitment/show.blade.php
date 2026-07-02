@@ -36,7 +36,7 @@
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             padding: 2rem;
             box-shadow: var(--kh-shadow);
             margin-bottom: 1.5rem;
@@ -56,7 +56,7 @@
         }
 
         .job-header-card:hover {
-            border-color: rgba(47, 143, 230, 0.15);
+            border-color: rgba(15, 44, 89, 0.12);
             box-shadow: var(--kh-shadow-lg);
         }
 
@@ -83,7 +83,7 @@
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             padding: 2rem;
             box-shadow: var(--kh-shadow-sm);
             margin-bottom: 1.5rem;
@@ -92,7 +92,7 @@
 
         .content-card:hover {
             box-shadow: var(--kh-shadow);
-            border-color: rgba(47, 143, 230, 0.15);
+            border-color: rgba(15, 44, 89, 0.12);
         }
 
         .content-title {
@@ -124,15 +124,15 @@
             gap: 12px;
             padding: 0.875rem 1.25rem;
             border-radius: var(--kh-radius);
-            border: 1px solid rgba(47, 143, 230, 0.06);
-            background: rgba(47, 143, 230, 0.03);
+            border: 1px solid rgba(15, 44, 89, 0.04);
+            background: rgba(15, 44, 89, 0.02);
             margin-bottom: 0.75rem;
             transition: var(--kh-transition);
         }
 
         .req-item:hover {
             background: var(--kh-sky);
-            border-color: rgba(47, 143, 230, 0.15);
+            border-color: rgba(15, 44, 89, 0.1);
             transform: translateX(5px);
         }
 
@@ -140,7 +140,7 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: rgba(47, 143, 230, 0.12);
+            background: rgba(15, 44, 89, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -198,7 +198,7 @@
         @include('publik.company-profile.partials.navbar')
 
         <!-- ========== BREADCRUMB ========== -->
-        <div class="bg-kh-soft border-bottom" style="border-color: rgba(47,143,230,0.08) !important; margin-top: 70px;">
+        <div class="bg-kh-soft border-bottom" style="border-color: rgba(15,44,89,0.06) !important; margin-top: 70px;">
             <div class="container py-3">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0 small">
@@ -368,8 +368,7 @@
         </section>
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 position-relative"
-            style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+        <section class="py-5 position-relative" style="background: var(--kh-gradient-dark); overflow: hidden;">
             <div class="container position-relative text-center py-4" style="z-index: 2;">
                 <span
                     style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">

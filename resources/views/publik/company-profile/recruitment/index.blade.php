@@ -36,7 +36,7 @@
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             box-shadow: var(--kh-shadow-sm);
             transition: var(--kh-transition);
             height: 100%;
@@ -60,7 +60,7 @@
         .job-card-kh:hover {
             transform: translateY(-8px);
             box-shadow: var(--kh-shadow-lg);
-            border-color: rgba(47, 143, 230, 0.18);
+            border-color: rgba(15, 44, 89, 0.12);
         }
 
         .job-card-kh:hover::before {
@@ -90,7 +90,7 @@
             padding: 1.25rem;
             background: #fff;
             border-radius: 20px;
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             box-shadow: var(--kh-shadow-sm);
             display: flex;
             align-items: center;
@@ -102,7 +102,7 @@
         .benefit-card-modern:hover {
             transform: translateY(-4px);
             box-shadow: var(--kh-shadow);
-            border-color: rgba(47, 143, 230, 0.18);
+            border-color: rgba(15, 44, 89, 0.12);
         }
 
         .benefit-icon-wrapper {
@@ -126,7 +126,7 @@
 
         .empty-state {
             border-radius: var(--kh-radius-lg);
-            border: 2px dashed rgba(47, 143, 230, 0.2);
+            border: 2px dashed rgba(15, 44, 89, 0.15);
             padding: 4rem 2rem;
             background: var(--kh-sky-2);
         }
@@ -166,7 +166,7 @@
         </section>
 
         <!-- ========== BENEFIT STRIP ========== -->
-        <section class="py-4 bg-kh-soft border-bottom" style="border-color: rgba(47,143,230,0.08) !important;">
+        <section class="py-4 bg-kh-soft border-bottom" style="border-color: rgba(15,44,89,0.06) !important;">
             <div class="container">
                 <div class="row g-3 justify-content-center">
                     <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="0">
@@ -313,15 +313,19 @@
         </section>
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 position-relative" style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+        <section class="py-5 position-relative" style="background: var(--kh-gradient-dark); overflow: hidden;">
             <div class="footer-section::after"></div>
             <div class="container position-relative text-center py-4" style="z-index: 2;">
-                <span style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
+                <span
+                    style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
                     <i class="ri-user-add-line" style="font-size: 2.2rem;"></i>
                 </span>
                 <h3 class="text-white fw-bold mb-2">Tidak Menemukan Posisi yang Cocok?</h3>
-                <p class="text-white text-opacity-75 mb-4" style="max-width:480px; margin:0 auto; font-size: 0.95rem;">Kirimkan CV Anda ke kami, kami akan menghubungi Anda saat ada posisi yang sesuai.</p>
-                <a href="{{ route('publik.contact') }}" class="btn btn-light btn-lg fw-bold px-5 py-3 shadow shine-hover">
+                <p class="text-white text-opacity-75 mb-4"
+                    style="max-width:480px; margin:0 auto; font-size: 0.95rem;">Kirimkan CV Anda ke kami, kami akan
+                    menghubungi Anda saat ada posisi yang sesuai.</p>
+                <a href="{{ route('publik.contact') }}"
+                    class="btn btn-light btn-lg fw-bold px-5 py-3 shadow shine-hover">
                     <i class="ri-mail-line align-middle me-2"></i> Hubungi Kami
                 </a>
             </div>

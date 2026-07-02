@@ -36,7 +36,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(47, 143, 230, 0.08);
+            background: rgba(15, 44, 89, 0.08);
             color: var(--kh-primary);
             padding: 6px 16px;
             border-radius: 30px;
@@ -118,8 +118,8 @@
         .article-featured-img {
             border-radius: 28px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(47, 143, 230, 0.08);
-            border: 1px solid rgba(47, 143, 230, 0.06);
+            box-shadow: 0 20px 50px rgba(15, 44, 89, 0.04);
+            border: 1px solid rgba(15, 44, 89, 0.06);
         }
 
         /* ========== AUTHOR CARD ========== */
@@ -128,9 +128,9 @@
             align-items: center;
             gap: 1.25rem;
             padding: 1.5rem;
-            background: rgba(47, 143, 230, 0.03);
+            background: rgba(15, 44, 89, 0.02);
             border-radius: 20px;
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             margin-top: 2rem;
         }
 
@@ -144,7 +144,7 @@
             font-weight: 700;
             font-size: 1.35rem;
             color: #fff;
-            box-shadow: 0 5px 15px rgba(47, 143, 230, 0.2);
+            box-shadow: 0 5px 15px rgba(15, 44, 89, 0.15);
         }
 
         /* ========== SHARE CARD ========== */
@@ -152,8 +152,8 @@
             background: #fff;
             border-radius: 20px;
             padding: 1.75rem;
-            border: 1px solid rgba(47, 143, 230, 0.08);
-            box-shadow: 0 10px 30px rgba(47, 143, 230, 0.02);
+            border: 1px solid rgba(15, 44, 89, 0.06);
+            box-shadow: 0 10px 30px rgba(15, 44, 89, 0.01);
         }
 
         .share-btn {
@@ -309,7 +309,7 @@
         @endif
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 position-relative" style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+        <section class="py-5 position-relative" style="background: var(--kh-gradient-dark); overflow: hidden;">
             <div class="container position-relative text-center py-4" style="z-index: 2;">
                 <span style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">
                     <i class="ri-award-line" style="font-size: 2.2rem;"></i>

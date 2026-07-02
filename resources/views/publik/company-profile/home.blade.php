@@ -37,6 +37,212 @@
     <link href="{{ asset('assets/css/public-pages.css') }}" rel="stylesheet" type="text/css" />
     <!-- Kawulo Halal Modern Theme Css -->
     <link href="{{ asset('assets/css/compro-ui.css') }}" rel="stylesheet" type="text/css" />
+    <style>
+        /* ── Modern Hero Section Styles ── */
+        .badge-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--kh-primary);
+            margin-right: 8px;
+            position: relative;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(15, 44, 89, 0.4);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(15, 44, 89, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(15, 44, 89, 0);
+            }
+        }
+
+        .highlight-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .typewriter-cursor {
+            color: var(--kh-primary);
+            animation: blink-cursor 0.75s step-end infinite;
+            font-weight: 300;
+            margin-left: 2px;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink-cursor {
+
+            from,
+            to {
+                color: transparent
+            }
+
+            50% {
+                color: var(--kh-primary)
+            }
+        }
+
+        /* Visualizer Card */
+        .interactive-visualizer-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--kh-radius-lg);
+            border: 1px solid rgba(15, 44, 89, 0.08);
+            box-shadow: var(--kh-shadow-lg);
+            transition: var(--kh-transition);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .interactive-visualizer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(15, 44, 89, 0.2);
+            border-color: rgba(15, 44, 89, 0.15);
+        }
+
+        .dot-active-pulsing {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #198754;
+            position: relative;
+            animation: pulse-ring-green 1.5s infinite;
+        }
+
+        @keyframes pulse-ring-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(25, 135, 84, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+            }
+        }
+
+        .visualizer-tab-btn {
+            background: #fff;
+            border: 1.5px solid rgba(15, 44, 89, 0.06);
+            border-radius: 16px;
+            padding: 1rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--kh-transition);
+            cursor: pointer;
+            color: var(--kh-text-light);
+        }
+
+        .visualizer-tab-btn i {
+            font-size: 1.4rem;
+            transition: var(--kh-transition);
+        }
+
+        .visualizer-tab-btn span {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .visualizer-tab-btn:hover {
+            border-color: var(--kh-primary);
+            color: var(--kh-primary);
+            background: rgba(15, 44, 89, 0.02);
+            transform: translateY(-2px);
+        }
+
+        .visualizer-tab-btn.active {
+            background: var(--kh-gradient);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(15, 44, 89, 0.15);
+        }
+
+        .visualizer-tab-btn.active i {
+            transform: scale(1.15);
+            color: #fff;
+        }
+
+        .visualizer-content-panel {
+            background: rgba(15, 44, 89, 0.02);
+            border: 1px solid rgba(15, 44, 89, 0.04);
+            border-radius: 20px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .step-content {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-silver {
+            background: rgba(142, 154, 175, 0.08);
+            border: 1px solid rgba(142, 154, 175, 0.12);
+        }
+
+        .bg-kh {
+            background: var(--kh-gradient);
+        }
+
+        .progress-modern {
+            border-radius: 10px;
+            background-color: rgba(15, 44, 89, 0.05);
+            overflow: hidden;
+        }
+
+        /* Prevent fixed navbar overlap */
+        .hero-section {
+            padding-top: 110px !important;
+            padding-bottom: 60px !important;
+        }
+
+        @media (min-width: 992px) {
+            .hero-section {
+                padding-top: 130px !important;
+                padding-bottom: 80px !important;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -44,57 +250,35 @@
         @include('publik.company-profile.partials.navbar')
 
         <!-- ========== HERO SECTION ========== -->
-        <section class="section hero-section gradient-hero py-5 py-lg-0" id="hero">
+        <section class="section hero-section gradient-hero py-5" id="hero">
             <!-- Decorative animated blobs -->
             <div class="kh-blob kh-blob-1"></div>
             <div class="kh-blob kh-blob-2"></div>
             <div class="kh-blob kh-blob-3 d-none d-lg-block"></div>
 
-            <!-- Floating Badges -->
-            <div class="hero-float-badge-modern d-none d-lg-block" style="top: 18%; right: 8%;">
-                <div class="d-flex align-items-center gap-3">
-                    <span
-                        style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(25,135,84,0.1);display:inline-flex;align-items:center;justify-content:center;">
-                        <i class="ri-shield-check-fill" style="font-size:1rem;color:#198754;"></i>
-                    </span>
-                    <div>
-                        <span class="fw-bold text-dark d-block" style="font-size:0.82rem;">Kawulo Halal</span>
-                        <span style="font-size:0.72rem;color:var(--kh-text-light);">Sertifikat Halal UMKM Low
-                            Risk</span>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-float-badge-modern d-none d-lg-block"
-                style="bottom: 25%; left: 4%; animation-delay: 2.5s;">
-                <div class="d-flex align-items-center gap-3">
-                    <span
-                        style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(247,144,9,0.1);display:inline-flex;align-items:center;justify-content:center;">
-                        <i class="ri-star-fill" style="font-size:1rem;color:#f79009;"></i>
-                    </span>
-                    <div>
-                        <span class="fw-bold text-dark d-block" style="font-size:0.82rem;">98% Kepuasan</span>
-                        <span style="font-size:0.72rem;color:var(--kh-text-light);">Client Puas &amp; Terbantu</span>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="container position-relative" style="z-index: 2;">
                 <div class="row align-items-center min-vh-100 py-5">
                     <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
                         <div class="modern-badge mb-4 animate-fade-in-up">
-                            <i class="ri-verified-badge-fill text-success"></i>
-                            <span>Kawulo Halal</span>
+                            <span class="badge-pulse"></span>
+                            <i class="ri-verified-badge-fill text-kh"></i>
+                            <span>Layanan Sertifikasi Halal Resmi</span>
                         </div>
                         <h1 class="hero-title mb-4 animate-fade-in-up delay-100"
-                            style="letter-spacing: -1.5px; font-weight: 800;">
+                            style="letter-spacing: -2px; font-weight: 800; line-height: 1.15;">
                             Sertifikasi Halal<br>
-                            <span class="highlight">Semakin Mudah</span><br>
+                            <span class="highlight-wrapper">
+                                <span class="highlight" id="typewriter-text">Semakin Mudah</span><span
+                                    class="typewriter-cursor">|</span>
+                            </span><br>
                             untuk UMKM Indonesia
                         </h1>
                         <p class="hero-lead lead mb-5 animate-fade-in-up delay-200 text-muted"
-                            style="max-width: 520px; font-size: 1.05rem; line-height: 1.7;">
-                            Kawulo Halal mendampingi pelaku UMKM mendapatkan sertifikat halal dengan alur yang
-                            transparan, berkas praktis, dan biaya terjangkau.
+                            style="max-width: 520px; font-size: 1.05rem; line-height: 1.8;">
+                            Kawulo Halal mendampingi pelaku UMKM mendapatkan sertifikat halal resmi dengan alur
+                            terintegrasi, kelengkapan berkas praktis, dan biaya terjangkau.
                         </p>
                         <div class="d-flex flex-wrap gap-3 animate-fade-in-up delay-300">
                             <a href="{{ route('publik.contact') }}" class="btn btn-kh btn-lg px-4 py-3 shadow">
@@ -104,56 +288,143 @@
                                 <i class="ri-play-circle-line align-middle me-2"></i> Pelajari Lebih
                             </a>
                         </div>
+
+                        <!-- Partner Logos Strip -->
+                        <div class="partner-logos-strip mt-5 animate-fade-in-up delay-400">
+                            <span
+                                class="partner-label text-uppercase text-muted d-block mb-3 fs-11 tracking-wider">Mitra
+                                &amp; Pendamping Resmi</span>
+                            <div class="d-flex align-items-center gap-4 opacity-50">
+                                <span class="fw-semibold text-dark fs-14"><i class="ri-government-line me-1"></i>
+                                    BPJPH</span>
+                                <span class="fw-semibold text-dark fs-14"><i class="ri-bank-line me-1"></i>
+                                    KEMENAG</span>
+                                <span class="fw-semibold text-dark fs-14"><i class="ri-shield-user-line me-1"></i>
+                                    MUI</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-lg-5 offset-lg-1 d-none d-lg-block" data-aos="fade-left" data-aos-duration="1000"
-                        data-aos-delay="200">
-                        <div class="glass-card p-4">
-                            <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="col-lg-5 offset-lg-1 d-none d-lg-block position-relative" data-aos="fade-left"
+                        data-aos-duration="1000" data-aos-delay="200">
+                        <!-- Floating Badge 1 (Top Left of Card) -->
+                        <div class="hero-float-badge-modern" style="top: -20px; left: -45px; z-index: 20;">
+                            <div class="d-flex align-items-center gap-3">
                                 <span
-                                    style="width:52px;height:52px;min-width:52px;border-radius:14px;background:rgba(47,143,230,0.08);display:inline-flex;align-items:center;justify-content:center;">
-                                    <i class="ri-shield-check-line"
-                                        style="font-size:1.6rem;color:var(--kh-primary);"></i>
+                                    style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(25,135,84,0.1);display:inline-flex;align-items:center;justify-content:center;">
+                                    <i class="ri-shield-check-fill" style="font-size:1rem;color:#198754;"></i>
                                 </span>
                                 <div>
-                                    <h5 class="mb-0 fw-bold text-dark">Layanan Sertifikasi</h5>
-                                    <span style="font-size:0.78rem;color:var(--kh-text-light);">Low-Risk Self-Declare
-                                        Product</span>
+                                    <span class="fw-bold text-dark d-block" style="font-size:0.82rem;">Kawulo
+                                        Halal</span>
+                                    <span style="font-size:0.72rem;color:var(--kh-text-light);">Sertifikasi Halal
+                                        UMKM</span>
                                 </div>
                             </div>
-                            <div class="vstack gap-3 mb-4">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span
-                                        style="width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(25,135,84,0.1);display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;color:#198754;">
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <span style="font-size:0.9rem;color:var(--kh-text);">Proses Mudah &amp;
-                                        Cepat</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span
-                                        style="width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(25,135,84,0.1);display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;color:#198754;">
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <span style="font-size:0.9rem;color:var(--kh-text);">Biaya Terjangkau &amp;
-                                        Transparan</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span
-                                        style="width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(25,135,84,0.1);display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;color:#198754;">
-                                        <i class="ri-check-line"></i>
-                                    </span>
-                                    <span style="font-size:0.9rem;color:var(--kh-text);">Bantuan Pendampingan
-                                        Penuh</span>
+                        </div>
+
+                        <!-- Floating Badge 2 (Bottom Right of Card) -->
+                        <div class="hero-float-badge-modern"
+                            style="bottom: -20px; right: -35px; z-index: 20; animation-delay: 2.5s;">
+                            <div class="d-flex align-items-center gap-3">
+                                <span
+                                    style="width:36px;height:36px;min-width:36px;border-radius:50%;background:rgba(247,144,9,0.1);display:inline-flex;align-items:center;justify-content:center;">
+                                    <i class="ri-star-fill" style="font-size:1rem;color:#f79009;"></i>
+                                </span>
+                                <div>
+                                    <span class="fw-bold text-dark d-block" style="font-size:0.82rem;">98%
+                                        Kepuasan</span>
+                                    <span style="font-size:0.72rem;color:var(--kh-text-light);">Proses Cepat &amp;
+                                        Sah</span>
                                 </div>
                             </div>
-                            <div class="progress bg-light" style="height: 6px; border-radius: 3px;">
-                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-                                    style="width: 100%; border-radius: 3px;"></div>
+                        </div>
+
+                        <!-- Interactive visualizer card -->
+                        <div class="interactive-visualizer-card p-4 p-md-5">
+                            <div class="visualizer-header d-flex justify-content-between align-items-center mb-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="dot-active-pulsing"></span>
+                                    <span class="text-uppercase tracking-wider fs-10 fw-bold text-kh">Proses
+                                        Simulator</span>
+                                </div>
+                                <span class="badge bg-kh-soft text-kh fs-11" id="visualizer-status">Langkah 1:
+                                    Pengisian</span>
                             </div>
-                            <div class="d-flex justify-content-between mt-2">
-                                <small style="color:var(--kh-text-light);">Kelengkapan Dokumen</small>
-                                <small class="text-success fw-bold">100% Valid</small>
+
+                            <!-- The Tabs / Clicking items -->
+                            <div class="row g-2 mb-4">
+                                <div class="col-4">
+                                    <button class="visualizer-tab-btn active w-100" data-step="1">
+                                        <i class="ri-draft-line"></i>
+                                        <span>1. Berkas</span>
+                                    </button>
+                                </div>
+                                <div class="col-4">
+                                    <button class="visualizer-tab-btn w-100" data-step="2">
+                                        <i class="ri-shield-flash-line"></i>
+                                        <span>2. Verifikasi</span>
+                                    </button>
+                                </div>
+                                <div class="col-4">
+                                    <button class="visualizer-tab-btn w-100" data-step="3">
+                                        <i class="ri-award-line"></i>
+                                        <span>3. Sertifikat</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Active Details Card -->
+                            <div class="visualizer-content-panel p-4 mb-4">
+                                <div id="step-content-1" class="step-content">
+                                    <h6 class="fw-bold text-dark mb-2">Pendaftaran &amp; Unggah Berkas</h6>
+                                    <p class="text-muted small mb-3">Pelaku usaha mengisi NIB, data produk, serta
+                                        daftar bahan baku yang digunakan. Tim pendamping kami siap membimbing pengisian
+                                        agar bebas kesalahan.</p>
+                                    <div
+                                        class="alert alert-silver d-flex align-items-center gap-2 mb-0 py-2 px-3 border-0">
+                                        <i class="ri-checkbox-circle-fill text-success"></i>
+                                        <span class="small text-dark-soft">Butuh waktu kurang dari 1 hari</span>
+                                    </div>
+                                </div>
+
+                                <div id="step-content-2" class="step-content d-none">
+                                    <h6 class="fw-bold text-dark mb-2">Verifikasi Dokumen &amp; Sidang Fatwa</h6>
+                                    <p class="text-muted small mb-3">Pendamping Halal memverifikasi kecocokan bahan
+                                        baku dan alur proses produksi halal secara digital (Self-Declare), dilanjutkan
+                                        dengan Sidang Fatwa MUI.</p>
+                                    <div
+                                        class="alert alert-silver d-flex align-items-center gap-2 mb-0 py-2 px-3 border-0">
+                                        <i class="ri-time-fill text-kh"></i>
+                                        <span class="small text-dark-soft">Proses verifikasi digital ~7-14 hari</span>
+                                    </div>
+                                </div>
+
+                                <div id="step-content-3" class="step-content d-none">
+                                    <h6 class="fw-bold text-dark mb-2">Sertifikat Halal Resmi Terbit</h6>
+                                    <p class="text-muted small mb-3">BPJPH menerbitkan sertifikat halal resmi ber-QR
+                                        Code yang berlaku selamanya. Produk Anda kini siap bersaing secara sah di pasar
+                                        nasional!</p>
+                                    <div
+                                        class="alert alert-silver d-flex align-items-center gap-2 mb-0 py-2 px-3 border-0">
+                                        <i class="ri-award-fill text-warning"></i>
+                                        <span class="small text-dark-soft">Sertifikat terbit resmi BPJPH</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Indicator -->
+                            <div class="visualizer-progress-wrapper">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <small class="text-muted text-uppercase tracking-wider fs-10">Estimasi
+                                        Kemajuan</small>
+                                    <small class="fw-bold text-kh fs-11" id="visualizer-percentage">35%
+                                        Selesai</small>
+                                </div>
+                                <div class="progress progress-modern" style="height: 8px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-kh"
+                                        id="visualizer-progress-bar" style="width: 35%;"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -430,14 +701,14 @@
         @endif
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 position-relative" style="background: linear-gradient(180deg, #FFFFFF 0%, #EAF4FF 100%);"
-            id="kontak">
+        <section class="py-5 position-relative"
+            style="background: linear-gradient(180deg, var(--kh-white) 0%, var(--kh-sky) 100%);" id="kontak">
             <div class="container position-relative text-center py-5">
                 <div class="kh-blob kh-blob-2 d-none d-md-block" style="opacity: 0.18; top: -10%; left: 25%;"></div>
                 <div class="kh-blob kh-blob-1 d-none d-md-block"
                     style="opacity: 0.12; bottom: -20%; right: 20%; width: 300px; height: 300px;"></div>
                 <span
-                    style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(47,143,230,0.12),rgba(25,180,160,0.08));display:inline-flex;align-items:center;justify-content:center;animation:float-badge-anim 8s ease-in-out infinite;margin-bottom:1.5rem;">
+                    style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(15,44,89,0.12),rgba(142,154,175,0.08));display:inline-flex;align-items:center;justify-content:center;animation:float-badge-anim 8s ease-in-out infinite;margin-bottom:1.5rem;">
                     <i class="ri-message-3-line" style="font-size:2rem;color:var(--kh-primary);"></i>
                 </span>
                 <h2 class="section-title fw-bold mb-3">Punya Pertanyaan?</h2>
@@ -463,6 +734,84 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!-- Kawulo Halal Modern Theme Js -->
     <script src="{{ asset('assets/js/compro.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Typewriter Animation
+            const textElement = document.getElementById("typewriter-text");
+            if (textElement) {
+                const words = ["Semakin Mudah", "Lebih Cepat", "Sangat Praktis", "Terpercaya"];
+                let wordIndex = 0;
+                let charIndex = 0;
+                let isDeleting = false;
+                let typingSpeed = 100;
+
+                function type() {
+                    const currentWord = words[wordIndex];
+                    if (isDeleting) {
+                        charIndex--;
+                        typingSpeed = 50;
+                    } else {
+                        charIndex++;
+                        typingSpeed = 150;
+                    }
+
+                    textElement.textContent = currentWord.substring(0, charIndex);
+
+                    if (!isDeleting && charIndex === currentWord.length) {
+                        typingSpeed = 2000;
+                        isDeleting = true;
+                    } else if (isDeleting && charIndex === 0) {
+                        isDeleting = false;
+                        wordIndex = (wordIndex + 1) % words.length;
+                        typingSpeed = 500;
+                    }
+
+                    setTimeout(type, typingSpeed);
+                }
+                setTimeout(type, 1000);
+            }
+
+            // Interactive Process Simulator
+            const tabs = document.querySelectorAll(".visualizer-tab-btn");
+            const contents = document.querySelectorAll(".step-content");
+            const statusBar = document.getElementById("visualizer-status");
+            const progressVal = document.getElementById("visualizer-percentage");
+            const progressBar = document.getElementById("visualizer-progress-bar");
+
+            tabs.forEach(tab => {
+                tab.addEventListener("click", function() {
+                    const step = this.dataset.step;
+
+                    tabs.forEach(t => t.classList.remove("active"));
+                    this.classList.add("active");
+
+                    contents.forEach(c => {
+                        c.classList.add("d-none");
+                        c.classList.remove("active");
+                    });
+                    const activeContent = document.getElementById("step-content-" + step);
+                    if (activeContent) {
+                        activeContent.classList.remove("d-none");
+                        activeContent.classList.add("active");
+                    }
+
+                    if (step === "1") {
+                        statusBar.textContent = "Langkah 1: Pengisian";
+                        progressVal.textContent = "35% Selesai";
+                        progressBar.style.width = "35%";
+                    } else if (step === "2") {
+                        statusBar.textContent = "Langkah 2: Verifikasi";
+                        progressVal.textContent = "70% Selesai";
+                        progressBar.style.width = "70%";
+                    } else if (step === "3") {
+                        statusBar.textContent = "Langkah 3: Penerbitan";
+                        progressVal.textContent = "100% Selesai";
+                        progressBar.style.width = "100%";
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

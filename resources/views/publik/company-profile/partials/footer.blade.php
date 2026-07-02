@@ -81,7 +81,7 @@
         left: -10%;
         width: 300px;
         height: 300px;
-        background: radial-gradient(circle, rgba(25, 180, 160, 0.15) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(142, 154, 175, 0.15) 0%, transparent 70%);
         pointer-events: none;
     }
     .social-btn-modern {

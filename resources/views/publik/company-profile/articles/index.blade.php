@@ -51,7 +51,7 @@
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(47, 143, 230, 0.08);
+            border-bottom: 1px solid rgba(15, 44, 89, 0.06);
             position: sticky;
             top: 70px;
             z-index: 100;
@@ -78,7 +78,7 @@
         .search-input {
             border-radius: 30px;
             padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 1.5px solid rgba(47, 143, 230, 0.12);
+            border: 1.5px solid rgba(15, 44, 89, 0.08);
             background-color: #fff;
             transition: var(--kh-transition);
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -88,7 +88,7 @@
 
         .search-input:focus {
             border-color: var(--kh-primary);
-            box-shadow: 0 0 0 4px rgba(47, 143, 230, 0.08);
+            box-shadow: 0 0 0 4px rgba(15, 44, 89, 0.08);
             background-color: #fff;
             outline: none;
         }
@@ -105,7 +105,7 @@
             font-size: 0.875rem;
             font-weight: 600;
             background: #fff;
-            border: 1.5px solid rgba(47, 143, 230, 0.1);
+            border: 1.5px solid rgba(15, 44, 89, 0.06);
             color: var(--kh-text-light);
             transition: var(--kh-transition);
             text-decoration: none;
@@ -116,14 +116,14 @@
             border-color: var(--kh-primary);
             color: var(--kh-primary);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(47, 143, 230, 0.05);
+            box-shadow: 0 4px 10px rgba(15, 44, 89, 0.03);
         }
 
         .category-chip.active {
             background: var(--kh-gradient);
             border-color: transparent;
             color: #fff;
-            box-shadow: 0 5px 15px rgba(47, 143, 230, 0.2);
+            box-shadow: 0 5px 15px rgba(15, 44, 89, 0.15);
             transform: translateY(-2px);
         }
 
@@ -132,8 +132,8 @@
             background: #fff;
             border-radius: 24px;
             overflow: hidden;
-            border: 1px solid rgba(47, 143, 230, 0.06);
-            box-shadow: 0 10px 30px rgba(47, 143, 230, 0.02);
+            border: 1px solid rgba(15, 44, 89, 0.06);
+            box-shadow: 0 10px 30px rgba(15, 44, 89, 0.01);
             transition: var(--kh-transition);
             text-decoration: none;
             display: block;
@@ -141,8 +141,8 @@
 
         .featured-article-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(47, 143, 230, 0.06);
-            border-color: rgba(47, 143, 230, 0.15);
+            box-shadow: 0 20px 40px rgba(15, 44, 89, 0.04);
+            border-color: rgba(15, 44, 89, 0.12);
         }
 
         .featured-article-card .featured-img {
@@ -167,7 +167,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            border-color: rgba(47, 143, 230, 0.1);
+            border-color: rgba(15, 44, 89, 0.06);
             color: var(--kh-text-light);
             transition: var(--kh-transition);
         }
@@ -177,15 +177,15 @@
             background: var(--kh-gradient);
             border-color: transparent;
             color: #fff;
-            box-shadow: 0 4px 10px rgba(47, 143, 230, 0.15);
+            box-shadow: 0 4px 10px rgba(15, 44, 89, 0.1);
         }
 
         /* Empty state */
         .empty-state {
             border-radius: 20px;
-            border: 2px dashed rgba(47, 143, 230, 0.2);
+            border: 2px dashed rgba(15, 44, 89, 0.15);
             padding: 4.5rem 2rem;
-            background: rgba(47, 143, 230, 0.02);
+            background: var(--kh-sky-2);
             max-width: 480px;
             margin: 0 auto;
         }
@@ -398,7 +398,7 @@
 
         <!-- ========== CTA BOTTOM ========== -->
         <section class="py-5 position-relative"
-            style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+            style="background: var(--kh-gradient-dark); overflow: hidden;">
             <div class="container position-relative text-center py-4" style="z-index: 2;">
                 <span
                     style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">

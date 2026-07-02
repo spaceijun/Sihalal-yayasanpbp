@@ -93,7 +93,7 @@
             function (entries) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
-                        entry.target.querySelectorAll(".stat-number").forEach(animateCounter);
+                        entry.target.querySelectorAll(".stat-number, .stat-number-modern").forEach(animateCounter);
                         counterObserver.unobserve(entry.target);
                     }
                 });

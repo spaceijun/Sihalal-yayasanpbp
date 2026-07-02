@@ -3,27 +3,27 @@
    ====================================================================== */
 
 :root {
-    /* Core palette — light blue dominant white */
-    --kh-primary: #2F8FE6;
-    --kh-primary-dark: #1768C2;
-    --kh-primary-light: #6FB6FF;
-    --kh-sky: #EAF4FF;
-    --kh-sky-2: #F4FAFF;
-    --kh-secondary: #19B4A0;
-    --kh-accent: #9FD8FF;
-    --kh-dark: #16243B;
-    --kh-text: #33425A;
-    --kh-text-light: #7A8AA3;
+    /* Core palette — Navy Blue & Silver matching the logo */
+    --kh-primary: #0F2C59;
+    --kh-primary-dark: #0A1F3F;
+    --kh-primary-light: #1E3F66;
+    --kh-sky: #EEF3F8;
+    --kh-sky-2: #F5F7FA;
+    --kh-secondary: #8E9AAF;
+    --kh-accent: #B0C4DE;
+    --kh-dark: #081426;
+    --kh-text: #1E293B;
+    --kh-text-light: #5A6E7F;
     --kh-white: #FFFFFF;
 
-    --kh-gradient: linear-gradient(135deg, #4FA6FF 0%, #2F8FE6 100%);
-    --kh-gradient-soft: linear-gradient(135deg, #EAF4FF 0%, #FFFFFF 60%, #E4F1FF 100%);
-    --kh-gradient-dark: linear-gradient(135deg, #1768C2 0%, #0E4B91 100%);
-    --kh-gradient-text: linear-gradient(135deg, #2F8FE6 0%, #19B4A0 100%);
+    --kh-gradient: linear-gradient(135deg, #1E3F66 0%, #0F2C59 100%);
+    --kh-gradient-soft: linear-gradient(135deg, #EEF3F8 0%, #FFFFFF 60%, #E6ECF2 100%);
+    --kh-gradient-dark: linear-gradient(135deg, #0F2C59 0%, #081426 100%);
+    --kh-gradient-text: linear-gradient(135deg, #0F2C59 0%, #8E9AAF 100%);
 
-    --kh-shadow: 0 4px 24px rgba(47, 143, 230, 0.10);
-    --kh-shadow-lg: 0 20px 50px rgba(47, 143, 230, 0.18);
-    --kh-shadow-sm: 0 2px 10px rgba(47, 143, 230, 0.08);
+    --kh-shadow: 0 4px 24px rgba(15, 44, 89, 0.08);
+    --kh-shadow-lg: 0 20px 50px rgba(15, 44, 89, 0.15);
+    --kh-shadow-sm: 0 2px 10px rgba(15, 44, 89, 0.05);
 
     --kh-radius: 16px;
     --kh-radius-lg: 28px;
@@ -167,7 +167,7 @@ body {
 }
 
 .gradient-hero {
-    background: linear-gradient(180deg, #F4FAFF 0%, #EAF4FF 45%, #FFFFFF 100%);
+    background: linear-gradient(180deg, var(--kh-sky-2) 0%, var(--kh-sky) 45%, var(--kh-white) 100%);
     position: relative;
 }
 
@@ -186,7 +186,7 @@ body {
     height: 480px;
     top: -120px;
     right: -120px;
-    background: radial-gradient(circle, rgba(111, 182, 255, 0.55) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(142, 154, 175, 0.35) 0%, transparent 70%);
     animation: float 9s ease-in-out infinite;
 }
 
@@ -195,7 +195,7 @@ body {
     height: 380px;
     bottom: -100px;
     left: -100px;
-    background: radial-gradient(circle, rgba(159, 216, 255, 0.5) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(176, 196, 222, 0.3) 0%, transparent 70%);
     animation: float 11s ease-in-out infinite reverse;
 }
 
@@ -204,7 +204,7 @@ body {
     height: 260px;
     top: 30%;
     left: 45%;
-    background: radial-gradient(circle, rgba(25, 180, 160, 0.18) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(15, 44, 89, 0.1) 0%, transparent 70%);
     animation: float 7s ease-in-out infinite;
 }
 
@@ -948,16 +948,16 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: rgba(47, 143, 230, 0.06);
+    background: rgba(15, 44, 89, 0.06);
     color: var(--kh-primary-dark);
-    border: 1px solid rgba(47, 143, 230, 0.12);
-    box-shadow: 0 2px 8px rgba(47, 143, 230, 0.02);
+    border: 1px solid rgba(15, 44, 89, 0.12);
+    box-shadow: 0 2px 8px rgba(15, 44, 89, 0.02);
 }
 
 .modern-badge-emerald {
-    background: rgba(25, 180, 160, 0.06);
+    background: rgba(142, 154, 175, 0.06);
     color: var(--kh-secondary);
-    border: 1px solid rgba(25, 180, 160, 0.12);
+    border: 1px solid rgba(142, 154, 175, 0.12);
 }
 
 .modern-badge-orange {

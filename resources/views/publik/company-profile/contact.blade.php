@@ -39,7 +39,7 @@
 
         /* Hero — light blue gradient selaras dengan home */
         .hero-contact {
-            background: linear-gradient(180deg, #EAF4FF 0%, #F4FAFF 50%, #FFFFFF 100%);
+            background: linear-gradient(180deg, var(--kh-sky) 0%, var(--kh-sky-2) 50%, var(--kh-white) 100%);
             padding-top: 9rem;
             padding-bottom: 5rem;
             position: relative;
@@ -71,21 +71,21 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: var(--kh-radius-lg);
-            border: 1px solid rgba(47, 143, 230, 0.12);
+            border: 1px solid rgba(15, 44, 89, 0.08);
             padding: 2.5rem 2rem;
             text-align: center;
             transition: var(--kh-transition);
             height: 100%;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(47, 143, 230, 0.03);
+            box-shadow: 0 10px 30px rgba(15, 44, 89, 0.02);
         }
 
         .contact-card::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(47, 143, 230, 0.02) 0%, rgba(25, 180, 160, 0.02) 100%);
+            background: linear-gradient(135deg, rgba(15, 44, 89, 0.02) 0%, rgba(142, 154, 175, 0.02) 100%);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
@@ -97,8 +97,8 @@
 
         .contact-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(47, 143, 230, 0.08);
-            border-color: rgba(47, 143, 230, 0.25);
+            box-shadow: 0 20px 40px rgba(15, 44, 89, 0.06);
+            border-color: rgba(15, 44, 89, 0.15);
         }
 
         .contact-card:hover::before {
@@ -114,7 +114,7 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             transition: var(--kh-transition);
-            background: rgba(47, 143, 230, 0.08);
+            background: rgba(15, 44, 89, 0.08);
             color: var(--kh-primary);
         }
 
@@ -152,9 +152,9 @@
         .form-card {
             background: #fff;
             border-radius: var(--kh-radius-lg);
-            border: 1px solid rgba(47, 143, 230, 0.1);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             padding: 3rem;
-            box-shadow: 0 15px 45px rgba(47, 143, 230, 0.05);
+            box-shadow: 0 15px 45px rgba(15, 44, 89, 0.03);
         }
 
         .form-kh .form-control,
@@ -171,7 +171,7 @@
         .form-kh .form-control:focus,
         .form-kh .form-select:focus {
             border-color: var(--kh-primary);
-            box-shadow: 0 0 0 4px rgba(47, 143, 230, 0.1);
+            box-shadow: 0 0 0 4px rgba(15, 44, 89, 0.08);
             background-color: #fff;
         }
 
@@ -189,7 +189,7 @@
 
         /* FAQ */
         .faq-section {
-            background: linear-gradient(180deg, #FFFFFF 0%, #F4FAFF 100%);
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--kh-sky-2) 100%);
         }
 
         .faq-card {
@@ -199,10 +199,10 @@
             display: flex;
             align-items: flex-start;
             gap: 1.25rem;
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             transition: var(--kh-transition);
             margin-bottom: 1.25rem;
-            box-shadow: 0 5px 15px rgba(47, 143, 230, 0.02);
+            box-shadow: 0 5px 15px rgba(15, 44, 89, 0.01);
         }
 
         .faq-card:last-child {
@@ -211,8 +211,8 @@
 
         .faq-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(47, 143, 230, 0.06);
-            border-color: rgba(47, 143, 230, 0.18);
+            box-shadow: 0 15px 35px rgba(15, 44, 89, 0.04);
+            border-color: rgba(15, 44, 89, 0.12);
         }
 
         .faq-icon {
@@ -223,7 +223,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            background: rgba(47, 143, 230, 0.08);
+            background: rgba(15, 44, 89, 0.08);
             color: var(--kh-primary);
             transition: var(--kh-transition);
         }
@@ -303,7 +303,7 @@
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
                         <div class="contact-card">
                             <span
-                                style="width:64px;height:64px;border-radius:18px;background:rgba(47,143,230,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-primary);transition:var(--kh-transition);"
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(15,44,89,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-primary);transition:var(--kh-transition);"
                                 class="contact-icon-wrapper">
                                 <i class="ri-phone-line" style="font-size:1.6rem;"></i>
                             </span>
@@ -315,7 +315,7 @@
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                         <div class="contact-card">
                             <span
-                                style="width:64px;height:64px;border-radius:18px;background:rgba(25,180,160,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-secondary);transition:var(--kh-transition);"
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(142,154,175,0.08);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-secondary);transition:var(--kh-transition);"
                                 class="contact-icon-wrapper">
                                 <i class="ri-mail-line" style="font-size:1.6rem;"></i>
                             </span>
@@ -327,7 +327,7 @@
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                         <div class="contact-card">
                             <span
-                                style="width:64px;height:64px;border-radius:18px;background:rgba(22,36,59,0.06);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-dark);transition:var(--kh-transition);"
+                                style="width:64px;height:64px;border-radius:18px;background:rgba(15,44,89,0.06);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;color:var(--kh-dark);transition:var(--kh-transition);"
                                 class="contact-icon-wrapper">
                                 <i class="ri-map-pin-line" style="font-size:1.6rem;"></i>
                             </span>

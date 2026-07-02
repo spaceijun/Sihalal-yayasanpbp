@@ -60,10 +60,10 @@
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(47, 143, 230, 0.15);
+            border: 1px solid rgba(15, 44, 89, 0.1);
             border-radius: 20px;
             padding: 1.5rem;
-            box-shadow: 0 15px 35px rgba(47, 143, 230, 0.08);
+            box-shadow: 0 15px 35px rgba(15, 44, 89, 0.05);
             z-index: 2;
         }
 
@@ -72,7 +72,7 @@
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
             border-radius: 16px;
             padding: 1.5rem;
             transition: var(--kh-transition);
@@ -81,8 +81,8 @@
         .value-card-modern:hover {
             transform: translateY(-5px);
             background: #fff;
-            border-color: rgba(47, 143, 230, 0.2);
-            box-shadow: 0 10px 25px rgba(47, 143, 230, 0.05);
+            border-color: rgba(15, 44, 89, 0.12);
+            box-shadow: 0 10px 25px rgba(15, 44, 89, 0.03);
         }
 
         .value-icon-wrapper {
@@ -94,7 +94,7 @@
             justify-content: center;
             margin-bottom: 1rem;
             font-size: 1.25rem;
-            background: rgba(47, 143, 230, 0.08);
+            background: rgba(15, 44, 89, 0.08);
             color: var(--kh-primary);
         }
 
@@ -106,17 +106,17 @@
         /* Accordion Modernization */
         .accordion-modern .accordion-item {
             background: #fff;
-            border: 1px solid rgba(47, 143, 230, 0.06) !important;
+            border: 1px solid rgba(15, 44, 89, 0.06) !important;
             border-radius: 16px !important;
             margin-bottom: 1rem;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(47, 143, 230, 0.02);
+            box-shadow: 0 4px 15px rgba(15, 44, 89, 0.01);
             transition: var(--kh-transition);
         }
 
         .accordion-modern .accordion-item:hover {
-            border-color: rgba(47, 143, 230, 0.15) !important;
-            box-shadow: 0 10px 25px rgba(47, 143, 230, 0.05);
+            border-color: rgba(15, 44, 89, 0.1) !important;
+            box-shadow: 0 10px 25px rgba(15, 44, 89, 0.03);
         }
 
         .accordion-modern .accordion-button {
@@ -131,7 +131,7 @@
 
         .accordion-modern .accordion-button:not(.collapsed) {
             color: var(--kh-primary) !important;
-            border-bottom: 1px solid rgba(47, 143, 230, 0.06);
+            border-bottom: 1px solid rgba(15, 44, 89, 0.06);
         }
 
         .accordion-modern .accordion-body {
@@ -139,7 +139,7 @@
             font-size: 0.925rem;
             line-height: 1.8;
             color: var(--kh-text-light);
-            background: #FAFDFF;
+            background: var(--kh-sky-2);
         }
 
         .accordion-modern .accordion-button::after {
@@ -284,7 +284,7 @@
         </section>
 
         <!-- ========== STATS ========== -->
-        <section class="py-5" style="background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);">
+        <section class="py-5" style="background: linear-gradient(180deg, #FFFFFF 0%, var(--kh-sky-2) 100%);">
             <div class="container">
                 <div class="stats-glass-card" data-aos="fade-up" data-aos-duration="1000">
                     <div class="row g-4 text-center">
@@ -422,7 +422,7 @@
         </section>
 
         <!-- ========== FAQ ========== -->
-        <section class="section" style="background: #F8FBFF;">
+        <section class="section" style="background: var(--kh-sky-2);">
             <div class="container">
                 <div class="row justify-content-center mb-5" data-aos="fade-up">
                     <div class="col-lg-7 text-center">
@@ -494,8 +494,7 @@
         </section>
 
         <!-- ========== CTA BOTTOM ========== -->
-        <section class="py-5 position-relative"
-            style="background: linear-gradient(135deg, #16243B 0%, #0F1A2D 100%); overflow: hidden;">
+        <section class="py-5 position-relative" style="background: var(--kh-gradient-dark); overflow: hidden;">
             <div class="container position-relative text-center py-4" style="z-index: 2;">
                 <span
                     style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;color:rgba(255,255,255,0.7);">

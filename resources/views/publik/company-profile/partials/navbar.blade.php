@@ -5,7 +5,8 @@
                 height="28">
         </a>
         <button class="navbar-toggler p-2 border-0" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
             <i class="ri-menu-3-line fs-24"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -68,17 +69,20 @@
             border-radius: 20px;
             padding: 1.5rem;
             margin-top: 1rem;
-            box-shadow: 0 15px 40px rgba(47, 143, 230, 0.12);
-            border: 1px solid rgba(47, 143, 230, 0.08);
+            box-shadow: 0 15px 40px rgba(15, 44, 89, 0.08);
+            border: 1px solid rgba(15, 44, 89, 0.06);
         }
+
         .nav-link-kh {
             padding: 0.75rem 1rem !important;
         }
+
         .nav-link-kh::after {
             bottom: 4px;
             left: 1rem;
             transform: none;
         }
+
         .nav-link-kh:hover::after,
         .nav-link-kh.active::after {
             width: 30px;

@@ -64,7 +64,7 @@ Setting Website
                         $anyMaintenance = $maintenanceDataEntry || $maintenanceAdminUmum || $maintenanceEnumeratorApi;
                     @endphp
                     @if ($anyMaintenance)
-                        <span class="adm-tab-pill" style="background:rgba(239,68,68,.12);color:#ef4444;">AKTIF</span>
+                        <span class="adm-tab-pill" style="background:var(--adm-red-lt);color:var(--adm-red);">AKTIF</span>
                     @endif
                 </button>
             </div>
@@ -595,63 +595,87 @@ Setting Website
         margin-bottom: 16px;
         transition: box-shadow .2s;
     }
-    .mnt-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+    .mnt-card:hover { box-shadow: var(--adm-shadow-md); }
     .mnt-card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        padding: 18px 20px;
+        padding: 16px 20px;
         background: var(--adm-bg-light);
         border-bottom: 1px solid var(--adm-border);
     }
     .mnt-card-header-left { display: flex; align-items: center; gap: 12px; }
     .mnt-icon {
-        width: 38px; height: 38px; border-radius: 10px;
+        width: 36px; height: 36px; border-radius: var(--adm-radius-sm);
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
     }
-    .mnt-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .mnt-icon.red   { background: rgba(239,68,68,.1);   color: #ef4444; }
-    .mnt-icon.amber { background: rgba(245,158,11,.1);  color: #f59e0b; }
-    .mnt-icon.blue  { background: rgba(59,130,246,.1);  color: #3b82f6; }
-    .mnt-title { font-size: 14px; font-weight: 700; color: var(--adm-text-dark); }
+    .mnt-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .mnt-icon.red   { background: var(--adm-red-lt);   color: var(--adm-red); }
+    .mnt-icon.amber { background: var(--adm-amber-lt); color: var(--adm-amber); }
+    .mnt-icon.blue  { background: var(--adm-blue-lt);  color: var(--adm-blue); }
+    .mnt-title { font-size: 13.5px; font-weight: 700; color: var(--adm-text-dark); font-family: 'Sora', sans-serif; }
     .mnt-desc  { font-size: 12px; color: var(--adm-text-muted); margin-top: 2px; }
-    .mnt-card-body { padding: 16px 20px; background: var(--adm-bg-card); font-size: 13px; color: var(--adm-text-mid); }
+    .mnt-card-body {
+        padding: 14px 20px;
+        background: #fff;
+        border-top: 1px solid var(--adm-border);
+        font-size: 13px;
+        color: var(--adm-text-mid);
+    }
     .mnt-card-body ul { padding-left: 18px; margin: 6px 0 0; }
     .mnt-card-body li { margin-bottom: 4px; }
 
-    /* Toggle switch */
-    .mnt-toggle { position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; }
+    /* ── Toggle switch — warna sesuai adm tokens ── */
+    .mnt-toggle { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
     .mnt-toggle input { opacity: 0; width: 0; height: 0; }
     .mnt-slider {
         position: absolute; inset: 0;
         background: var(--adm-border-mid);
-        border-radius: 28px;
+        border-radius: 26px;
         cursor: pointer;
         transition: background .25s;
     }
     .mnt-slider::before {
         content: '';
         position: absolute;
-        height: 20px; width: 20px;
+        height: 18px; width: 18px;
         left: 4px; bottom: 4px;
         background: #fff;
         border-radius: 50%;
         transition: transform .25s;
         box-shadow: 0 1px 4px rgba(0,0,0,.2);
     }
-    .mnt-toggle input:checked + .mnt-slider { background: #ef4444; }
-    .mnt-toggle input.mnt-amber:checked + .mnt-slider { background: #f59e0b; }
-    .mnt-toggle input:checked + .mnt-slider::before { transform: translateX(24px); }
+    .mnt-toggle input:checked + .mnt-slider { background: var(--adm-red); }
+    .mnt-toggle input.mnt-amber:checked + .mnt-slider { background: var(--adm-amber); }
+    .mnt-toggle input:checked + .mnt-slider::before { transform: translateX(22px); }
     .mnt-status {
-        font-size: 11px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: .07em; padding: 3px 10px;
-        border-radius: 20px; border: 1px solid currentColor;
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        letter-spacing: .04em;
+        text-transform: uppercase;
     }
-    .mnt-status.off { color: var(--adm-text-faint); border-color: var(--adm-border-mid); background: var(--adm-bg-light); }
-    .mnt-status.on  { color: #ef4444; border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.07); }
-    .mnt-status.on-amber { color: #f59e0b; border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.07); }
+    .mnt-status.off {
+        background: var(--adm-bg-light);
+        color: var(--adm-text-muted);
+        border: 1px solid var(--adm-border-mid);
+    }
+    .mnt-status.on {
+        background: var(--adm-red-lt);
+        color: var(--adm-red);
+        border: 1px solid rgba(220,38,38,.2);
+    }
+    .mnt-status.on-amber {
+        background: var(--adm-amber-lt);
+        color: var(--adm-amber);
+        border: 1px solid rgba(184,104,0,.2);
+    }
 </style>
 
 {{-- The actual pane is inside .adm-card above, so we need to inject it. --}}

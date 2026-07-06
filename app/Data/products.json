@@ -1,0 +1,1825 @@
+{
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-07",
+  "description": "Curated database of Indonesian UMKM products with halal status for PanduanHalalService",
+  "categories": [
+    "makanan_berat",
+    "makanan_ringan",
+    "minuman",
+    "bumbu_dan_rempah",
+    "produk_susu",
+    "produk_olahan_daging",
+    "produk_olahan_ikan",
+    "makanan_cepat_saji",
+    "makanan_penyegar",
+    "produk_manisan_dan_kue"
+  ],
+  "products": [
+    {
+      "id": "nasi_goreng_001",
+      "name": "Nasi Goreng",
+      "category": "makanan_berat",
+      "aliases": ["nasgor", "nasi goreng kampung", "nasi goreng spesial"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Nasi goreng tradisional dengan bumbu dasar bawang, cabai, kecap manis, dan penyedap rasa yang umum digunakan. Perlu verifikasi sertifikat halal untuk produk instan/packaging."
+      },
+      "bahan": [
+        "Nasi putih",
+        "Bawang merah",
+        "Bawang putih",
+        "Kecap manis",
+        "Minyak goreng",
+        "Cabai merah/rawit",
+        "Garam",
+        "Penyedap rasa (MSG/Natrium Glutamat)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Nasi digoreng dengan bumbu tumisan bawang merah, bawang putih, dan cabai menggunakan minyak goreng hingga tercampur rata dengan kecap manis.",
+      "alternatives": {
+        "penyedap_rasa": ["Garam himalaya", "Kaldu jamur", "Kaldu ayam homemade"]
+      },
+      "tips_halal": "Pastikan minyak goreng dan kecap manis yang digunakan memiliki sertifikat halal MUI. Untuk produk instan, pastikan kemasan tertera logo halal.",
+      "google_search_keywords": ["nasi goreng halal MUI", "nasi goreng sertifikasi halal", "bumbu nasi goreng halal certified"],
+      "google_search_url": "https://www.google.com/search?q=nasi+goreng+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "mie_ayam_001",
+      "name": "Mie Ayam",
+      "category": "makanan_berat",
+      "aliases": ["mie ayam", "mie ayam spesial", "bakmie"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Mie ayam dengan topping ayam cincang yang dimasak dengan bumbu kecap. Perlu perhatian khusus pada mie yang digunakan - pastikan berlogo halal."
+      },
+      "bahan": [
+        "Mie telur",
+        "Daging ayam",
+        "Kecap manis",
+        "Bawang goreng",
+        "Daun bawang",
+        "Minyak goreng",
+        "Bawang putih",
+        "Garam",
+        "Merica"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Mie telur",
+          "risk": "medium",
+          "notes": "Beberapa mie telur impor mengandung pengemulsi dari babi. Pastikan mie berlogo halal."
+        }
+      ],
+      "proses": "Daging ayam diolah dengan bumbu kecap dan bawang, kemudian disajikan di atas mie yang telah direbus.",
+      "alternatives": {
+        "mie": ["Mie telur berlogo halal", "Mie berbasis tepung tapioka"]
+      },
+      "tips_halal": "Pastikan mie yang digunakan memiliki sertifikat halal. Untuk topping ayam, gunakan ayam yang disembelih sesuai syariat Islam.",
+      "google_search_keywords": ["mie ayam halal", "bakmie halal MUI", "mie telur halal certified Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=mie+ayam+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "bakso_001",
+      "name": "Bakso",
+      "category": "makanan_berat",
+      "aliases": ["bakso sapi", "bakso Malang", "bakso jakarta", "meatball"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Bakso sapi tradisional dengan kuah kaldu. Bakso yang dijual umum di Indonesia umumnya halal namun perlu verifikasi untuk produk packaging."
+      },
+      "bahan": [
+        "Daging sapi",
+        "Tepung tapioka",
+        "Bawang putih",
+        "Garam",
+        "Merica",
+        "Putih telur (opsional)",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Daging sapi",
+          "risk": "high",
+          "notes": "Pastikan sapi disembelih sesuai syariat Islam. Hindari produk yang menggunakan daging impor dari negara非muslim."
+        }
+      ],
+      "proses": "Daging sapi digiling dengan bumbu, dibentuk bulat, kemudian direbus dalam air mendidih hingga matang.",
+      "alternatives": {
+        "daging": ["Daging sapi lokal yang diasuransikan halal"]
+      },
+      "tips_halal": "Minta bukti sertifikat halal dari penjual. Untuk produk frozen, pastikan kemasan tertera logo halal MUI atau LPPOM MUI.",
+      "google_search_keywords": ["bakso sapi halal MUI", "bakso frozen halal certified", "baksoinstant halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=bakso+sapi+halal+MUI+sertifikasi+sertifikat"
+    },
+    {
+      "id": "soto_ayam_001",
+      "name": "Soto Ayam",
+      "category": "makanan_berat",
+      "aliases": ["soto", "soto bening", "soto lamongan", "soto bogor", "soto sulung"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Sup ayam dengan rempah khas Indonesia. Soto ayam tradisional umumnya halal karena menggunakan bahan dasar ayam dan rempah alami."
+      },
+      "bahan": [
+        "Daging ayam",
+        "Air kaldu",
+        "Serai",
+        "Daun jeruk",
+        "Jahe",
+        "Kunyit",
+        "Kemiri",
+        "Bawang merah",
+        "Bawang putih",
+        "Garam",
+        "Daun bawang & seledri",
+        "Tauge (opsional)",
+        "Kolang kaling (opsional)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Bumbu instan soto",
+          "risk": "medium",
+          "notes": "Beberapa bumbu instan soto mengandung bahan tambahan yang perlu diverifikasi."
+        }
+      ],
+      "proses": "Ayam direbus dengan bumbu rempah hingga matang, kemudian disaji dengan kuah kaldu yang gurih dan pelengkap.",
+      "alternatives": {
+        "bumbu": ["Rempah alami segar", "Kunyit, jahe, serai homemade"]
+      },
+      "tips_halal": "Gunakan ayam yang disembelih halal. Untuk bumbu instan, pastikan berlogo halal MUI.",
+      "google_search_keywords": ["soto ayam halal MUI", "bumbu soto instan halal certified", "soto ayam rempah halal"],
+      "google_search_url": "https://www.google.com/search?q=soto+ayam+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "rendang_001",
+      "name": "Rendang",
+      "category": "makanan_berat",
+      "aliases": ["rendang daging", "rendang padang", "rendang otak"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Rendang tradisional Minangkabau yang dimasak dengan santan dan rempah. Rendang autentik 100% halal karena menggunakan daging sapi yang disembelih."
+      },
+      "bahan": [
+        "Daging sapi",
+        "Santan kental",
+        "Kelapa parut",
+        "Cabai merah",
+        "Cabai rawit",
+        "Bawang merah",
+        "Bawang putih",
+        "Jahe",
+        "Laos",
+        "Kunyit",
+        "Serai",
+        "Daun jeruk",
+        "Daun kunyit",
+        "Kemiri",
+        "Garam"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Daging dimasak perlahan dengan santan dan bumbu rempah selama berjam-jam hingga bumbu meresap dan santan mengering.",
+      "alternatives": {},
+      "tips_halal": "Rendang autentik Minang menggunakan daging sapi yang disembelih halal dan santan murni. Hindari rendang kemasan yang tidak terverifikasi.",
+      "google_search_keywords": ["rendang halal MUI", "rendang padang sertifikasi halal", "rendanginstant halal certified"],
+      "google_search_url": "https://www.google.com/search?q=rendang+halal+MUI+sertifikasi+sertifikat"
+    },
+    {
+      "id": "gudeg_001",
+      "name": "Gudeg",
+      "category": "makanan_berat",
+      "aliases": ["gudeg jogja", "gudeg kaleng", "gudeg instan"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Makanan khas Yogyakarta dari nangka muda yang dimasak dengan santan dan gula merah. Gudeg tradisional umumnya halal."
+      },
+      "bahan": [
+        "Nangka muda",
+        "Santan kental",
+        "Gula merah",
+        "Daun salam",
+        "Daun jeruk",
+        "Serai",
+        "Jahe",
+        "Laos",
+        "Bawang merah",
+        "Bawang putih",
+        "Kemiri",
+        "Garam",
+        "Krecek (kulit sapi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Krecek",
+          "risk": "high",
+          "notes": "Krecek terbuat dari kulit sapi. Pastikan berasal dari sapi yang disembelih halal."
+        }
+      ],
+      "proses": "Nangka muda dimasak perlahan dengan santan, gula merah, dan bumbu rempah hingga empuk dan bumbu meresap.",
+      "alternatives": {
+        "krecek": ["Tahu", "Tempe"]
+      },
+      "tips_halal": "Pastikan krecek berasal dari sapi halal. Gudeg kaleng/instan perlu diverifikasi sertifikat halalnya.",
+      "google_search_keywords": ["gudeg halal MUI", "gudeg instan halal certified", "krecek halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=gudeg+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "satay_001",
+      "name": "Sate",
+      "category": "makanan_berat",
+      "aliases": ["sate ayam", "sate kambing", "sate sapi", "sate madura"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Daging tusuk sate yang dipanggang. Sate tradisional umumnya halal dengan catatan daging harus disembelih sesuai syariat."
+      },
+      "bahan": [
+        "Daging (ayam/sapi/kambing)",
+        "Kecap manis",
+        "Bawang merah",
+        "Cabai rawit",
+        "Kacang tanah",
+        "Bawang putih",
+        "Jeruk nipis",
+        "Tusuk sate"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Daging",
+          "risk": "high",
+          "notes": "Pastikan daging disembelih halal. Untuk sate ayam, gunakan ayam yang CAS (Certiquement Abattoir Stuned) atau manual."
+        }
+      ],
+      "proses": "Daging dipotong kecil-kecil, dibumbui, ditusuk dengan tusuk sate, lalu dipanggang di atas bara api.",
+      "alternatives": {
+        "bumbu": ["Kecap manis halal", "Bumbu kacang homemade"]
+      },
+      "tips_halal": "Pastikan vendor menggunakan daging yang halal dan disembelih sesuai prosedur. Bumbu kacang harus bebas dari bahan najis.",
+      "google_search_keywords": ["sate ayam halal MUI", "sate madura sertifikasi halal", "bumbu kacang sate halal"],
+      "google_search_url": "https://www.google.com/search?q=sate+halal+MUI+sertifikasi+sate+madura"
+    },
+    {
+      "id": "rawon_001",
+      "name": "Rawon",
+      "category": "makanan_berat",
+      "aliases": ["rawon surabaya", "rawon nudle"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Sup daging khas Jawa Timur dengan kuah hitam dari kluwek. Rawon tradisional umumnya halal."
+      },
+      "bahan": [
+        "Daging sapi",
+        "Kluwek",
+        "Sereh",
+        "Laos",
+        "Daun jeruk",
+        "Bawang merah",
+        "Bawang putih",
+        "Cabai merah",
+        "Garam",
+        "Tauge kecil",
+        "Telur asin (pelengkap)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Kluwek",
+          "risk": "medium",
+          "notes": "Kluwek yang tidak difermentasi dengan benar bisa mengandung alkohol. Gunakan kluwek segar berkualitas."
+        }
+      ],
+      "proses": "Daging direbus dengan bumbu yang dibakar dan dihaluskan hingga menghasilkan kuah hitam khas.",
+      "alternatives": {},
+      "tips_halal": "Gunakan daging sapi halal. Kluwek harus berasal dari sumber terpercaya.",
+      "google_search_keywords": ["rawon halal MUI", "rawon surabaya sertifikasi halal", "kluwek halal"],
+      "google_search_url": "https://www.google.com/search?q=rawon+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "pempek_001",
+      "name": "Pempek",
+      "category": "makanan_berat",
+      "aliases": ["pempek kapal selam", "pempek lenjer", "pempek dos", "tekwan"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Makanan khas Palembang dari ikan dan tepung sagu. Pempek tradisional halal karena menggunakan ikan yang halal."
+      },
+      "bahan": [
+        "Ikan tenggiri/daging ikan",
+        "Tepung sagu/tapioka",
+        "Bawang putih",
+        "Garam",
+        "Air es",
+        "Telur (untuk cuko)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Ikan",
+          "risk": "medium",
+          "notes": "Pastikan ikan yang digunakan adalah ikan yang halal (memiliki sirip dan sisik)."
+        }
+      ],
+      "proses": "Adonan ikan dan tepung dibentuk lalu direbus atau digoreng. Disajikan dengan cuko (saus cuka pedas).",
+      "alternatives": {
+        "ikan": ["Ikan tenggiri", "Ikan layang", "Ikan kakap putih"]
+      },
+      "tips_halal": "Pempek yang dijual umum di Indonesia umumnya halal. Untuk produk frozen, verifikasi sertifikat halal.",
+      "google_search_keywords": ["pempek halal MUI", "pempek kapal selam sertifikasi halal", "pempek instant halal"],
+      "google_search_url": "https://www.google.com/search?q=pempek+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "gado_gado_001",
+      "name": "Gado-Gado",
+      "category": "makanan_berat",
+      "aliases": ["gado gado jakarta", "lotek", "karedok"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Salad sayuran dengan bumbu kacang. Gado-gado tradisional umumnya halal dengan perhatian pada petis jika digunakan."
+      },
+      "bahan": [
+        "Sayuran hijau (bayam, kangkung, tauge, kol)",
+        "Tauge",
+        "Kentang rebus",
+        "Tempe",
+        "Tahu",
+        "Lontong",
+        "Bumbu kacang (kacang tanah, bawang putih, cabai, gula merah, garam)",
+        "Bawang goreng",
+        "Kerupuk"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Petis",
+          "risk": "low",
+          "notes": "Petis udang - beberapa orang menghindari petis karena terbuat dari fermentasi udang."
+        },
+        {
+          "name": "Kerupuk",
+          "risk": "medium",
+          "notes": "Beberapa kerupuk mengandung gelatin dari hewan. Gunakan kerupuk dengan label halal."
+        }
+      ],
+      "proses": "Sayuran direbus/dikukus, kemudian disiram dengan bumbu kacang yang telah dihaluskan.",
+      "alternatives": {
+        "bumbu_kacang": ["Kacang tanah sangrai homemade", "Kacang almond"]
+      },
+      "tips_halal": "Bumbu kacang harus dari kacang tanah halal. Kerupuk harus berlogo halal. Petis bersifat opsional.",
+      "google_search_keywords": ["gado gado halal MUI", "bumbu kacang gado gado halal", "kerupuk halal certified Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=gado+gado+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "nasi_uduk_001",
+      "name": "Nasi Uduk",
+      "category": "makanan_berat",
+      "aliases": ["nasi uduk betawi", "nasi lemak"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Nasi yang dimasak dengan santan dan rempah. Nasi uduk tradisional umumnya halal."
+      },
+      "bahan": [
+        "Beras",
+        "Santan kental",
+        "Serai",
+        "Daun pandan",
+        "Daun jeruk",
+        "Garam",
+        "Bawang merah",
+        "Bawang putih",
+        "Laos"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Beras dimasak dengan santan dan rempah aromatik hingga matang dengan teknik dikukus atau ditanak.",
+      "alternatives": {},
+      "tips_halal": "Gunakan beras dan santan dari sumber terpercaya. Santan kemasan harus berlogo halal.",
+      "google_search_keywords": ["nasi uduk halal MUI", "santan halal certified Indonesia", "nasi uduk betawi sertifikasi"],
+      "google_search_url": "https://www.google.com/search?q=nasi+uduk+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "mie_goreng_001",
+      "name": "Mie Goreng",
+      "category": "makanan_cepat_saji",
+      "aliases": ["mie goreng spesial", "migor", "fried noodles"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Mie yang digoreng dengan bumbu. Untuk produk instan, WAJIB verifikasi sertifikat halal karena beberapa bumbu mengandung bahan yang meragukan."
+      },
+      "bahan": [
+        "Mie telur",
+        "Kecap manis",
+        "Saus tiram (perlu verifikasi)",
+        "Bawang putih",
+        "Bawang merah",
+        "Cabai",
+        "Sayuran",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Saus tiram",
+          "risk": "high",
+          "notes": "Beberapa saus tiram mengandung ekstrak shellfish atau alcohol. Pastikan saus tiram berlogo halal."
+        },
+        {
+          "name": "Mie telur",
+          "risk": "medium",
+          "notes": "Beberapa mie instan/telur mengandung pengemulsi dari babi."
+        }
+      ],
+      "proses": "Mie direbus, kemudian digoreng dengan bumbu hingga kering dan tercampur rata.",
+      "alternatives": {
+        "saus_tiram": ["Saus tiram halal certified", "Kecap asin halal"]
+      },
+      "tips_halal": "Untuk mie instan, HARUS gunakan produk berlogo halal MUI. Hindari produk tanpa sertifikat halal.",
+      "google_search_keywords": ["mie goreng instan halal MUI", "sauce tiram halal certified Indonesia", "mie instan halal BPOM"],
+      "google_search_url": "https://www.google.com/search?q=mie+instan+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "es_teh_001",
+      "name": "Es Teh Manis",
+      "category": "minuman",
+      "aliases": ["teh manis", "teh es", "ice tea"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Teh manis dingin. Teh dan gula adalah bahan yang umumnya halal. Perhatian pada teh celup kemasan dan gula rafinasi."
+      },
+      "bahan": [
+        "Teh celup/seduh",
+        "Gula pasir",
+        "Es batu",
+        "Air matang"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Gula rafinasi",
+          "risk": "low",
+          "notes": "Beberapa gula rafinasi menggunakan bahan penolong dari tulang hewan dalam proses pemurniannya. Gunakan gula merah atau gula pasir alami."
+        }
+      ],
+      "proses": "Teh diseduh dengan air panas, dicampur gula, kemudian didinginkan dengan es batu.",
+      "alternatives": {
+        "gula": ["Gula merah", "Gula aren", "Madu"]
+      },
+      "tips_halal": "Gunakan teh dari sumber terpercaya. Untuk vendor minuman, pastikan gula yang digunakan halal.",
+      "google_search_keywords": ["teh halal MUI", "gula rafinasi halal Indonesia", "teh celup sertifikasi halal"],
+      "google_search_url": "https://www.google.com/search?q=teh+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "es_jeruk_001",
+      "name": "Es Jeruk",
+      "category": "minuman",
+      "aliases": ["jeruk peras", "orange juice"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Jeruk yang diperas dan dicampur air serta gula. Jeruk adalah buah yang halal dan tidak memerlukan sertifikat khusus."
+      },
+      "bahan": [
+        "Jeruk nipis/jeruk manis",
+        "Gula pasir/gula merah",
+        "Es batu",
+        "Air matang"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Jeruk diperas, dicampur dengan air dan gula, kemudian disajikan dingin dengan es batu.",
+      "alternatives": {},
+      "tips_halal": "Jeruk segar adalah bahan yang jelas halal. Untuk es jeruk kemasan, verifikasi label halal.",
+      "google_search_keywords": ["es jeruk halal MUI", "jeruk peras segar", "minuman jeruk kemasan halal"],
+      "google_search_url": "https://www.google.com/search?q=es+jeruk+halal+sertifikasi"
+    },
+    {
+      "id": "es_dawet_001",
+      "name": "Es Dawet",
+      "category": "makanan_penyegar",
+      "aliases": ["dawet ireng", "es dawet ayu", "cendol"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Minuman tradisional dari tepung beras atau tepung hunkue dengan santan dan gula merah. Es dawet tradisional umumnya halal."
+      },
+      "bahan": [
+        "Tepung beras/tepung hunkue",
+        "Santan kental",
+        "Gula merah/aren",
+        "Daun pandan",
+        "Es batu"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Adonan tepung dibentuk menjadi butiran kecil atau cylinder, kemudian disajikan dengan santan dan sirup gula merah.",
+      "alternatives": {},
+      "tips_halal": "Pastikan santan yang digunakan murni tanpa campuran. Gula merah/aren adalah bahan yang jelas halal.",
+      "google_search_keywords": ["es dawet halal MUI", "cendol santan halal certified", "gula aren halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=es+dawet+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "wedang_ronde_001",
+      "name": "Wedang Ronde",
+      "category": "makanan_penyegar",
+      "aliases": ["wedang ronde", "bakmoy"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Minuman hangat dengan bola-bola ketan dan jahe. Wedang ronde tradisional umumnya halal."
+      },
+      "bahan": [
+        "Tepung ketan",
+        "Jahe",
+        "Gula merah",
+        "Santan (opsional)",
+        "Kacang tanah",
+        "Klepon/onde-onde kecil"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Bola ketan dibentuk dari adonan tepung ketan, kemudian direbus dan disajikan dalam kuah jahe hangat.",
+      "alternatives": {},
+      "tips_halal": "Wedang ronde tradisional tanpa bahan tambahan umumnya halal. Perhatikan klepon yang mungkin berisi gula merah.",
+      "google_search_keywords": ["wedang ronde halal MUI", "wedang jahe halal certification", "bakmoy halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=wedang+ronde+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "es_cendol_001",
+      "name": "Es Cendol",
+      "category": "makanan_penyegar",
+      "aliases": ["cendol", "dawet"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Minuman tradisional dengan pasta hijau dari tepung beras, santan, dan sirup gula merah."
+      },
+      "bahan": [
+        "Tepung beras hunkue",
+        "Daun pandan (pewarna hijau alami)",
+        "Santan kental",
+        "Gula merah/aren",
+        "Es batu"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Adonan cendol dicetak melalui saringan, kemudian disajikan dengan santan dan gula merah cair.",
+      "alternatives": {},
+      "tips_halal": "Cendol tradisional dari bahan alami umumnya halal. Untuk cendol instan, verifikasi label halal.",
+      "google_search_keywords": ["es cendol halal MUI", "cendol instan halal certified", "pasta cendol halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=es+cendol+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "kerupuk_001",
+      "name": "Kerupuk",
+      "category": "produk_manisan_dan_kue",
+      "aliases": ["kerupuk udang", "kerupuk paskah", "emping", "keripik"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Kerupuk dapat terbuat dari ikan, udang, atau tepung. Beberapa kerupuk menggunakan gelatin dari kulit babi sebagai bahan pengikat. WAJIB verifikasi."
+      },
+      "bahan": [
+        "Tepung tapioka/tepung terigu",
+        "Ikan/udang (opsional)",
+        "Bawang putih",
+        "Garam",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Gelatin",
+          "risk": "high",
+          "notes": "Gelatin dari kulit babi sering digunakan dalam produksi kerupuk. Selalu gunakan kerupuk berlogo halal."
+        }
+      ],
+      "proses": "Adonan diuleni, dibentuk, kemudian digoreng hingga renyah.",
+      "alternatives": {
+        "kerupuk": ["Kerupuk berlogo halal MUI", "Kerupuk dari tepung saja"]
+      },
+      "tips_halal": "WAJIB gunakan kerupuk dengan sertifikat halal MUI. Hindari kerupuk tanpa label halal.",
+      "google_search_keywords": ["kerupuk halal MUI certified", "kerupuk tanpa gelatin halal", "keripik halal BPOM Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=kerupuk+halal+MUI+sertifikasi+BPOM"
+    },
+    {
+      "id": "kue_klepon_001",
+      "name": "Klepon",
+      "category": "produk_manisan_dan_kue",
+      "aliases": ["onde-onde", "klepon isi gula merah"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Kue bulat hijau berisi gula merah dan balutan kelapa parut. Klepon tradisional umumnya halal."
+      },
+      "bahan": [
+        "Tepung ketan",
+        "Tepung tapioka",
+        "Gula merah/areh",
+        "Daun pandan (pewarna hijau)",
+        "Kelapa parut",
+        "Air matang"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Adonan tepung dibentuk bulat, diisi gula merah, kemudian direbus hingga mengapung dan digulingkan di kelapa parut.",
+      "alternatives": {},
+      "tips_halal": "Klepon tradisional dari bahan alami umumnya halal. Klepon kemasan perlu verifikasi label halal.",
+      "google_search_keywords": ["klepon halal MUI", "kue klepon sertifikasi halal", "klepon kemasan halal certified"],
+      "google_search_url": "https://www.google.com/search?q=klepon+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "kue_lumpur_001",
+      "name": "Kue Lumpur",
+      "category": "produk_manisan_dan_kue",
+      "aliases": ["kue lumpur pandan", "kue lumpur kentang"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Kue tradisonal yang dimasak dengan cetakan. Kue lumpur umumnya halal dengan bahan dasar tepung dan telur."
+      },
+      "bahan": [
+        "Tepung terigu",
+        "Kentang rebus (opsional)",
+        "Telur",
+        "Gula pasir",
+        "Santan",
+        "Margarin",
+        "Vanili",
+        "Daun pandan"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Adonan dicampur rata, kemudian dipanggang dengan cetakan hingga matang.",
+      "alternatives": {},
+      "tips_halal": "Kue lumpur tradisional umumnya halal. Untuk whipped cream topping, pastikan berlogo halal.",
+      "google_search_keywords": ["kue lumpur halal MUI", "kue tradisional halal certification", "kue lumpur instan halal"],
+      "google_search_url": "https://www.google.com/search?q=kue+lumpur+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "kripik_tempe_001",
+      "name": "Kripik Tempe",
+      "category": "makanan_ringan",
+      "aliases": ["keripik tempe", "tempe goreng kering"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Irisan tempe yang digoreng kering. Tempe adalah produk fermentasi kacang kedelai yang umumnya halal."
+      },
+      "bahan": [
+        "Tempe",
+        "Tepung bumbu (beras/ tapioka)",
+        "Bawang putih",
+        "Cabai",
+        "Garam",
+        "Minyak goreng",
+        "Daun jeruk"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Tempe diiris tipis, dibalut tepung bumbu, kemudian digoreng hingga renyah.",
+      "alternatives": {
+        "tepung_bumbu": ["Tepung bumbu berlogo halal"]
+      },
+      "tips_halal": "Pastikan tepung bumbu yang digunakan berlogo halal. Tempe homemade adalah pilihan terbaik.",
+      "google_search_keywords": ["kripik tempe halal MUI", "keripik tempe sertifikasi halal", "bumbu kripik tempe halal"],
+      "google_search_url": "https://www.google.com/search?q=keripik+tempe+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "keripik_singkong_001",
+      "name": "Keripik Singkong",
+      "category": "makanan_ringan",
+      "aliases": ["kripik singkong", "singkong goreng", "cassava chips"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Irisan singkong yang digoreng. Singkong adalah umbi yang halal dan umum digunakan dalam produk keripik."
+      },
+      "bahan": [
+        "Singkong",
+        "Minyak goreng",
+        "Garam",
+        "Bawang putih (opsional)",
+        "Cabai (opsional)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Singkong diiris tipis-tipis, dibumbui, kemudian digoreng hingga renyah.",
+      "alternatives": {},
+      "tips_halal": "Keripik singkong tradisional umumnya halal. Perhatikan varian rasa yang mungkin mengandung bahan perlu verifikasi.",
+      "google_search_keywords": ["keripik singkong halal MUI", "cassava chips halal certified", "singkong goreng instan halal"],
+      "google_search_url": "https://www.google.com/search?q=keripik+singkong+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "singkang_goreng_001",
+      "name": "Singkang Goreng",
+      "category": "makanan_ringan",
+      "aliases": ["singkang rebus", "singkang bakar"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Singkang (singkong) yang diolah dengan cara digoreng, direbus, atau dibakar. Produk dasar singkong jelas halal."
+      },
+      "bahan": [
+        "Singkang/singkong",
+        "Kelapa parut",
+        "Gula merah",
+        "Garam",
+        "Minyak goreng (untuk goreng)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Singkong dikupas, dipotong sesuai keinginan, kemudian diolah dengan cara digoreng/rebus/bakar.",
+      "alternatives": {},
+      "tips_halal": "Singkang segar adalah produk yang jelas halal. Tambahan kelapa parut dan gula merah juga halal.",
+      "google_search_keywords": ["singkang goreng halal", "singkong bakar tradisional halal", "jajanan singkong halal"],
+      "google_search_url": "https://www.google.com/search?q=singkang+goreng+halal+sertifikasi"
+    },
+    {
+      "id": "nugget_001",
+      "name": "Nugget",
+      "category": "produk_olahan_daging",
+      "aliases": ["nugget ayam", "nugget sapi", "chicken nugget", "nugget instan"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Produk olahan daging yang diproses dengan tepung dan bahan tambahan. WAJIB verifikasi sertifikat halal karena banyak produk mengandung bahan dari babi."
+      },
+      "bahan": [
+        "Daging ayam/sapi",
+        "Tepung roti/tepung panir",
+        "Tepung terigu",
+        "Telur",
+        "Bawang putih",
+        "Garam",
+        "Merica",
+        "Pengemulsi (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Pengemulsi",
+          "risk": "high",
+          "notes": "Beberapa nugget menggunakan pengemulsi dari lemak babi. Selalu gunakan nugget berlogo halal MUI."
+        },
+        {
+          "name": "Perasa/essence",
+          "risk": "medium",
+          "notes": "Essence rasa daging mungkin mengandung alcohol atau ekstrak dari hewan non-halal."
+        }
+      ],
+      "proses": "Daging digiling, dibumbui, dibentuk, dibalut tepung, kemudian digoreng atau dipanggang.",
+      "alternatives": {
+        "nugget": ["Nugget berlogo halal MUI", "Nugget homemade dari daging halal"]
+      },
+      "tips_halal": "WAJIB gunakan nugget dengan sertifikat halal MUI. Baca label kemasan dengan teliti.",
+      "google_search_keywords": ["nugget halal MUI certified", "nugget ayam bebas babi", "chicken nugget BPOM halal"],
+      "google_search_url": "https://www.google.com/search?q=nugget+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "sosis_001",
+      "name": "Sosis",
+      "category": "produk_olahan_daging",
+      "aliases": ["sosis ayam", "sosis sapi", "sausage", "sosis instan"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Produk daging olahan yang memerlukan verifikasi halal. Banyak sosis mengandung kulit babi atau bahan dari hewan non-halal."
+      },
+      "bahan": [
+        "Daging (ayam/sapi/kambing)",
+        "Tepung pati",
+        "Garam",
+        "Gula",
+        "Bumbu-bumbu",
+        "Pengemulsi (perlu verifikasi)",
+        "Kulit casing (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Kulit casing",
+          "risk": "high",
+          "notes": "Kulit casing alami sering terbuat dari usus babi. Gunakan sosis dengan kulit kolagen atau selulosa yang halal."
+        },
+        {
+          "name": "Pengemulsi & pengikat",
+          "risk": "high",
+          "notes": "Transglutaminase dan bahan pengikat lainnya harus diverifikasi."
+        }
+      ],
+      "proses": "Daging digiling dengan bumbu, dimasukkan ke casing, kemudian diproses dengan cara direbus, diasap, atau dipanggang.",
+      "alternatives": {
+        "sosis": ["Sosis berlogo halal MUI", "Sosis dengan casing kolagen halal"]
+      },
+      "tips_halal": "WAJIB gunakan sosis berlogo halal MUI. Hindari sosis tanpa sertifikat.",
+      "google_search_keywords": ["sosis halal MUI certified", "sosis tanpa babi BPOM", "sausage halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=sosis+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "basreng_001",
+      "name": "Basreng",
+      "category": "makanan_ringan",
+      "aliases": ["bakso goreng", "dried meat"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Irisan daging/ikan yang digoreng kering. Basreng tradisional umumnya halal, namun perlu verifikasi untuk produk kemasan."
+      },
+      "bahan": [
+        "Daging sapi/ikan",
+        "Tepung tapioka",
+        "Bawang putih",
+        "Cabai",
+        "Garam",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Daging",
+          "risk": "high",
+          "notes": "Pastikan daging yang digunakan disembelih halal."
+        }
+      ],
+      "proses": "Daging digiling, dicampur bumbu, diiris tipis, kemudian digoreng hingga kering dan renyah.",
+      "alternatives": {},
+      "tips_halal": "Basreng dari penjual terpercaya umumnya halal. Untuk produk kemasan, pastikan berlogo halal.",
+      "google_search_keywords": ["basreng halal MUI", "bakso goreng kering sertifikasi", "basreng ikan halal"],
+      "google_search_url": "https://www.google.com/search?q=basreng+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "dimsum_001",
+      "name": "Dimsum",
+      "category": "makanan_cepat_saji",
+      "aliases": ["dim sum", "hakau", "siomay", "hakau udang", "loh麵"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Makanan cina berupa kue atau isian yang dikukus/goreng. Banyak dimsum menggunakan daging babi. WAJIB verifikasi."
+      },
+      "bahan": [
+        "Tepung terigu/tepung tapioka",
+        "Daging ayam/sapi/ikan (perlu verifikasi)",
+        "Udang (perlu verifikasi)",
+        "Bawang putih",
+        "Jahe",
+        "Saus kecap",
+        "Minyak wijen"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Daging babi",
+          "risk": "high",
+          "notes": " Banyak jenis dimsum (char siew, siomay, hakau) tradisional mengandung babi. Selalu pesan yang jelas dari ayam/sapi/ikan halal."
+        },
+        {
+          "name": "Kulit dimsum",
+          "risk": "medium",
+          "notes": "Beberapa kulit dimsum menggunakan bahan dari hewan."
+        }
+      ],
+      "proses": "Adonan dibungkus atau dibentuk, kemudian dikukus atau digoreng.",
+      "alternatives": {
+        "dimsum": ["Dimsum dari restoran halal", "Dimsum homemade dari bahan halal"]
+      },
+      "tips_halal": "WAJIB pesan dimsum dari restoran/pedagang yang jelas menggunakan bahan halal. Minta sertifikat halal jika tersedia.",
+      "google_search_keywords": ["dimsum halal MUI", "siomay halal certified Indonesia", "dimsum restoran halal"],
+      "google_search_url": "https://www.google.com/search?q=dimsum+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "somay_001",
+      "name": "Somay / Siomay",
+      "category": "makanan_cepat_saji",
+      "aliases": ["somay", "siomay", "batagor"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Kue basi/isian yang dikukus. Somay tradisional di Indonesia umumnya menggunakan ikan, namun perlu verifikasi untuk vendor tertentu."
+      },
+      "bahan": [
+        "Ikan tenggiri/ikan lainnya",
+        "Tepung tapioka",
+        "Bawang putih",
+        "Jahe",
+        "Garam",
+        "Merica",
+        "Telur",
+        "Kulit somay (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Ikan",
+          "risk": "medium",
+          "notes": "Pastikan ikan yang digunakan adalah ikan halal."
+        },
+        {
+          "name": "Kulit somay",
+          "risk": "medium",
+          "notes": "Beberapa kulit menggunakan gelatin. Gunakan yang jelas bahannya."
+        }
+      ],
+      "proses": "Adonan ikan dibungkus kulit somay, kemudian dikukus hingga matang.",
+      "alternatives": {},
+      "tips_halal": "Pilih vendor yang jelas menggunakan ikan halal. Somay dengan daging ayam/sapi juga tersedia.",
+      "google_search_keywords": ["somay halal MUI", "siomay ikan halal certified", "batagor halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=somay+siomay+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "cireng_001",
+      "name": "Cireng",
+      "category": "makanan_ringan",
+      "aliases": ["aci goreng", "ciriang"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Makanan ringan dari tepung tapioka yang digoreng. Cireng tradisional umumnya halal karena menggunakan bahan dasar tepung."
+      },
+      "bahan": [
+        "Tepung tapioka/aci",
+        "Air panas",
+        "Bawang putih",
+        "Garam",
+        "Daun bawang",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Adonan tepung dicampur air panas, dibentuk, kemudian digoreng hingga mengembang dan renyah.",
+      "alternatives": {},
+      "tips_halal": "Cireng tradisional umumnya halal. Cireng isi perlu perhatian tambahan pada isian.",
+      "google_search_keywords": ["cireng halal MUI", "aci goreng tradisional halal", "cireng isi halal certified"],
+      "google_search_url": "https://www.google.com/search?q=cireng+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "tahu_campur_001",
+      "name": "Tahu Campur",
+      "category": "makanan_berat",
+      "aliases": ["tahu campur lamongan", "tahu tek"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Tahu dengan kuah petis dan sayuran. Tahu campur tradisional umumnya halal dengan perhatian pada petis."
+      },
+      "bahan": [
+        "Tahu",
+        "Tauge",
+        "Lontong",
+        "Kentang",
+        "Krecek (perlu verifikasi)",
+        "Petis udang",
+        "Bumbu kacang",
+        "Bawang goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Krecek",
+          "risk": "high",
+          "notes": "Krecek dari kulit sapi harus yakin dari sapi halal."
+        },
+        {
+          "name": "Petis",
+          "risk": "low",
+          "notes": "Petis terbuat dari fermentasi udang. Beberapa orang menghindari petis karena proses fermentasi."
+        }
+      ],
+      "proses": "Tahu dan pelengkap di tata dalam mangkuk, disiram kuah petis dan bumbu kacang.",
+      "alternatives": {
+        "krecek": ["Ganti dengan tahu atau tempe"]
+      },
+      "tips_halal": "Pastikan krecek berasal dari sapi halal. Tofu (tahu) adalah bahan yang jelas halal.",
+      "google_search_keywords": ["tahu campur halal MUI", "tahu tek lamongan sertifikasi halal", "petis halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=tahu+campur+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "tahu_goreng_001",
+      "name": "Tahu Goreng",
+      "category": "makanan_ringan",
+      "aliases": ["tahu crispy", "tahu isi", "tahu bakso"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Tahu yang digoreng. Tahu adalah produk kedelai yang jelas halal. Perhatian untuk tahu isi yang mungkin mengandung bahan perlu verifikasi."
+      },
+      "bahan": [
+        "Tahu putih/tahu kunings",
+        "Minyak goreng",
+        "Garam",
+        "Bumbu (untuk tahu isi)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Tahu digoreng hingga kecokelatan dan renyah.",
+      "alternatives": {},
+      "tips_halal": "Tahu goreng biasa jelas halal. Tahu isi dengan sayuran/brokoli juga halal. Perhatikan tahu isi dengan daging.",
+      "google_search_keywords": ["tahu goreng halal MUI", "tahu crispy halal", "tahu isi sayuran halal"],
+      "google_search_url": "https://www.google.com/search?q=tahu+goreng+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "tempe_goreng_001",
+      "name": "Tempe Goreng",
+      "category": "makanan_ringan",
+      "aliases": ["tempe crispy", "tempe mendoan", "tempe bacem"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Tempe yang digoreng. Tempe adalah produk fermentasi kacang kedelai dengan ragi yang jelas halal."
+      },
+      "bahan": [
+        "Tempe",
+        "Minyak goreng",
+        "Garam",
+        "Tepung bumbu (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Tempe digoreng langsung atau dibalut tepung bumbu terlebih dahulu.",
+      "alternatives": {},
+      "tips_halal": "Tempe goreng biasa jelas halal. Untuk tempe mendoan, pastikan tepung bumbu berlogo halal.",
+      "google_search_keywords": ["tempe goreng halal MUI", "tempe mendoan sertifikasi halal", "tempe bacem halal"],
+      "google_search_url": "https://www.google.com/search?q=tempe+goreng+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "nasi_kuning_001",
+      "name": "Nasi Kuning",
+      "category": "makanan_berat",
+      "aliases": ["nasi tumpeng", "nasi kbunga", "nasi kunyit"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Nasi yang dimasak dengan kunyit dan rempah. Nasi kuning tradisional umumnya halal."
+      },
+      "bahan": [
+        "Beras",
+        "Kunyit",
+        "Serai",
+        "Daun jeruk",
+        "Daun pandan",
+        "Santan (opsional)",
+        "Garam",
+        "Bawang merah",
+        "Bawang putih"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Beras dimasak dengan air yang telah dicampur kunyit parut dan rempah aromatik hingga matang.",
+      "alternatives": {},
+      "tips_halal": "Nasi kuning tradisional dari bahan alami jelas halal. Santan kemasan harus berlogo halal.",
+      "google_search_keywords": ["nasi kuning halal MUI", "nasi tumpeng sertifikasi halal", "nasi kunyit tradisional halal"],
+      "google_search_url": "https://www.google.com/search?q=nasi+kuning+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "ayam_geprek_001",
+      "name": "Ayam Geprek",
+      "category": "makanan_cepat_saji",
+      "aliases": ["ayam geprek bensu", "ayam geprek sambal", "ayam penyet"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Ayam goreng yang digeprek dengan sambal. Ayam geprek tradisional halal dengan catatan ayam dan bumbu yang digunakan halal."
+      },
+      "bahan": [
+        "Daging ayam",
+        "Tepung bumbu",
+        "Minyak goreng",
+        "Cabai",
+        "Bawang putih",
+        "Garam",
+        "Jeruk limau"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Ayam",
+          "risk": "high",
+          "notes": "Pastikan ayam yang digunakan disembelih halal atau CAS (mekanis)."
+        },
+        {
+          "name": "Tepung bumbu",
+          "risk": "medium",
+          "notes": "Beberapa tepung bumbu mengandung bahan tambahan perlu verifikasi."
+        }
+      ],
+      "proses": "Ayam dibalut tepung bumbu, digoreng, kemudian digeprek/ditekan dengan sambal di atasnya.",
+      "alternatives": {
+        "tepung": ["Tepung bumbu berlogo halal"]
+      },
+      "tips_halal": "Pastikan ayam berasal dari supplier halal. Tepung bumbu harus berlogo halal MUI.",
+      "google_search_keywords": ["ayam geprek halal MUI", "ayam goreng crispy halal certified", "bumbu ayam geprek halal"],
+      "google_search_url": "https://www.google.com/search?q=ayam+geprek+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "ayam_bakar_001",
+      "name": "Ayam Bakar",
+      "category": "makanan_berat",
+      "aliases": ["ayam panggang", "charcoal chicken", "grilled chicken"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Ayam yang dibakar/dipanggang. Ayam bakar tradisional halal dengan catatan ayam yang digunakan halal."
+      },
+      "bahan": [
+        "Daging ayam",
+        "Kecap manis",
+        "Bawang merah",
+        "Bawang putih",
+        "Cabai",
+        "Jahe",
+        "Laos",
+        "Serai",
+        "Daun jeruk",
+        "Garam",
+        "Gula merah",
+        "Arang/kayu bakar"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Ayam",
+          "risk": "high",
+          "notes": "Pastikan ayam yang digunakan disembelih halal."
+        }
+      ],
+      "proses": "Ayam dibumbui dengan rempah, kemudian dipanggang di atas bara api atau oven.",
+      "alternatives": {},
+      "tips_halal": "Ayam bakar dari restoran/pedagang terpercaya umumnya halal. Minta konfirmasi penggunaan ayam halal.",
+      "google_search_keywords": ["ayam bakar halal MUI", "ayam panggang restoran halal", "charcoal chicken Indonesian halal"],
+      "google_search_url": "https://www.google.com/search?q=ayam+bakar+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "ikan_bakar_001",
+      "name": "Ikan Bakar",
+      "category": "makanan_berat",
+      "aliases": ["ikan panggang", "grilled fish", "barbecue fish"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Ikan yang dibakar. Ikan adalah seafood yang halal dengan catatan ikan memiliki sirip dan sisik."
+      },
+      "bahan": [
+        "Ikan laut/air tawar halal",
+        "Kecap manis",
+        "Bawang merah",
+        "Bawang putih",
+        "Cabai",
+        "Tomat",
+        "Jeruk nipis",
+        "Daun pisang (alas)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Ikan",
+          "risk": "medium",
+          "notes": "Pastikan ikan yang digunakan adalah ikan halal (memiliki sirip dan sisik). Hindari ikan predator seperti hiu."
+        }
+      ],
+      "proses": "Ikan dibumbui dengan sambal dan rempah, dibungkus daun pisang, kemudian dipanggang.",
+      "alternatives": {},
+      "tips_halal": "Pilih ikan yang jelas halal. Ikan laut yang umum dikonsumsi umumnya halal.",
+      "google_search_keywords": ["ikan bakar halal MUI", "ikan bakar laut sertifikasi", "grilled fish Indonesian halal"],
+      "google_search_url": "https://www.google.com/search?q=ikan+bakar+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "sarden_001",
+      "name": "Sarden",
+      "category": "produk_olahan_ikan",
+      "aliases": ["sarden kaleng", "sarden TOM", "sarden Fr FLAG"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Ikan sarden kaleng memerlukan verifikasi halal. Beberapa merek telah tersertifikasi halal MUI."
+      },
+      "bahan": [
+        "Ikan sarden",
+        "Minyak goreng/minyak zaitun",
+        "Tomat sauce",
+        "Garam",
+        "Bumbu-bumbu"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Ikan sarden segar dikalengkan dengan bumbu dan diproses secara industri.",
+      "alternatives": {
+        "sarden": ["Merek sarden berlogo halal MUI", "Ikan segar yang dimasak sendiri"]
+      },
+      "tips_halal": "Gunakan sarden dengan logo halal MUI. Merek seperti Fr FLAG dan TOM telah tersertifikasi.",
+      "google_search_keywords": ["sarden halal MUI certified", "sarden kaleng sertifikasi BPOM halal", "canned fish halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=sarden+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "susu_kental_manis_001",
+      "name": "Susu Kental Manis",
+      "category": "produk_susu",
+      "aliases": ["SKM", "sweetened condensed milk", "susu manis"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Produk susu yang dimaniskan. Banyak merek susu kental manis telah tersertifikasi halal MUI."
+      },
+      "bahan": [
+        "Susu segar",
+        "Gula pasir",
+        "Laktosa"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Enzim pengental",
+          "risk": "low",
+          "notes": "Beberapa susu menggunakan enzim dari hewan. Pilih yang jelas bahannya."
+        }
+      ],
+      "proses": "Susu diuapkan dengan penambahan gula hingga dihasilkan produk kental dan manis.",
+      "alternatives": {
+        "susu": ["SKM berlogo halal MUI", "Susu evaporasi halal"]
+      },
+      "tips_halal": "Gunakan SKM dengan logo halal MUI. Banyak merek lokal telah tersertifikasi.",
+      "google_search_keywords": ["susu kental manis halal MUI certified", "SKM Fr flag halal BPOM", "sweetened condensed milk halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=susu+kental+manis+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "yoghurt_001",
+      "name": "Yoghurt",
+      "category": "produk_susu",
+      "aliases": ["yogurt", "yoghurt plain", "yoghurt buah"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Produk susu fermentasi. Yoghurt menggunakan kultur bakteri yang umumnya halal, namun periksa bahan tambahan."
+      },
+      "bahan": [
+        "Susu segar",
+        "Kultur bakteri (Lactobacillus)",
+        "Gula pasir",
+        "Pewarna (perlu verifikasi)",
+        "Perasa buah"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Pewarna & perasa",
+          "risk": "medium",
+          "notes": "Beberapa pewarna dan perasa sintetis mungkin berasal dari bahan yang tidak halal."
+        },
+        {
+          "name": "Gelatin",
+          "risk": "medium",
+          "notes": "Beberapa yoghurt menggunakan gelatin sebagai pengental."
+        }
+      ],
+      "proses": "Susu dipasteurisasi, fermentasi dengan kultur bakteri, dan penambahan bahan tambahan.",
+      "alternatives": {
+        "yoghurt": ["Yoghurt plain berlogo halal", "Yoghurt homemade"]
+      },
+      "tips_halal": "Gunakan yoghurt dengan logo halal MUI. Yoghurt plain umumnya lebih aman.",
+      "google_search_keywords": ["yoghurt halal MUI certified", "yogurt buah halal BPOM", "yoghurt plain sertifikasi halal"],
+      "google_search_url": "https://www.google.com/search?q=yoghurt+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "roti_manis_001",
+      "name": "Roti Manis",
+      "category": "produk_manisan_dan_kue",
+      "aliases": ["roti tawar", "bread", "white bread", "roti sobek"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Produk bakery memerlukan verifikasi bahan. Banyak roti menggunakan emulsifier dan bahan tambahan yang perlu dicek."
+      },
+      "bahan": [
+        "Tepung terigu",
+        "Ragi",
+        "Gula pasir",
+        "Telur",
+        "Margarin",
+        "Susu bubuk",
+        "Air",
+        "Emulsifier (perlu verifikasi)",
+        "Pengawet (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Emulsifier",
+          "risk": "medium",
+          "notes": "Beberapa emulsifier (mono-diglyceride) berasal dari lemak hewan. Pilih yang berlogo halal."
+        },
+        {
+          "name": "Margarin",
+          "risk": "medium",
+          "notes": "Beberapa margarin mengandung shortening dari lemak babi."
+        }
+      ],
+      "proses": "Adonan diuleni, difermentasi dengan ragi, kemudian dipanggang.",
+      "alternatives": {
+        "margarin": ["Margarin berlogo halal MUI"],
+        "roti": ["Roti dari bakery halal", "Roti homemade"]
+      },
+      "tips_halal": "Gunakan roti dengan logo halal MUI. Roti dari bakery lokal umumnya lebih terpercaya.",
+      "google_search_keywords": ["roti manis halal MUI certified", "roti tawar sertifikasi halal", "bread halal BPOM Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=roti+manis+halal+MUI+BPOM+sertifikasi"
+    },
+    {
+      "id": "indomie_001",
+      "name": "Indomie",
+      "category": "makanan_cepat_saji",
+      "aliases": ["mie instan", "instant noodles", "Mie Gomak", "Mie Lidi"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": "PI 0013000046",
+        "status": "halal_certified",
+        "notes": "Indomie telah tersertifikasi halal MUI. Produk Indomie dengan logo halal MUI aman dikonsumsi."
+      },
+      "bahan": [
+        "Tepung terigu",
+        "Minyak goreng nabati",
+        "Garam",
+        "Pengemulsi (vegetable based)",
+        "Bumbu (bumbu cabai, bawang, rempah)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Mie dibentuk dari adonan tepung, dikukus, kemudian digoreng kering atau dikeringkan.",
+      "alternatives": {},
+      "tips_halal": "HANYA gunakan Indomie dengan logo halal MUI di kemasan. Terdapat varian yang tidak bersertifikat.",
+      "google_search_keywords": ["indomie halal MUI certified", "mie instan sertifikasi halal", "Indomie Goreng halal BPOM"],
+      "google_search_url": "https://www.google.com/search?q=indomie+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "mie_sedap_001",
+      "name": "Mie Sedap",
+      "category": "makanan_cepat_saji",
+      "aliases": ["Mie Sedaap", "mie instan sedap", "instant noodles"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": "PI 0013000047",
+        "status": "halal_certified",
+        "notes": "Mie Sedap telah tersertifikasi halal MUI. Produk dengan logo halal MUI aman dikonsumsi."
+      },
+      "bahan": [
+        "Tepung terigu",
+        "Minyak goreng nabati",
+        "Garam",
+        "Pengemulsi nabati",
+        "Bumbu rempah"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Mie diproses melalui pencampuran, penggilingan, pembentukan, pengukusan, dan pengeringan.",
+      "alternatives": {},
+      "tips_halal": "Gunakan Mie Sedap dengan logo halal MUI. Terdapat varian rasa yang perlu dicek.",
+      "google_search_keywords": ["mie sedap halal MUI certified", "Mie Sedaap sertifikasi halal", "mie instan halal BPOM"],
+      "google_search_url": "https://www.google.com/search?q=mie+sedap+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "sari_tebu_001",
+      "name": "Sari Tebu (Gula Pasir)",
+      "category": "bumbu_dan_rempah",
+      "aliases": ["gula pasir", "gula refinery", "tebu sugar"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Gula rafinasi memerlukan verifikasi. Beberapa proses pemurnian gula menggunakan bahan dari tulang hewan."
+      },
+      "bahan": [
+        "Tebu"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Bahan penolong proses",
+          "risk": "medium",
+          "notes": "Beberapa gula rafinasi menggunakan tulang hewan sebagai bahan filter. Gunakan gula merah atau gula aren."
+        }
+      ],
+      "proses": "Tebu diperas, juice dijernihkan, diuapkan, dan dikristalkan menjadi gula.",
+      "alternatives": {
+        "gula": ["Gula merah", "Gula aren", "Gula kelapa", "Madu"]
+      },
+      "tips_halal": "Gunakan gula merah/aren untuk kepastian halal. Untuk gula pasir, pilih yang berlogo halal MUI.",
+      "google_search_keywords": ["gula rafinasi halal MUI", "gula pasir tanpa tulang hewan", "tebu sugar halal certified"],
+      "google_search_url": "https://www.google.com/search?q=gula+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "bumbu_rica_001",
+      "name": "Bumbu Rica-Rica",
+      "category": "bumbu_dan_rempah",
+      "aliases": ["rica rica", "bumbu Manado", "manadonese spice"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Bumbu khas Manado dari cabai dan rempah. Rica-rica tradisional halal karena hanya menggunakan bahan nabati."
+      },
+      "bahan": [
+        "Cabai merah",
+        "Cabai rawit",
+        "Bawang merah",
+        "Bawang putih",
+        "Tomat",
+        "Jahe",
+        "Laos",
+        "Serai",
+        "Daun jeruk",
+        "Daun pandan",
+        "Garam"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Semua bumbu diiris/dihaluskan, kemudian ditumis hingga harum.",
+      "alternatives": {},
+      "tips_halal": "Bumbu rica-rica dari bahan segar jelas halal. Untuk bumbu kemasan, verifikasi label halal.",
+      "google_search_keywords": ["bumbu rica rica halal MUI", "rica rica instant sertifikasi", "manadonese spice paste halal"],
+      "google_search_url": "https://www.google.com/search?q=bumbu+rica+rica+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "bumbu_sambal_001",
+      "name": "Sambal",
+      "category": "bumbu_dan_rempah",
+      "aliases": ["sambal terasi", "sambalado", "sambal matte", "sambal lombo"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Sambal tradisional dari cabai jelas halal. Perhatian pada terasi yang mungkin mengandung bahan tidak halal."
+      },
+      "bahan": [
+        "Cabai merah",
+        "Cabai rawit",
+        "Bawang merah",
+        "Bawang putih",
+        "Tomat",
+        "Terasi (perlu verifikasi)",
+        "Gula merah",
+        "Garam"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Terasi",
+          "risk": "medium",
+          "notes": "Terasi tradisional terbuat dari udang kecil fermentasi. Beberapa orang mempertanyakan kehalalannya karena proses fermentasi."
+        }
+      ],
+      "proses": "Semua bahan digiling/diulek hingga rata, kemudian ditumis dengan minyak.",
+      "alternatives": {
+        "terasi": ["Sambal tanpa terasi", "Sambalado tanpa terasi"]
+      },
+      "tips_halal": "Sambal tanpa terasi jelas halal. Sambal dengan terasi dari udang halal masih diperdebatkan.",
+      "google_search_keywords": ["sambal halal MUI certified", "sambal tanpa terasi halal", "sambalado sertifikasi halal"],
+      "google_search_url": "https://www.google.com/search?q=sambal+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "kecap_manis_001",
+      "name": "Kecap Manis",
+      "category": "bumbu_dan_rempah",
+      "aliases": ["kecap asin", "sweet soy sauce", "soy sauce"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Kecap manis memerlukan verifikasi. Beberapa kecap menggunakan bahan penambah rasa dari produk babi."
+      },
+      "bahan": [
+        "Kedelai hitam",
+        "Gula palma/gula merah",
+        "Air",
+        "Garam",
+        "Bumbu tambahan (perlu verifikasi)"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Bumbu tambahan",
+          "risk": "medium",
+          "notes": "Beberapa kecap impor mengandung extract dari babi."
+        }
+      ],
+      "proses": "Kedelai difermentasi dengan molasses/gula, kemudian dimasak dan disaring.",
+      "alternatives": {
+        "kecap": ["Kecap manis berlogo halal MUI", "Kecap ABC", "Kecap Sedap"]
+      },
+      "tips_halal": "Gunakan kecap manis berlogo halal MUI. Merek lokal umumnya lebih terpercaya.",
+      "google_search_keywords": ["kecap manis halal MUI certified", "kecap asin halal BPOM", "sweet soy sauce halal Indonesia"],
+      "google_search_url": "https://www.google.com/search?q=kecap+manis+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "telur_asin_001",
+      "name": "Telur Asin",
+      "category": "produk_olahan_daging",
+      "aliases": ["telur bebek asin", "salted egg", "tele asin"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Telur bebek yang diasinkan. Telur bebek adalah produk yang jelas halal."
+      },
+      "bahan": [
+        "Telur bebek",
+        "Garam",
+        "Abu sekam (bahan pengasin)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Telur direndam dalam larutan garam atau dibungkus dengan abu sekam selama beberapa hari.",
+      "alternatives": {},
+      "tips_halal": "Telur asin tradisional jelas halal. Telur bebek berasal dari hewan yang halal."
+      ,
+      "google_search_keywords": ["telur asin halal MUI", "salted egg halal certified", "telur bebek asin sertifikasi"],
+      "google_search_url": "https://www.google.com/search?q=telur+asin+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "tahu_sumedang_001",
+      "name": "Tahu Sumedang",
+      "category": "makanan_ringan",
+      "aliases": ["tahu goreng Sumedang", "tahu crispy"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Tahu goreng khas Sumedang yang renyah. Tahu adalah produk yang jelas halal."
+      },
+      "bahan": [
+        "Tahu",
+        "Minyak goreng",
+        "Bumbu (bawang putih, garam)"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Tahu digoreng dalam minyak banyak dengan suhu tinggi hingga mengembang dan renyah.",
+      "alternatives": {},
+      "tips_halal": "Tahu Sumedang tradisional jelas halal. Gunakan tahu dari sumber terpercaya.",
+      "google_search_keywords": ["tahu Sumedang halal MUI", "tahu crispy Sumedang", "tahu goreng tradisional halal"],
+      "google_search_url": "https://www.google.com/search?q=tahu+Sumedang+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "nasi_campur_001",
+      "name": "Nasi Campur / Nasi Rames",
+      "category": "makanan_berat",
+      "aliases": ["nasi rames", "nasi combo", "rice plate"],
+      "halal_status": "halal",
+      "confidence": "medium",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "perlu_verifikasi",
+        "notes": "Nasi dengan berbagai lauk-pauk memerlukan verifikasi. Setiap lauk harus dicek kehalalannya."
+      },
+      "bahan": [
+        "Nasi putih",
+        "Lauk-pauk (bervariasi)",
+        "Sayuran",
+        "Sambal"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Lauk non-halal",
+          "risk": "high",
+          "notes": "Setiap lauk (babi, anjing, dll) harus dihindari. Minta daftar lauk dari penjual."
+        }
+      ],
+      "proses": "Nasi disajikan dengan pilihan lauk-pauk sesuai keinginan pelanggan.",
+      "alternatives": {
+        "lauk": ["Pilih hanya lauk yang jelas halal"]
+      },
+      "tips_halal": "Pilih vendor yang menyediakan hanya lauk halal. Minta konfirmasi untuk setiap lauk.",
+      "google_search_keywords": ["nasi campur halal MUI", "nasi rames lauk halal", "rice plate halal certification"],
+      "google_search_url": "https://www.google.com/search?q=nasi+campur+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "lontong_balapis_001",
+      "name": "Lontong Balap",
+      "category": "makanan_berat",
+      "aliases": ["lontong balapis surabaya", "lontong goreng"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Makanan khas Surabaya dari lontong dengan tauge, mie, dan bumbu petis. Umumnya halal."
+      },
+      "bahan": [
+        "Lontong",
+        "Tauge",
+        "Mie",
+        "Tahu goreng",
+        "Petis udang",
+        "Bawang goreng",
+        "Sambal"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Petis",
+          "risk": "low",
+          "notes": "Petis udang - beberapa orang menghindari petis."
+        }
+      ],
+      "proses": "Lontong dipotong, dicampur tauge dan mie, disiram petis dan bumbu.",
+      "alternatives": {
+        "petis": ["Tanpa petis atau ganti dengan kecap"]
+      },
+      "tips_halal": "Lontong Balap tradisional jelas halal tanpa petis. Dengan petis masih diperdebatkan.",
+      "google_search_keywords": ["lontong balap halal MUI", "lontong surabaya sertifikasi", "lontong balapis halal"],
+      "google_search_url": "https://www.google.com/search?q=lontong+balap+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "kerak_telor_001",
+      "name": "Kerak Telor",
+      "category": "makanan_berat",
+      "aliases": ["kekal", "buras", "lontong rice cooker"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Makanan khas Betawi dari telur yang digoreng dengan nasi atau beras. Jelas halal karena bahan dasarnya telur dan nasi."
+      },
+      "bahan": [
+        "Telur",
+        "Nasi putih",
+        "Bawang merah",
+        "Cabai (opsional)",
+        "Minyak goreng",
+        "Garam"
+      ],
+      "bahan_kritikal": [],
+      "proses": "Nasi dicampur telur, digoreng di wajan besi dengan api besar hingga terbentuk lapisan renyah.",
+      "alternatives": {},
+      "tips_halal": "Kerak telor jelas halal karena hanya menggunakan telur, nasi, dan bumbu alami.",
+      "google_search_keywords": ["kerak telor halal MUI", "kerak telor betawi", "telur goreng nasi halal"],
+      "google_search_url": "https://www.google.com/search?q=kerak+telor+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "peyek_001",
+      "name": "Peyek / Rempeyek",
+      "category": "makanan_ringan",
+      "aliases": ["peyek", "rempeyek", "peyek kacang", "rempeyek udang", "peyek terasi", "peyek SPI", "peyek bulat", "peyek买入"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Peyek adalah keripik tradisional Jawa dari adonan tepung beras/kanji dengan topping kacang tanah atau udang. Umumnya halal dengan catatan bahan baku."
+      },
+      "bahan": [
+        "Tepung beras ketan",
+        "Tepung tapioka/kanji",
+        "Kacang tanah (untuk peyek kacang)",
+        "Udang kecil (untuk peyek udang)",
+        "Bawang putih",
+        "Daun jeruk purut",
+        "Seledri",
+        "Garam",
+        "Gula merah",
+        "Minyak goreng",
+        "Air"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Terasi",
+          "risk": "low",
+          "notes": "Beberapa peyek menggunakan terasi sebagai bumbu. Terasi dari udang fermentasi masih diperdebatkan."
+        },
+        {
+          "name": "Minyak goreng",
+          "risk": "medium",
+          "notes": "Pastikan menggunakan minyak goreng berlogo halal MUI."
+        }
+      ],
+      "proses": "1. Campurkan tepung beras, tepung tapioka, bawang putih halus, garam, gula merah, daun jeruk, dan seledri. 2. Tuang air sedikit demi sedikit hingga adonan kalis. 3. Masukkan topping (kacang tanah/udang) dan aduk rata. 4. Ambil adonan dengan sendok lalu goreng dalam minyak banyak dan panas. 5. Goreng hingga renyah dan berwarna kuning keemasan. 6. Tiriskan dan dinginkan.",
+      "alternatives": {},
+      "tips_halal": "Peyek tradisional jelas halal jika tanpa terasi. Pastikan minyak goreng berlogo halal MUI. Peyek dari penjual terpercaya lebih terjamin kehalalannya.",
+      "google_search_keywords": ["peyek halal MUI", "rempeyek sertifikasi halal", "peyek kacang tradisional halal"],
+      "google_search_url": "https://www.google.com/search?q=peyek+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "peyek_kacang_001",
+      "name": "Peyek Kacang",
+      "category": "makanan_ringan",
+      "aliases": ["peyek kacang tanah", "peyek kacang goreng", "kremes kacang"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Peyek kacang adalah keripik tradisional dengan topping kacang tanah. Umumnya halal dengan catatan minyak goreng."
+      },
+      "bahan": [
+        "Tepung beras ketan",
+        "Tepung tapioka",
+        "Kacang tanah kupas",
+        "Bawang putih",
+        "Daun jeruk",
+        "Garam",
+        "Gula merah",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Minyak goreng",
+          "risk": "medium",
+          "notes": "Pastikan menggunakan minyak goreng berlogo halal MUI."
+        }
+      ],
+      "proses": "1. Campurkan tepung beras dan tepung tapioka dengan bumbu halus. 2. Tuang air hingga adonan kalis. 3. Campurkan kacang tanah kupas. 4. Goreng dalam minyak banyak hingga renyah.",
+      "alternatives": {},
+      "tips_halal": "Peyek kacang jelas halal. Gunakan minyak goreng berlogo halal MUI untuk hasil terbaik.",
+      "google_search_keywords": ["peyek kacang halal MUI", "rempeyek kacang tanah", "kremes kacang tradisional halal"],
+      "google_search_url": "https://www.google.com/search?q=peyek+kacang+halal+MUI+sertifikasi"
+    },
+    {
+      "id": "peyek_udang_001",
+      "name": "Peyek Udang",
+      "category": "makanan_ringan",
+      "aliases": ["rempeyek udang", "peyek udang kecil", "peyek rebon"],
+      "halal_status": "halal",
+      "confidence": "high",
+      "mui_info": {
+        "certificate_number": null,
+        "status": "umum_halal",
+        "notes": "Peyek udang menggunakan udang kecil/rebon sebagai topping. Udang adalah seafood halal."
+      },
+      "bahan": [
+        "Tepung beras ketan",
+        "Tepung tapioka",
+        "Udang kecil/rebon",
+        "Bawang putih",
+        "Daun jeruk",
+        "Garam",
+        "Gula merah",
+        "Minyak goreng"
+      ],
+      "bahan_kritikal": [
+        {
+          "name": "Minyak goreng",
+          "risk": "medium",
+          "notes": "Pastikan menggunakan minyak goreng berlogo halal MUI."
+        }
+      ],
+      "proses": "1. Campurkan tepung dengan bumbu halus. 2. Tambahkan udang kecil dan aduk rata. 3. Goreng dalam minyak banyak hingga renyah.",
+      "alternatives": {},
+      "tips_halal": "Peyek udang jelas halal karena udang adalah seafood halal. Pastikan minyak goreng halal.",
+      "google_search_keywords": ["peyek udang halal MUI", "rempeyek rebon", "peyek udang kecil tradisional"],
+      "google_search_url": "https://www.google.com/search?q=peyek+udang+halal+MUI+sertifikasi"
+    }
+  ]
+}

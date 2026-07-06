@@ -1,0 +1,982 @@
+{
+    "version": "1.0",
+    "last_updated": "2024-01-15",
+    "description": "Database produk halal kurasi untuk Panduan Halal UMKM Indonesia",
+    "products": [
+        {
+            "name": "Nasi Goreng",
+            "category": "Makanan Berat",
+            "keywords": ["nasi goreng", "nasgor", "fried rice"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring tertutup / bento box / nasi box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis pada kecap manis (pastikan bebas nabatis), minyak goreng (pilih yang berlogo halal), dan MSG. Daging ayam/sapi WAJIB sertifikat halal.",
+            "bahan": [
+                {"nama": "Nasi putih", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Beras Indonesia umumnya halal"},
+                {"nama": "Telur", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam negeri/bebek halal"},
+                {"nama": "Ayam/sapi/udang", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Kecap manis", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih kecap berlogo halal MUI"},
+                {"nama": "Bawang merah & putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Umumnya halal"},
+                {"nama": "Cabai merah", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Cabai segar halal"},
+                {"nama": "Minyak goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "MSG/Penyedap", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih yang bersertifikat halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan nasi", "deskripsi": "Siapkan nasi putih sisa semalam (lebih baik karena teksturnya kering). Pastikan wadahnya bersih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tumis bumbu", "deskripsi": "Tumis bawang merah, bawang putih, dan cabai hingga harum dengan minyak goreng halal.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak telur", "deskripsi": "Sisihkan bumbu, orak-arik telur hingga matang.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Masak daging/ayam", "deskripsi": "Masak daging hingga matang. Pastikan daging bersertifikat halal.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Campur nasi", "deskripsi": "Masukkan nasi, aduk rata dengan api besar. Tambahkan kecap manis halal.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Seasoning", "deskripsi": "Tambahkan garam, penyedap halal. Koreksi rasa.", "titik_kritis": false},
+                {"langkah": 7, "nama": "Penyajian", "deskripsi": "Sajikan dengan garnish. Gunakan piring/tempat bersih. Pastikan bebas residu sabun.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Mie Ayam",
+            "category": "Makanan Berat",
+            "keywords": ["mie ayam", "mie rebus", "bakso mie"],
+            "halal_status": "AMAN",
+            "kemasan": "Mangkok / piring / box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Pastikan mie tidak mengandung telur non-halal (cek label). Topping ayam WAJIB sertifikat halal. Kuah kaldu harus dari bahan halal.",
+            "bahan": [
+                {"nama": "Mie telur/kuning", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih mie berlogo halal MUI"},
+                {"nama": "Ayam cincang/topling", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Minyak goreng/bumbu", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Kecap asin", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih kecap berlogo halal MUI"},
+                {"nama": "Sawi hijau", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Sayuran segar halal"},
+                {"nama": "Kuah kaldu", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pastikan kaldu dari bahan halal"},
+                {"nama": "MSG/Penyedap", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih yang bersertifikat halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus mie", "deskripsi": "Masak mie dalam air mendidih hingga setengah matang. Gunakan air bersih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Masak topping ayam", "deskripsi": "Tumis ayam cincang dengan bumbu hingga matang. Pastikan ayam halal.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Buat kuah", "deskripsi": "Masak air dengan tulang ayam halal, jahe, bawang. Saring sebelum digunakan.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Rebus sawi", "deskripsi": "Blanch sawi sebentar, tiriskan.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Campur mie", "deskripsi": "Campur mie dengan minyak wijen halal dan kecap asin.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Susun & sajikan", "deskripsi": "Taruh mie di mangkok, tambahkan topping, sawi, tuang kuah. Pastikan mangkok bersih bebas sabun.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Mie Goreng",
+            "category": "Makanan Berat",
+            "keywords": ["mie goreng", "mie telor goreng"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / mangkok / box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Sama dengan mie ayam. Pastikan mie dan semua bumbu kemasan berlogo halal MUI.",
+            "bahan": [
+                {"nama": "Mie telur/kuning", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih mie berlogo halal MUI"},
+                {"nama": "Ayam/sayuran", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Ayam WAJIB sertifikat halal"},
+                {"nama": "Kecap manis", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih kecap berlogo halal MUI"},
+                {"nama": "Saus tiram/Saus sambal", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih saus berlogo halal MUI"},
+                {"nama": "Minyak goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Bumbu dasar", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang, cabai halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus mie", "deskripsi": "Masak mie hingga setengah matang, tiriskan.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tumis bumbu", "deskripsi": "Tumis bawang dan bumbu dengan minyak halal hingga harum.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak protein", "deskripsi": "Masak ayam/daging hingga matang. Pastikan bahan halal.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Goreng mie", "deskripsi": "Masukkan mie, aduk dengan api besar. Tambahkan kecap dan saus halal.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Koreksi rasa", "deskripsi": "Tambahkan garam, penyedap halal.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Penyajian", "deskripsi": "Sajikan dengan acar/telur. Pastikan piring bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Bakso",
+            "category": "Makanan Ringan",
+            "keywords": ["bakso", "baso", "meatball"],
+            "halal_status": "AMAN",
+            "kemasan": "Mangkok / piring / take away box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis utama adalah daging sapi/ayam. WAJIB sertifikat halal MUI. Es batu untuk tekstur harus dari air halal.",
+            "bahan": [
+                {"nama": "Daging sapi/ayam giling", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Tepung tapioka/kanji", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung singkong umumnya halal"},
+                {"nama": "Telur", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Bawang putih goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih yang digoreng halal"},
+                {"nama": "Merica", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Merica/lada halal"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "Es batu", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Es batu dari air bersih halal"},
+                {"nama": "Kuah kaldu", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Kaldu dari tulang sapi/ayam halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan daging", "deskripsi": "Pastikan daging giling bersertifikat halal. Simpan di freezer hingga dingin.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Campur adonan", "deskripsi": "Campurkan daging, tepung, telur, bawang goreng, merica, garam. Aduk rata.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Uleni adonan", "deskripsi": "Uleni dengan tangan bersih atau mixer hingga kalis. Tambahkan es batu sedikit demi sedikit.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Cetak bakso", "deskripsi": "Cetak bulat bulatkan adonan dengan tangan yang bersih.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Rebus bakso", "deskripsi": "Masukkan ke air mendidih. Bakso siap saat mengapung.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Buat kuah", "deskripsi": "Masak tulang dan bumbu untuk kuah. Saring sebelum digunakan.", "titik_kritis": true},
+                {"langkah": 7, "nama": "Sajikan", "deskripsi": "Taruh bakso di mangkok, tuang kuah. Pastikan mangkok bersih bebas sabun.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Soto",
+            "category": "Makanan Berat",
+            "keywords": ["soto", "soup soto", "soto ayam", "soto sapi"],
+            "halal_status": "AMAN",
+            "kemasan": "Mangkok / piring / take away bowl",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Pastikan daging (ayam/sapi) dan santan bersertifikat halal. Bihun/nasi juga perlu diverifikasi.",
+            "bahan": [
+                {"nama": "Ayam/sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan kemasan berlogo halal MUI"},
+                {"nama": "Bihun/nasi", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bihun dari tepung beras halal"},
+                {"nama": "Tauge/kecambah", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Tauge segar halal"},
+                {"nama": "Kol/sayuran", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Sayuran segar halal"},
+                {"nama": "Bumbu soto", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Kunyit, jahe, laos, serai, daun jeruk, dll"},
+                {"nama": "Telur rebus", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Bawang goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang merah yang digoreng halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus ayam/sapi", "deskripsi": "Masak daging hingga matang. Buang air rebusan pertama, ganti dengan air baru.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat bumbu halus", "deskripsi": "Haluskan kunyit, jahe, bawang merah, bawang putih, merica.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tumis bumbu", "deskripsi": "Tumis bumbu halus dengan sedikit minyak halal.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Masak kuah", "deskripsi": "Masukkan bumbu ke rebusan daging. Tambahkan daun jeruk, serai, laos. Masak hingga harum.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Tambah santan", "deskripsi": "Tambahkan santan halal perlahan. Aduk agar tidak pecah.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Saring & seasoning", "deskripsi": "Saring kuah. Tambahkan garam dan penyedap halal.", "titik_kritis": false},
+                {"langkah": 7, "nama": "Susun & sajikan", "deskripsi": "Taruh nasi/bihun, tauge, kol, ayam suwir di mangkok. Tuangkan kuah. Taburi bawang goreng. Pastikan mangkok bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Sate",
+            "category": "Makanan Berat",
+            "keywords": ["sate", "sate ayam", "sate sapi", "sate Kambing"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / bungkus lontong",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis utama adalah DAGING. WAJIB sertifikat halal MUI. Kacang tanah untuk bumbu harus bebas kontaminasi.",
+            "bahan": [
+                {"nama": "Daging ayam/sapi/kambing", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB disembelih sesuai syariat dan sertifikat halal MUI"},
+                {"nama": "Tusuk sate (bambu)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bambu alami halal"},
+                {"nama": "Kacang tanah", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kacang tanah halal, sangrai tanpa酒精"},
+                {"nama": "Kecap manis", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih kecap berlogo halal MUI"},
+                {"nama": "Cabai", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Cabai segar halal"},
+                {"nama": "Bawang merah", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang merah segar halal"},
+                {"nama": "Jeruk nipis", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Jeruk nipis segar halal"},
+                {"nama": "Arang/kayu bakar", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Arang alami halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Potong daging", "deskripsi": "Potong daging ukuran suapan. Pastikan daging bersertifikat halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Marinate", "deskripsi": "Lumuri daging dengan kecap manis halal dan bumbu. Diamkan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tusuk sate", "deskripsi": "Tusuk daging ke tusuk sate bambu. Pastikan tangan bersih.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Bakar sate", "deskripsi": "Bakar di atas api dengan arang halal. Bolak-balik hingga matang.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Buat bumbu kacang", "deskripsi": "Haluskan kacang tanah sangrai, tambahkan kecap, cabai, bawang. Aduk rata.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Sajikan sate dengan bumbu kacang, irisan bawang merah, jeruk nipis. Gunakan piring bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Rendang",
+            "category": "Makanan Berat",
+            "keywords": ["rendang", "rendang sapi", "rendang daging"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / box / bungkus daun pisang",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Daging WAJIB sertifikat halal MUI. Santan harus berlogo halal. Kelapa untuk bumbu harus dari kelapa segar.",
+            "bahan": [
+                {"nama": "Daging sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Kelapa parut", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kelapa segar halal"},
+                {"nama": "Cabai merah", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Cabai segar halal"},
+                {"nama": "Bawang merah & putih", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Bawang segar halal"},
+                {"nama": "Rempah (kunyit, jahe, laos, serai)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Rempah segar halal"},
+                {"nama": "Daun jeruk, daun salam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun segar halal"},
+                {"nama": "Gula merah", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Gula aren/tebu halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan daging", "deskripsi": "Potong daging ukuran sesuai. Pastikan daging bersertifikat halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Bikin bumbu", "deskripsi": "Haluskan cabai, bawang, jahe, kunyit, laos. Parut kelapa.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tumis bumbu", "deskripsi": "Tumis bumbu halus dengan minyak halal hingga harum.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Masak daging", "deskripsi": "Masukkan daging, aduk dengan bumbu. Tuang santan halal.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Masak slow", "deskripsi": "Masak dengan api kecil selama 2-4 jam. Aduk sesekali hingga kering.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Koreksi rasa", "deskripsi": "Tambahkan garam, gula merah. Koreksi.", "titik_kritis": false},
+                {"langkah": 7, "nama": "Sajikan", "deskripsi": "Sajikan di piring bersih atau bungkus daun pisang.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Gudeg",
+            "category": "Makanan Berat",
+            "keywords": ["gudeg", "gudek", "nasi gudeg"],
+            "halal_status": "AMAN",
+            "kemasan": "Banyu (kuah) / Piring / Box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Gudeg umumnya vegetarian (nangka muda, kelapa, bumbu). Pastikan telur dan ayam untuk areh (kuah santan) halal.",
+            "bahan": [
+                {"nama": "Nangka muda", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Nangka muda segar halal"},
+                {"nama": "Telur bebek/tepu", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Telur bebek perlu verifikasi halal"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Kelapa muda parut", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kelapa segar halal"},
+                {"nama": "Gula merah/aren", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Gula aren/tebu halal"},
+                {"nama": "Daun jati", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun jati untuk pewarna alami halal"},
+                {"nama": "Bumbu gudeg", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang, merica, ketumbar halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus nangka", "deskripsi": "Rebus nangka muda dengan daun jati hingga empuk dan berwarna merah.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Buat bumbu", "deskripsi": "Haluskan bawang merah, bawang putih, merica, ketumbar.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak gudeg", "deskripsi": "Campurkan nangka dengan bumbu, santan, gula merah. Masak dengan api kecil.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Masak areh (kuah)", "deskripsi": "Campurkan telur bebek dengan santan. Masak hingga matang.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan gudeg dengan nasi, areh, sambal goreng krecek. Gunakan piring bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Rawon",
+            "category": "Makanan Berat",
+            "keywords": ["rawon", "sup rawon", "sup hitam"],
+            "halal_status": "AMAN",
+            "kemasan": "Mangkok / Piring",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Daging sapi WAJIB sertifikat halal MUI. Kluwek (bahan utama warna hitam) harus dari sumber terpercaya.",
+            "bahan": [
+                {"nama": "Daging sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Kluwek", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Kluwek harus dari buah kluwek yang diolah sesuai cara halal"},
+                {"nama": "Santan encer", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Tauge pendek", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Tauge pendek/kecambah tauge halal"},
+                {"nama": "Bawang merah & putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang segar halal"},
+                {"nama": "Jahe, laos, serai", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Rempah segar halal"},
+                {"nama": "Daun bawang", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun bawang segar halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rendam kluwek", "deskripsi": "Rendam kluwek, ambil isinya. Pastikan kluwek bersih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Rebus daging", "deskripsi": "Rebus daging sapi hingga empuk. Buang air pertama, ganti dengan air baru.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Tumis bumbu", "deskripsi": "Tumis bawang, jahe, laos, serai dengan minyak halal.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Masak kuah", "deskripsi": "Masukkan bumbu ke rebusan daging. Tambahkan kluwek.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Tambah santan", "deskripsi": "Tambahkan santan encer. Masak hingga mendidih.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Sajikan dengan tauge, daun bawang, sambal, jeruk nipis. Mangkok bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Bika Ambon",
+            "category": "Jajanan Pasar",
+            "keywords": ["bika ambon", "kue bika", "bika Medan"],
+            "halal_status": "AMAN",
+            "kemasan": "Kotak / Plastik / Box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Bahan utama adalah tepung, telur, santan, gula. Pastikan semua bahan berlogo halal MUI.",
+            "bahan": [
+                {"nama": "Tepung terigu", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung terigu halal"},
+                {"nama": "Telur ayam", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam negeri halal"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Gula pasir", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu halal"},
+                {"nama": "Ragi/natural yeast", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih ragi yang bersertifikat halal"},
+                {"nama": "Kuning telur (untuk olesan)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Kuning telur halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Campur adonan", "deskripsi": "Campurkan tepung, telur, gula, santan, ragi. Aduk rata.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Fermentasi", "deskripsi": "Diamkan adonan 2-4 jam hingga berbusa (fermentasi ragi).", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak adonan", "deskripsi": "Masak adonan dengan api kecil, aduk terus hingga mengental.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Panggang", "deskripsi": "Tuang ke cetakan. Panggang dengan oven hingga matang.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Olesi", "deskripsi": "Olesi permukaan dengan kuning telur saat masih panas.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Kemasi", "deskripsi": "Dinginkan, kemasi dalam box/kantong bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Nugget",
+            "category": "Produk Olahan",
+            "keywords": ["nugget", "nuggets", "chicken nugget"],
+            "halal_status": "AMAN",
+            "kemasan": "Plastik / Box / Vacuum",
+            "sertifikasi": "WAJIB sertifikasi MD/MUI untuk komersial",
+            "catatan_halal": "Produk INDUSTRI - WAJIB pilih yang berlogo halal MUI. Perhatikan angka MD/ML di kemasan.",
+            "bahan": [
+                {"nama": "Daging ayam giling", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Tepung roti/panir", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih tepung roti berlogo halal MUI"},
+                {"nama": "Tepung tapioka/terigu", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Tepung halal"},
+                {"nama": "Bumbu & seasoning", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih bumbu berlogo halal MUI"},
+                {"nama": "Minyak goreng (untuk goreng)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Pengawet", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih pengawet yang tersertifikasi halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan bahan", "deskripsi": "Pastikan semua bahan, terutama daging dan bumbu, bersertifikat halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat adonan", "deskripsi": "Campurkan daging giling halal, tepung, telur, bumbu. Aduk rata.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Cetak", "deskripsi": "Cetak adonan dalam cetakan nugget.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Lapisi tepung roti", "deskripsi": "Gulingkan nugget dalam tepung roti halal.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Goreng/blansir", "deskripsi": "Goreng setengah matang atau blansir dengan air panas.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Bekukan", "deskripsi": "Simpan di freezer. Harus beku saat dikemas.", "titik_kritis": false},
+                {"langkah": 7, "nama": "Kemasi", "deskripsi": "Kemasi dengan plastik/kotak berlogo halal. Label jelas.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Sosis",
+            "category": "Produk Olahan",
+            "keywords": ["sosis", "sausage", "sosis ayam", "sosis sapi"],
+            "halal_status": "AMAN",
+            "kemasan": "Plastik / Vakuum / Kaleng",
+            "sertifikasi": "WAJIB sertifikasi MD/MUI untuk komersial",
+            "catatan_halal": "Produk INDUSTRI - WAJIB pilih yang berlogo halal MUI. Hati-hati dengan casing (selubung) sosis.",
+            "bahan": [
+                {"nama": "Daging ayam/sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Lemak hewan (jika ada)", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Lemak harus dari hewan halal"},
+                {"nama": "Casing (selubung)", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Casing kolagen/selulosa halal. HINDARI casing dari babi."},
+                {"nama": "Bumbu & seasoning", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih bumbu berlogo halal MUI"},
+                {"nama": "Pengikat (carrageenan/caseinate)", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih pengikat nabati halal"},
+                {"nama": "Pengawet (nitrit/natrium)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Natrium nitrit dalam jumlah kecil umumnya diizinkan"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan daging", "deskripsi": "Pastikan daging dan lemak bersertifikat halal MUI.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Giling daging", "deskripsi": "Giling daging dengan grinder. Dinginkan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Campur bumbu", "deskripsi": "Tambahkan bumbu halal, pengikat, es batu. Campur rata.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Isi casing", "deskripsi": "Isi adonan ke casing halal. Pastikan casing bersertifikat.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Penggemukan", "deskripsi": "Ikat/gunting ujungnya. Penggemukan jika perlu.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Masak sosis", "deskripsi": "Masak dalam air panas (70-80°C) hingga matang.", "titik_kritis": true},
+                {"langkah": 7, "nama": "Kemasi", "deskripsi": "Dinginkan, kemasi dengan label halal MUI jelas.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Dimsum",
+            "category": "Produk Olahan",
+            "keywords": ["dimsum", "dim sum", "siomay", "hakau", "angku"],
+            "halal_status": "AMAN",
+            "kemasan": "Kotak / Plastik / Dus",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis adalah DAGING (ayam/ikan) dan kulit pangsit. Pastikan semua bahan bersertifikat halal.",
+            "bahan": [
+                {"nama": "Daging ayam/ikan giling", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Udang (jika ada)", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Udang halal, pastikan segar dan bersih"},
+                {"nama": "Tepung tapioka/kanji", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung singkong halal"},
+                {"nama": "Kulit pangsit/wonton", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih kulit pangsit berlogo halal MUI"},
+                {"nama": "Jamur kuping (untuk hakau)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Jamur halal"},
+                {"nama": "Bawang putih goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih yang digoreng halal"},
+                {"nama": "Seasoning halal", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam, merica, minyak wijen halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Persiapan bahan", "deskripsi": "Pastikan daging dan bahan lain bersertifikat halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat isian", "deskripsi": "Campurkan daging giling, tepung, bawang goreng, seasoning. Aduk rata.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Bentuk dimsum", "deskripsi": "Ambil kulit pangsit, isi dengan adonan. Lipat sesuai bentuk.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Kukus", "deskripsi": "Kukus dimsum selama 15-20 menit hingga matang.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Saus cocolan", "deskripsi": "Sajikan dengan saus sambal/soya halal.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Kemasi (jika dijual)", "deskripsi": "Kemasi dalam box bersih dengan label halal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Keripik Singkong",
+            "category": "Makanan Ringan",
+            "keywords": ["keripik singkong", "keripik singkong balado", "keripik usus"],
+            "halal_status": "AMAN",
+            "kemasan": "Plastik / Dus",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Minyak goreng adalah titik kritis. Pastikan menggunakan minyak berlogo halal MUI. Bumbu balado juga perlu diverifikasi.",
+            "bahan": [
+                {"nama": "Singkong segar", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Singkong/ubi kayu segar halal"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "Bumbu balado (jika ada)", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih bumbu kemasan berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Kupas & iris singkong", "deskripsi": "Kupas singkong, iris tipis-tipis dengan alat yang bersih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Rendam", "deskripsi": "Rendam irisan dalam air garam agar tidak menghitam.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal yang banyak dan panas.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Tiriskan", "deskripsi": "Tiriskan minyak dengan saringan bersih (bukan yang bekas cucian sabun).", "titik_kritis": true},
+                {"langkah": 5, "nama": "Beri bumbu (jika ada)", "deskripsi": "Taburi bumbu balado halal saat masih hangat.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Kemasi", "deskripsi": "Kemasi dalam plastik/kotak bersih saat sudah dingin.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Keripik Tempe",
+            "category": "Makanan Ringan",
+            "keywords": ["keripik tempe", "keripik tempe balado"],
+            "halal_status": "AMAN",
+            "kemasan": "Plastik / Dus",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Tempe sendiri halal. Titik kritis adalah minyak goreng dan bumbu kemasan.",
+            "bahan": [
+                {"nama": "Tempe", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tempe dari kacang kedelai halal"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Tepung beras/tepung kanji", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung halal"},
+                {"nama": "Bumbu instan/balado", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih bumbu berlogo halal MUI"},
+                {"nama": "Garam & penyedap", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dan penyedap halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Potong tempe", "deskripsi": "Potong tempe tipis-tipis atau sesuai selera.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Buat adonan tepung", "deskripsi": "Campurkan tepung beras, garam, penyedap halal dengan air.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Lumuri tempe", "deskripsi": "Celupkan tempe ke adonan tepung.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal yang banyak dan panas.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Tiriskan", "deskripsi": "Tiriskan dengan saringan bersih. Pastikan bebas minyak dan sabun.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Beri bumbu", "deskripsi": "Taburi bumbu instan halal saat masih hangat.", "titik_kritis": false},
+                {"langkah": 7, "nama": "Kemasi", "deskripsi": "Kemasi dalam wadah bersih saat dingin.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Tahu Crispy",
+            "category": "Makanan Ringan",
+            "keywords": ["tahu crispy", "tahu krispi", "tahu goreng"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Kotak / Plastik",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Tahu (kacang kedelai) halal. Titik kritis adalah tepung panir dan minyak goreng.",
+            "bahan": [
+                {"nama": "Tahu putih", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tahu dari kacang kedelai halal"},
+                {"nama": "Tepung terigu/tepung beras", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung halal"},
+                {"nama": "Tepung panir", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih tepung panir berlogo halal MUI"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Telur (untuk pelapis)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Garam & penyedap", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dan penyedap halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Potong tahu", "deskripsi": "Potong tahu sesuai ukuran. Tiriskan.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Siapkan pelapis", "deskripsi": "Campurkan tepung dengan garam dan penyedap halal.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Lumuri tahu", "deskripsi": "Gulingkan tahu dalam tepung, celup telur, balur tepung panir.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal yang panas hingga kuning keemasan.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Tiriskan", "deskripsi": "Tiriskan dengan saringan bersih bebas sabun.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Sajikan segera dengan saus cocolan halal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Kue Lapis Legit",
+            "category": "Jajanan Pasar",
+            "keywords": ["lapis legit", "spekkuk", "kue lapis"],
+            "halal_status": "AMAN",
+            "kemasan": "Kotak / Plastik",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Kue tradisional dengan banyak telur dan mentega. Pastikan mentega dan shortening berlogo halal.",
+            "bahan": [
+                {"nama": "Telur ayam", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam negeri halal"},
+                {"nama": "Gula pasir", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu halal"},
+                {"nama": "Mentega/butter", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih mentega berlogo halal MUI"},
+                {"nama": "Shortening", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih shortening berlogo halal MUI"},
+                {"nama": "Tepung terigu", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Tepung terigu halal"},
+                {"nama": "Susu bubuk", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih susu bubuk berlogo halal MUI"},
+                {"nama": "Baking powder", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Baking powder halal"},
+                {"nama": "Rempah (pala, cengkeh, kayu manis)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Rempah kering halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Kocok telur & gula", "deskripsi": "Kocok telur dan gula hingga mengembang pucat.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tambah mentega", "deskripsi": "Masukkan mentega cair halal, aduk rata.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tambah tepung", "deskripsi": "Ayak tepung, masukkan sedikit demi sedikit.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Tambah rempah", "deskripsi": "Masukkan bubuk rempah. Aduk rata.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Panggang lapis-lapis", "deskripsi": "Tuang adonan setebal 1cm di loyang. Panggang hingga matang. Ulangi lapis demi lapis.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Dinginkan & kemasi", "deskripsi": "Dinginkan, potong, kemasi dalam kotak bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Nasi Uduk",
+            "category": "Makanan Berat",
+            "keywords": ["nasi uduk", "nasi coconut rice"],
+            "halal_status": "AMAN",
+            "kemasan": "Bungkus daun pisang / Piring / Box",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis adalah santan. Pastikan santan kemasan berlogo halal MUI.",
+            "bahan": [
+                {"nama": "Beras", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Beras Indonesia halal"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Kelapa parut", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kelapa segar halal"},
+                {"nama": "Bawang merah & putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang segar halal"},
+                {"nama": "Daun serai, daun pandan", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun segar halal untuk aroma"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "Minyak goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Sangrai bumbu", "deskripsi": "Sangrai bawang merah, bawang putih, serai hingga harum.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Masak santan", "deskripsi": "Masak beras dengan santan halal dan bumbu hingga air meresap.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Kukus/aroma", "deskripsi": "Kukus atau aron dengan api kecil hingga matang.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Sajikan dengan pelengkap (tahu/tempe goreng, sambal, lalapan). Gunakan piring/tempat bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Cireng",
+            "category": "Makanan Ringan",
+            "keywords": ["cireng", "aci goreng", "cireng isi"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Kotak / Plastik",
+            "sertifikasi": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Cireng dasar dari aci (tepung tapioka) halal. Titik kritis adalah isian (jika ada) dan minyak goreng.",
+            "bahan": [
+                {"nama": "Tepung tapioka/aci", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung singkong halal"},
+                {"nama": "Air panas", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air matang halal"},
+                {"nama": "Bawang putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih segar halal"},
+                {"nama": "Daun bawang", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun bawang segar halal"},
+                {"nama": "Garam & penyedap", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dan penyedap halal"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Isian (keju/daging/jamur) - opsional", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih isian berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Buat adonan", "deskripsi": "Campurkan tepung tapioka, bawang putih halus, daun bawang, garam. Tuang air panas, uleni.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Bentuk cireng", "deskripsi": "Ambil adonan, pipihkan, isi jika mau, bulatkan/lonjongkan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal yang panas.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Tiriskan", "deskripsi": "Tiriskan dengan saringan bersih bebas sabun.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan dengan saus cocolan halal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Pentol Bakso",
+            "category": "Makanan Ringan",
+            "keywords": ["pentol", "pentol bakso", "bakso aci"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Mangkok / Plastik",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Sama dengan bakso. Titik kritis daging dan es batu.",
+            "bahan": [
+                {"nama": "Tepung tapioka/kanji", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung singkong halal"},
+                {"nama": "Air es", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air bersih halal"},
+                {"nama": "Bawang putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih halal"},
+                {"nama": "Garam & merica", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dan merica halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Buat adonan", "deskripsi": "Campurkan tepung, air es, bawang putih, garam. Uleni hingga kalis.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Cetak", "deskripsi": "Cetak bulat-bulat dengan tangan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Rebus", "deskripsi": "Masukkan ke air mendidih. Angkat saat mengapung.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Sajikan dengan kuah bakso, sambal, kecap halal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Bika Ambon",
+            "category": "Jajanan Pasar",
+            "keywords": ["bika ambon", "kue bika"],
+            "halal_status": "AMAN",
+            "kemasan": "Kotak / Plastik",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Bahan utama tepung, telur, santan, gula. Pastikan semua berlogo halal MUI.",
+            "bahan": [
+                {"nama": "Tepung terigu", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung terigu halal"},
+                {"nama": "Telur", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Santan", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Gula", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu halal"},
+                {"nama": "Ragi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih ragi berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Fermentasi", "deskripsi": "Fermentasi adonan dengan ragi hingga berbusa.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Masak adonan", "deskripsi": "Masak adonan dengan santan hingga mengental.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Panggang", "deskripsi": "Panggang hingga matang dan berwarna kuning.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Kemasi", "deskripsi": "Dinginkan, potong, kemasi.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Kue Cubit",
+            "category": "Jajanan Pasar",
+            "keywords": ["kue cubit", "banana cuBIT", "cup cake"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Kotak",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Kue sederhana dari tepung, telur, gula. Pastikan baking powder halal.",
+            "bahan": [
+                {"nama": "Tepung terigu", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung terigu halal"},
+                {"nama": "Telur", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Gula pasir", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu halal"},
+                {"nama": "Susu cair/bubuk", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih susu berlogo halal MUI"},
+                {"nama": "Baking powder", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Baking powder halal"},
+                {"nama": "Mentega", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih mentega berlogo halal MUI"},
+                {"nama": "Meises coklat", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih meises berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Kocok telur & gula", "deskripsi": "Kocok telur dan gula hingga mengembang.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tambah mentega", "deskripsi": "Masukkan mentega cair halal, aduk.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tambah tepung", "deskripsi": "Ayak tepung dan baking powder, masukkan, aduk rata.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Panggang", "deskripsi": "Tuang adonan ke cetakan panas. Taburi meises.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Masak", "deskripsi": "Panggang hingga matang.", "titik_kritis": false},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Angkat, sajikan dengan piring bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Klepon",
+            "category": "Jajanan Pasar",
+            "keywords": ["klepon", "bonti", "pulut hijau"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Daun pisang / Kotak",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Kue tradisional dari tepung ketan, gula merah, kelapa parut.",
+            "bahan": [
+                {"nama": "Tepung ketan", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung beras ketan halal"},
+                {"nama": "Gula merah/aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula aren/tebu halal"},
+                {"nama": "Kelapa parut", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kelapa segar halal"},
+                {"nama": "Daun pandan", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun pandan untuk pewarna alami halal"},
+                {"nama": "Air", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Air bersih halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Buat adonan", "deskripsi": "Campurkan tepung ketan, air, pewarna pandan. Uleni hingga kalis.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Isi gula merah", "deskripsi": "Ambil adonan, isi dengan gula merah. Bulatkan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Rebus", "deskripsi": "Rebus klepon dalam air mendidih hingga mengapung.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Balut kelapa", "deskripsi": "Gulingkan klepon hangat di kelapa parut halal.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan di piring/daun pisang bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Lemper",
+            "category": "Jajanan Pasar",
+            "keywords": ["lemper", "lemper ayam"],
+            "halal_status": "AMAN",
+            "kemasan": "Daun pisang / Kotak",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Lemper dari ketan dengan isian ayam. Pastikan ayam halal.",
+            "bahan": [
+                {"nama": "Beras ketan", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Beras ketan halal"},
+                {"nama": "Santan", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Ayam suwir", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB ayam bersertifikat halal MUI"},
+                {"nama": "Daun pisang", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun pisang alami halal"},
+                {"nama": "Bawang", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang merah/putih halal"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Masak ketan", "deskripsi": "Kukus/rebus beras ketan dengan santan halal hingga matang.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Masak isian", "deskripsi": "Tumis ayam suwir dengan bawang dan bumbu halal.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Bentuk lemper", "deskripsi": "Ambil ketan, pipihkan, isi ayam, gulung.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Bungkus daun pisang", "deskripsi": "Bungkus dengan daun pisang yang sudah dibakar/dihaluskan.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Kukus", "deskripsi": "Kukus kembali agar meresap.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Dinginkan, sajikan dengan piring/daun pisang bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Risoles",
+            "category": "Jajanan Pasar",
+            "keywords": ["risoles", "risol", "risoles ragout"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Kotak",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Titik kritis adalah daging/sayuran isian dan tepung panir.",
+            "bahan": [
+                {"nama": "Tepung terigu (untuk kulit)", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Tepung terigu halal"},
+                {"nama": "Telur (untuk kulit)", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Susu cair", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih susu berlogo halal MUI"},
+                {"nama": "Mentega", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih mentega berlogo halal MUI"},
+                {"nama": "Kentang, wortel, ayam", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih bahan isian berlogo halal MUI"},
+                {"nama": "Tepung panir", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih tepung panir berlogo halal MUI"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Buat kulit crepes", "deskripsi": "Campurkan tepung, telur, susu, mentega. Buat crepes tipis.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Buat isian", "deskripsi": "Tumis sayuran dan ayam halal. Masak hingga matang.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Bentuk risoles", "deskripsi": "Isi crepes dengan ragout, lipat.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Lumuri tepung panir", "deskripsi": "Celup risoles ke telur, gulingkan tepung panir halal.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal hingga kuning keemasan.", "titik_kritis": true},
+                {"langkah": 6, "nama": "Sajikan", "deskripsi": "Tiriskan, sajikan dengan piring bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Lumpia",
+            "category": "Jajanan Pasar",
+            "keywords": ["lumpia", "lumpia goreng", "lumpia basah"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Kotak",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Lumpia bisa berisi sayuran, ayam, atau seafood. Pastikan bahan isian halal.",
+            "bahan": [
+                {"nama": "Kulit lumpia/wonton", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih kulit lumpia berlogo halal MUI"},
+                {"nama": "Tahu, wortel, rebung", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Sayuran dan tahu halal"},
+                {"nama": "Ayam/udang (jika ada)", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih protein berlogo halal MUI"},
+                {"nama": "Bawang", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang halal"},
+                {"nama": "Minyak goreng", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Pilih minyak berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Buat isian", "deskripsi": "Tumis tahu, wortel, rebung, ayam (jika ada) dengan bumbu halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Isi lumpia", "deskripsi": "Ambil kulit lumpia, isi dengan adonan. Lipat.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Goreng", "deskripsi": "Goreng dalam minyak halal hingga kuning keemasan.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Tiriskan", "deskripsi": "Tiriskan dengan saringan bersih.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan dengan saus cocolan halal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Es Teh Manis",
+            "category": "Minuman",
+            "keywords": ["es teh", "teh manis", "teh es"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Botol / Cup",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Teh dan gula adalah bahan sederhana yang umumnya halal. Pastikan gula tidak mengandung alcohol.",
+            "bahan": [
+                {"nama": "Teh celup/bubuk", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Teh daun/bubuk halal"},
+                {"nama": "Gula pasir", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu halal"},
+                {"nama": "Es batu", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Es batu dari air bersih halal"},
+                {"nama": "Air matang", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air yang sudah dimasak/dimurnikan halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Brew teh", "deskripsi": "Seduh teh dengan air panas. Gunakan teh halal.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Saring", "deskripsi": "Saring ampas teh. Gunakan saringan bersih.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Tambah gula", "deskripsi": "Tambahkan gula sesuai selera. Aduk rata.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Dinginkan", "deskripsi": "Dinginkan atau tambahkan es batu langsung.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Tuangkan ke gelas bersih. Pastikan gelas bebas sabun.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Es Jeruk",
+            "category": "Minuman",
+            "keywords": ["es jeruk", "jeruk peras", "orange juice"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Botol / Cup",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Jeruk dan gula halal. Pastikan tidak添加酒精.",
+            "bahan": [
+                {"nama": "Jeruk nipis/jeruk manis", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Buah jeruk segar halal"},
+                {"nama": "Gula pasir/aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula tebu/aren halal"},
+                {"nama": "Es batu", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Es batu dari air bersih halal"},
+                {"nama": "Air matang", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air yang sudah dimasak halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Peras jeruk", "deskripsi": "Peras jeruk dengan tangan/alat bersih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Campurkan", "deskripsi": "Campurkan air, gula, perasan jeruk. Aduk.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Saring", "deskripsi": "Saring jika perlu. Gunakan saringan bersih.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Tuang ke gelas dengan es batu. Gelas harus bersih bebas sabun.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Wedang Jahe",
+            "category": "Minuman",
+            "keywords": ["wedang jahe", "wedang", "jahe merah"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Mangkok / Botol",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Jahe, gula, dan rempah umumnya halal. Pastikan gula tidak mengandung酒精.",
+            "bahan": [
+                {"nama": "Jahe segar", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Jahe segar halal"},
+                {"nama": "Gula merah/aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula aren/tebu halal"},
+                {"nama": "Air", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air bersih halal"},
+                {"nama": "Serai (opsional)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Serai segar halal"},
+                {"nama": "Daun pandan (opsional)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun pandan halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus jahe", "deskripsi": "Geprek jahe, rebus dengan air hingga mendidih.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tambah gula", "deskripsi": "Tambahkan gula merah/aren. Aduk hingga larut.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Saring", "deskripsi": "Saring ke gelas/mangkok bersih.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Sajikan hangat atau dengan es batu. Pastikan wadah bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Bajigur",
+            "category": "Minuman",
+            "keywords": ["bajigur", "bandrek", "minuman hangat"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Mangkok",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Bajigur dari kelapa, gula aren, jahe. Pastikan santan halal.",
+            "bahan": [
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Gula aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula aren halal"},
+                {"nama": "Jahe", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Jahe segar halal"},
+                {"nama": "Daun pandan", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Daun pandan halal"},
+                {"nama": "Garam", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Garam dapur halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus santan", "deskripsi": "Panaskan santan halal dengan api kecil.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Tambah jahe & gula", "deskripsi": "Masukkan jahe geprek, gula aren, daun pandan.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Aduk", "deskripsi": "Aduk terus agar santan tidak pecah.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Saring & sajikan", "deskripsi": "Saring ke gelas/mangkok bersih. Sajikan hangat.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Bandrek",
+            "category": "Minuman",
+            "keywords": ["bandrek", "wedang", "minuman tradisional"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Mangkok",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Bandrek dari jahe, kelapa, rempah. Tanpa酒精.",
+            "bahan": [
+                {"nama": "Jahe", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Jahe segar halal"},
+                {"nama": "Kelapa parut", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kelapa segar halal"},
+                {"nama": "Gula merah/aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula aren halal"},
+                {"nama": "Rempah (pala, cengkeh)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Rempah kering halal"},
+                {"nama": "Air", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air bersih halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus air & jahe", "deskripsi": "Geprek jahe, rebus dengan air.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Tambah kelapa & gula", "deskripsi": "Masukkan kelapa parut, gula aren, rempah.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak", "deskripsi": "Masak dengan api kecil 10-15 menit.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Saring & sajikan", "deskripsi": "Saring ke gelas bersih. Sajikan hangat.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Jamu",
+            "category": "Minuman",
+            "keywords": ["jamu", "jamu tradisional", "empon-empon"],
+            "halal_status": "AMAN",
+            "kemasan": "Gelas / Botol / Cup",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Jamu dari bahan empon-empon tradisional. Tanpa酒精.",
+            "bahan": [
+                {"nama": "Kunyit", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kunyit segar halal"},
+                {"nama": "Jahe", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Jahe segar halal"},
+                {"nama": "Laos/lengkuas", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Laos segar halal"},
+                {"nama": "Temulawak", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Temulawak segar halal"},
+                {"nama": "Gula merah/aren", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Gula aren halal"},
+                {"nama": "Air", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Air bersih halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus empon-empon", "deskripsi": "Cuci dan geprek semua empon-empon. Rebus dengan air.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Masak", "deskripsi": "Masak 15-20 menit hingga air berubah warna.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tambah gula", "deskripsi": "Masukkan gula aren, aduk.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Saring", "deskripsi": "Saring ke wadah bersih.", "titik_kritis": true},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan hangat atau dingin. Wadah harus bersih.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Soto Ayam",
+            "category": "Makanan Berat",
+            "keywords": ["soto ayam", "soto bening"],
+            "halal_status": "AMAN",
+            "kemasan": "Mangkok / Take away",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Ayam dan santan adalah titik kritis. Keduanya WAJIB sertifikat halal.",
+            "bahan": [
+                {"nama": "Ayam kampung/petelur", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Santan kental", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Bihun/nasi", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bihun tepung beras halal"},
+                {"nama": "Tauge, kol, seledri", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Sayuran segar halal"},
+                {"nama": "Bumbu soto", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Kunyit, jahe, bawang halal"},
+                {"nama": "Bawang goreng", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang merah goreng halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus ayam", "deskripsi": "Rebus ayam hingga matang. Buang air pertama.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat kuah", "deskripsi": "Masak dengan bumbu, tambahkan santan halal.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Suwir ayam", "deskripsi": "Suwir ayam yang sudah matang.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Susun nasi/bihun, ayam, sayuran di mangkok. Tuangkan kuah.", "titik_kritis": true}
+            ]
+        },
+        {
+            "name": "Nasi Kebuli",
+            "category": "Makanan Berat",
+            "keywords": ["nasi kebuli", "nasi arab", "kebuli"],
+            "halal_status": "AMAN",
+            "kemasan": "Baki / Box / Piring",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Daging kambing/sapi WAJIB sertifikat halal. Bumbu rempah harus dari bahan halal.",
+            "bahan": [
+                {"nama": "Beras", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Beras halal"},
+                {"nama": "Daging kambing/sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Santan", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Rempah kebuli", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kapulaga, jintan, kunyit halal"},
+                {"nama": "Bawang merah & putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang halal"},
+                {"nama": "Kismis (opsional)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Anggur kering halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Tumis bumbu", "deskripsi": "Tumis rempah dan bawang dengan minyak halal.", "titik_kritis": false},
+                {"langkah": 2, "nama": "Masak daging", "deskripsi": "Masukkan daging, masak hingga setengah matang.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Masak nasi", "deskripsi": "Masukkan beras dan santan, masak hingga matang.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Sajikan dengan acar dan sambal.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Karedok",
+            "category": "Makanan Ringan",
+            "keywords": ["karedok", "salad sayuran", "lotek"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Mangkok",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Karedok sayuran mentah. Titik kritis adalah bumbu kacang.",
+            "bahan": [
+                {"nama": "Sayuran mentah (bayam, kangkung, kacang panjang, tauge, kol, terong, labu siam)", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Sayuran segar yang sudah dicuci bersih halal"},
+                {"nama": "Kacang tanah", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kacang tanah sangrai halal"},
+                {"nama": "Bawang putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih halal"},
+                {"nama": "Cabai rawit", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Cabai rawit halal"},
+                {"nama": "Gula merah/aren", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Gula aren halal"},
+                {"nama": "Asam jawa (bukan alcohol)", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Asam jawa tanpa酒精 halal"},
+                {"nama": "Jeruk limau", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Jeruk limau segar halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Cuci sayuran", "deskripsi": "Cuci semua sayuran dengan air bersih mengalir.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat bumbu kacang", "deskripsi": "Haluskan kacang tanah, bawang putih, cabai, gula merah, asam.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Tambah jeruk", "deskripsi": "Peras jeruk limau ke bumbu kacang.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Campurkan", "deskripsi": "Campurkan sayuran dengan bumbu kacang.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan segera di piring bersih.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Lotek",
+            "category": "Makanan Ringan",
+            "keywords": ["lotek", "lotek sayur", "salad sayuran"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Mangkok",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Sama dengan karedok, tapi sayuran direbus. Bumbu kacang tetap titik kritis.",
+            "bahan": [
+                {"nama": "Sayuran (bayam, kangkung, labu siam, wortel, buncis, daun singkong)", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Sayuran segar halal"},
+                {"nama": "Kacang tanah", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kacang tanah sangrai halal"},
+                {"nama": "Bawang putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih halal"},
+                {"nama": "Cabai", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Cabai halal"},
+                {"nama": "Gula merah", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Gula aren halal"},
+                {"nama": "Petis udang (opsional)", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih petis berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus sayuran", "deskripsi": "Rebus sayuran hingga matang. Tiriskan.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat bumbu", "deskripsi": "Haluskan kacang tanah, bawang, cabai, gula merah, petis.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Campurkan", "deskripsi": "Campurkan sayuran dengan bumbu.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Sajikan", "deskripsi": "Sajikan dengan lontong/nasi.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Gado-Gado",
+            "category": "Makanan Ringan",
+            "keywords": ["gado-gado", "salad vegetables"],
+            "halal_status": "AMAN",
+            "kemasan": "Piring / Mangkok",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Sayuran rebus dengan bumbu kacang. Pastikan petis dan tauco halal.",
+            "bahan": [
+                {"nama": "Sayuran rebus (bayam, kangkung, tauge, kol, labu siam, tahu, tempe)", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Sayuran dan olahannya halal"},
+                {"nama": "Lontong/nasi", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Nasi/ketan halal"},
+                {"nama": "Kacang tanah", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kacang tanah halal"},
+                {"nama": "Bawang putih", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Bawang putih halal"},
+                {"nama": "Petis udang", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih petis berlogo halal MUI"},
+                {"nama": "Tauco", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih tauco berlogo halal MUI"},
+                {"nama": "Kerupuk", "kategori": "PEMBANTU", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih kerupuk berlogo halal MUI"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Rebus sayuran", "deskripsi": "Rebus semua sayuran hingga matang. Tiriskan.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Goreng kerupuk", "deskripsi": "Goreng kerupuk dalam minyak halal.", "titik_kritis": true},
+                {"langkah": 3, "nama": "Buat bumbu", "deskripsi": "Haluskan kacang tanah, bawang, petis, tauco. Tambahkan air panas.", "titik_kritis": false},
+                {"langkah": 4, "nama": "Susun", "deskripsi": "Susun sayuran di piring dengan lontong.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Siram & sajikan", "deskripsi": "Siram bumbu kacang. Taburi kerupuk. Sajikan.", "titik_kritis": false}
+            ]
+        },
+        {
+            "name": "Nasi Tumpeng",
+            "category": "Makanan Berat",
+            "keywords": ["tumpeng", "nasi tumpeng", "nasi kuning"],
+            "halal_status": "AMAN",
+            "kemasan": "Baki / Kotak besar",
+            "sertification": "Disarankan sertifikasi MD/MUI",
+            "catatan_halal": "Nasi kuning dengan lauk-pauk. Titik kritis daging, santan, dan rempah kemasan.",
+            "bahan": [
+                {"nama": "Beras", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Beras halal"},
+                {"nama": "Santan", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Pilih santan berlogo halal MUI"},
+                {"nama": "Kunyit", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Kunyit segar halal"},
+                {"nama": "Ayam/sapi", "kategori": "UTAMA", "status_halal": "PERLU_VERIFIKASI", "keterangan": "WAJIB sertifikat halal MUI"},
+                {"nama": "Telur", "kategori": "UTAMA", "status_halal": "AMAN", "keterangan": "Telur ayam halal"},
+                {"nama": "Sayuran", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Sayuran segar halal"},
+                {"nama": "Emping", "kategori": "PEMBANTU", "status_halal": "AMAN", "keterangan": "Emping melinjo halal"},
+                {"nama": "Sabun cuci piring (Sunlight/Cuci piring)", "kategori": "CLEANING_AGENT", "status_halal": "PERLU_VERIFIKASI", "keterangan": "Bersihkan residu sabun sebelum digunakan"}
+            ],
+            "proses": [
+                {"langkah": 1, "nama": "Masak nasi kuning", "deskripsi": "Masak beras dengan santan dan kunyit halal.", "titik_kritis": true},
+                {"langkah": 2, "nama": "Buat nasi tumpeng", "deskripsi": "Cetak nasi di cone/kerucut.", "titik_kritis": false},
+                {"langkah": 3, "nama": "Masak lauk", "deskripsi": "Masak ayam, telur, sayuran. Pastikan bahan halal.", "titik_kritis": true},
+                {"langkah": 4, "nama": "Hias", "deskripsi": "Hias nasi tumpeng dengan lauk-pauk.", "titik_kritis": false},
+                {"langkah": 5, "nama": "Sajikan", "deskripsi": "Sajikan di baki bersih.", "titik_kritis": true}
+            ]
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminUmum\DashboardController as AdminUmumDashboardController;
+use App\Http\Controllers\Api\AnalisisHalalController;
 use App\Http\Controllers\Api\DataEntryProgressController as DataEntryProgressApiController;
 use App\Http\Controllers\Api\FaceMatchController;
 use App\Http\Controllers\AppVersionController;
@@ -381,6 +382,10 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
  */
 Route::middleware('auth', 'role:data_entry')->group(function () {
     Route::get('/api/data-entry/progress', [DataEntryProgressApiController::class, 'index']);
+    // Analisis Halal (Claude AI) — dipanggil dari web session, bukan sanctum token
+    Route::post('/api/data-entry/analisis-halal', [AnalisisHalalController::class, 'analyze'])
+        ->middleware('throttle:30,1')
+        ->name('web.data-entry.analisis-halal');
     Route::prefix('data-entry')->name('data-entry.')->group(function () {
         Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');

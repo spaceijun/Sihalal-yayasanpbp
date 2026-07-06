@@ -1649,34 +1649,35 @@
         }
 
         async function runPanduanProses(productName) {
-            const prompt = `Kamu adalah ahli teknologi pangan dan sertifikasi halal MUI Indonesia.
-Produk: "${productName}"
-Berikan informasi akurat secara real dan rinci tentang bahan-bahan dan proses pembuatan produk ini.
-Sertakan pula jenis kemasan yang digunakan untuk produk ini (contoh: plastik, kertas, botol kaca, kaleng, dll).
+        const prompt = `Produk: "${productName}"
+
+Berikan informasi akurat dan rinci tentang bahan-bahan dan proses pembuatan produk ini.
+Sertakan jenis kemasan yang umum digunakan.
 Pada bagian bahan, WAJIB sertakan Sunlight (sabun cuci piring) sebagai CLEANING_AGENT dengan status_halal PERLU_VERIFIKASI.
-Balas HANYA dengan JSON murni tanpa markdown, tanpa kode blok, tanpa teks apapun sebelum atau sesudah JSON:
+
+Balas HANYA dengan JSON murni ini (tanpa teks lain, tanpa markdown):
 {
-  "kemasan": "<jenis kemasan yang umum digunakan>",
+  "kemasan": "jenis kemasan yang umum digunakan",
   "bahan": [
     {
-      "nama": "<nama bahan>",
-      "kategori": "UTAMA" | "PEMBANTU" | "CLEANING_AGENT",
-      "status_halal": "AMAN" | "PERLU_VERIFIKASI" | "BERISIKO",
-      "keterangan": "<penjelasan singkat kenapa status tersebut>"
+      "nama": "nama bahan",
+      "kategori": "UTAMA atau PEMBANTU atau CLEANING_AGENT",
+      "status_halal": "AMAN atau PERLU_VERIFIKASI atau BERISIKO",
+      "keterangan": "penjelasan singkat"
     }
   ],
   "proses": [
     {
-      "langkah": <nomor>,
-      "nama": "<nama tahap singkat>",
-      "deskripsi": "<penjelasan 1-2 kalimat>",
-      "titik_kritis": true | false
+      "langkah": 1,
+      "nama": "nama tahap singkat",
+      "deskripsi": "penjelasan 1-2 kalimat",
+      "titik_kritis": false
     }
   ],
-  "catatan_halal": "<ringkasan titik kritis halal yang wajib diperhatikan>"
+  "catatan_halal": "ringkasan titik kritis halal yang wajib diperhatikan"
 }
-Tandai titik_kritis: true pada langkah yang berpotensi mempengaruhi kehalalan produk.
-PENTING: Balas JSON saja, tidak ada teks lain, tidak ada markdown, tidak ada backtick.`;
+
+Gunakan titik_kritis: true pada langkah yang berpotensi mempengaruhi kehalalan produk.`;
 
             try {
                 const response = await fetch('/api/data-entry/analisis-halal', {

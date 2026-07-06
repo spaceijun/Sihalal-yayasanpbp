@@ -112,7 +112,8 @@
                         <div class="kh-alert kh-alert--maintenance" id="maintenanceAlert">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
                                 stroke-width="2">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                                 <line x1="12" y1="9" x2="12" y2="13" />
                                 <line x1="12" y1="17" x2="12.01" y2="17" />
                             </svg>
@@ -229,22 +230,24 @@
         </div>
 
         {{-- ═══════════════════════════════════════════
-         SUCCESS OVERLAY (shown after split opens)
+         SUCCESS CURTAIN — belah tengah reveal
          ═══════════════════════════════════════════ --}}
-        <div class="kh-success-overlay" id="successOverlay" aria-hidden="true">
-            <div class="kh-success-inner">
-                <div class="kh-success-ring">
-                    <svg viewBox="0 0 60 60" fill="none">
-                        <circle cx="30" cy="30" r="26" stroke="rgba(0,212,170,0.25)" stroke-width="2" />
-                        <circle cx="30" cy="30" r="26" stroke="#00D4AA" stroke-width="2"
-                            stroke-dasharray="163" stroke-dashoffset="163" class="kh-check-circle" id="checkCircle" />
-                        <polyline points="18,30 26,39 42,22" stroke="#00D4AA" stroke-width="2.5" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30"
-                            class="kh-check-mark" id="checkMark" />
-                    </svg>
+        <div class="kh-curtain" id="successCurtain" aria-hidden="true">
+            {{-- Curtain kiri --}}
+            <div class="kh-curtain-half kh-curtain-half--left" id="curtainLeft"></div>
+            {{-- Curtain kanan --}}
+            <div class="kh-curtain-half kh-curtain-half--right" id="curtainRight"></div>
+
+            {{-- Logo di tengah layar --}}
+            <div class="kh-curtain-logo" id="curtainLogo">
+                <div class="kh-curtain-logo-wrap">
+                    <img src="{{ asset('storage/' . ($settingWebsite->logo ?? '')) }}" alt="Logo" class="kh-cl-img"
+                        id="curtainLogoImg" />
+                    <div class="kh-cl-ring" id="curtainRing"></div>
+                    <div class="kh-cl-pulse" id="curtainPulse"></div>
                 </div>
-                <p class="kh-success-text">Login berhasil</p>
-                <p class="kh-success-sub">Membuka dashboard...</p>
+                <p class="kh-cl-text" id="curtainText">Login berhasil</p>
+                <p class="kh-cl-sub" id="curtainSub">Membuka dashboard<span class="kh-cl-dots"></span></p>
             </div>
         </div>
 
@@ -252,8 +255,8 @@
 
     <style>
         /* ═══════════════════════════════════════════════
-                               KH LOGIN — FULL PAGE MODERN
-                               ═══════════════════════════════════════════════ */
+                                   KH LOGIN — FULL PAGE MODERN
+                                   ═══════════════════════════════════════════════ */
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Sora:wght@300;400;600;700&display=swap');
 
         *,
@@ -911,72 +914,194 @@
             color: #B0BCCE;
         }
 
-        /* ── SUCCESS OVERLAY ── */
-        .kh-success-overlay {
+        /* ── SUCCESS CURTAIN ── */
+        .kh-curtain {
             position: fixed;
             inset: 0;
+            z-index: 10000;
+            pointer-events: none;
+            display: flex;
+        }
+
+        .kh-curtain-half {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            background: linear-gradient(150deg, #03ace9 0%, #012996 40%, #010f3d 100%);
+            transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+            will-change: transform;
+        }
+
+        .kh-curtain-half--left {
+            left: 0;
+            transform: translateX(-100%);
+        }
+
+        .kh-curtain-half--right {
+            right: 0;
+            transform: translateX(100%);
+        }
+
+        /* Curtain masuk (menutup) */
+        .kh-curtain.is-closing .kh-curtain-half--left {
+            transform: translateX(0);
+        }
+
+        .kh-curtain.is-closing .kh-curtain-half--right {
+            transform: translateX(0);
+        }
+
+        /* Curtain membuka ke samping */
+        .kh-curtain.is-opening .kh-curtain-half--left {
+            transform: translateX(-100%);
+            transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1) 0.1s;
+        }
+
+        .kh-curtain.is-opening .kh-curtain-half--right {
+            transform: translateX(100%);
+            transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1) 0.1s;
+        }
+
+        /* Logo di tengah curtain */
+        .kh-curtain-logo {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 0;
+            transform: scale(0.7) translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, .3, 1);
+            pointer-events: none;
+        }
+
+        .kh-curtain.is-logo-visible .kh-curtain-logo {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Logo keluar saat curtain membuka */
+        .kh-curtain.is-opening .kh-curtain-logo {
+            opacity: 0;
+            transform: scale(1.15) translateY(-10px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .kh-curtain-logo-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s 0.3s;
         }
 
-        .kh-success-overlay.is-visible {
-            opacity: 1;
-            pointer-events: auto;
+        .kh-cl-img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 20px;
+            filter: drop-shadow(0 8px 32px rgba(3, 172, 233, 0.6));
+            animation: khLogoFloat 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
         }
 
-        .kh-success-inner {
-            text-align: center;
-            transform: scale(0.85);
-            transition: transform 0.4s cubic-bezier(0.16, 1, .3, 1) 0.25s;
+        .kh-cl-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 26px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, #03ace9, #00D4AA, #012996) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            animation: khRingRotate 3s linear infinite;
         }
 
-        .kh-success-overlay.is-visible .kh-success-inner {
-            transform: scale(1);
+        .kh-cl-pulse {
+            position: absolute;
+            inset: -14px;
+            border-radius: 36px;
+            border: 1.5px solid rgba(3, 172, 233, 0.3);
+            animation: khPulseRing 2s ease-out infinite;
         }
 
-        .kh-success-ring {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-        }
-
-        .kh-success-ring svg {
-            width: 80px;
-            height: 80px;
-        }
-
-        .kh-check-circle {
-            transition: stroke-dashoffset 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.5s;
-        }
-
-        .kh-success-overlay.is-visible .kh-check-circle {
-            stroke-dashoffset: 0;
-        }
-
-        .kh-check-mark {
-            transition: stroke-dashoffset 0.35s ease-out 1.05s;
-        }
-
-        .kh-success-overlay.is-visible .kh-check-mark {
-            stroke-dashoffset: 0;
-        }
-
-        .kh-success-text {
+        .kh-cl-text {
             font-family: 'Sora', sans-serif;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             color: #fff;
+            letter-spacing: -0.02em;
+            text-align: center;
         }
 
-        .kh-success-sub {
-            font-size: 13px;
+        .kh-cl-sub {
+            font-size: 14px;
             color: rgba(255, 255, 255, 0.5);
-            margin-top: 4px;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .kh-cl-dots::after {
+            content: '';
+            animation: khDots 1.4s steps(4, end) infinite;
+        }
+
+        @keyframes khLogoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes khRingRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes khPulseRing {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes khDots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+
+            100% {
+                content: '';
+            }
         }
 
         /* ── KEYFRAMES ── */
@@ -1077,51 +1202,102 @@
     <script>
         (function() {
 
-            /* ── PARTICLE CANVAS ── */
+            /* ── SPIRAL PARTICLE CANVAS ── */
             var canvas = document.getElementById('particleCanvas');
             if (canvas) {
                 var ctx = canvas.getContext('2d');
-                var particles = [];
+                var spirals = [];
                 var W, H;
+                var globalTime = 0;
 
                 function resize() {
                     W = canvas.width = canvas.offsetWidth;
                     H = canvas.height = canvas.offsetHeight;
                 }
 
-                function createParticle() {
+                function createSpiral() {
+                    var cx = Math.random() * W;
+                    var cy = Math.random() * H;
                     return {
-                        x: Math.random() * W,
-                        y: Math.random() * H,
-                        r: Math.random() * 1.4 + 0.4,
-                        ox: Math.random() * W,
-                        oy: Math.random() * H,
-                        speed: Math.random() * 0.004 + 0.002,
-                        ang: Math.random() * Math.PI * 2,
-                        range: Math.random() * 60 + 20,
-                        alpha: Math.random() * 0.4 + 0.1,
-                        /* ★ UPDATED: warna partikel selaras palet foto */
-                        color: Math.random() > 0.5 ? '0,212,170' : '3,172,233'
+                        cx: cx,
+                        cy: cy,
+                        /* pusat spiral */
+                        angle: Math.random() * Math.PI * 2,
+                        radius: 0,
+                        maxRadius: Math.random() * 90 + 40,
+                        growSpeed: Math.random() * 0.4 + 0.25,
+                        rotSpeed: Math.random() * 0.04 + 0.018,
+                        r: Math.random() * 1.5 + 0.5,
+                        alpha: Math.random() * 0.55 + 0.15,
+                        color: Math.random() > 0.5 ? '0,212,170' : '3,172,233',
+                        trail: [],
+                        /* titik-titik jejak spiral */
+                        trailLen: Math.floor(Math.random() * 18 + 10),
+                        phase: Math.random() * Math.PI * 2
                     };
                 }
 
                 function init() {
                     resize();
-                    particles = [];
-                    for (var i = 0; i < 70; i++) particles.push(createParticle());
+                    spirals = [];
+                    for (var i = 0; i < 22; i++) spirals.push(createSpiral());
                 }
 
                 function tick() {
-                    ctx.clearRect(0, 0, W, H);
-                    particles.forEach(function(p) {
-                        p.ang += p.speed;
-                        p.x = p.ox + Math.cos(p.ang) * p.range;
-                        p.y = p.oy + Math.sin(p.ang) * p.range;
+                    globalTime += 0.016;
+                    /* Fade trail: semi-transparent clear */
+                    ctx.fillStyle = 'rgba(1,15,61,0.18)';
+                    ctx.fillRect(0, 0, W, H);
+
+                    spirals.forEach(function(s) {
+                        /* Kembangkan radius spiral */
+                        s.radius += s.growSpeed;
+                        s.angle += s.rotSpeed;
+
+                        /* Posisi kepala spiral */
+                        var x = s.cx + Math.cos(s.angle) * s.radius;
+                        var y = s.cy + Math.sin(s.angle) * s.radius;
+
+                        /* Rekam jejak */
+                        s.trail.push({
+                            x: x,
+                            y: y
+                        });
+                        if (s.trail.length > s.trailLen) s.trail.shift();
+
+                        /* Gambar jejak spiral sebagai garis bertahap memudar */
+                        for (var t = 1; t < s.trail.length; t++) {
+                            var prog = t / s.trail.length;
+                            ctx.beginPath();
+                            ctx.moveTo(s.trail[t - 1].x, s.trail[t - 1].y);
+                            ctx.lineTo(s.trail[t].x, s.trail[t].y);
+                            ctx.strokeStyle = 'rgba(' + s.color + ',' + (s.alpha * prog) + ')';
+                            ctx.lineWidth = s.r * prog;
+                            ctx.lineCap = 'round';
+                            ctx.stroke();
+                        }
+
+                        /* Titik kepala bersinar */
                         ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                        ctx.fillStyle = 'rgba(' + p.color + ',' + p.alpha + ')';
+                        ctx.arc(x, y, s.r * 1.6, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(' + s.color + ',' + s.alpha + ')';
                         ctx.fill();
+
+                        /* Reset jika spiral sudah cukup besar */
+                        if (s.radius > s.maxRadius) {
+                            /* lahir kembali di posisi baru */
+                            s.cx = Math.random() * W;
+                            s.cy = Math.random() * H;
+                            s.radius = 0;
+                            s.angle = Math.random() * Math.PI * 2;
+                            s.maxRadius = Math.random() * 90 + 40;
+                            s.growSpeed = Math.random() * 0.4 + 0.25;
+                            s.rotSpeed = Math.random() * 0.04 + 0.018;
+                            s.trail = [];
+                            s.color = Math.random() > 0.5 ? '0,212,170' : '3,172,233';
+                        }
                     });
+
                     requestAnimationFrame(tick);
                 }
 
@@ -1146,24 +1322,36 @@
                 });
             }
 
-            /* ── SPLIT SUCCESS ANIMATION ── */
+            /* ── CURTAIN SUCCESS ANIMATION ── */
             var loginRoot = document.getElementById('loginRoot');
-            var successOvl = document.getElementById('successOverlay');
+            var curtain = document.getElementById('successCurtain');
+            var curtainLogo = document.getElementById('curtainLogo');
 
             function triggerSuccessAnimation(redirectUrl) {
-                /* 1. Kedua panel membelah */
+                /* Step 1 — login split panels geser dulu */
                 loginRoot.classList.add('is-splitting');
 
-                /* 2. Success overlay muncul setelah panel mulai bergerak */
+                /* Step 2 — curtain menutup dari kiri & kanan ke tengah */
                 setTimeout(function() {
-                    successOvl.classList.add('is-visible');
-                    successOvl.removeAttribute('aria-hidden');
-                }, 320);
+                    curtain.removeAttribute('aria-hidden');
+                    curtain.classList.add('is-closing');
+                }, 180);
 
-                /* 3. Redirect setelah animasi selesai */
+                /* Step 3 — logo muncul di tengah curtain */
+                setTimeout(function() {
+                    curtain.classList.add('is-logo-visible');
+                }, 700);
+
+                /* Step 4 — curtain membuka (belah tengah) ke kiri & kanan */
+                setTimeout(function() {
+                    curtain.classList.remove('is-closing');
+                    curtain.classList.add('is-opening');
+                }, 2100);
+
+                /* Step 5 — redirect setelah curtain terbuka */
                 setTimeout(function() {
                     window.location.href = redirectUrl;
-                }, 1850);
+                }, 3000);
             }
 
             window.khTriggerSuccess = triggerSuccessAnimation;

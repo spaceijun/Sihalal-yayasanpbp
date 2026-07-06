@@ -4,7 +4,7 @@
         data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="blue">
 @elseif(auth()->check() && auth()->user()->role === 'admin_umum')
     <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-        data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="teal">
+        data-sidebar-image="img-4" data-preloader="disable" data-theme="default" data-theme-colors="blue">
 @elseif(auth()->check() && auth()->user()->role === 'koordinator')
     <html lang="en" data-layout="horizontal" data-topbar="dark" data-sidebar="dark" data-sidebar-size="lg"
         data-sidebar-image="img-2" data-preloader="disable" data-theme="default" data-theme-colors="default">

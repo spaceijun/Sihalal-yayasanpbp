@@ -412,7 +412,8 @@ class DataLapanganController extends Controller
     {
         try {
             $request->validate([
-                'email_sihalal' => ['required', 'email', 'max:255'],
+                'email_sihalal'   => ['required', 'email', 'max:255'],
+                'pengajuan_lewat' => ['required', 'in:PTSP HALAL,HALALMAX'],
             ]);
 
             $dataLapangan = DataLapangan::findByHashedIdOrFail($id);
@@ -429,8 +430,9 @@ class DataLapanganController extends Controller
 
             $newStatus = 'PROGRESS SIHALAL';
 
-            // Simpan email_sihalal ke database
-            $dataLapangan->email_sihalal = $request->email_sihalal;
+            // Simpan email_sihalal dan pengajuan_lewat ke database
+            $dataLapangan->email_sihalal   = $request->email_sihalal;
+            $dataLapangan->pengajuan_lewat = $request->pengajuan_lewat;
             $dataLapangan->save();
 
             $this->trackDataEntryProgress(

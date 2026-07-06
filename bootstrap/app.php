@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'enumerator.active'  => EnsureEnumeratorIsActive::class,
             'secure.file'        => SecureFileDownload::class,
+            'maintenance.enumerator.api' => \App\Http\Middleware\MaintenanceEnumeratorApi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

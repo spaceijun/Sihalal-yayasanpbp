@@ -72,7 +72,8 @@ Route::middleware([
 Route::middleware([
     'auth:sanctum',
     'role:enumerator',
-    'throttle:120,1' // 120 requests per minute per user
+    'throttle:120,1', // 120 requests per minute per user
+    'maintenance.enumerator.api',
 ])->group(function () {
     Route::prefix('enumerator')->name('api.enumerator.')->group(function () {
 

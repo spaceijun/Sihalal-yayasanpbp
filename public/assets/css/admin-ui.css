@@ -1,12 +1,12 @@
-﻿/* ============================================================
+/* ============================================================
    admin-ui.css — SiHalal Superadmin Design System
    Font: Plus Jakarta Sans (body) · Sora (heading)
    ============================================================ */
 
 :root {
-    --adm-blue: #1a5fc8;
-    --adm-blue-dk: #1040a0;
-    --adm-blue-lt: #eef4ff;
+    --adm-blue: #0F2C59;
+    --adm-blue-dk: #0A2244;
+    --adm-blue-lt: #EEF3F8;
     --adm-green: #0f6e56;
     --adm-green-lt: #ebfaf2;
     --adm-amber: #b86800;
@@ -1074,3 +1074,88 @@
         align-items: flex-start;
     }
 }
+
+/* ─── PREMIUM CUSTOM SIDEBAR OVERRIDES (NAVY/SILVER) ─── */
+.navbar-menu {
+    background: linear-gradient(180deg, #0F2C59 0%, #071D3C 100%) !important;
+    border-right: 1px solid rgba(142, 154, 175, 0.15) !important;
+}
+
+/* Sidebar background image overlay: make it extremely subtle and classy */
+.sidebar-background {
+    opacity: 0.08 !important;
+}
+
+/* Brand logo container background */
+.navbar-brand-box {
+    background: #0F2C59 !important;
+    border-bottom: 1px solid rgba(142, 154, 175, 0.1) !important;
+}
+
+/* Sidebar menu titles (headers) */
+.navbar-menu .menu-title {
+    color: rgba(142, 154, 175, 0.6) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 10px !important;
+    letter-spacing: 1.2px !important;
+}
+
+/* Sidebar menu item text and icon colors */
+.navbar-menu .navbar-nav .nav-link {
+    color: #EEF3F8 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.navbar-menu .navbar-nav .nav-link i,
+.navbar-menu .navbar-nav .nav-link svg {
+    color: #8E9AAF !important; /* Silver/Slate for icon */
+    transition: color 0.2s ease !important;
+}
+
+/* Hover state */
+.navbar-menu .navbar-nav .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+.navbar-menu .navbar-nav .nav-link:hover i,
+.navbar-menu .navbar-nav .nav-link:hover svg {
+    color: #ffffff !important;
+}
+
+/* Active state: sleek highlighted background with a thin silver border/accent on the left */
+.navbar-menu .navbar-nav .nav-link.active {
+    color: #ffffff !important;
+    background: rgba(142, 154, 175, 0.18) !important;
+    font-weight: 600 !important;
+    position: relative;
+}
+
+.navbar-menu .navbar-nav .nav-link.active::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 3px !important;
+    background-color: #8E9AAF !important; /* Silver left border indicator */
+    border-radius: 0 4px 4px 0 !important;
+}
+
+.navbar-menu .navbar-nav .nav-link.active i,
+.navbar-menu .navbar-nav .nav-link.active svg {
+    color: #ffffff !important;
+}
+
+/* ─── VELZON ROOT VARIABLES OVERRIDE ─── */
+:root {
+    --vz-primary: #0F2C59 !important;
+    --vz-primary-rgb: 15, 44, 89 !important;
+    --vz-link-color: #0F2C59 !important;
+    --vz-link-hover-color: #0A2244 !important;
+    --vz-success: #0f6e56 !important;
+    --vz-success-rgb: 15, 110, 86 !important;
+}
+

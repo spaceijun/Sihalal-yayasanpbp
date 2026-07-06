@@ -160,6 +160,30 @@
                                         @endif
                                     </td>
                                 </tr>
+                                @if ($entryType === 'SIHALAL')
+                                    <tr class="border-top">
+                                        <td class="fw-semibold text-muted py-3 px-4"
+                                            style="width:32%;font-size:12px;vertical-align:middle;">
+                                            Pengajuan Lewat
+                                        </td>
+                                        <td class="py-3 pe-4">
+                                            @php $pl = $dl->pengajuan_lewat ?? null; @endphp
+                                            @if ($pl === 'PTSP HALAL')
+                                                <span class="badge bg-primary-subtle text-primary px-3 py-2"
+                                                    style="font-size:12px;">
+                                                    <i class="las la-globe me-1"></i>PTSP HALAL
+                                                </span>
+                                            @elseif ($pl === 'HALALMAX')
+                                                <span class="badge bg-success-subtle text-success px-3 py-2"
+                                                    style="font-size:12px;">
+                                                    <i class="las la-check-circle me-1"></i>HALALMAX
+                                                </span>
+                                            @else
+                                                <span class="text-muted" style="font-size:13px;">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endif
                                 <tr class="border-bottom">
                                     <td class="fw-semibold text-muted py-3 px-4" style="font-size:12px;">Tanggal Aksi</td>
                                     <td class="py-3 pe-4" style="font-size:13px;">
@@ -306,6 +330,8 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    {{-- Baris Pengajuan Lewat — hanya tampil jika entry_type SIHALAL --}}
+
                                 </tbody>
                             </table>
                         @else

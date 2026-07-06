@@ -376,14 +376,14 @@
             --text-primary: #1a2040;
             --text-secondary: #5a6380;
             --text-muted: #9aa0b8;
-            --accent-blue: #3b7cf4;
-            --accent-cyan: #06b6d4;
-            --accent-violet: #7c3aed;
+            --accent-blue: #0F2C59;
+            --accent-cyan: #5A84BA;
+            --accent-violet: #6B7C96;
             --accent-emerald: #059669;
             --accent-amber: #d97706;
             --accent-rose: #e11d48;
             --accent-pink: #db2777;
-            --accent-indigo: #4f46e5;
+            --accent-indigo: #8E9AAF;
             --shadow-card: 0 2px 12px rgba(80, 100, 160, 0.08), 0 1px 3px rgba(80, 100, 160, 0.06);
             --shadow-hover: 0 8px 28px rgba(80, 100, 160, 0.14);
             --radius: 16px;
@@ -399,8 +399,8 @@
 
         /* ─── WELCOME BANNER ─── */
         .welcome-banner {
-            background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 60%, #f5f3ff 100%);
-            border: 1px solid #dde3f8;
+            background: linear-gradient(135deg, #EEF3F8 0%, #F5F7FA 60%, #E8ECF4 100%);
+            border: 1px solid var(--border-bright);
             border-radius: var(--radius);
             padding: 20px 28px;
             margin-bottom: 28px;
@@ -418,7 +418,7 @@
             left: -50px;
             width: 180px;
             height: 180px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(15, 44, 89, 0.08) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -429,14 +429,14 @@
             right: 80px;
             width: 150px;
             height: 150px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(142, 154, 175, 0.06) 0%, transparent 70%);
             pointer-events: none;
         }
 
         .welcome-banner .icon-wrap {
             width: 44px;
             height: 44px;
-            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -444,7 +444,7 @@
             font-size: 20px;
             color: #fff;
             flex-shrink: 0;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 4px 14px rgba(15, 44, 89, 0.25);
         }
 
         .welcome-banner .text-wrap strong {
@@ -460,7 +460,7 @@
         }
 
         .welcome-banner .badge-bejo {
-            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan));
+            background: linear-gradient(90deg, #0F2C59, #8E9AAF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
@@ -623,13 +623,13 @@
         }
 
         .pay-card.pay-pending {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            border-color: rgba(79, 70, 229, 0.2);
+            background: linear-gradient(135deg, #0F2C59 0%, #244B84 100%);
+            border-color: rgba(15, 44, 89, 0.2);
         }
 
         .pay-card.pay-paid {
-            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-            border-color: rgba(2, 132, 199, 0.2);
+            background: linear-gradient(135deg, #8E9AAF 0%, #6E7A8E 100%);
+            border-color: rgba(142, 154, 175, 0.2);
         }
 
         .pay-card .pay-icon {
@@ -662,8 +662,8 @@
         }
 
         .pay-card.pay-pengajuan {
-            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-            border-color: rgba(217, 119, 6, 0.2);
+            background: linear-gradient(135deg, #E29C23 0%, #F5B041 100%);
+            border-color: rgba(226, 156, 35, 0.2);
         }
 
         /* ─── CHART CARD ─── */

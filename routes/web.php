@@ -234,6 +234,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::get('/', [SettingwebsiteController::class, 'index'])->name('index');
             Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('update');
             Route::put('/settings/env', [SettingwebsiteController::class, 'updateEnv'])->name('env.update');
+            Route::post('/settings/maintenance', [SettingwebsiteController::class, 'updateMaintenance'])->name('maintenance.update');
         });
         // Profile
         Route::prefix('profile')->name('profile.')->group(function () {

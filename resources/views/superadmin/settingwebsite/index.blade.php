@@ -54,6 +54,19 @@ Setting Website
                     Environment
                     <span class="adm-tab-pill">.env</span>
                 </button>
+                <button class="adm-tab-btn" role="tab" data-tab="maintenance" aria-selected="false">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    Maintenance
+                    @php
+                        $anyMaintenance = $maintenanceDataEntry || $maintenanceAdminUmum || $maintenanceEnumeratorApi;
+                    @endphp
+                    @if ($anyMaintenance)
+                        <span class="adm-tab-pill" style="background:rgba(239,68,68,.12);color:#ef4444;">AKTIF</span>
+                    @endif
+                </button>
             </div>
         </div>
 
@@ -420,8 +433,229 @@ Setting Website
             </form>
         </div>{{-- /tab-env --}}
 
+        {{-- ========================================================== --}}
+        {{-- TAB: MAINTENANCE                                            --}}
+        {{-- ========================================================== --}}
+        <div id="tab-maintenance" class="adm-tab-pane">
+            <div style="padding:20px 20px 0;">
+                <div class="adm-alert adm-alert-warning">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    <span>
+                        <strong>Mode Maintenance</strong> menonaktifkan akses untuk role tertentu.
+                        <strong>Superadmin tidak pernah diblokir.</strong>
+                        Perubahan langsung berlaku tanpa perlu restart server.
+                    </span>
+                </div>
+            </div>
+
+            <form action="{{ route($routePrefix . '.settings.maintenance.update') }}" method="POST"
+                id="formMaintenance" style="padding:20px;">
+                @csrf
+
+                {{-- Card: Data Entry --}}
+                <div class="mnt-card">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon red">
+                                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Maintenance — Data Entry</div>
+                                <div class="mnt-desc">role: <code>data_entry</code></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span id="badge-data-entry"
+                                class="mnt-status {{ $maintenanceDataEntry ? 'on' : 'off' }}">
+                                {{ $maintenanceDataEntry ? 'AKTIF' : 'NONAKTIF' }}
+                            </span>
+                            <label class="mnt-toggle" title="Toggle maintenance Data Entry">
+                                <input type="checkbox" name="maintenance_data_entry" value="on"
+                                    id="toggle-data-entry"
+                                    onchange="syncBadge('data-entry', this.checked, false)"
+                                    {{ $maintenanceDataEntry ? 'checked' : '' }}>
+                                <span class="mnt-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mnt-card-body">
+                        Saat <strong>AKTIF</strong>, pengguna dengan role Data Entry akan:
+                        <ul>
+                            <li>Secara otomatis di-<em>logout</em> dari sistem.</li>
+                            <li>Dialihkan ke halaman login dengan pesan pemeliharaan.</li>
+                            <li>Tidak dapat masuk kembali hingga maintenance dimatikan.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {{-- Card: Admin Umum --}}
+                <div class="mnt-card">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon red">
+                                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Maintenance — Admin Umum</div>
+                                <div class="mnt-desc">role: <code>admin_umum</code></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span id="badge-admin-umum"
+                                class="mnt-status {{ $maintenanceAdminUmum ? 'on' : 'off' }}">
+                                {{ $maintenanceAdminUmum ? 'AKTIF' : 'NONAKTIF' }}
+                            </span>
+                            <label class="mnt-toggle" title="Toggle maintenance Admin Umum">
+                                <input type="checkbox" name="maintenance_admin_umum" value="on"
+                                    id="toggle-admin-umum"
+                                    onchange="syncBadge('admin-umum', this.checked, false)"
+                                    {{ $maintenanceAdminUmum ? 'checked' : '' }}>
+                                <span class="mnt-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mnt-card-body">
+                        Saat <strong>AKTIF</strong>, pengguna dengan role Admin Umum akan:
+                        <ul>
+                            <li>Secara otomatis di-<em>logout</em> dari sistem.</li>
+                            <li>Dialihkan ke halaman login dengan pesan pemeliharaan.</li>
+                            <li>Tidak dapat masuk kembali hingga maintenance dimatikan.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {{-- Card: Enumerator API --}}
+                <div class="mnt-card">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon amber">
+                                <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Maintenance — Enumerator API (Khusus Pengajuan)</div>
+                                <div class="mnt-desc">role: <code>enumerator</code> · hanya memblokir <code>POST / PUT / PATCH / DELETE</code></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span id="badge-enumerator-api"
+                                class="mnt-status {{ $maintenanceEnumeratorApi ? 'on-amber' : 'off' }}">
+                                {{ $maintenanceEnumeratorApi ? 'AKTIF' : 'NONAKTIF' }}
+                            </span>
+                            <label class="mnt-toggle" title="Toggle maintenance Enumerator API">
+                                <input type="checkbox" name="maintenance_enumerator_api" value="on"
+                                    id="toggle-enumerator-api" class="mnt-amber"
+                                    onchange="syncBadge('enumerator-api', this.checked, true)"
+                                    {{ $maintenanceEnumeratorApi ? 'checked' : '' }}>
+                                <span class="mnt-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mnt-card-body">
+                        Saat <strong>AKTIF</strong>, enumerator melalui aplikasi Flutter:
+                        <ul>
+                            <li>Tetap bisa <strong>login</strong> dan melihat data (GET).</li>
+                            <li><strong>Tidak bisa</strong> membuat atau memperbarui data lapangan (POST/PUT/PATCH/DELETE).</li>
+                            <li>Menerima pesan error <code>503 – Sistem sedang dalam pemeliharaan</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="adm-form-actions">
+                    <button type="submit" class="adm-btn-primary" onclick="return confirmSaveMaintenance()">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;">
+                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Simpan Pengaturan Maintenance
+                    </button>
+                    <span style="font-size:12px;color:var(--adm-text-faint);">Perubahan langsung berlaku setelah disimpan</span>
+                </div>
+
+            </form>
+        </div>{{-- /tab-maintenance --}}
+
     </div>{{-- /adm-card --}}
 </div>{{-- /adm-page --}}
+
+{{-- ============================================================ --}}
+{{-- TAB: MAINTENANCE                                             --}}
+{{-- (diletakkan di luar adm-card agar mudah disisipkan sbg pane)--}}
+{{-- ============================================================ --}}
+
+<style>
+    /* ── Maintenance Toggle Switch ── */
+    .mnt-card {
+        border: 1px solid var(--adm-border-mid);
+        border-radius: var(--adm-radius);
+        overflow: hidden;
+        margin-bottom: 16px;
+        transition: box-shadow .2s;
+    }
+    .mnt-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+    .mnt-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+        background: var(--adm-bg-light);
+        border-bottom: 1px solid var(--adm-border);
+    }
+    .mnt-card-header-left { display: flex; align-items: center; gap: 12px; }
+    .mnt-icon {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .mnt-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .mnt-icon.red   { background: rgba(239,68,68,.1);   color: #ef4444; }
+    .mnt-icon.amber { background: rgba(245,158,11,.1);  color: #f59e0b; }
+    .mnt-icon.blue  { background: rgba(59,130,246,.1);  color: #3b82f6; }
+    .mnt-title { font-size: 14px; font-weight: 700; color: var(--adm-text-dark); }
+    .mnt-desc  { font-size: 12px; color: var(--adm-text-muted); margin-top: 2px; }
+    .mnt-card-body { padding: 16px 20px; background: var(--adm-bg-card); font-size: 13px; color: var(--adm-text-mid); }
+    .mnt-card-body ul { padding-left: 18px; margin: 6px 0 0; }
+    .mnt-card-body li { margin-bottom: 4px; }
+
+    /* Toggle switch */
+    .mnt-toggle { position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; }
+    .mnt-toggle input { opacity: 0; width: 0; height: 0; }
+    .mnt-slider {
+        position: absolute; inset: 0;
+        background: var(--adm-border-mid);
+        border-radius: 28px;
+        cursor: pointer;
+        transition: background .25s;
+    }
+    .mnt-slider::before {
+        content: '';
+        position: absolute;
+        height: 20px; width: 20px;
+        left: 4px; bottom: 4px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform .25s;
+        box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .mnt-toggle input:checked + .mnt-slider { background: #ef4444; }
+    .mnt-toggle input.mnt-amber:checked + .mnt-slider { background: #f59e0b; }
+    .mnt-toggle input:checked + .mnt-slider::before { transform: translateX(24px); }
+    .mnt-status {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .07em; padding: 3px 10px;
+        border-radius: 20px; border: 1px solid currentColor;
+    }
+    .mnt-status.off { color: var(--adm-text-faint); border-color: var(--adm-border-mid); background: var(--adm-bg-light); }
+    .mnt-status.on  { color: #ef4444; border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.07); }
+    .mnt-status.on-amber { color: #f59e0b; border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.07); }
+</style>
+
+{{-- The actual pane is inside .adm-card above, so we need to inject it. --}}
+{{-- We use inline script trick: move the pane into card after DOM load.  --}}
 
 <style>
     .adm-tabs {
@@ -808,7 +1042,9 @@ Setting Website
 
     /* ── Pertahankan tab aktif setelah redirect ── */
     document.addEventListener('DOMContentLoaded', function() {
-        const saved = sessionStorage.getItem('activeSettingTab');
+        // Prioritas: flash dari server (_active_tab) → sessionStorage
+        const serverTab = @json(session('_active_tab'));
+        const saved     = serverTab || sessionStorage.getItem('activeSettingTab');
         if (saved) {
             const btn = document.querySelector(`.adm-tab-btn[data-tab="${saved}"]`);
             if (btn) btn.click();
@@ -873,6 +1109,37 @@ Setting Website
             'Pastikan semua nilai sudah benar.\n' +
             'Perubahan langsung berlaku pada aplikasi.'
         );
+    }
+
+    /* ── Sinkronisasi badge status maintenance secara real-time ── */
+    function syncBadge(id, isChecked, isAmber) {
+        const badge = document.getElementById('badge-' + id);
+        if (!badge) return;
+        if (isChecked) {
+            badge.textContent = 'AKTIF';
+            badge.className = 'mnt-status ' + (isAmber ? 'on-amber' : 'on');
+        } else {
+            badge.textContent = 'NONAKTIF';
+            badge.className = 'mnt-status off';
+        }
+    }
+
+    /* ── Konfirmasi simpan maintenance ── */
+    function confirmSaveMaintenance() {
+        const activeToggles = [];
+        if (document.getElementById('toggle-data-entry')?.checked)    activeToggles.push('Data Entry');
+        if (document.getElementById('toggle-admin-umum')?.checked)     activeToggles.push('Admin Umum');
+        if (document.getElementById('toggle-enumerator-api')?.checked) activeToggles.push('Enumerator API');
+
+        let msg = 'Simpan pengaturan maintenance?\n\n';
+        if (activeToggles.length > 0) {
+            msg += '⚠️ Mode maintenance AKTIF untuk: ' + activeToggles.join(', ') + '.\n';
+            msg += 'Pengguna yang terdampak akan segera kehilangan akses.\n\n';
+        } else {
+            msg += '✅ Semua maintenance NONAKTIF. Semua pengguna dapat mengakses sistem.\n\n';
+        }
+        msg += 'Lanjutkan?';
+        return confirm(msg);
     }
 </script>
 @endsection

@@ -123,6 +123,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'maintenance_mode' => env('MAINTENANCE_MODE', false),
+    // Per-role maintenance flags
+    'maintenance_data_entry'    => env('MAINTENANCE_DATA_ENTRY', false),
+    'maintenance_admin_umum'    => env('MAINTENANCE_ADMIN_UMUM', false),
+    'maintenance_enumerator_api'=> env('MAINTENANCE_ENUMERATOR_API', false),
 
 ];
+

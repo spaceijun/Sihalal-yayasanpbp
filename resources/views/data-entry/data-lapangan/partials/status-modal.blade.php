@@ -6,7 +6,8 @@
                 <h5 class="modal-title" id="modalUpdateStatusHalalLabel">Update Status ke Progress SIHALAL</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('data-entry.datalapangan.update-status', $dataLapangan->hashed_id) }}" method="POST">
+            <form action="{{ route('data-entry.datalapangan.update-status', $dataLapangan->hashed_id) }}"
+                method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
@@ -38,6 +39,26 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted">Email yang digunakan untuk login di website SIHALAL.</small>
+                    </div>
+
+                    {{-- Field Pengajuan Lewat --}}
+                    <div class="mb-3">
+                        <label for="pengajuan_lewat" class="form-label fw-semibold">
+                            Pengajuan Lewat <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select @error('pengajuan_lewat') is-invalid @enderror" id="pengajuan_lewat"
+                            name="pengajuan_lewat" required>
+                            <option value="" disabled {{ old('pengajuan_lewat') ? '' : 'selected' }}>-- Pilih
+                                Platform Pengajuan --</option>
+                            <option value="PTSP HALAL" {{ old('pengajuan_lewat') === 'PTSP HALAL' ? 'selected' : '' }}>
+                                PTSP HALAL</option>
+                            <option value="HALALMAX" {{ old('pengajuan_lewat') === 'HALALMAX' ? 'selected' : '' }}>
+                                HALALMAX</option>
+                        </select>
+                        @error('pengajuan_lewat')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Platform yang digunakan untuk mengajukan data SIHALAL.</small>
                     </div>
 
                     {{-- Pernyataan Pemohon --}}

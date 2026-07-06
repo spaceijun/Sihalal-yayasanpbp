@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Models\Superadmin\Settingwebsite;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -12,13 +12,25 @@ use Illuminate\Support\Facades\Storage;
 class SettingwebsiteController extends Controller
 {
     use HasRoutePrefix;
+
     public function index()
     {
-        $setting     = Settingwebsite::first() ?? new Settingwebsite();
-        $envContent  = $this->getEnv();
+        $setting = Settingwebsite::first() ?? new Settingwebsite;
+        $envContent = $this->getEnv();
         $routePrefix = $this->routePrefix();
 
-        return view('superadmin.settingwebsite.index', compact('setting', 'envContent', 'routePrefix'));
+        $maintenanceDataEntry = config('app.maintenance_data_entry', false);
+        $maintenanceAdminUmum = config('app.maintenance_admin_umum', false);
+        $maintenanceEnumeratorApi = config('app.maintenance_enumerator_api', false);
+
+        return view('superadmin.settingwebsite.index', compact(
+            'setting',
+            'envContent',
+            'routePrefix',
+            'maintenanceDataEntry',
+            'maintenanceAdminUmum',
+            'maintenanceEnumeratorApi'
+        ));
     }
 
     public function update(Request $request)
@@ -31,8 +43,8 @@ class SettingwebsiteController extends Controller
         ]);
 
         $setting = Settingwebsite::first();
-        if (!$setting) {
-            $setting = new Settingwebsite();
+        if (! $setting) {
+            $setting = new Settingwebsite;
         }
 
         $setting->title = $request->title;
@@ -65,7 +77,6 @@ class SettingwebsiteController extends Controller
         return redirect()->back()->with('success', 'Pengaturan website berhasil diperbarui');
     }
 
-
     public function getEnv()
     {
         $envPath = base_path('.env');
@@ -77,13 +88,14 @@ class SettingwebsiteController extends Controller
                 // Simpan komentar dan baris kosong
                 if (str_starts_with(trim($line), '#') || trim($line) === '') {
                     $envContent[] = ['type' => 'comment', 'raw' => $line];
+
                     continue;
                 }
                 if (str_contains($line, '=')) {
                     [$key, $value] = explode('=', $line, 2);
                     $envContent[] = [
-                        'type'  => 'variable',
-                        'key'   => trim($key),
+                        'type' => 'variable',
+                        'key' => trim($key),
                         'value' => trim($value),
                     ];
                 }
@@ -98,7 +110,7 @@ class SettingwebsiteController extends Controller
         $envPath = base_path('.env');
         $envData = $request->input('env', []);
 
-        if (!file_exists($envPath)) {
+        if (! file_exists($envPath)) {
             return redirect()->back()->with('error', 'File .env tidak ditemukan');
         }
 
@@ -117,31 +129,33 @@ class SettingwebsiteController extends Controller
         foreach ($protectedKeys as $pk) {
             unset($envData[$pk]);
         }
-        $lines  = file($envPath, FILE_IGNORE_NEW_LINES);
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES);
         $output = [];
 
         foreach ($lines as $line) {
             if (str_starts_with(trim($line), '#') || trim($line) === '') {
                 $output[] = $line;
+
                 continue;
             }
             if (str_contains($line, '=')) {
                 [$key] = explode('=', $line, 2);
-                $key   = trim($key);
+                $key = trim($key);
                 if (array_key_exists($key, $envData)) {
                     $value = $envData[$key];
-                    if ($value !== '' && str_contains($value, ' ') && !str_starts_with($value, '"')) {
-                        $value = '"' . $value . '"';
+                    if ($value !== '' && str_contains($value, ' ') && ! str_starts_with($value, '"')) {
+                        $value = '"'.$value.'"';
                     }
-                    $output[] = $key . '=' . $value;
+                    $output[] = $key.'='.$value;
                     unset($envData[$key]);
+
                     continue;
                 }
             }
             $output[] = $line;
         }
 
-        file_put_contents($envPath, implode("\n", $output) . "\n");
+        file_put_contents($envPath, implode("\n", $output)."\n");
 
         try {
             Artisan::call('config:clear');
@@ -152,5 +166,77 @@ class SettingwebsiteController extends Controller
 
         return redirect()->route('superadmin.settings.index')
             ->with('success', 'Konfigurasi .env berhasil diperbarui');
+    }
+
+    /**
+     * Update flag maintenance per-role langsung ke file .env.
+     * Dipanggil dari tab Maintenance di halaman Setting Website.
+     */
+    public function updateMaintenance(Request $request)
+    {
+        $request->validate([
+            'maintenance_data_entry' => 'nullable|in:on,off',
+            'maintenance_admin_umum' => 'nullable|in:on,off',
+            'maintenance_enumerator_api' => 'nullable|in:on,off',
+        ]);
+
+        $flagDataEntry = $request->input('maintenance_data_entry') === 'on' ? 'true' : 'false';
+        $flagAdminUmum = $request->input('maintenance_admin_umum') === 'on' ? 'true' : 'false';
+        $flagEnumApi = $request->input('maintenance_enumerator_api') === 'on' ? 'true' : 'false';
+
+        $updates = [
+            'MAINTENANCE_DATA_ENTRY' => $flagDataEntry,
+            'MAINTENANCE_ADMIN_UMUM' => $flagAdminUmum,
+            'MAINTENANCE_ENUMERATOR_API' => $flagEnumApi,
+        ];
+
+        $envPath = base_path('.env');
+
+        if (! file_exists($envPath)) {
+            return redirect()->back()->with('error', 'File .env tidak ditemukan.');
+        }
+
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES);
+        $output = [];
+        $handled = [];
+
+        foreach ($lines as $line) {
+            if (str_starts_with(trim($line), '#') || trim($line) === '') {
+                $output[] = $line;
+
+                continue;
+            }
+            if (str_contains($line, '=')) {
+                [$key] = explode('=', $line, 2);
+                $key = trim($key);
+                if (array_key_exists($key, $updates)) {
+                    $output[] = $key.'='.$updates[$key];
+                    $handled[$key] = true;
+
+                    continue;
+                }
+            }
+            $output[] = $line;
+        }
+
+        // Append keys belum ada di .env
+        foreach ($updates as $key => $value) {
+            if (! isset($handled[$key])) {
+                $output[] = $key.'='.$value;
+            }
+        }
+
+        file_put_contents($envPath, implode("\n", $output)."\n");
+
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {
+            // Abaikan jika gagal di hosting dengan restricted artisan
+        }
+
+        return redirect()->route('superadmin.settings.index')
+            ->with('success', 'Pengaturan maintenance berhasil diperbarui.')
+            ->with('_active_tab', 'maintenance');
     }
 }

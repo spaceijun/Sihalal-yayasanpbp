@@ -4,18 +4,17 @@ namespace App\Exports;
 
 use App\Models\DataLapangan;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Color;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Illuminate\Support\Facades\Request;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
+class DataLapangansExport implements FromCollection, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     protected $filters;
 
@@ -32,7 +31,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
         $query = DataLapangan::with(['enumerator.koordinator']);
 
         // Apply filters
-        if (!empty($this->filters['search'])) {
+        if (! empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('nama_pu', 'LIKE', "%{$search}%")
@@ -42,24 +41,21 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             });
         }
 
-        if (!empty($this->filters['status'])) {
+        if (! empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
-        if (!empty($this->filters['tanggal_dari'])) {
+        if (! empty($this->filters['tanggal_dari'])) {
             $query->whereDate('created_at', '>=', $this->filters['tanggal_dari']);
         }
 
-        if (!empty($this->filters['tanggal_sampai'])) {
+        if (! empty($this->filters['tanggal_sampai'])) {
             $query->whereDate('created_at', '<=', $this->filters['tanggal_sampai']);
         }
 
         return $query->orderBy('created_at', 'desc')->get();
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -69,6 +65,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             'Pendamping',
             'Nama PU',
             'Alamat',
+            'Nama Produk',
             'Status',
             'Status Pembayaran',
             'Email SiHalal',
@@ -76,7 +73,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
     }
 
     /**
-     * @var DataLapangan $dataLapangan
+     * @var DataLapangan
      */
     public function map($dataLapangan): array
     {
@@ -90,15 +87,13 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
             $dataLapangan->enumerator->nama_lengkap ?? 'N/A',
             $dataLapangan->nama_pu,
             $dataLapangan->alamat,
+            $dataLapangan->nama_produk,
             $dataLapangan->status,
             $dataLapangan->status_pembayaran,
             $dataLapangan->email_sihalal,
         ];
     }
 
-    /**
-     * @param Worksheet $sheet
-     */
     public function styles(Worksheet $sheet)
     {
         return [
@@ -107,7 +102,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '4472C4']
+                    'startColor' => ['rgb' => '4472C4'],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -127,7 +122,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 $sheet = $event->sheet->getDelegate();
 
                 // Auto-size columns
-                foreach (range('A', 'I') as $column) {
+                foreach (range('A', 'J') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
@@ -139,20 +134,20 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
 
                 // Apply conditional formatting based on status
                 for ($row = 2; $row <= $highestRow; $row++) {
-                    $status = $sheet->getCell('G' . $row)->getValue();
-                    $statusPembayaran = $sheet->getCell('H' . $row)->getValue();
+                    $status = $sheet->getCell('H'.$row)->getValue();
+                    $statusPembayaran = $sheet->getCell('I'.$row)->getValue();
 
-                    // Styling untuk kolom Status (kolom G)
+                    // Styling untuk kolom Status (kolom H)
                     $statusColor = $this->getStatusColor($status);
                     if ($statusColor) {
-                        $sheet->getStyle('G' . $row)->applyFromArray([
+                        $sheet->getStyle('H'.$row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => $statusColor]
+                                'startColor' => ['rgb' => $statusColor],
                             ],
                             'font' => [
                                 'bold' => true,
-                                'color' => ['rgb' => $this->getTextColor($status)]
+                                'color' => ['rgb' => $this->getTextColor($status)],
                             ],
                             'alignment' => [
                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -161,17 +156,17 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                         ]);
                     }
 
-                    // Styling untuk kolom Status Pembayaran (kolom H)
+                    // Styling untuk kolom Status Pembayaran (kolom I)
                     $pembayaranColor = $this->getStatusPembayaranColor($statusPembayaran);
                     if ($pembayaranColor) {
-                        $sheet->getStyle('H' . $row)->applyFromArray([
+                        $sheet->getStyle('I'.$row)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => $pembayaranColor]
+                                'startColor' => ['rgb' => $pembayaranColor],
                             ],
                             'font' => [
                                 'bold' => true,
-                                'color' => ['rgb' => $this->getTextColorPembayaran($statusPembayaran)]
+                                'color' => ['rgb' => $this->getTextColorPembayaran($statusPembayaran)],
                             ],
                             'alignment' => [
                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -181,7 +176,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                     }
 
                     // Center alignment untuk semua sel di row
-                    $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
+                    $sheet->getStyle('A'.$row.':J'.$row)->applyFromArray([
                         'alignment' => [
                             'vertical' => Alignment::VERTICAL_CENTER,
                         ],
@@ -189,7 +184,7 @@ class DataLapangansExport implements FromCollection, WithHeadings, WithMapping, 
                 }
 
                 // Add borders to all cells
-                $sheet->getStyle('A1:I' . $highestRow)->applyFromArray([
+                $sheet->getStyle('A1:J'.$highestRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,

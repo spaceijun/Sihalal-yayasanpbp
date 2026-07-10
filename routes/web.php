@@ -19,6 +19,8 @@ use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
+use App\Http\Controllers\Superadmin\PenarikanSaldoController;
+use App\Http\Controllers\DataEntry\TarikSaldoController;
 use App\Http\Controllers\Superadmin\DataEntryProgressController as SuperadminDataEntryProgressController;
 use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DeviceController;
@@ -143,12 +145,16 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
         Route::get('data-lapangans/check-email', [DataLapanganController::class, 'checkEmail'])->name('data-lapangans.check-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
-        // Tagihan Data Entry
+        // Tagihan Data Entry (riwayat saja, approve via menu Penarikan Saldo)
         Route::get('/penagihan', [DataEntryPenagihanController::class, 'index'])->name('penagihan.index');
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
         Route::post('/penagihan/{penagihan}/proses', [DataEntryPenagihanController::class, 'proses'])->name('penagihan.proses');
         Route::post('/penagihan/{penagihan}/tolak', [DataEntryPenagihanController::class, 'tolak'])->name('penagihan.tolak');
         Route::get('/penagihan/{penagihan}/receipt', [DataEntryPenagihanController::class, 'downloadReceipt'])->name('penagihan.receipt');
+        // Penarikan Saldo Data Entry
+        Route::get('/penarikan-saldo', [PenarikanSaldoController::class, 'index'])->name('penarikan-saldo.index');
+        Route::post('/penarikan-saldo/{penarikan}/setujui', [PenarikanSaldoController::class, 'setujui'])->name('penarikan-saldo.setujui');
+        Route::post('/penarikan-saldo/{penarikan}/tolak', [PenarikanSaldoController::class, 'tolak'])->name('penarikan-saldo.tolak');
         // Verifikators
         Route::resource('verifikators', VerifikatorController::class);
         Route::post('verifikators/{verifikator}/bayar', [VerifikatorController::class, 'bayar'])->name('verifikators.bayar');
@@ -419,6 +425,10 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
 
         // Ticket
         Route::resource('tickets', TicketsEntryController::class);
+
+        // Tarik Saldo
+        Route::get('tarik-saldo', [TarikSaldoController::class, 'index'])->name('tarik-saldo.index');
+        Route::post('tarik-saldo', [TarikSaldoController::class, 'store'])->name('tarik-saldo.store');
 
         // settings
         Route::get('manajemen-akun', [SettingAkunController::class, 'index'])->name('manajemen-akun.index');

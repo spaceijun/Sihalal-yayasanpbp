@@ -33,6 +33,13 @@
 </li>
 
 <li class="nav-item">
+    <a href="{{ url('data-entry/tarik-saldo') }}"
+        class="nav-link {{ $current_url == 'data-entry/tarik-saldo' ? 'active' : '' }}">
+        <i data-feather="dollar-sign"></i>Tarik Saldo
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ url('resep-makanan') }}" class="nav-link {{ $current_url == 'resep-makanan' ? 'active' : '' }}">
         <i data-feather="file-text"></i>Resep Makanan
     </a>

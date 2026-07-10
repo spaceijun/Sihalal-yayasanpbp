@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Models\Cashflow;
 use App\Models\DataEntryPenagihan;
+use App\Models\DataEntryPenarikan;
 use App\Services\KawuloHalalService;
 use App\Services\Superadmin\NotificationService;
 use App\Services\Superadmin\PdfService;
@@ -23,23 +24,28 @@ class DataEntryPenagihanController extends Controller
 
     public function index()
     {
-        $penagihans = DataEntryPenagihan::with(['dataEntry', 'user'])
+        $penagihans = DataEntryPenagihan::with(['dataEntry', 'user', 'penarikan'])
             ->latest()
             ->paginate(20);
 
         $totalMenunggu = DataEntryPenagihan::where('status', 'Menunggu')->count();
-        $totalDiproses = DataEntryPenagihan::where('status', 'Diproses')->count();
         $totalDibayar  = DataEntryPenagihan::where('status', 'Dibayar')->sum('nominal');
-        $totalDitolak  = DataEntryPenagihan::where('status', 'Ditolak')->count();
-        $routePrefix   = 'superadmin';
+
+        // Tagihan status 'Menunggu' yang belum pernah diajukan penarikan
+        // (tidak ada penarikan aktif yang mencakup tagihan tersebut)
+        $totalNominalBelumDiajukan = DataEntryPenagihan::where('status', 'Menunggu')
+            ->whereDoesntHave('penarikan', fn($q) => $q->whereIn('status', ['Menunggu', 'Diproses', 'Disetujui']))
+            ->sum('nominal');
+        $totalCountBelumDiajukan = DataEntryPenagihan::where('status', 'Menunggu')
+            ->whereDoesntHave('penarikan', fn($q) => $q->whereIn('status', ['Menunggu', 'Diproses', 'Disetujui']))
+            ->count();
 
         return view('superadmin.penagihan.index', compact(
             'penagihans',
             'totalMenunggu',
-            'totalDiproses',
             'totalDibayar',
-            'totalDitolak',
-            'routePrefix'
+            'totalNominalBelumDiajukan',
+            'totalCountBelumDiajukan'
         ));
     }
 

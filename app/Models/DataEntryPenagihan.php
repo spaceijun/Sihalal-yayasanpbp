@@ -43,4 +43,14 @@ class DataEntryPenagihan extends Model
     {
         return $this->hasMany(DataEntryPenagihanDetail::class);
     }
+
+    public function penarikan()
+    {
+        return $this->belongsToMany(
+            DataEntryPenarikan::class,
+            'data_entry_penarikan_penagihan',
+            'penagihan_id',
+            'penarikan_id'
+        );
+    }
 }

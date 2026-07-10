@@ -301,14 +301,21 @@
                         <i class="ri-receipt-line text-primary fs-18"></i>
                         <h5 class="card-title mb-0 fs-14 fw-semibold">Tagihan</h5>
                     </div>
-                    <div class="d-flex gap-2 flex-wrap">
+                    <div class="d-flex gap-2 flex-wrap align-items-center">
+                        @php $saldoBisaDitarik = $penagihans->where('status', 'Menunggu')->sum('nominal'); @endphp
+                        @if($saldoBisaDitarik > 0)
+                            <span class="badge bg-success-subtle text-success fs-11">
+                                <i class="ri-money-dollar-circle-line me-1"></i>Saldo bisa ditarik:
+                                <strong>Rp {{ number_format($saldoBisaDitarik, 0, ',', '.') }}</strong>
+                            </span>
+                            <a href="{{ route('data-entry.tarik-saldo.index') }}" class="btn btn-success btn-sm"
+                                style="border-radius: 8px; font-size:12px;">
+                                <i class="ri-arrow-down-circle-line me-1"></i>Tarik Saldo
+                            </a>
+                        @endif
                         <span class="badge bg-warning-subtle text-warning fs-11">
-                            <i class="ri-time-line me-1"></i>Pending:
+                            <i class="ri-time-line me-1"></i>Belum ditarik:
                             {{ $penagihans->where('status', 'Menunggu')->count() }}
-                        </span>
-                        <span class="badge bg-info-subtle text-info fs-11">
-                            <i class="ri-loader-2-line me-1"></i>Diproses:
-                            {{ $penagihans->where('status', 'Diproses')->count() }}
                         </span>
                         <span class="badge bg-success-subtle text-success fs-11">
                             <i class="ri-check-line me-1"></i>Dibayar:
@@ -376,13 +383,7 @@
                                                 @switch($penagihan->status)
                                                     @case('Menunggu')
                                                         <span class="badge bg-warning-subtle text-warning">
-                                                            <i class="ri-time-line me-1"></i>Pending
-                                                        </span>
-                                                    @break
-
-                                                    @case('Diproses')
-                                                        <span class="badge bg-info-subtle text-info">
-                                                            <i class="ri-loader-2-line me-1"></i>Diproses
+                                                            <i class="ri-time-line me-1"></i>Belum Ditarik
                                                         </span>
                                                     @break
 

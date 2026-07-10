@@ -104,6 +104,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/penarikan-saldo') }}"
+                        class="nav-link {{ $current_url == 'superadmin/penarikan-saldo' ? 'active' : '' }}">
+                        <i data-feather="dollar-sign"></i>Penarikan Saldo
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/arus-kas') }}"
                         class="nav-link {{ $current_url == 'superadmin/arus-kas' ? 'active' : '' }}">
                         <i data-feather="dollar-sign"></i>Cashflows

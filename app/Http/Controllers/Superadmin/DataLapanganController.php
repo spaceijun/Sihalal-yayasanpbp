@@ -55,16 +55,18 @@ class DataLapanganController extends Controller
             ->get();
 
         $paymentStats = [
-            'pending_count' => 0, 'pending_total' => 0,
-            'pengajuan_count' => 0, 'pengajuan_total' => 0,
-            'dibayar_count' => 0, 'dibayar_total' => 0,
+            'tidak_ada_pengajuan_count' => 0, 'tidak_ada_pengajuan_total' => 0,
+            'pengajuan_count'           => 0, 'pengajuan_total'           => 0,
+            'dibayar_count'             => 0, 'dibayar_total'             => 0,
+            'ditolak_count'             => 0, 'ditolak_total'             => 0,
         ];
         foreach ($allData as $item) {
             $tagihan = Carbon::parse($item->created_at)->lt($cutoff) ? 50000 : 60000;
-            $key = strtolower($item->status_pembayaran);
-            if (isset($paymentStats["{$key}_count"])) {
-                $paymentStats["{$key}_count"]++;
-                $paymentStats["{$key}_total"] += $tagihan;
+            $sp  = strtolower(str_replace(' ', '_', $item->status_pembayaran));
+            $key = "{$sp}_count";
+            if (isset($paymentStats[$key])) {
+                $paymentStats[$key]++;
+                $paymentStats["{$sp}_total"] += $tagihan;
             }
         }
 
@@ -129,11 +131,12 @@ class DataLapanganController extends Controller
             })
             ->addColumn('payment_badge', function ($dl) {
                 $map = [
-                    'PENDING' => '#D97706:#FEF3C7',
-                    'PENGAJUAN' => '#2563EB:#DBEAFE',
-                    'DIBAYAR' => '#16A34A:#DCFCE7',
+                    'TIDAK ADA PENGAJUAN' => '#6B7280:#F3F4F6',
+                    'PENGAJUAN'           => '#2563EB:#DBEAFE',
+                    'DIBAYAR'             => '#16A34A:#DCFCE7',
+                    'DITOLAK'             => '#DC2626:#FEE2E2',
                 ];
-                $sp = strtoupper($dl->status_pembayaran ?? 'PENDING');
+                $sp = strtoupper(trim($dl->status_pembayaran ?? 'TIDAK ADA PENGAJUAN'));
                 [$color, $bg] = explode(':', $map[$sp] ?? '#6B7280:#F3F4F6');
 
                 return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($sp).'</span>';
@@ -183,7 +186,7 @@ class DataLapanganController extends Controller
                 </div>';
             })
             ->addColumn('checkbox', function ($dl) {
-                if ($dl->status_pembayaran === 'PENGAJUAN') {
+                if ($dl->status_pembayaran === 'PENGAJUAN' && strtoupper($dl->status ?? '') === 'TERBIT SH') {
                     $enumeratorAktif = ($dl->enumerator_status ?? 'Aktif') === 'Aktif';
                     if ($enumeratorAktif) {
                         return '<input type="checkbox" class="row-checkbox adm-checkbox" value="'.e($dl->hashed_id).'">';
@@ -525,48 +528,26 @@ class DataLapanganController extends Controller
     }
 
     /**
-     * Admin Umum mengajukan pembayaran ke Superadmin (PENDING → PENGAJUAN).
+     * Superadmin: Tolak pengajuan pembayaran enumerator (PENGAJUAN → DITOLAK).
      */
-    public function ajukanPembayaran($hashedId): RedirectResponse
+    public function tolakPembayaran(Request $request, $hashedId): RedirectResponse
     {
+        $request->validate([
+            'keterangan_pembayaran' => 'required|string|max:500',
+        ]);
+
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
 
-        if ($dataLapangan->status !== 'TERBIT SH') {
-            return redirect()->back()->with('error', 'Hanya data berstatus TERBIT SH yang dapat diajukan.');
+        if ($dataLapangan->status_pembayaran !== 'PENGAJUAN') {
+            return redirect()->back()->with('warning', 'Hanya pengajuan dengan status PENGAJUAN yang dapat ditolak.');
         }
 
-        if ($dataLapangan->status_pembayaran !== 'PENDING') {
-            return redirect()->back()->with('warning', 'Status pembayaran sudah '.$dataLapangan->status_pembayaran.'.');
-        }
-
-        $dataLapangan->update(['status_pembayaran' => 'PENGAJUAN']);
-
-        return redirect()->back()->with('success', 'Pengajuan pembayaran berhasil dikirim ke Superadmin.');
-    }
-
-    /**
-     * Admin Umum — Blast ajukan semua data PENDING → PENGAJUAN.
-     */
-    public function bulkAjukanPembayaran(Request $request): JsonResponse
-    {
-        $data = DataLapangan::where('status', 'TERBIT SH')
-            ->where('status_pembayaran', 'PENDING')
-            ->get();
-
-        if ($data->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak ada data PENDING yang dapat diajukan.',
-            ], 422);
-        }
-
-        $updated = $data->each(fn ($d) => $d->update(['status_pembayaran' => 'PENGAJUAN']));
-
-        return response()->json([
-            'success' => true,
-            'message' => $data->count().' data berhasil diajukan ke Superadmin.',
-            'updated' => $data->count(),
+        $dataLapangan->update([
+            'status_pembayaran'    => 'DITOLAK',
+            'keterangan_pembayaran' => $request->keterangan_pembayaran,
         ]);
+
+        return redirect()->back()->with('warning', 'Pengajuan pembayaran telah ditolak dengan keterangan: '.$request->keterangan_pembayaran);
     }
 
     /**
@@ -576,10 +557,9 @@ class DataLapanganController extends Controller
     {
         $cutoff = \Carbon\Carbon::create(2026, 5, 1);
 
-        $items = DataLapangan::whereIn('status_pembayaran', ['PENDING', 'PENGAJUAN'])
+        $items = DataLapangan::where('status_pembayaran', 'PENGAJUAN')
             ->whereRaw('UPPER(status) = ?', ['TERBIT SH'])
             ->with('enumerator')
-            ->orderByRaw("FIELD(status_pembayaran, 'PENGAJUAN', 'PENDING')") // PENGAJUAN dulu
             ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($dl) use ($cutoff) {
@@ -587,30 +567,29 @@ class DataLapanganController extends Controller
                 $enumeratorStatus = $dl->enumerator->status ?? 'Aktif';
 
                 return [
-                    'hashed_id' => $dl->hashed_id,
-                    'no_registrasi' => $dl->no_registrasi,
-                    'nama_pu' => $dl->nama_pu,
-                    'nik' => $dl->nik,
-                    'pendamping' => $dl->enumerator->nama_lengkap ?? '-',
+                    'hashed_id'         => $dl->hashed_id,
+                    'no_registrasi'     => $dl->no_registrasi,
+                    'nama_pu'           => $dl->nama_pu,
+                    'nik'               => $dl->nik,
+                    'pendamping'        => $dl->enumerator->nama_lengkap ?? '-',
                     'enumerator_status' => $enumeratorStatus,
-                    'nominal' => $nominal,
-                    'nominal_fmt' => 'Rp '.number_format($nominal, 0, ',', '.'),
+                    'nominal'           => $nominal,
+                    'nominal_fmt'       => 'Rp '.number_format($nominal, 0, ',', '.'),
                     'status_pembayaran' => $dl->status_pembayaran,
+                    'catatan_enumerator' => $dl->keterangan_pembayaran,
                 ];
             })
             ->sortBy('pendamping')
             ->values();
 
-        // Hanya PENGAJUAN yang dihitung sebagai "siap approval" dan untuk total
-        $pengajuanItems = $items->filter(fn ($d) => $d['status_pembayaran'] === 'PENGAJUAN');
-        $total = $pengajuanItems->sum('nominal');
+        $total = $items->sum('nominal');
 
         return response()->json([
-            'success' => true,
-            'data' => $items,
-            'total' => $total,
+            'success'   => true,
+            'data'      => $items,
+            'total'     => $total,
             'total_fmt' => 'Rp '.number_format($total, 0, ',', '.'),
-            'count' => $pengajuanItems->count(), // badge hanya PENGAJUAN
+            'count'     => $items->count(),
         ]);
     }
 
@@ -621,10 +600,9 @@ class DataLapanganController extends Controller
     {
         $cutoff = \Carbon\Carbon::create(2026, 5, 1);
 
-        $items = DataLapangan::whereIn('status_pembayaran', ['PENDING', 'PENGAJUAN'])
+        $items = DataLapangan::where('status_pembayaran', 'PENGAJUAN')
             ->whereRaw('UPPER(status) = ?', ['TERBIT SH'])
             ->with('enumerator')
-            ->orderBy('status_pembayaran', 'asc')
             ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($dl) use ($cutoff) {
@@ -632,14 +610,14 @@ class DataLapanganController extends Controller
                 $enumeratorStatus = $dl->enumerator->status ?? 'Aktif';
 
                 return [
-                    'hashed_id' => $dl->hashed_id,
-                    'no_registrasi' => $dl->no_registrasi,
-                    'nama_pu' => $dl->nama_pu,
-                    'nik' => $dl->nik,
-                    'pendamping' => $dl->enumerator->nama_lengkap ?? '-',
+                    'hashed_id'         => $dl->hashed_id,
+                    'no_registrasi'     => $dl->no_registrasi,
+                    'nama_pu'           => $dl->nama_pu,
+                    'nik'               => $dl->nik,
+                    'pendamping'        => $dl->enumerator->nama_lengkap ?? '-',
                     'enumerator_status' => $enumeratorStatus,
-                    'nominal' => $nominal,
-                    'nominal_fmt' => 'Rp '.number_format($nominal, 0, ',', '.'),
+                    'nominal'           => $nominal,
+                    'nominal_fmt'       => 'Rp '.number_format($nominal, 0, ',', '.'),
                     'status_pembayaran' => $dl->status_pembayaran,
                 ];
             })

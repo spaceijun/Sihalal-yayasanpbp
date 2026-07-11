@@ -71,6 +71,7 @@ class DataLapangan extends Model
         'verifikator_id',
         'tanggal_verifikasi',
         'status_pembayaran',
+        'keterangan_pembayaran',
         'file_oss',
         'has_nib',
         'file_sihalal',
@@ -87,6 +88,7 @@ class DataLapangan extends Model
 
     protected $attributes = [
         'is_unlocked_for_data_entry' => true,
+        'status_pembayaran'          => 'TIDAK ADA PENGAJUAN',
     ];
 
     protected $casts = [

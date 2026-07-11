@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Enumerator\HomeApiController;
 use App\Http\Controllers\Api\Enumerator\PengumumanEnumController;
 use App\Http\Controllers\Api\Enumerator\TicketController as EnumeratorTicketController;
 use App\Http\Controllers\Api\Enumerator\DataBankEnumeratorController;
+use App\Http\Controllers\Api\Enumerator\TarikSaldoEnumController;
 use App\Http\Controllers\Api\FcmController;
 use App\Http\Controllers\Api\RankingPendampingApiController;
 use App\Http\Controllers\Api\RingkasanController;
@@ -143,6 +144,18 @@ Route::middleware([
             Route::get('/',    [EnumeratorTicketController::class, 'index'])->name('index');
             Route::post('/',   [EnumeratorTicketController::class, 'store'])->name('store');
             Route::get('/{id}', [EnumeratorTicketController::class, 'show'])->name('show');
+        });
+
+        // Tarik Saldo (Pengajuan Pembayaran Mandiri)
+        Route::prefix('tarik-saldo')->name('tarik-saldo.')->group(function () {
+            // Ringkasan saldo
+            Route::get('/summary',  [TarikSaldoEnumController::class, 'summary'])->name('summary');
+            // Data yang bisa diajukan (TERBIT SH + TIDAK ADA PENGAJUAN)
+            Route::get('/eligible', [TarikSaldoEnumController::class, 'eligible'])->name('eligible');
+            // Riwayat pengajuan (PENGAJUAN / DIBAYAR / DITOLAK)
+            Route::get('/riwayat',  [TarikSaldoEnumController::class, 'riwayat'])->name('riwayat');
+            // Ajukan penarikan untuk satu data lapangan
+            Route::post('/{id}',    [TarikSaldoEnumController::class, 'ajukan'])->name('ajukan');
         });
     });
 });

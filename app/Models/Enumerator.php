@@ -34,7 +34,43 @@ class Enumerator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id', 'koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status', 'bank_id', 'no_rekening', 'nama_rekening'];
+    protected $fillable = ['user_id', 'koordinator_id', 'nama_lengkap', 'telephone', 'foto_diri', 'no_registrasi', 'alamat', 'status', 'bank_id', 'no_rekening', 'nama_rekening', 'last_pengajuan_at'];
+
+    protected $casts = [
+        'last_pengajuan_at' => 'datetime',
+    ];
+
+    /**
+     * Cek apakah enumerator boleh melakukan pengajuan tarik saldo.
+     * Syarat: status Aktif & last_pengajuan_at > 7 hari yang lalu (atau belum pernah ajukan).
+     */
+    public function bisaAjukan(): bool
+    {
+        if ($this->status !== 'Aktif') {
+            return false;
+        }
+
+        if (! $this->last_pengajuan_at) {
+            return true;
+        }
+
+        return $this->last_pengajuan_at->diffInDays(now()) >= 7;
+    }
+
+    /**
+     * Sisa hari cooldown sebelum enumerator bisa ajukan lagi.
+     * Mengembalikan 0 jika sudah bisa ajukan.
+     */
+    public function sisaHariCooldown(): int
+    {
+        if (! $this->last_pengajuan_at) {
+            return 0;
+        }
+
+        $selisih = $this->last_pengajuan_at->diffInDays(now());
+
+        return $selisih >= 7 ? 0 : (int) (7 - $selisih);
+    }
 
 
     /**

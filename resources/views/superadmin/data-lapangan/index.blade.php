@@ -56,20 +56,21 @@
         </div>
 
         {{-- ── STATS / SUMMARY CARDS ── --}}
-        <div class="adm-stats" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
-            {{-- PENDING --}}
-            <div class="adm-stat" style="border-top: 4px solid var(--adm-amber); position: relative; overflow: hidden;">
-                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: var(--adm-amber);">
+        <div class="adm-stats" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+            {{-- TIDAK ADA PENGAJUAN --}}
+            <div class="adm-stat" style="border-top: 4px solid #94A3B8; position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: #94A3B8;">
                     <svg viewBox="0 0 24 24"
                         style="width: 54px; height: 54px; fill: none; stroke: currentColor; stroke-width: 2.5;">
                         <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                 </div>
-                <div class="adm-stat-label" style="color: var(--adm-amber); font-weight: 700;">Pending</div>
-                <div class="adm-stat-value is-warn" style="font-size: 28px;">{{ $paymentStats['pending_count'] }}</div>
+                <div class="adm-stat-label" style="color: #64748B; font-weight: 700;">Belum Diajukan</div>
+                <div class="adm-stat-value" style="color: #64748B; font-size: 28px;">{{ $paymentStats['tidak_ada_pengajuan_count'] }}</div>
                 <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
-                    Rp {{ number_format($paymentStats['pending_total'], 0, ',', '.') }}
+                    Rp {{ number_format($paymentStats['tidak_ada_pengajuan_total'], 0, ',', '.') }}
                 </div>
             </div>
 
@@ -107,6 +108,23 @@
                     Rp {{ number_format($paymentStats['dibayar_total'], 0, ',', '.') }}
                 </div>
             </div>
+
+            {{-- DITOLAK --}}
+            <div class="adm-stat" style="border-top: 4px solid var(--adm-rose); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 12px; top: 12px; opacity: 0.08; color: var(--adm-rose);">
+                    <svg viewBox="0 0 24 24"
+                        style="width: 54px; height: 54px; fill: none; stroke: currentColor; stroke-width: 2.5;">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                </div>
+                <div class="adm-stat-label" style="color: var(--adm-rose); font-weight: 700;">Ditolak</div>
+                <div class="adm-stat-value" style="color: var(--adm-rose); font-size: 28px;">{{ $paymentStats['ditolak_count'] }}</div>
+                <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
+                    Rp {{ number_format($paymentStats['ditolak_total'], 0, ',', '.') }}
+                </div>
+            </div>
         </div>
 
         {{-- ── BULK ACTION BAR (Superadmin: Tandai Dibayar) ── --}}
@@ -132,34 +150,7 @@
             </div>
         @endif
 
-        {{-- ── BULK ACTION BAR (Admin Umum: Blast Ajukan) ── --}}
-        @if ($routePrefix === 'admin-umum')
-            <div id="bulkAjukanBar"
-                style="display:flex;align-items:center;gap:12px;padding:12px 18px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--adm-radius);margin-bottom:16px;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#1A5FC8;stroke-width:2.2;">
-                        <path d="M22 2L11 13" />
-                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                    </svg>
-                    <span style="font-weight:600;color:#1E40AF;font-size:13px;">Blast Ajukan Pembayaran ke
-                        Bagian Keuangan</span>
-                    <span style="font-size:12px;color:#3B82F6;">— semua data yang status TERBIT SH tetapi belum DIBAYAR
-                        akan diajukan
-                        sekaligus</span>
-                </div>
-                <div style="margin-left:auto;">
-                    <button id="btnBlastAjukan" class="adm-btn"
-                        style="font-size:12px;padding:0 16px;height:34px;background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;border:none;gap:6px;">
-                        <svg viewBox="0 0 24 24"
-                            style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;">
-                            <path d="M22 2L11 13" />
-                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                        </svg>
-                        Ajukan Semua
-                    </button>
-                </div>
-            </div>
-        @endif
+        {{-- ── BULK ACTION BAR (Admin Umum: Blast Ajukan) — DIHAPUS, kini enumerator ajukan mandiri --}}
 
         {{-- ── CARD CONTAINER ── --}}
         <div class="adm-card">
@@ -201,13 +192,14 @@
                     </select>
                 </div>
                 {{-- Status Pembayaran --}}
-                <div class="adm-filter-group" style="min-width: 150px;">
+                <div class="adm-filter-group" style="min-width: 175px;">
                     <label class="adm-filter-label">Status Pembayaran</label>
                     <select id="filterPayment" class="adm-select" style="width: 100%;">
                         <option value="">Semua</option>
-                        <option value="PENDING">Pending</option>
+                        <option value="TIDAK ADA PENGAJUAN">Belum Diajukan</option>
                         <option value="PENGAJUAN">Pengajuan</option>
                         <option value="DIBAYAR">Dibayar</option>
+                        <option value="DITOLAK">Ditolak</option>
                     </select>
                 </div>
                 {{-- Reset Button --}}
@@ -291,6 +283,7 @@
                                         <th>Nama PU</th>
                                         <th>NIK</th>
                                         <th>Pendamping</th>
+                                        <th>Catatan Enumerator</th>
                                         <th class="tc">Nominal Tagihan</th>
                                     </tr>
                                 </thead>
@@ -405,67 +398,7 @@
         </div>
     @endif
 
-    {{-- ── MODAL BULK AJUKAN (Admin Umum) ── --}}
-    @if ($routePrefix === 'admin-umum')
-        <div id="modalBulkAjukan" class="modal fade" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
-                <div class="modal-content"
-                    style="border:none;border-radius:var(--adm-radius);box-shadow:0 15px 30px rgba(0,0,0,0.15);overflow:hidden;">
-                    <div class="modal-header"
-                        style="background:#fff;border-bottom:1px solid var(--adm-border);padding:16px 20px;">
-                        <h5 class="modal-title"
-                            style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--adm-text-dark);display:flex;align-items:center;gap:8px;">
-                            <svg viewBox="0 0 24 24"
-                                style="width:20px;height:20px;stroke:#1A5FC8;fill:none;stroke-width:2.2;">
-                                <path d="M22 2L11 13" />
-                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                            </svg>
-                            Konfirmasi Pengajuan
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                            style="font-size:12px;opacity:0.6;"></button>
-                    </div>
-                    <div class="modal-body" style="padding:24px 20px;background:#fcfdfe;">
-                        <div style="text-align:center;margin-bottom:16px;">
-                            <div
-                                style="width:48px;height:48px;border-radius:50%;background:rgba(26,95,200,0.1);color:#1A5FC8;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
-                                <svg viewBox="0 0 24 24"
-                                    style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;">
-                                    <path d="M22 2L11 13" />
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                                </svg>
-                            </div>
-                            <p style="margin:0;font-size:14px;color:var(--adm-text-dark);font-weight:600;">Ajukan Semua
-                                Pembayaran</p>
-                            <p style="margin:4px 0 0;font-size:12.5px;color:var(--adm-text-muted);line-height:1.5;">
-                                Anda akan mengajukan semua data pembayaran berstatus <strong>TERBIT SH</strong> tetapi belum
-                                DIBAYAR ke
-                                Bagian Keuangan.
-                            </p>
-                        </div>
-                        <div
-                            style="background:#fff;border:1px dashed var(--adm-border-mid);border-radius:8px;padding:12px 14px;font-size:11.5px;color:var(--adm-text-muted);line-height:1.6;">
-                            <span
-                                style="font-weight:700;color:var(--adm-text-dark);display:block;margin-bottom:2px;">Catatan
-                                Penting:</span>
-                            Data yang diajukan akan masuk ke antrean approval bagian Keuangan dan status pembayarannya
-                            berubah
-                            menjadi <strong>PENGAJUAN</strong>.
-                        </div>
-                    </div>
-                    <div class="modal-footer"
-                        style="background:#fff;border-top:1px solid var(--adm-border);padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">
-                        <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal"
-                            style="height:34px;font-size:12.5px;">Batal</button>
-                        <button type="button" id="btnConfirmBulkAjukan" class="adm-btn"
-                            style="background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;box-shadow:0 2px 8px rgba(26,95,200,0.2);height:34px;font-size:12.5px;border:none;">
-                            Ya, Ajukan Semua
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+    {{-- Modal Bulk Ajukan Admin Umum — DIHAPUS (pengajuan kini mandiri oleh enumerator via Flutter API) --}}
 
     @push('scripts')
         <script>
@@ -814,31 +747,25 @@
                             return;
                         }
                         tbody.innerHTML = items.map((d, i) => {
-                            const isPending = d.status_pembayaran === 'PENDING';
                             const isInaktif = d.enumerator_status === 'Tidak Aktif';
 
-                            // HOLD jika status_pembayaran masih PENDING (belum diajukan)
-                            const checkboxCell = isPending ?
-                                `<span title="Data masih PENDING — belum diajukan ke keuangan" style="font-size:11px;color:#D97706;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
-                                isInaktif ?
-                                `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
-                                `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
+                            const checkboxCell = isInaktif
+                                ? `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>`
+                                : `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
 
-                            const rowStyle = isPending ? 'background:#FFFBEB;' :
-                                isInaktif ? 'background:#FFF5F5;' :
-                                '';
+                            const rowStyle   = isInaktif ? 'background:#FFF5F5;' : '';
 
-                            const statusLabel = isPending ?
-                                `<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#D97706;border:1px solid #D9770633;border-radius:4px;padding:1px 5px;">PENDING</span>` :
-                                isInaktif ?
-                                `<span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>` :
-                                `<span style="font-size:10px;font-weight:700;background:#DBEAFE;color:#2563EB;border:1px solid #2563EB33;border-radius:4px;padding:1px 5px;">PENGAJUAN</span>`;
+                            const statusLabel = isInaktif
+                                ? `<span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>`
+                                : `<span style="font-size:10px;font-weight:700;background:#DBEAFE;color:#2563EB;border:1px solid #2563EB33;border-radius:4px;padding:1px 5px;">PENGAJUAN</span>`;
 
-                            const nominalCell = isPending ?
-                                `<em style="font-size:11px;color:#D97706;">Belum Diajukan</em>` :
-                                isInaktif ?
-                                `<em style="font-size:11px;color:#94A3B8;">Ditahan</em>` :
-                                `<span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span>`;
+                            const nominalCell = isInaktif
+                                ? `<em style="font-size:11px;color:#94A3B8;">Ditahan</em>`
+                                : `<span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span>`;
+
+                            const catatanCell = d.catatan_enumerator
+                                ? `<span style="font-size:12px;color:#475569;font-style:italic;">${d.catatan_enumerator}</span>`
+                                : `<span style="color:#CBD5E1;font-size:11px;">—</span>`;
 
                             return `
                             <tr style="${rowStyle}">
@@ -848,6 +775,7 @@
                                 <td style="font-weight:600;">${d.nama_pu}</td>
                                 <td style="font-family:monospace;font-size:12px;">${d.nik}</td>
                                 <td style="font-size:12px;">${d.pendamping} ${statusLabel}</td>
+                                <td style="font-size:12px;max-width:160px;">${catatanCell}</td>
                                 <td class="tc">${nominalCell}</td>
                             </tr>`;
                         }).join('');
@@ -928,45 +856,7 @@
                     window.updateBulkBar = function() {};
                 }
 
-                // ── Blast Ajukan Pembayaran (Admin Umum only) ──
-                const btnBlastAjukan = document.getElementById('btnBlastAjukan');
-                if (btnBlastAjukan) {
-                    const BLAST_URL =
-                        '{{ $routePrefix === 'admin-umum' ? route('admin-umum.data-lapangans.bulk-ajukan-pembayaran') : '#' }}';
-                    const modalBulkAjukan = new bootstrap.Modal(document.getElementById('modalBulkAjukan'));
-                    const btnConfirmBulkAjukan = document.getElementById('btnConfirmBulkAjukan');
-
-                    btnBlastAjukan.addEventListener('click', function() {
-                        modalBulkAjukan.show();
-                    });
-
-                    btnConfirmBulkAjukan.addEventListener('click', async function() {
-                        modalBulkAjukan.hide();
-                        btnBlastAjukan.disabled = true;
-                        btnBlastAjukan.innerHTML =
-                            '<span class="spinner-border spinner-border-sm"></span> Mengajukan...';
-                        try {
-                            const res = await fetch(BLAST_URL, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': getCsrfToken()
-                                },
-                                credentials: 'same-origin'
-                            });
-                            const data = await res.json();
-                            alert(data.message || (data.success ? 'Berhasil!' : 'Gagal'));
-                            if (data.success) table.ajax.reload(null, false);
-                        } catch {
-                            alert('Terjadi kesalahan');
-                        } finally {
-                            btnBlastAjukan.disabled = false;
-                            btnBlastAjukan.innerHTML =
-                                '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ajukan Semua';
-                        }
-                    });
-                }
+                // Blast Ajukan Pembayaran Admin Umum — DIHAPUS (pengajuan mandiri via Flutter API)
             });
         </script>
     @endpush

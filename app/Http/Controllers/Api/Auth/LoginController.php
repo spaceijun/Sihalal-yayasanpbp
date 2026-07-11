@@ -22,8 +22,9 @@ class LoginController extends Controller
         // Revoke old tokens (optional: single session)
         $user->tokens()->delete();
 
-        // Create new token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Token enumerator berlaku 7 hari; role lain ikut expiration global Sanctum
+        $expiresAt = $user->role === 'enumerator' ? now()->addDays(7) : null;
+        $token     = $user->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
 
         return response()->json([
             'status'  => true,
@@ -37,6 +38,7 @@ class LoginController extends Controller
                 ],
                 'token'        => $token,
                 'token_type'   => 'Bearer',
+                'expires_at'   => $expiresAt?->toDateTimeString(),   // null = ikut global Sanctum
                 'redirect_url' => $this->getRedirectUrl($user->role),
             ],
         ], 200);

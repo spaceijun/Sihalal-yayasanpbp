@@ -145,6 +145,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
         Route::get('data-lapangans/check-email', [DataLapanganController::class, 'checkEmail'])->name('data-lapangans.check-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
+        // Tolak pengajuan pembayaran enumerator (Superadmin)
+        Route::post('/data-lapangans/{id}/tolak-pembayaran', [DataLapanganController::class, 'tolakPembayaran'])->name('data-lapangans.tolak-pembayaran');
         // Tagihan Data Entry (riwayat saja, approve via menu Penarikan Saldo)
         Route::get('/penagihan', [DataEntryPenagihanController::class, 'index'])->name('penagihan.index');
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
@@ -300,8 +302,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
-        Route::post('/data-lapangans/{id}/ajukan-pembayaran', [DataLapanganController::class, 'ajukanPembayaran'])->name('data-lapangans.ajukan-pembayaran');
-        Route::post('/data-lapangans/bulk-ajukan-pembayaran', [DataLapanganController::class, 'bulkAjukanPembayaran'])->name('data-lapangans.bulk-ajukan-pembayaran');
+        // Catatan: Fitur ajukanPembayaran dihapus — pengajuan dilakukan mandiri oleh enumerator via Flutter API
 
         // Laporan Harian
         Route::get('laporan-harian', [LaporanHarianController::class, 'index'])->name('laporan-harian.index');

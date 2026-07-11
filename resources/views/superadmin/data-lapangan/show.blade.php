@@ -16,12 +16,13 @@
             'REVISI' => 'dl-badge-revisi',
         ];
         $bayarBadgeMap = [
-            'PENDING' => 'dl-badge-pending',
-            'PENGAJUAN' => 'dl-badge-pengajuan',
-            'DIBAYAR' => 'dl-badge-dibayar',
+            'TIDAK ADA PENGAJUAN' => 'dl-badge-pending',
+            'PENGAJUAN'           => 'dl-badge-pengajuan',
+            'DIBAYAR'             => 'dl-badge-dibayar',
+            'DITOLAK'             => 'dl-badge-ditolak',
         ];
         $statusBadge = $statusBadgeMap[$dataLapangan->status] ?? 'dl-badge-ditolak';
-        $bayarBadge = $bayarBadgeMap[$dataLapangan->status_pembayaran] ?? 'dl-badge-pending';
+        $bayarBadge  = $bayarBadgeMap[$dataLapangan->status_pembayaran] ?? 'dl-badge-pending';
 
         // Kumpulkan semua produk (utama + tambahan yang tidak null)
         $allProducts = [];
@@ -144,36 +145,54 @@
                             </div>
                         @endif
 
-                        {{-- Tombol Ajukan Pembayaran (Admin Umum, TERBIT SH + PENDING) --}}
-                        @if (
-                            $dataLapangan->status === 'TERBIT SH' &&
-                                $dataLapangan->status_pembayaran === 'PENDING' &&
-                                Auth::user()->role === 'admin_umum')
-                            <div class="dl-actions-group" style="margin-bottom:1rem;">
-                                <form
-                                    action="{{ route('admin-umum.data-lapangans.ajukan-pembayaran', $dataLapangan->hashed_id) }}"
-                                    method="POST" onsubmit="return confirm('Ajukan data pembayaran ini ke Superadmin?')">
-                                    @csrf
-                                    <button type="submit" class="dl-btn dl-btn-primary">
-                                        <i class="las la-paper-plane"></i> Ajukan Pembayaran ke Superadmin
-                                    </button>
-                                </form>
+                        {{-- Info Status Pembayaran --}}
+                        @if ($dataLapangan->status !== 'TERBIT SH')
+                            {{-- Belum TERBIT SH: tidak ada pengajuan --}}
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-info-circle" style="color:#94A3B8;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#64748B;">Pengajuan pembayaran belum tersedia — data belum berstatus <strong>TERBIT SH</strong>.</div>
+                            </div>
+                        @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'TIDAK ADA PENGAJUAN')
+                            {{-- TERBIT SH tapi belum diajukan enumerator --}}
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-hourglass-half" style="color:#D97706;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#78350F;"><strong>Menunggu Pengajuan</strong> — Enumerator belum mengajukan penarikan saldo untuk data ini.</div>
                             </div>
                         @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'PENGAJUAN')
-                            <div
-                                style="display:flex;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:1rem;">
-                                <i class="las la-clock"
-                                    style="color:#2563EB;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
-                                <div style="font-size:13px;color:#1E40AF;"><strong>Menunggu Persetujuan</strong> — Pengajuan
-                                    pembayaran sudah dikirim ke Superadmin.</div>
+                            {{-- PENGAJUAN: menunggu superadmin --}}
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-clock" style="color:#2563EB;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#1E40AF;">
+                                    <strong>Menunggu Persetujuan</strong> — Enumerator telah mengajukan penarikan saldo.
+                                    @if ($dataLapangan->keterangan_pembayaran)
+                                        <div style="margin-top:4px;">Catatan Enumerator: <em>{{ $dataLapangan->keterangan_pembayaran }}</em></div>
+                                    @endif
+                                </div>
                             </div>
+                            {{-- Tombol Tolak Pembayaran (hanya Superadmin) --}}
+                            @if (Auth::user()->role === 'superadmin')
+                                <div style="margin-bottom:1rem;">
+                                    <button type="button" class="dl-btn dl-btn-danger" data-bs-toggle="modal" data-bs-target="#modalTolakPembayaran">
+                                        <i class="las la-times-circle"></i> Tolak Pengajuan
+                                    </button>
+                                </div>
+                            @endif
                         @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'DIBAYAR')
-                            <div
-                                style="display:flex;gap:10px;padding:12px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1rem;">
-                                <i class="las la-check-circle"
-                                    style="color:#059669;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
-                                <div style="font-size:13px;color:#065F46;"><strong>Pembayaran Lunas</strong> — Superadmin
-                                    telah menyetujui pembayaran.</div>
+                            {{-- DIBAYAR --}}
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-check-circle" style="color:#059669;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#065F46;"><strong>Pembayaran Lunas</strong> — Superadmin telah menyetujui dan memproses pembayaran.</div>
+                            </div>
+                        @elseif ($dataLapangan->status === 'TERBIT SH' && $dataLapangan->status_pembayaran === 'DITOLAK')
+                            {{-- DITOLAK --}}
+                            <div style="display:flex;gap:10px;padding:12px 14px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;margin-bottom:1rem;">
+                                <i class="las la-times-circle" style="color:#DC2626;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                                <div style="font-size:13px;color:#7F1D1D;">
+                                    <strong>Pengajuan Ditolak</strong> — Superadmin menolak pengajuan penarikan ini.
+                                    @if ($dataLapangan->keterangan_pembayaran)
+                                        <div style="margin-top:4px;">Alasan: <em>{{ $dataLapangan->keterangan_pembayaran }}</em></div>
+                                    @endif
+                                </div>
                             </div>
                         @endif
 
@@ -703,6 +722,57 @@
     {{-- ══════════════════════════════════════ --}}
     {{-- MODALS                                --}}
     {{-- ══════════════════════════════════════ --}}
+
+    {{-- Modal Tolak Pembayaran (Superadmin) --}}
+    @if (Auth::user()->role === 'superadmin')
+    <div class="modal fade dl-modal" id="modalTolakPembayaran" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="las la-times-circle" style="color:var(--dl-rose);"></i>
+                        Tolak Pengajuan Pembayaran
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('superadmin.data-lapangans.tolak-pembayaran', $dataLapangan->hashed_id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div style="display:flex;gap:10px;padding:12px 14px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;margin-bottom:1rem;">
+                            <i class="las la-exclamation-triangle" style="color:#DC2626;font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+                            <div style="font-size:13px;color:#7F1D1D;">
+                                <strong>Perhatian!</strong> Tindakan ini akan menolak pengajuan penarikan dari enumerator
+                                <strong>{{ $dataLapangan->enumerator->nama_lengkap ?? '-' }}</strong>
+                                untuk data <strong>{{ $dataLapangan->nama_pu }}</strong>.
+                                Keterangan penolakan akan ditampilkan di aplikasi enumerator.
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dl-muted);display:block;margin-bottom:6px;">
+                                Keterangan Penolakan <span style="color:var(--dl-rose);">*</span>
+                            </label>
+                            <textarea
+                                name="keterangan_pembayaran"
+                                class="dl-textarea"
+                                rows="3"
+                                placeholder="Contoh: Dokumen tidak lengkap, silakan lengkapi terlebih dahulu..."
+                                required
+                                maxlength="500"></textarea>
+                            <p style="font-size:11px;color:var(--dl-muted);margin:4px 0 0;">Maks 500 karakter. Keterangan ini akan terlihat oleh enumerator.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="dl-btn dl-btn-danger"
+                            onclick="return confirm('Yakin ingin menolak pengajuan pembayaran ini?')">
+                            <i class="las la-times-circle"></i> Tolak Pengajuan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Modal Update Email & Verifikasi --}}
     <div class="modal fade dl-modal" id="modalUpdateEmail" tabindex="-1" aria-hidden="true">

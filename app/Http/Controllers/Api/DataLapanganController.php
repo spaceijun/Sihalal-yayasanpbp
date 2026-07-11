@@ -420,7 +420,7 @@ class DataLapanganController extends Controller
     private function validateStatusPaymentRequest(Request $request)
     {
         return Validator::make($request->all(), [
-            'status_pembayaran' => 'required|in:PENDING,PENGAJUAN,DIBAYAR'
+            'status_pembayaran' => 'required|in:TIDAK ADA PENGAJUAN,PENGAJUAN,DIBAYAR,DITOLAK'
         ]);
     }
 

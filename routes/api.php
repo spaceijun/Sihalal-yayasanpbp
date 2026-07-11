@@ -149,13 +149,15 @@ Route::middleware([
         // Tarik Saldo (Pengajuan Pembayaran Mandiri)
         Route::prefix('tarik-saldo')->name('tarik-saldo.')->group(function () {
             // Ringkasan saldo
-            Route::get('/summary',  [TarikSaldoEnumController::class, 'summary'])->name('summary');
+            Route::get('/summary',      [TarikSaldoEnumController::class, 'summary'])->name('summary');
             // Data yang bisa diajukan (TERBIT SH + TIDAK ADA PENGAJUAN)
-            Route::get('/eligible', [TarikSaldoEnumController::class, 'eligible'])->name('eligible');
+            Route::get('/eligible',     [TarikSaldoEnumController::class, 'eligible'])->name('eligible');
             // Riwayat pengajuan (PENGAJUAN / DIBAYAR / DITOLAK)
-            Route::get('/riwayat',  [TarikSaldoEnumController::class, 'riwayat'])->name('riwayat');
-            // Ajukan penarikan untuk satu data lapangan
-            Route::post('/{id}',    [TarikSaldoEnumController::class, 'ajukan'])->name('ajukan');
+            Route::get('/riwayat',      [TarikSaldoEnumController::class, 'riwayat'])->name('riwayat');
+            // Ajukan semua data yang eligible sekaligus (bulk)
+            Route::post('/ajukan-semua',[TarikSaldoEnumController::class, 'ajukanSemua'])->name('ajukan-semua');
+            // Ajukan penarikan untuk satu data lapangan (opsional, tetap tersedia)
+            Route::post('/{id}',        [TarikSaldoEnumController::class, 'ajukan'])->name('ajukan');
         });
     });
 });

@@ -264,12 +264,134 @@ class TarikSaldoEnumController extends Controller
     }
 
     /**
+     * POST /api/enumerator/tarik-saldo/ajukan-semua
+     *
+     * Enumerator mengajukan SEMUA data lapangan yang eligible sekaligus.
+     * Body (opsional):
+     *   - catatan : string (max:500) — catatan umum dari enumerator
+     *
+     * Validasi sama dengan ajukan() tunggal:
+     *   - Enumerator harus berstatus Aktif
+     *   - Cooldown: hanya bisa ajukan 1x dalam 7 hari
+     */
+    public function ajukanSemua(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $enumerator = Auth::user()->enumerator;
+
+            if (! $enumerator) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Data enumerator tidak ditemukan.',
+                ], 404);
+            }
+
+            // ── Guard 1: Enumerator harus berstatus Aktif ──────────────────────
+            if ($enumerator->status !== 'Aktif') {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Akun Anda saat ini berstatus Tidak Aktif. Pengajuan penarikan saldo tidak dapat dilakukan. Hubungi admin untuk informasi lebih lanjut.',
+                    'kode'    => 'ENUMERATOR_TIDAK_AKTIF',
+                ], 403);
+            }
+
+            // ── Guard 2: Cooldown 7 hari ────────────────────────────────────────
+            if (! $enumerator->bisaAjukan()) {
+                $nextDate = $enumerator->last_pengajuan_at->addDays(7);
+
+                return response()->json([
+                    'status'            => false,
+                    'message'           => 'Pengajuan penarikan hanya bisa dilakukan sekali dalam 7 hari. Anda melakukan pengajuan terakhir pada '
+                        . $enumerator->last_pengajuan_at->translatedFormat('d M Y')
+                        . '. Pengajuan berikutnya dapat dilakukan mulai '
+                        . $nextDate->translatedFormat('d M Y') . '.',
+                    'kode'              => 'COOLDOWN_AKTIF',
+                    'last_pengajuan_at' => $enumerator->last_pengajuan_at->toDateTimeString(),
+                    'next_pengajuan_at' => $nextDate->toDateTimeString(),
+                    'sisa_hari'         => $enumerator->sisaHariCooldown(),
+                ], 429);
+            }
+
+            // ── Ambil semua data yang eligible ─────────────────────────────────
+            $cutoff   = Carbon::create(2026, 5, 1);
+            $eligibles = DataLapangan::where('enumerator_id', $enumerator->id)
+                ->where('status', 'TERBIT SH')
+                ->where('status_pembayaran', 'TIDAK ADA PENGAJUAN')
+                ->get();
+
+            if ($eligibles->isEmpty()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Tidak ada data lapangan yang bisa diajukan saat ini. Semua data sudah diajukan atau belum berstatus TERBIT SH.',
+                    'kode'    => 'TIDAK_ADA_ELIGIBLE',
+                ], 422);
+            }
+
+            // ── Bulk update ke PENGAJUAN ────────────────────────────────────────
+            $diajukan = [];
+            $totalNominal = 0;
+
+            foreach ($eligibles as $dl) {
+                $dl->update([
+                    'status_pembayaran'     => 'PENGAJUAN',
+                    'keterangan_pembayaran' => $request->catatan ?? null,
+                ]);
+
+                $nominal       = Carbon::parse($dl->created_at)->lt($cutoff) ? 50000 : 60000;
+                $totalNominal += $nominal;
+
+                $diajukan[] = [
+                    'id'            => $dl->id,
+                    'no_registrasi' => $dl->no_registrasi,
+                    'nama_pu'       => $dl->nama_pu,
+                    'nominal'       => $nominal,
+                    'nominal_fmt'   => 'Rp ' . number_format($nominal, 0, ',', '.'),
+                ];
+            }
+
+            // ── Update cooldown setelah semua berhasil ──────────────────────────
+            $enumerator->update(['last_pengajuan_at' => now()]);
+
+            return response()->json([
+                'status'             => true,
+                'message'            => 'Berhasil mengajukan ' . count($diajukan) . ' data lapangan sekaligus. Menunggu persetujuan superadmin.',
+                'total_diajukan'     => count($diajukan),
+                'total_nominal'      => $totalNominal,
+                'total_nominal_fmt'  => 'Rp ' . number_format($totalNominal, 0, ',', '.'),
+                'next_pengajuan_at'  => now()->addDays(7)->toDateTimeString(),
+                'sisa_hari_cooldown' => 7,
+                'data'               => $diajukan,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat mengajukan penarikan.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * GET /api/enumerator/tarik-saldo/summary
      *
      * Ringkasan saldo enumerator: jumlah data per status pembayaran + estimasi total.
      * Juga menyertakan info cooldown pengajuan.
      */
     public function summary(): JsonResponse
+
     {
         try {
             $enumerator = Auth::user()->enumerator;

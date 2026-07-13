@@ -43,6 +43,7 @@ use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
 use App\Http\Controllers\Superadmin\WaDeviceController;
 use App\Http\Controllers\Superadmin\WaGatewayConfigController;
+use App\Http\Controllers\Superadmin\PetaSebaranController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -252,6 +253,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
             Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         });
+        // Peta Sebaran Data Lapangan
+        Route::get('peta-sebaran', [PetaSebaranController::class, 'index'])->name('peta-sebaran.index');
+        Route::get('peta-sebaran/data', [PetaSebaranController::class, 'data'])->name('peta-sebaran.data');
+        Route::post('peta-sebaran/geocode', [PetaSebaranController::class, 'geocodeKecamatan'])->name('peta-sebaran.geocode');
+        Route::post('peta-sebaran/clear-cache', [PetaSebaranController::class, 'clearCache'])->name('peta-sebaran.clear-cache');
+
         // App Version
         Route::resource('app-versions', SuperadminAppVersionController::class);
 
@@ -374,6 +381,11 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
 
         // Master Data — Resep Makanan
         Route::resource('resep-makanans', ResepMakananController::class);
+
+        // Peta Sebaran Data Lapangan
+        Route::get('peta-sebaran', [PetaSebaranController::class, 'index'])->name('peta-sebaran.index');
+        Route::get('peta-sebaran/data', [PetaSebaranController::class, 'data'])->name('peta-sebaran.data');
+        Route::post('peta-sebaran/geocode', [PetaSebaranController::class, 'geocodeSingle'])->name('peta-sebaran.geocode');
 
         // Profile
         Route::prefix('profile')->name('profile.')->group(function () {

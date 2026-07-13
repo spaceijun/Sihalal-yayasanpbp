@@ -77,6 +77,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/peta-sebaran') }}"
+                        class="nav-link {{ Request::is('superadmin/peta-sebaran*') ? 'active' : '' }}">
+                        <i data-feather="map"></i>Peta Sebaran
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/ranking-pendamping') }}"
                         class="nav-link {{ $current_url == 'superadmin/ranking-pendamping' ? 'active' : '' }}">
                         <i data-feather="award"></i>Ranking Pendamping
@@ -247,6 +253,12 @@
                     <a href="{{ url('admin-umum/data-lapangans') }}"
                         class="nav-link {{ Request::is('admin-umum/data-lapangans*') ? 'active' : '' }}">
                         <i data-feather="map-pin"></i>Data Lapangan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('admin-umum/peta-sebaran') }}"
+                        class="nav-link {{ Request::is('admin-umum/peta-sebaran*') ? 'active' : '' }}">
+                        <i data-feather="map"></i>Peta Sebaran
                     </a>
                 </li>
                 <li class="nav-item">

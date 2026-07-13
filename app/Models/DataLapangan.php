@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use App\Models\Superadmin\Koordinator;
-use App\Models\CashflowsKoordinator;
-use App\Models\Cashflow;
-use App\Models\User;
 use App\Observers\DataLapanganObserver;
 use App\Traits\HasHashedId;
 use App\Traits\SendsWhatsAppNotification;
@@ -21,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property $rt
  * @property $rw
  * @property $alamat
- * @property $titik_koordinat
  * @property $foto_ktp
  * @property $foto_rumah
  * @property $foto_pendamping
@@ -29,14 +25,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property $foto_produk
  * @property $created_at
  * @property $updated_at
- *
  * @property Enumerator $enumerator
- * @package App
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class DataLapangan extends Model
 {
-    use SendsWhatsAppNotification, HasHashedId;
+    use HasHashedId, SendsWhatsAppNotification;
+
     protected $perPage = 20;
 
     /**
@@ -85,10 +81,9 @@ class DataLapangan extends Model
         'pengajuan_lewat',
     ];
 
-
     protected $attributes = [
         'is_unlocked_for_data_entry' => true,
-        'status_pembayaran'          => 'TIDAK ADA PENGAJUAN',
+        'status_pembayaran' => 'TIDAK ADA PENGAJUAN',
     ];
 
     protected $casts = [
@@ -110,6 +105,7 @@ class DataLapangan extends Model
     {
         return $this->belongsTo(User::class, 'edited_by');
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -133,7 +129,6 @@ class DataLapangan extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-
     public function spotchecks()
     {
         return $this->hasMany(Spotcheck::class, 'data_lapangan_id');
@@ -173,7 +168,7 @@ class DataLapangan extends Model
     {
         // Observer (progress log + FCM notification)
         static::observe(DataLapanganObserver::class);
-        // Auto-generate no_registrasi 
+        // Auto-generate no_registrasi
         static::creating(function ($dataLapangan) {
             if (empty($dataLapangan->no_registrasi)) {
                 $dataLapangan->no_registrasi = static::generateNoRegistrasi();
@@ -192,13 +187,13 @@ class DataLapangan extends Model
                     ->where('tipe', 'PEMASUKAN')
                     ->first();
 
-                if (!$existingCashflowPemasukan) {
+                if (! $existingCashflowPemasukan) {
                     CashflowsKoordinator::create([
                         'data_lapangan_id' => $dataLapangan->id,
-                        'tipe'             => 'PEMASUKAN',
-                        'nominal'          => $fee,
-                        'keterangan'       => 'Pembayaran untuk ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
-                        'tanggal'          => now(),
+                        'tipe' => 'PEMASUKAN',
+                        'nominal' => $fee,
+                        'keterangan' => 'Pembayaran untuk '.$dataLapangan->nama_pu.' (NIK: '.$dataLapangan->nik.')',
+                        'tanggal' => now(),
                     ]);
                 }
 
@@ -206,13 +201,13 @@ class DataLapangan extends Model
                     ->where('tipe', 'Pengeluaran')
                     ->first();
 
-                if (!$existingCashflowPengeluaran) {
+                if (! $existingCashflowPengeluaran) {
                     Cashflow::create([
                         'data_lapangan_id' => $dataLapangan->id,
-                        'tipe'             => 'Pengeluaran',
-                        'jumlah'           => $fee,
-                        'keterangan'       => 'Pembayaran untuk ' . $dataLapangan->enumerator->nama_lengkap . ' - ' . $dataLapangan->nama_pu . ' (NIK: ' . $dataLapangan->nik . ')',
-                        'tanggal'          => now(),
+                        'tipe' => 'Pengeluaran',
+                        'jumlah' => $fee,
+                        'keterangan' => 'Pembayaran untuk '.$dataLapangan->enumerator->nama_lengkap.' - '.$dataLapangan->nama_pu.' (NIK: '.$dataLapangan->nik.')',
+                        'tanggal' => now(),
                     ]);
 
                     $dataLapangan->load('enumerator');
@@ -224,6 +219,7 @@ class DataLapangan extends Model
             }
         });
     }
+
     /**
      * Hitung fee berdasarkan tanggal data dibuat.
      * Tambahkan entri baru di array $feeSchedule saat harga naik,
@@ -250,12 +246,12 @@ class DataLapangan extends Model
         // Fallback ke fee_enum koordinator untuk data sebelum semua schedule
         return $dataLapangan->enumerator->koordinator->fee_enum;
     }
+
     /**
      * Get the associated data entry progress models.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-
     public function dataEntryProgress()
     {
         return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id')
@@ -268,6 +264,7 @@ class DataLapangan extends Model
         return $this->hasMany(DataEntryProgress::class, 'data_lapangan_id')
             ->whereNotNull('verifikator_id');  // ✅ hanya milik verifikator
     }
+
     public function dataEntry()
     {
         return $this->hasOneThrough(
@@ -283,10 +280,10 @@ class DataLapangan extends Model
     private static function generateNoRegistrasi(): string
     {
         $tahun = date('Y');
-        $prefix = 'KH' . $tahun . '-';
+        $prefix = 'KH'.$tahun.'-';
 
         // Ambil nomor urut terbesar yang sudah ada, bukan count
-        $last = static::where('no_registrasi', 'like', $prefix . '%')
+        $last = static::where('no_registrasi', 'like', $prefix.'%')
             ->lockForUpdate()  // ← lock row agar tidak race condition
             ->max('no_registrasi');
 
@@ -297,6 +294,6 @@ class DataLapangan extends Model
             $urutan = 1;
         }
 
-        return $prefix . str_pad($urutan, 5, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($urutan, 5, '0', STR_PAD_LEFT);
     }
 }

@@ -57,11 +57,12 @@ class ContentSecurityPolicy
             // Style dari self, inline, dan Google Fonts + DataTables CDN
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.datatables.net https://cdnjs.cloudflare.com",
             // Images dari self dan data URIs (untuk inline images)
+            // https: sudah mencakup OpenStreetMap tile images (Leaflet)
             "img-src 'self' data: https: blob:",
             // Frames dari self saja
             "frame-src 'self'",
-            // Connect (AJAX) dari self
-            "connect-src 'self'",
+            // Connect (AJAX/fetch) dari self + lord-icon CDN (animasi) + Photon geocoding (server-side via PHP, tapi aman)
+            "connect-src 'self' https://cdn.lordicon.com https://nominatim.openstreetmap.org https://photon.komoot.io",
             // Media dari self
             "media-src 'self'",
             // Object dan plugin dari self
@@ -74,7 +75,7 @@ class ContentSecurityPolicy
             "base-uri 'self'",
         ];
 
-        $csp = implode('; ', $cspDirectives) . ';';
+        $csp = implode('; ', $cspDirectives).';';
 
         $response->headers->set('Content-Security-Policy', $csp);
 

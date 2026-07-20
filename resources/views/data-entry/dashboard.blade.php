@@ -732,6 +732,9 @@
 
                 document.getElementById('btnSudahDibaca').addEventListener('click', function() {
                     const pengumumanId = this.dataset.pengumumanId;
+                    const btn = this;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="ri-loader-4-line me-1"></i> Memproses...';
 
                     fetch('{{ route('data-entry.markPengumumanRead') }}', {
                             method: 'POST',
@@ -740,20 +743,20 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                pengumuman_id: pengumumanId
+                                pengumuman_id: parseInt(pengumumanId)
                             })
                         })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                modal.hide();
-                            }
-                        })
-                        .catch(() => {
-                            // Tetap tutup modal meski request gagal
+                        .finally(() => {
+                            // Always hide modal regardless of success/failure
                             modal.hide();
+                            // Remove leftover backdrop if any
+                            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                            document.body.classList.remove('modal-open');
+                            document.body.style.removeProperty('overflow');
+                            document.body.style.removeProperty('padding-right');
                         });
                 });
+
             });
         </script>
     @endif

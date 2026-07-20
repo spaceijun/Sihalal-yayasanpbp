@@ -529,6 +529,15 @@
     background: var(--adm-amber);
     color: #fff;
 }
+.adm-btn.info {
+    background: #e0f4ff;
+    border-color: rgba(3, 105, 161, 0.2);
+    color: #0369a1;
+}
+.adm-btn.info:hover {
+    background: #0369a1;
+    color: #fff;
+}
 .adm-btn:disabled {
     opacity: 0.35;
     cursor: not-allowed;

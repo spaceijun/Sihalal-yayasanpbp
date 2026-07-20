@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Http\Requests\DataEntryRequest;
 use App\Models\DataEntry;
 use App\Models\Superadmin\Koordinator;
 use App\Models\User;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -90,10 +90,14 @@ class DataEntryController extends Controller
             })
             ->addColumn('aksi', function ($de) {
                 $prefix = $this->routePrefix();
-                $editUrl = route($prefix.'.data-entries.edit', $de->hashed_id);
+                $showUrl   = route($prefix.'.data-entries.show', $de->hashed_id);
+                $editUrl   = route($prefix.'.data-entries.edit', $de->hashed_id);
                 $deleteUrl = route($prefix.'.data-entries.destroy', $de->hashed_id);
 
                 return '<div class="adm-actions">
+                    <a class="adm-btn info icon-only" href="'.$showUrl.'" title="Detail">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </a>
                     <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
@@ -164,7 +168,7 @@ class DataEntryController extends Controller
     {
         $prefix = $this->routePrefix();
         $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
-        $dataEntry->load('koordinators');
+        $dataEntry->load('koordinators', 'bank');
 
         $routePrefix = $this->routePrefix();
 

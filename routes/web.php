@@ -405,7 +405,7 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
     Route::post('/api/data-entry/analisis-halal', [AnalisisHalalController::class, 'analyze'])
         ->middleware('throttle:30,1')
         ->name('web.data-entry.analisis-halal');
-    Route::prefix('data-entry')->name('data-entry.')->group(function () {
+    Route::prefix('data-entry')->name('data-entry.')->middleware('ktp.complete')->group(function () {
         Route::get('dashboard', [DataEntryDashboardController::class, 'index']);
         Route::get('/', [DataEntryDashboardController::class, 'index'])->name('dashboard');
         Route::post('dashboard/mark-pengumuman-read', [DataEntryDashboardController::class, 'markPengumumanRead'])
@@ -446,6 +446,8 @@ Route::middleware('auth', 'role:data_entry')->group(function () {
         // settings
         Route::get('manajemen-akun', [SettingAkunController::class, 'index'])->name('manajemen-akun.index');
         Route::post('manajemen-akun/update', [SettingAkunController::class, 'update'])->name('manajemen-akun.update');
+        Route::post('manajemen-akun/update-ktp', [SettingAkunController::class, 'updateKtp'])->name('manajemen-akun.update-ktp');
+
     });
 });
 /**

@@ -52,7 +52,7 @@ class DashboardController extends Controller
             ->count();
 
         // Paket & penghasilan dihitung dari data DITERIMA
-        $kelipatan        = (int) floor($totalDiterima / $kelipatanPer);
+        $kelipatan = (int) floor($totalDiterima / $kelipatanPer);
         $totalPenghasilan = DataEntryPenagihan::where('data_entry_id', $dataEntry->id)
             ->where('status', 'Dibayar')
             ->sum('nominal');

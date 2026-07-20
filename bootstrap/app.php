@@ -31,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'enumerator.active'  => EnsureEnumeratorIsActive::class,
             'secure.file'        => SecureFileDownload::class,
             'maintenance.enumerator.api' => \App\Http\Middleware\MaintenanceEnumeratorApi::class,
+            'ktp.complete'       => \App\Http\Middleware\DataEntryKtpComplete::class,
+
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -4,8 +4,26 @@
     <div class="container-fluid px-4">
         <div class="mka-wrapper">
 
+            {{-- Alert jika data KTP belum lengkap --}}
+            @php
+                $ktpLengkap = !empty($dataEntry->nik) && !empty($dataEntry->nama_lengkap_ktp) && !empty($dataEntry->pendidikan_terakhir);
+                $rekeningLengkap = !empty($dataEntry->bank_id) && !empty($dataEntry->no_rekening) && !empty($dataEntry->nama_rekening);
+            @endphp
+            @if (!$ktpLengkap)
+                <div class="mka-alert mka-alert--danger" id="alertKtp">
+                    <div class="mka-alert__icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                        </svg>
+                    </div>
+                    <div class="mka-alert__body">
+                        <p class="mka-alert__title">Data KTP & Pendidikan wajib dilengkapi</p>
+                        <p class="mka-alert__desc">Harap lengkapi NIK, Nama sesuai KTP, Pendidikan Terakhir, Foto KTP, dan Foto Ijazah sebelum melanjutkan pekerjaan.</p>
+                    </div>
+                </div>
+            @endif
             {{-- Alert jika data rekening belum lengkap --}}
-            @if (empty($dataEntry->bank_id) || empty($dataEntry->no_rekening) || empty($dataEntry->nama_rekening))
+            @if (!$rekeningLengkap)
                 <div class="mka-alert" id="alertRekening">
                     <div class="mka-alert__icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -17,14 +35,10 @@
                     </div>
                     <div class="mka-alert__body">
                         <p class="mka-alert__title">Data rekening belum lengkap</p>
-                        <p class="mka-alert__desc">Harap lengkapi informasi bank dan rekening Anda agar proses pembayaran
-                            dapat
-                            berjalan lancar.</p>
+                        <p class="mka-alert__desc">Harap lengkapi informasi bank dan rekening Anda agar proses pembayaran dapat berjalan lancar.</p>
                     </div>
-                    <button class="mka-alert__close" onclick="document.getElementById('alertRekening').style.display='none'"
-                        aria-label="Tutup">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button class="mka-alert__close" onclick="document.getElementById('alertRekening').style.display='none'" aria-label="Tutup">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
@@ -99,6 +113,95 @@
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
                     Informasi ini hanya dapat diubah oleh administrator.
+                </div>
+            </div>
+
+            {{-- Form KTP & Pendidikan --}}
+            <div class="mka-section">
+                <div class="mka-section__header">
+                    <div class="mka-section__icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                        </svg>
+                    </div>
+                    <span class="mka-section__title">Identitas KTP &amp; Pendidikan</span>
+                    @if($ktpLengkap)
+                        <span class="mka-badge mka-badge--aktif" style="margin-left:auto;">Lengkap</span>
+                    @else
+                        <span class="mka-badge mka-badge--incomplete" style="margin-left:auto;">Belum lengkap</span>
+                    @endif
+                </div>
+                <div class="mka-section__body">
+                    <form method="POST" action="{{ route('data-entry.manajemen-akun.update-ktp') }}" id="formKtp" enctype="multipart/form-data">
+                        @csrf
+
+                        <div class="mka-field-row">
+                            <div class="mka-field">
+                                <label for="nik" class="mka-label">NIK <span style="color:#ef4444">*</span></label>
+                                <input type="text" class="mka-input @error('nik') mka-input--error @enderror"
+                                    id="nik" name="nik" maxlength="16" inputmode="numeric"
+                                    value="{{ old('nik', $dataEntry->nik) }}"
+                                    placeholder="16 digit NIK">
+                                @error('nik')<span class="mka-error">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="mka-field">
+                                <label for="nama_lengkap_ktp" class="mka-label">Nama Lengkap (sesuai KTP) <span style="color:#ef4444">*</span></label>
+                                <input type="text" class="mka-input @error('nama_lengkap_ktp') mka-input--error @enderror"
+                                    id="nama_lengkap_ktp" name="nama_lengkap_ktp"
+                                    value="{{ old('nama_lengkap_ktp', $dataEntry->nama_lengkap_ktp) }}"
+                                    placeholder="Sesuai KTP">
+                                @error('nama_lengkap_ktp')<span class="mka-error">{{ $message }}</span>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mka-field mka-field--full" style="margin-top:1rem;">
+                            <label for="pendidikan_terakhir" class="mka-label">Pendidikan Terakhir <span style="color:#ef4444">*</span></label>
+                            <select class="mka-select @error('pendidikan_terakhir') mka-select--error @enderror" id="pendidikan_terakhir" name="pendidikan_terakhir">
+                                <option value="">-- Pilih pendidikan --</option>
+                                @foreach($pendidikanOptions as $opt)
+                                    <option value="{{ $opt }}" {{ old('pendidikan_terakhir', $dataEntry->pendidikan_terakhir) == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                            @error('pendidikan_terakhir')<span class="mka-error">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="mka-field-row" style="margin-top:1rem;">
+                            <div class="mka-field">
+                                <label for="foto_ktp" class="mka-label">Foto KTP</label>
+                                @if($dataEntry->foto_ktp)
+                                    <div class="mka-img-preview" style="margin-bottom:8px;">
+                                        <img src="{{ asset('storage/'.$dataEntry->foto_ktp) }}" alt="Foto KTP" style="max-height:120px;border-radius:8px;border:1px solid #e5e7eb;">
+                                    </div>
+                                @endif
+                                <input type="file" class="mka-input @error('foto_ktp') mka-input--error @enderror"
+                                    id="foto_ktp" name="foto_ktp" accept="image/*" style="height:auto;padding:8px;">
+                                <span class="mka-hint">Format: JPG/PNG, maks 5MB</span>
+                                @error('foto_ktp')<span class="mka-error">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="mka-field">
+                                <label for="foto_ijasah" class="mka-label">Foto Ijazah</label>
+                                @if($dataEntry->foto_ijasah)
+                                    <div class="mka-img-preview" style="margin-bottom:8px;">
+                                        <img src="{{ asset('storage/'.$dataEntry->foto_ijasah) }}" alt="Foto Ijazah" style="max-height:120px;border-radius:8px;border:1px solid #e5e7eb;">
+                                    </div>
+                                @endif
+                                <input type="file" class="mka-input @error('foto_ijasah') mka-input--error @enderror"
+                                    id="foto_ijasah" name="foto_ijasah" accept="image/*" style="height:auto;padding:8px;">
+                                <span class="mka-hint">Format: JPG/PNG, maks 5MB</span>
+                                @error('foto_ijasah')<span class="mka-error">{{ $message }}</span>@enderror
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="mka-section__actions">
+                    <button type="submit" form="formKtp" class="mka-btn mka-btn--primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Simpan Data KTP
+                    </button>
                 </div>
             </div>
 
@@ -247,6 +350,23 @@
         .mka-alert__close:hover {
             background: #fef3c7;
         }
+
+        .mka-alert--danger {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            border-left-color: #ef4444;
+        }
+
+        .mka-alert--danger .mka-alert__icon { color: #dc2626; }
+        .mka-alert--danger .mka-alert__title { color: #7f1d1d; }
+        .mka-alert--danger .mka-alert__desc { color: #b91c1c; }
+
+        .mka-hint {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
 
         /* =====================
                    Profile Card

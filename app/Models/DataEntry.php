@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property $email
  * @property $telephone
  * @property $alamat
+ * @property $nik
+ * @property $nama_lengkap_ktp
+ * @property $foto_ktp
+ * @property $pendidikan_terakhir
+ * @property $foto_ijasah
  * @property $status
  * @property $created_at
  * @property $updated_at
@@ -35,7 +40,11 @@ class DataEntry extends Model
      * @var array<int, string>
      */
     protected $table = 'data_entrys';
-    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type', 'bank_id', 'no_rekening', 'nama_rekening', 'last_read_pengumuman_id',];
+    protected $fillable = [
+        'user_id', 'nama_lengkap', 'email', 'telephone', 'alamat', 'status', 'entry_type',
+        'bank_id', 'no_rekening', 'nama_rekening', 'last_read_pengumuman_id',
+        'nik', 'nama_lengkap_ktp', 'foto_ktp', 'pendidikan_terakhir', 'foto_ijasah',
+    ];
 
 
     /**

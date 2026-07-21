@@ -11,5 +11,7 @@ class Settingwebsite extends Model
         'description',
         'favicon',
         'logo',
+        'gemini_api_key',
+        'anthropic_api_key',
     ];
 }

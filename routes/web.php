@@ -10,6 +10,7 @@ use App\Http\Controllers\DataEntry\DataEntryProgressController;
 use App\Http\Controllers\DataEntry\DataLapanganController as DataEntryDataLapanganController;
 use App\Http\Controllers\DataEntry\PengumumanDataEntryController;
 use App\Http\Controllers\DataEntry\SettingAkunController;
+use App\Http\Controllers\DataEntry\TarikSaldoController;
 use App\Http\Controllers\DataEntry\TicketsEntryController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\HomeController;
@@ -19,16 +20,16 @@ use App\Http\Controllers\Superadmin\CashflowController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DataEntryController;
 use App\Http\Controllers\Superadmin\DataEntryPenagihanController;
-use App\Http\Controllers\Superadmin\PenarikanSaldoController;
-use App\Http\Controllers\DataEntry\TarikSaldoController;
 use App\Http\Controllers\Superadmin\DataEntryProgressController as SuperadminDataEntryProgressController;
 use App\Http\Controllers\Superadmin\DataLapanganController;
-use App\Http\Controllers\Superadmin\DeviceController;
 use App\Http\Controllers\Superadmin\DiagnosticController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
+use App\Http\Controllers\Superadmin\KtpVerifikasiController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
+use App\Http\Controllers\Superadmin\PenarikanSaldoController;
 use App\Http\Controllers\Superadmin\PengumumanController;
+use App\Http\Controllers\Superadmin\PetaSebaranController;
 use App\Http\Controllers\Superadmin\RankingPendampingController;
 use App\Http\Controllers\Superadmin\RecruitmentApplicantController;
 use App\Http\Controllers\Superadmin\RecruitmentPostController;
@@ -43,7 +44,6 @@ use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
 use App\Http\Controllers\Superadmin\WaDeviceController;
 use App\Http\Controllers\Superadmin\WaGatewayConfigController;
-use App\Http\Controllers\Superadmin\PetaSebaranController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -245,6 +245,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::put('/settings', [SettingwebsiteController::class, 'update'])->name('update');
             Route::put('/settings/env', [SettingwebsiteController::class, 'updateEnv'])->name('env.update');
             Route::post('/settings/maintenance', [SettingwebsiteController::class, 'updateMaintenance'])->name('maintenance.update');
+            Route::post('/settings/api-keys', [SettingwebsiteController::class, 'updateApiKeys'])->name('api-keys.update');
         });
         // Profile
         Route::prefix('profile')->name('profile.')->group(function () {
@@ -269,6 +270,12 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::get('/status', [FaceMatchController::class, 'status'])->name('status');
             Route::get('/poll', [FaceMatchController::class, 'poll'])->name('poll');
             Route::get('/result', [FaceMatchController::class, 'result'])->name('result');
+        });
+
+        // KTP Verifikasi — AI forensik KTP vs foto_pendamping (Gemini Flash)
+        Route::prefix('ktp-verifikasi')->name('ktp-verifikasi.')->group(function () {
+            Route::get('/', [KtpVerifikasiController::class, 'index'])->name('index');
+            Route::post('/verify', [KtpVerifikasiController::class, 'verify'])->name('verify');
         });
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');

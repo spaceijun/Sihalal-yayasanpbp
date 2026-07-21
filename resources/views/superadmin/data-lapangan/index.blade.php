@@ -33,6 +33,17 @@
                     Data Revisi
                 </a>
                 @if ($routePrefix === 'superadmin')
+                    <a href="{{ route('superadmin.ktp-verifikasi.index') }}" class="adm-btn"
+                        style="gap:6px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;border:none;">
+                        <svg viewBox="0 0 24 24"
+                            style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <line x1="1" y1="10" x2="23" y2="10" />
+                        </svg>
+                        Verifikasi KTP
+                    </a>
+                @endif
+                @if ($routePrefix === 'superadmin')
                     <button id="btnOpenApproval" class="adm-btn"
                         style="gap:6px;background:linear-gradient(135deg,#1A5FC8,#0F3A8A);color:#fff;border:none;">
                         <svg viewBox="0 0 24 24"
@@ -68,7 +79,8 @@
                     </svg>
                 </div>
                 <div class="adm-stat-label" style="color: #64748B; font-weight: 700;">Belum Diajukan</div>
-                <div class="adm-stat-value" style="color: #64748B; font-size: 28px;">{{ $paymentStats['tidak_ada_pengajuan_count'] }}</div>
+                <div class="adm-stat-value" style="color: #64748B; font-size: 28px;">
+                    {{ $paymentStats['tidak_ada_pengajuan_count'] }}</div>
                 <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
                     Rp {{ number_format($paymentStats['tidak_ada_pengajuan_total'], 0, ',', '.') }}
                 </div>
@@ -120,7 +132,8 @@
                     </svg>
                 </div>
                 <div class="adm-stat-label" style="color: var(--adm-rose); font-weight: 700;">Ditolak</div>
-                <div class="adm-stat-value" style="color: var(--adm-rose); font-size: 28px;">{{ $paymentStats['ditolak_count'] }}</div>
+                <div class="adm-stat-value" style="color: var(--adm-rose); font-size: 28px;">
+                    {{ $paymentStats['ditolak_count'] }}</div>
                 <div class="adm-stat-sub" style="font-weight: 600; color: var(--adm-text-mid);">
                     Rp {{ number_format($paymentStats['ditolak_total'], 0, ',', '.') }}
                 </div>
@@ -749,23 +762,23 @@
                         tbody.innerHTML = items.map((d, i) => {
                             const isInaktif = d.enumerator_status === 'Tidak Aktif';
 
-                            const checkboxCell = isInaktif
-                                ? `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>`
-                                : `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
+                            const checkboxCell = isInaktif ?
+                                `<span title="Pembayaran ditahan — Pendamping Tidak Aktif" style="font-size:11px;color:#DC2626;font-weight:700;cursor:help;">&#x23F8; Hold</span>` :
+                                `<input type="checkbox" class="approval-cb" data-id="${d.hashed_id}" data-nominal="${d.nominal}" style="cursor:pointer;transform:scale(1.1);">`;
 
-                            const rowStyle   = isInaktif ? 'background:#FFF5F5;' : '';
+                            const rowStyle = isInaktif ? 'background:#FFF5F5;' : '';
 
-                            const statusLabel = isInaktif
-                                ? `<span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>`
-                                : `<span style="font-size:10px;font-weight:700;background:#DBEAFE;color:#2563EB;border:1px solid #2563EB33;border-radius:4px;padding:1px 5px;">PENGAJUAN</span>`;
+                            const statusLabel = isInaktif ?
+                                `<span style="font-size:10px;font-weight:700;background:#FEE2E2;color:#DC2626;border:1px solid #DC262633;border-radius:4px;padding:1px 5px;">Tidak Aktif</span>` :
+                                `<span style="font-size:10px;font-weight:700;background:#DBEAFE;color:#2563EB;border:1px solid #2563EB33;border-radius:4px;padding:1px 5px;">PENGAJUAN</span>`;
 
-                            const nominalCell = isInaktif
-                                ? `<em style="font-size:11px;color:#94A3B8;">Ditahan</em>`
-                                : `<span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span>`;
+                            const nominalCell = isInaktif ?
+                                `<em style="font-size:11px;color:#94A3B8;">Ditahan</em>` :
+                                `<span style="font-weight:700;color:#059669;">${d.nominal_fmt}</span>`;
 
-                            const catatanCell = d.catatan_enumerator
-                                ? `<span style="font-size:12px;color:#475569;font-style:italic;">${d.catatan_enumerator}</span>`
-                                : `<span style="color:#CBD5E1;font-size:11px;">—</span>`;
+                            const catatanCell = d.catatan_enumerator ?
+                                `<span style="font-size:12px;color:#475569;font-style:italic;">${d.catatan_enumerator}</span>` :
+                                `<span style="color:#CBD5E1;font-size:11px;">—</span>`;
 
                             return `
                             <tr style="${rowStyle}">

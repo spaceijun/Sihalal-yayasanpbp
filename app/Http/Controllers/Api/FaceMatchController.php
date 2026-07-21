@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\FaceMatchJob;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
+use App\Traits\HasRoutePrefix;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
@@ -14,6 +15,8 @@ use Illuminate\Support\Str;
 
 class FaceMatchController extends Controller
 {
+    use HasRoutePrefix;
+
     const MAX_IMAGE_SIZE = 768;
 
     // -------------------------------------------------------------------------
@@ -39,10 +42,13 @@ class FaceMatchController extends Controller
         $totalFoto       = $enumerators->sum('foto_count');
         $totalEnumerator = $enumerators->count();
 
+        $routePrefix = $this->routePrefix();
+
         return view('superadmin.face-match.index', compact(
             'enumerators',
             'totalFoto',
             'totalEnumerator',
+            'routePrefix',
         ));
     }
 
@@ -178,7 +184,9 @@ class FaceMatchController extends Controller
                 ->with('error', 'Sesi tidak ditemukan atau sudah kadaluarsa.');
         }
 
-        return view('superadmin.face-match.status', compact('sessionKey', 'meta'));
+        $routePrefix = $this->routePrefix();
+
+        return view('superadmin.face-match.status', compact('sessionKey', 'meta', 'routePrefix'));
     }
 
     // -------------------------------------------------------------------------
@@ -265,11 +273,14 @@ class FaceMatchController extends Controller
         $totalDianalisis = count($allResults);
         $totalDitemukan  = count($filtered);
 
+        $routePrefix = $this->routePrefix();
+
         return view('superadmin.face-match.result', compact(
             'results',
             'queryUrl',
             'totalDianalisis',
             'totalDitemukan',
+            'routePrefix',
         ));
     }
 

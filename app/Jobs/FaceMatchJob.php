@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\Api\FaceMatchController;
+use App\Models\Superadmin\Settingwebsite;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -174,7 +175,7 @@ class FaceMatchJob implements ShouldQueue
             $client   = new Client(['timeout' => 25]);
             $response = $client->post('https://api.anthropic.com/v1/messages', [
                 'headers' => [
-                    'x-api-key'         => env('ANTHROPIC_API_KEY'),
+                    'x-api-key'         => (string) (Settingwebsite::value('anthropic_api_key') ?: env('ANTHROPIC_API_KEY')),
                     'anthropic-version' => '2023-06-01',
                     'content-type'      => 'application/json',
                 ],

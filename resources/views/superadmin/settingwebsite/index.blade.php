@@ -64,8 +64,17 @@ Setting Website
                         $anyMaintenance = $maintenanceDataEntry || $maintenanceAdminUmum || $maintenanceEnumeratorApi;
                     @endphp
                     @if ($anyMaintenance)
-                        <span class="adm-tab-pill" style="background:var(--adm-red-lt);color:var(--adm-red);">AKTIF</span>
+                        <span class="adm-tab-pill"
+                            style="background:var(--adm-red-lt);color:var(--adm-red);">AKTIF</span>
                     @endif
+                </button>
+                <button class="adm-tab-btn" role="tab" data-tab="apikeys" aria-selected="false">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                    </svg>
+                    API Keys
+                    <span class="adm-tab-pill" style="background:var(--adm-blue-lt);color:var(--adm-blue);">AI</span>
                 </button>
             </div>
         </div>
@@ -460,7 +469,10 @@ Setting Website
                     <div class="mnt-card-header">
                         <div class="mnt-card-header-left">
                             <div class="mnt-icon red">
-                                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
                             </div>
                             <div>
                                 <div class="mnt-title">Maintenance — Data Entry</div>
@@ -474,8 +486,7 @@ Setting Website
                             </span>
                             <label class="mnt-toggle" title="Toggle maintenance Data Entry">
                                 <input type="checkbox" name="maintenance_data_entry" value="on"
-                                    id="toggle-data-entry"
-                                    onchange="syncBadge('data-entry', this.checked, false)"
+                                    id="toggle-data-entry" onchange="syncBadge('data-entry', this.checked, false)"
                                     {{ $maintenanceDataEntry ? 'checked' : '' }}>
                                 <span class="mnt-slider"></span>
                             </label>
@@ -496,7 +507,12 @@ Setting Website
                     <div class="mnt-card-header">
                         <div class="mnt-card-header-left">
                             <div class="mnt-icon red">
-                                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 010 7.75" />
+                                </svg>
                             </div>
                             <div>
                                 <div class="mnt-title">Maintenance — Admin Umum</div>
@@ -510,8 +526,7 @@ Setting Website
                             </span>
                             <label class="mnt-toggle" title="Toggle maintenance Admin Umum">
                                 <input type="checkbox" name="maintenance_admin_umum" value="on"
-                                    id="toggle-admin-umum"
-                                    onchange="syncBadge('admin-umum', this.checked, false)"
+                                    id="toggle-admin-umum" onchange="syncBadge('admin-umum', this.checked, false)"
                                     {{ $maintenanceAdminUmum ? 'checked' : '' }}>
                                 <span class="mnt-slider"></span>
                             </label>
@@ -532,11 +547,15 @@ Setting Website
                     <div class="mnt-card-header">
                         <div class="mnt-card-header-left">
                             <div class="mnt-icon amber">
-                                <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                                    <path d="M12 18h.01" />
+                                </svg>
                             </div>
                             <div>
                                 <div class="mnt-title">Maintenance — Enumerator API (Khusus Pengajuan)</div>
-                                <div class="mnt-desc">role: <code>enumerator</code> · hanya memblokir <code>POST / PUT / PATCH / DELETE</code></div>
+                                <div class="mnt-desc">role: <code>enumerator</code> · hanya memblokir <code>POST / PUT
+                                        / PATCH / DELETE</code></div>
                             </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:10px;">
@@ -557,7 +576,8 @@ Setting Website
                         Saat <strong>AKTIF</strong>, enumerator melalui aplikasi Flutter:
                         <ul>
                             <li>Tetap bisa <strong>login</strong> dan melihat data (GET).</li>
-                            <li><strong>Tidak bisa</strong> membuat atau memperbarui data lapangan (POST/PUT/PATCH/DELETE).</li>
+                            <li><strong>Tidak bisa</strong> membuat atau memperbarui data lapangan
+                                (POST/PUT/PATCH/DELETE).</li>
                             <li>Menerima pesan error <code>503 – Sistem sedang dalam pemeliharaan</code>.</li>
                         </ul>
                     </div>
@@ -565,25 +585,165 @@ Setting Website
 
                 <div class="adm-form-actions">
                     <button type="submit" class="adm-btn-primary" onclick="return confirmSaveMaintenance()">
-                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;">
-                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-                            <polyline points="17 21 17 13 7 13 7 21"/>
-                            <polyline points="7 3 7 8 15 8"/>
+                        <svg viewBox="0 0 24 24"
+                            style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;">
+                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
                         </svg>
                         Simpan Pengaturan Maintenance
                     </button>
-                    <span style="font-size:12px;color:var(--adm-text-faint);">Perubahan langsung berlaku setelah disimpan</span>
+                    <span style="font-size:12px;color:var(--adm-text-faint);">Perubahan langsung berlaku setelah
+                        disimpan</span>
                 </div>
 
             </form>
         </div>{{-- /tab-maintenance --}}
+
+        {{-- ========================================================== --}}
+        {{-- TAB: API KEYS                                               --}}
+        {{-- ========================================================== --}}
+        <div id="tab-apikeys" class="adm-tab-pane">
+            <div style="padding:20px 20px 0;">
+                <div class="adm-alert adm-alert-warning">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    <span>
+                        <strong>Hati-hati!</strong> API Keys bersifat sensitif. Jaga kerahasiaan dan jangan bagikan
+                        kepada pihak lain.
+                        Perubahan langsung berlaku setelah disimpan.
+                    </span>
+                </div>
+            </div>
+
+            <form action="{{ route($routePrefix . '.settings.api-keys.update') }}" method="POST" id="apikeyForm"
+                style="padding:20px;">
+                @csrf
+
+                {{-- Gemini API --}}
+                <div class="mnt-card" style="margin-bottom:16px;">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon blue"
+                                style="background:linear-gradient(135deg,#4285F4,#34A853);color:#fff;width:40px;height:40px;">
+                                <svg viewBox="0 0 24 24"
+                                    style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;">
+                                    <path
+                                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Google Gemini Flash API</div>
+                                <div class="mnt-desc">Digunakan untuk fitur <strong>Verifikasi KTP</strong> — analisis
+                                    biometrik forensik KTP vs foto pendamping</div>
+                            </div>
+                        </div>
+                        @if (!empty($geminiApiKey))
+                            <span class="mnt-status"
+                                style="background:#DCFCE7;color:#16A34A;border:1px solid rgba(22,163,74,.2);">AKTIF</span>
+                        @else
+                            <span class="mnt-status off">BELUM DIISI</span>
+                        @endif
+                    </div>
+                    <div class="mnt-card-body">
+                        <div class="adm-field" style="max-width:600px;">
+                            <label class="adm-label" for="apikey_gemini">Gemini API Key</label>
+                            <div style="position:relative;">
+                                <input type="password" name="gemini_api_key" id="apikey_gemini" class="adm-input"
+                                    autocomplete="off" value="{{ $geminiApiKey }}" placeholder="AIza...">
+                                <button type="button" class="env-pw-toggle" data-target="apikey_gemini"
+                                    title="Tampilkan/sembunyikan"
+                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--adm-text-faint);padding:4px;">
+                                    <svg viewBox="0 0 24 24"
+                                        style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span style="font-size:11.5px;color:var(--adm-text-faint);margin-top:4px;display:block;">
+                                Dapatkan API key di
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                                    style="color:var(--adm-blue);">Google AI Studio →</a>
+                                (gratis untuk akun Google)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Anthropic API --}}
+                <div class="mnt-card" style="margin-bottom:16px;">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon" style="background:#F0F0EC;color:#D4704A;width:40px;height:40px;">
+                                <svg viewBox="0 0 24 24"
+                                    style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;">
+                                    <path
+                                        d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Anthropic Claude API</div>
+                                <div class="mnt-desc">Digunakan untuk fitur <strong>Pencocokan Wajah</strong> (Face
+                                    Match) dan <strong>Analisis Halal</strong></div>
+                            </div>
+                        </div>
+                        @if (!empty($anthropicApiKey))
+                            <span class="mnt-status"
+                                style="background:#DCFCE7;color:#16A34A;border:1px solid rgba(22,163,74,.2);">AKTIF</span>
+                        @else
+                            <span class="mnt-status off">BELUM DIISI</span>
+                        @endif
+                    </div>
+                    <div class="mnt-card-body">
+                        <div class="adm-field" style="max-width:600px;">
+                            <label class="adm-label" for="apikey_anthropic">Anthropic API Key</label>
+                            <div style="position:relative;">
+                                <input type="password" name="anthropic_api_key" id="apikey_anthropic"
+                                    class="adm-input" autocomplete="off" value="{{ $anthropicApiKey }}"
+                                    placeholder="sk-ant-...">
+                                <button type="button" class="env-pw-toggle" data-target="apikey_anthropic"
+                                    title="Tampilkan/sembunyikan"
+                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--adm-text-faint);padding:4px;">
+                                    <svg viewBox="0 0 24 24"
+                                        style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span style="font-size:11.5px;color:var(--adm-text-faint);margin-top:4px;display:block;">
+                                Dapatkan API key di
+                                <a href="https://console.anthropic.com/" target="_blank"
+                                    style="color:var(--adm-blue);">Anthropic Console →</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="adm-form-actions">
+                    <button type="submit" class="adm-btn-primary"
+                        onclick="return confirm('Simpan API Keys ke database?')">
+                        <svg viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        Simpan ke Database
+                    </button>
+                    <span style="font-size:12px;color:var(--adm-text-faint);">API Keys disimpan terenkripsi di
+                        database, bukan di file .env</span>
+                </div>
+            </form>
+        </div>{{-- /tab-apikeys --}}
 
     </div>{{-- /adm-card --}}
 </div>{{-- /adm-page --}}
 
 {{-- ============================================================ --}}
 {{-- TAB: MAINTENANCE                                             --}}
-{{-- (diletakkan di luar adm-card agar mudah disisipkan sbg pane)--}}
+{{-- (diletakkan di luar adm-card agar mudah disisipkan sbg pane) --}}
 {{-- ============================================================ --}}
 
 <style>
@@ -595,7 +755,11 @@ Setting Website
         margin-bottom: 16px;
         transition: box-shadow .2s;
     }
-    .mnt-card:hover { box-shadow: var(--adm-shadow-md); }
+
+    .mnt-card:hover {
+        box-shadow: var(--adm-shadow-md);
+    }
+
     .mnt-card-header {
         display: flex;
         align-items: center;
@@ -605,18 +769,59 @@ Setting Website
         background: var(--adm-bg-light);
         border-bottom: 1px solid var(--adm-border);
     }
-    .mnt-card-header-left { display: flex; align-items: center; gap: 12px; }
+
+    .mnt-card-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
     .mnt-icon {
-        width: 36px; height: 36px; border-radius: var(--adm-radius-sm);
-        display: flex; align-items: center; justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--adm-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
     }
-    .mnt-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .mnt-icon.red   { background: var(--adm-red-lt);   color: var(--adm-red); }
-    .mnt-icon.amber { background: var(--adm-amber-lt); color: var(--adm-amber); }
-    .mnt-icon.blue  { background: var(--adm-blue-lt);  color: var(--adm-blue); }
-    .mnt-title { font-size: 13.5px; font-weight: 700; color: var(--adm-text-dark); font-family: 'Sora', sans-serif; }
-    .mnt-desc  { font-size: 12px; color: var(--adm-text-muted); margin-top: 2px; }
+
+    .mnt-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+    }
+
+    .mnt-icon.red {
+        background: var(--adm-red-lt);
+        color: var(--adm-red);
+    }
+
+    .mnt-icon.amber {
+        background: var(--adm-amber-lt);
+        color: var(--adm-amber);
+    }
+
+    .mnt-icon.blue {
+        background: var(--adm-blue-lt);
+        color: var(--adm-blue);
+    }
+
+    .mnt-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--adm-text-dark);
+        font-family: 'Sora', sans-serif;
+    }
+
+    .mnt-desc {
+        font-size: 12px;
+        color: var(--adm-text-muted);
+        margin-top: 2px;
+    }
+
     .mnt-card-body {
         padding: 14px 20px;
         background: #fff;
@@ -624,32 +829,65 @@ Setting Website
         font-size: 13px;
         color: var(--adm-text-mid);
     }
-    .mnt-card-body ul { padding-left: 18px; margin: 6px 0 0; }
-    .mnt-card-body li { margin-bottom: 4px; }
+
+    .mnt-card-body ul {
+        padding-left: 18px;
+        margin: 6px 0 0;
+    }
+
+    .mnt-card-body li {
+        margin-bottom: 4px;
+    }
 
     /* ── Toggle switch — warna sesuai adm tokens ── */
-    .mnt-toggle { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
-    .mnt-toggle input { opacity: 0; width: 0; height: 0; }
+    .mnt-toggle {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+
+    .mnt-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
     .mnt-slider {
-        position: absolute; inset: 0;
+        position: absolute;
+        inset: 0;
         background: var(--adm-border-mid);
         border-radius: 26px;
         cursor: pointer;
         transition: background .25s;
     }
+
     .mnt-slider::before {
         content: '';
         position: absolute;
-        height: 18px; width: 18px;
-        left: 4px; bottom: 4px;
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
         background: #fff;
         border-radius: 50%;
         transition: transform .25s;
-        box-shadow: 0 1px 4px rgba(0,0,0,.2);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
     }
-    .mnt-toggle input:checked + .mnt-slider { background: var(--adm-red); }
-    .mnt-toggle input.mnt-amber:checked + .mnt-slider { background: var(--adm-amber); }
-    .mnt-toggle input:checked + .mnt-slider::before { transform: translateX(22px); }
+
+    .mnt-toggle input:checked+.mnt-slider {
+        background: var(--adm-red);
+    }
+
+    .mnt-toggle input.mnt-amber:checked+.mnt-slider {
+        background: var(--adm-amber);
+    }
+
+    .mnt-toggle input:checked+.mnt-slider::before {
+        transform: translateX(22px);
+    }
+
     .mnt-status {
         display: inline-flex;
         align-items: center;
@@ -661,20 +899,23 @@ Setting Website
         letter-spacing: .04em;
         text-transform: uppercase;
     }
+
     .mnt-status.off {
         background: var(--adm-bg-light);
         color: var(--adm-text-muted);
         border: 1px solid var(--adm-border-mid);
     }
+
     .mnt-status.on {
         background: var(--adm-red-lt);
         color: var(--adm-red);
-        border: 1px solid rgba(220,38,38,.2);
+        border: 1px solid rgba(220, 38, 38, .2);
     }
+
     .mnt-status.on-amber {
         background: var(--adm-amber-lt);
         color: var(--adm-amber);
-        border: 1px solid rgba(184,104,0,.2);
+        border: 1px solid rgba(184, 104, 0, .2);
     }
 </style>
 
@@ -1068,7 +1309,7 @@ Setting Website
     document.addEventListener('DOMContentLoaded', function() {
         // Prioritas: flash dari server (_active_tab) → sessionStorage
         const serverTab = @json(session('_active_tab'));
-        const saved     = serverTab || sessionStorage.getItem('activeSettingTab');
+        const saved = serverTab || sessionStorage.getItem('activeSettingTab');
         if (saved) {
             const btn = document.querySelector(`.adm-tab-btn[data-tab="${saved}"]`);
             if (btn) btn.click();
@@ -1151,8 +1392,8 @@ Setting Website
     /* ── Konfirmasi simpan maintenance ── */
     function confirmSaveMaintenance() {
         const activeToggles = [];
-        if (document.getElementById('toggle-data-entry')?.checked)    activeToggles.push('Data Entry');
-        if (document.getElementById('toggle-admin-umum')?.checked)     activeToggles.push('Admin Umum');
+        if (document.getElementById('toggle-data-entry')?.checked) activeToggles.push('Data Entry');
+        if (document.getElementById('toggle-admin-umum')?.checked) activeToggles.push('Admin Umum');
         if (document.getElementById('toggle-enumerator-api')?.checked) activeToggles.push('Enumerator API');
 
         let msg = 'Simpan pengaturan maintenance?\n\n';

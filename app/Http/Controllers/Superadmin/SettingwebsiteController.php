@@ -23,13 +23,19 @@ class SettingwebsiteController extends Controller
         $maintenanceAdminUmum = config('app.maintenance_admin_umum', false);
         $maintenanceEnumeratorApi = config('app.maintenance_enumerator_api', false);
 
+        // API Keys dari DB
+        $geminiApiKey    = $setting->gemini_api_key ?? '';
+        $anthropicApiKey = $setting->anthropic_api_key ?? '';
+
         return view('superadmin.settingwebsite.index', compact(
             'setting',
             'envContent',
             'routePrefix',
             'maintenanceDataEntry',
             'maintenanceAdminUmum',
-            'maintenanceEnumeratorApi'
+            'maintenanceEnumeratorApi',
+            'geminiApiKey',
+            'anthropicApiKey',
         ));
     }
 
@@ -142,7 +148,7 @@ class SettingwebsiteController extends Controller
                 [$key] = explode('=', $line, 2);
                 $key = trim($key);
                 if (array_key_exists($key, $envData)) {
-                    $value = $envData[$key];
+                    $value = (string) ($envData[$key] ?? '');
                     if ($value !== '' && str_contains($value, ' ') && ! str_starts_with($value, '"')) {
                         $value = '"'.$value.'"';
                     }
@@ -238,5 +244,29 @@ class SettingwebsiteController extends Controller
         return redirect()->route('superadmin.settings.index')
             ->with('success', 'Pengaturan maintenance berhasil diperbarui.')
             ->with('_active_tab', 'maintenance');
+    }
+
+    /**
+     * Simpan API Keys ke database (bukan .env).
+     */
+    public function updateApiKeys(Request $request)
+    {
+        $request->validate([
+            'gemini_api_key'    => 'nullable|string|max:500',
+            'anthropic_api_key' => 'nullable|string|max:500',
+        ]);
+
+        $setting = Settingwebsite::first();
+        if (! $setting) {
+            $setting = new Settingwebsite;
+        }
+
+        $setting->gemini_api_key    = $request->input('gemini_api_key', '');
+        $setting->anthropic_api_key = $request->input('anthropic_api_key', '');
+        $setting->save();
+
+        return redirect()->route('superadmin.settings.index')
+            ->with('success', 'API Keys berhasil disimpan ke database.')
+            ->with('_active_tab', 'apikeys');
     }
 }

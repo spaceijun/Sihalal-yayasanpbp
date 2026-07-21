@@ -77,6 +77,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('superadmin/ktp-verifikasi') }}"
+                        class="nav-link {{ Request::is('superadmin/ktp-verifikasi*') ? 'active' : '' }}">
+                        <i data-feather="shield"></i>Verifikasi KTP
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/face-match') }}"
+                        class="nav-link {{ Request::is('superadmin/face-match*') ? 'active' : '' }}">
+                        <i data-feather="search"></i>Pencocokan Wajah
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('superadmin/peta-sebaran') }}"
                         class="nav-link {{ Request::is('superadmin/peta-sebaran*') ? 'active' : '' }}">
                         <i data-feather="map"></i>Peta Sebaran
@@ -159,15 +171,13 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ config('services.kawulohalal.base_url', 'http://kawalakugateway.test') }}/superadmin/dashboard"
-                        target="_blank"
-                        class="nav-link">
+                        target="_blank" class="nav-link">
                         <i data-feather="monitor"></i>Dashboard Gateway
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ config('services.kawulohalal.base_url', 'http://kawalakugateway.test') }}/superadmin/wa-messages"
-                        target="_blank"
-                        class="nav-link">
+                        target="_blank" class="nav-link">
                         <i data-feather="message-circle"></i>Riwayat Pesan WA
                     </a>
                 </li>

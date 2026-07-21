@@ -10,19 +10,9 @@
     <div class="adm-header" style="margin-bottom:20px;">
         <div class="adm-header-left">
             <h1>Hasil Verifikasi KTP</h1>
-            <p>Analisis selesai — setiap KTP mendapatkan 3 foto paling mirip dari ZIP</p>
+            <p>Analisis selesai — setiap KTP mendapatkan hingga 3 foto paling mirip dari ZIP</p>
         </div>
         <div style="display:flex;gap:10px;">
-            {{-- Download ZIP --}}
-            <a href="{{ route($routePrefix . '.ktp-verifikasi.download', $session->session_key) }}"
-               class="adm-btn-primary" style="gap:8px;">
-                <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download Hasil (ZIP)
-            </a>
             <a href="{{ route($routePrefix . '.ktp-verifikasi.index') }}" class="adm-btn-secondary">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;">
                     <polyline points="1 4 1 10 7 10"/>
@@ -256,21 +246,22 @@
 
     {{-- Download footer --}}
     <div style="margin-top:24px;padding:16px 20px;background:linear-gradient(135deg,#F5F3FF,#EFF6FF);
-                border:1px solid #DDD6FE;border-radius:12px;display:flex;align-items:center;justify-content:between;gap:16px;flex-wrap:wrap;">
+                border:1px solid #DDD6FE;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div>
-            <div style="font-size:13px;font-weight:700;color:#4C1D95;margin-bottom:3px;">📦 Download Semua Hasil</div>
+            <div style="font-size:13px;font-weight:700;color:#4C1D95;margin-bottom:3px;">📦 Download Semua Hasil (Opsional)</div>
             <div style="font-size:12px;color:#6D28D9;line-height:1.5;">
-                ZIP berisi folder per KTP, masing-masing berisi foto KTP referensi + 3 foto terbaik (dengan nama file: Rank1_95pct_namafile.jpg)
+                ZIP berisi folder per KTP, masing-masing berisi foto KTP referensi + foto terbaik<br>
+                <span style="opacity:.7;">dengan nama file: Rank1_95pct_namafile.jpg</span>
             </div>
         </div>
         <a href="{{ route($routePrefix . '.ktp-verifikasi.download', $session->session_key) }}"
-           class="adm-btn-primary" style="gap:8px;white-space:nowrap;flex-shrink:0;">
+           class="adm-btn-secondary" style="gap:8px;white-space:nowrap;flex-shrink:0;border-color:#7C3AED;color:#7C3AED;">
             <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            Download Hasil (ZIP)
+            Download ZIP Hasil
         </a>
     </div>
 

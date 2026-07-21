@@ -334,9 +334,9 @@ class KtpVerifikasiController extends Controller
         $results = $session->results ?? [];
         ksort($results);
 
-        // Buat ZIP di storage sementara
-        $tmpZipPath = storage_path('app/tmp/ktp-verifikasi-' . Str::random(8) . '.zip');
-        @mkdir(dirname($tmpZipPath), 0775, true);
+        // Buat ZIP di sys_get_temp_dir() — pasti writable di semua environment (lokal & shared hosting)
+        $tmpZipPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . 'ktp-verifikasi-' . Str::random(8) . '.zip';
 
         $zip = new ZipArchive;
         if ($zip->open($tmpZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {

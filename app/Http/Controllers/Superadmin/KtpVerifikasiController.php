@@ -169,11 +169,11 @@ class KtpVerifikasiController extends Controller
             'session_key'  => $sessionKey,
             'user_id'      => Auth::id(),
             'ktp_count'    => $ktpCount,
-            'total_photos' => $totalJobs, // total jobs = ktpCount × zipPhotoCount
+            'total_photos' => $totalJobs, // = jumlah foto ZIP (1 job per foto)
             'processed'    => 0,
             'status'       => 'pending',
             'ktp_url'      => $ktpDataList[0]['url'], // referensi cepat KTP pertama
-            'results'      => json_encode($initialResults),
+            'results'      => $initialResults,
         ]);
 
         // ── 5. Dispatch batch ────────────────────────────────────────────────
@@ -186,17 +186,41 @@ class KtpVerifikasiController extends Controller
                     return;
                 }
 
-                // Trim tiap KTP ke top 3 (exclusivity sudah inherent — 1 foto → 1 KTP)
                 $results = $session->results ?? [];
+
+                // ── Greedy Exclusive Assignment ──────────────────────────────
+                // Pastikan satu foto hanya masuk ke top_candidates SATU KTP saja
+                // (KTP dengan confidence tertinggi untuk foto tersebut).
+                // Ini mencegah foto yang sama muncul di lebih dari 1 KTP pool.
+                $assignedNamaFiles = []; // nama file foto yang sudah diassign ke suatu KTP
+
+                // Urutkan tiap KTP berdasarkan confidence (sudah dilakukan di job)
+                // lalu pilih top 3 secara eksklusif
                 foreach ($results as &$ktpResult) {
                     usort(
                         $ktpResult['top_candidates'],
                         fn ($a, $b) => $b['confidence'] - $a['confidence']
                     );
-                    $ktpResult['top_candidates'] = array_slice($ktpResult['top_candidates'], 0, 3);
                 }
                 unset($ktpResult);
+
+                // Greedy: iterasi KTP dari urutan index, assign top-3 yang belum diambil KTP lain
                 ksort($results);
+                foreach ($results as &$ktpResult) {
+                    $exclusive = [];
+                    foreach ($ktpResult['top_candidates'] as $candidate) {
+                        $namaFile = $candidate['nama_file'] ?? '';
+                        if (! in_array($namaFile, $assignedNamaFiles, true)) {
+                            $exclusive[]         = $candidate;
+                            $assignedNamaFiles[] = $namaFile;
+                        }
+                        if (count($exclusive) >= 3) {
+                            break;
+                        }
+                    }
+                    $ktpResult['top_candidates'] = $exclusive;
+                }
+                unset($ktpResult);
 
                 $session->update(['results' => $results, 'status' => 'done']);
             })
@@ -235,12 +259,30 @@ class KtpVerifikasiController extends Controller
             $batch = Bus::findBatch($session->batch_id);
             if ($batch && $batch->finished() && $session->status !== 'done') {
                 $results = $session->results ?? [];
+
+                // Greedy exclusive assignment (sama seperti di batch finally callback)
+                $assignedNamaFiles = [];
                 foreach ($results as &$ktpResult) {
                     usort($ktpResult['top_candidates'], fn ($a, $b) => $b['confidence'] - $a['confidence']);
-                    $ktpResult['top_candidates'] = array_slice($ktpResult['top_candidates'], 0, 3);
                 }
                 unset($ktpResult);
                 ksort($results);
+                foreach ($results as &$ktpResult) {
+                    $exclusive = [];
+                    foreach ($ktpResult['top_candidates'] as $candidate) {
+                        $namaFile = $candidate['nama_file'] ?? '';
+                        if (! in_array($namaFile, $assignedNamaFiles, true)) {
+                            $exclusive[]         = $candidate;
+                            $assignedNamaFiles[] = $namaFile;
+                        }
+                        if (count($exclusive) >= 3) {
+                            break;
+                        }
+                    }
+                    $ktpResult['top_candidates'] = $exclusive;
+                }
+                unset($ktpResult);
+
                 $session->update(['results' => $results, 'status' => 'done']);
                 $session->refresh();
             }

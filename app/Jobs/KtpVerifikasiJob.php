@@ -38,6 +38,40 @@ class KtpVerifikasiJob implements ShouldQueue
         private readonly string $namaFile,
     ) {}
 
+    /**
+     * Kunci cache unik per foto dalam session ini.
+     * Digunakan untuk mencegah double-increment pada retry.
+     */
+    private function processedCacheKey(): string
+    {
+        return "ktp_ver_processed_{$this->sessionKey}_" . md5($this->namaFile);
+    }
+
+    /**
+     * Increment 'processed' sekali per foto, tidak peduli berapa kali job diretry.
+     * Capped agar tidak melebihi total_photos.
+     */
+    private function incrementProcessedOnce(): void
+    {
+        $cacheKey = $this->processedCacheKey();
+
+        // Jika sudah pernah di-increment untuk foto ini, skip
+        if (Cache::has($cacheKey)) {
+            return;
+        }
+
+        // Tandai bahwa foto ini sudah di-increment (TTL 1 hari)
+        Cache::put($cacheKey, 1, now()->addDay());
+
+        // Increment tapi tidak melebihi total_photos
+        $session = KtpVerifikasiSession::where('session_key', $this->sessionKey)->first();
+        if ($session && $session->processed < $session->total_photos) {
+            KtpVerifikasiSession::where('session_key', $this->sessionKey)
+                ->where('processed', '<', $session->total_photos)
+                ->increment('processed');
+        }
+    }
+
     // ── PROMPT: Multi-KTP vs 1 Foto ──────────────────────────────────────────
 
     private function buildPrompt(int $ktpCount): string
@@ -182,15 +216,15 @@ PROMPT;
         // Load semua KTP dari disk (bukan dari payload job)
         $ktpImages = $this->loadKtpImages();
         if (empty($ktpImages)) {
-            KtpVerifikasiSession::where('session_key', $this->sessionKey)->increment('processed');
+            $this->incrementProcessedOnce();
             return;
         }
 
         $apiKey = (string) (Settingwebsite::value('gemini_api_key') ?? '');
         $result = $this->callGemini($apiKey, $ktpImages);
 
-        // Increment counter terlepas dari hasil
-        KtpVerifikasiSession::where('session_key', $this->sessionKey)->increment('processed');
+        // Increment counter sekali per foto (guard terhadap retry double-count)
+        $this->incrementProcessedOnce();
 
         if (! $result) {
             return;
@@ -210,7 +244,13 @@ PROMPT;
                 return;
             }
 
-            $existing = $session->results ?? [];
+            $existing = $session->results;
+            if (is_string($existing)) {
+                $existing = json_decode($existing, true) ?? [];
+            }
+            if (! is_array($existing)) {
+                $existing = [];
+            }
 
             // Pastikan slot KTP ada (seharusnya sudah diinisialisasi oleh controller)
             if (! isset($existing[$bestKtpIndex])) {
@@ -242,14 +282,12 @@ PROMPT;
                 $existing[$bestKtpIndex]['top_candidates'], 0, 10
             );
 
-            // Update ktp_nama session dari KTP pertama
-            $updates = ['results' => json_encode($existing)];
+            $session->results = $existing;
             if ($bestKtpIndex === 0 && empty($session->ktp_nama) && ! empty($result['nama_ktp'])) {
-                $updates['ktp_nama'] = $result['nama_ktp'];
-                $updates['ktp_nik']  = $result['nik_ktp'];
+                $session->ktp_nama = $result['nama_ktp'];
+                $session->ktp_nik  = $result['nik_ktp'];
             }
-
-            KtpVerifikasiSession::where('session_key', $this->sessionKey)->update($updates);
+            $session->save();
         });
     }
 
@@ -258,6 +296,7 @@ PROMPT;
     public function failed(\Throwable $e): void
     {
         Log::error("KtpVerifikasiJob failed [{$this->namaFile}]: " . $e->getMessage());
-        KtpVerifikasiSession::where('session_key', $this->sessionKey)->increment('processed');
+        // Gunakan incrementProcessedOnce agar retry tidak double-count
+        $this->incrementProcessedOnce();
     }
 }

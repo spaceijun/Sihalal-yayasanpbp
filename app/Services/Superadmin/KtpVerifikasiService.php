@@ -72,17 +72,9 @@ PROMPT;
                     'input' => [
                         ['type' => 'text',  'text' => $this->buildForensikPrompt()],
                         ['type' => 'text',  'text' => 'Gambar 1 (Foto KTP):'],
-                        ['type' => 'image', 'source' => [
-                            'type'       => 'base64',
-                            'media_type' => 'image/jpeg',
-                            'data'       => $ktpBase64,
-                        ]],
+                        ['type' => 'image', 'data' => $ktpBase64,  'mime_type' => 'image/jpeg'],
                         ['type' => 'text',  'text' => 'Gambar 2 (Foto Pendamping):'],
-                        ['type' => 'image', 'source' => [
-                            'type'       => 'base64',
-                            'media_type' => 'image/jpeg',
-                            'data'       => $pendBase64,
-                        ]],
+                        ['type' => 'image', 'data' => $pendBase64, 'mime_type' => 'image/jpeg'],
                     ],
                 ],
             ]);

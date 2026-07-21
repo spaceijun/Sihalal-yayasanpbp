@@ -272,10 +272,14 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::get('/result', [FaceMatchController::class, 'result'])->name('result');
         });
 
-        // KTP Verifikasi — AI forensik KTP vs foto_pendamping (Gemini Flash)
+        // KTP Verifikasi — AI forensik KTP vs ZIP foto (Gemini Flash, Queue-based)
         Route::prefix('ktp-verifikasi')->name('ktp-verifikasi.')->group(function () {
-            Route::get('/', [KtpVerifikasiController::class, 'index'])->name('index');
-            Route::post('/verify', [KtpVerifikasiController::class, 'verify'])->name('verify');
+            Route::get('/',                        [KtpVerifikasiController::class, 'index'])->name('index');
+            Route::post('/verify',                 [KtpVerifikasiController::class, 'verify'])->name('verify');
+            Route::get('/progress/{sessionKey}',   [KtpVerifikasiController::class, 'progress'])->name('progress');
+            Route::get('/status/{sessionKey}',     [KtpVerifikasiController::class, 'statusApi'])->name('status');
+            Route::get('/result/{sessionKey}',     [KtpVerifikasiController::class, 'result'])->name('result');
+            Route::get('/download/{sessionKey}',   [KtpVerifikasiController::class, 'download'])->name('download');
         });
     });
     Route::view('superadmin/dashboard', 'superadmin.home.index');

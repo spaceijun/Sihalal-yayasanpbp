@@ -136,14 +136,66 @@ PROMPT;
     }
 
     /**
-     * Lakukan verifikasi KTP terhadap semua foto_pendamping di database.
-     * Mengembalikan top 3 hasil terbaik diurutkan berdasarkan confidence tertinggi.
+     * Kumpulkan semua path gambar dari direktori (rekursif).
+     * Ekstensi yang diterima: jpg, jpeg, png, webp.
      *
-     * @param  string  $ktpPath  absolute path ke foto KTP yang diunggah
-     * @param  string  $apiKey  Gemini API key
+     * @return string[]
+     */
+    public function collectImagePaths(string $dir): array
+    {
+        if (! is_dir($dir)) {
+            return [];
+        }
+
+        $paths = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if (! $file->isFile()) {
+                continue;
+            }
+            $ext = strtolower($file->getExtension());
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $paths[] = $file->getPathname();
+            }
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Hapus direktori beserta seluruh isinya secara rekursif.
+     */
+    public function deleteDirectory(string $dir): void
+    {
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($items as $item) {
+            $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+        }
+
+        @rmdir($dir);
+    }
+
+    /**
+     * Verifikasi KTP terhadap semua foto yang diekstrak dari ZIP.
+     * Mengembalikan top 3 hasil terbaik.
+     *
+     * @param  string  $ktpPath     absolute path foto KTP
+     * @param  string  $extractDir  direktori hasil ekstrak ZIP
+     * @param  string  $apiKey      Gemini API key
      * @return array{results: array, total_scanned: int, ktp_info: array}
      */
-    public function verifikasiKtp(string $ktpPath, string $apiKey): array
+    public function verifikasiKtpDariZip(string $ktpPath, string $extractDir, string $apiKey): array
     {
         // Encode foto KTP
         $ktpBase64 = FaceMatchController::resizeAndEncode($ktpPath);
@@ -151,24 +203,13 @@ PROMPT;
             return ['results' => [], 'total_scanned' => 0, 'ktp_info' => []];
         }
 
-        // Ambil semua data yang memiliki foto_pendamping
-        $dataLapangans = DataLapangan::whereNotNull('foto_pendamping')
-            ->where('foto_pendamping', '!=', '')
-            ->with('enumerator')
-            ->select('id', 'enumerator_id', 'nama_pu', 'nik', 'no_registrasi', 'foto_pendamping')
-            ->get();
-
-        $allResults = [];
-        $ktpInfo = [];
+        $photoPaths   = $this->collectImagePaths($extractDir);
+        $allResults   = [];
+        $ktpInfo      = [];
         $totalScanned = 0;
 
-        foreach ($dataLapangans as $dl) {
-            $pendPath = storage_path('app/public/'.$dl->foto_pendamping);
-            if (! file_exists($pendPath)) {
-                continue;
-            }
-
-            $pendBase64 = FaceMatchController::resizeAndEncode($pendPath);
+        foreach ($photoPaths as $photoPath) {
+            $pendBase64 = FaceMatchController::resizeAndEncode($photoPath);
             if (! $pendBase64) {
                 continue;
             }
@@ -184,23 +225,18 @@ PROMPT;
             if (empty($ktpInfo) && ! empty($result['nama_ktp'])) {
                 $ktpInfo = [
                     'nama' => $result['nama_ktp'] ?? '-',
-                    'nik' => $result['nik_ktp'] ?? '-',
+                    'nik'  => $result['nik_ktp']  ?? '-',
                 ];
             }
 
             $allResults[] = [
                 'data' => [
-                    'id' => $dl->id,
-                    'hashed_id' => $dl->hashed_id,
-                    'nama_pu' => $dl->nama_pu,
-                    'nik' => $dl->nik,
-                    'no_registrasi' => $dl->no_registrasi ?? '-',
-                    'foto_pendamping' => $dl->foto_pendamping,
-                    'nama_enumerator' => $dl->enumerator?->nama_lengkap ?? '-',
-                    'enumerator_id' => $dl->enumerator_id,
+                    'nama_file'  => basename($photoPath),
+                    'path_foto'  => $photoPath,  // path lokal — hanya untuk thumbnail saat render
+                    'foto_base64'=> 'data:image/jpeg;base64,' . base64_encode(file_get_contents($photoPath)),
                 ],
-                'confidence' => (int) ($result['confidence'] ?? 0),
-                'status' => $result['status'] ?? 'Tidak Cocok',
+                'confidence'  => (int) ($result['confidence'] ?? 0),
+                'status'      => $result['status']      ?? 'Tidak Cocok',
                 'justifikasi' => $result['justifikasi'] ?? '-',
             ];
         }
@@ -209,10 +245,12 @@ PROMPT;
         usort($allResults, fn ($a, $b) => $b['confidence'] - $a['confidence']);
         $top3 = array_slice($allResults, 0, 3);
 
+        // Encode foto top 3 ke base64 untuk ditampilkan di view
+        // (file sudah akan dihapus setelah method ini selesai, jadi encode sekarang)
         return [
-            'results' => $top3,
+            'results'       => $top3,
             'total_scanned' => $totalScanned,
-            'ktp_info' => $ktpInfo,
+            'ktp_info'      => $ktpInfo,
         ];
     }
 }

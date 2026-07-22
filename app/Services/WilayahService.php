@@ -139,9 +139,9 @@ class WilayahService
                     $match = $results->first(fn ($item) => $this->looseMatch($item['district'] ?? '', $kecamatan));
                 }
 
-                if ($match && ! empty($match['postalcode'])) {
+                if ($match && ! empty($match['code'])) {
                     return [
-                        'kode_pos'  => (string) $match['postalcode'],
+                        'kode_pos'  => (string) $match['code'],
                         'latitude'  => isset($match['latitude']) ? (float) $match['latitude'] : null,
                         'longitude' => isset($match['longitude']) ? (float) $match['longitude'] : null,
                         'found'     => true,

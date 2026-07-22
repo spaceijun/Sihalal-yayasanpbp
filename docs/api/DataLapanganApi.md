@@ -328,6 +328,9 @@ curl -X GET "https://api.example.com/api/wilayah/villages?code=357103"
 
 Mendapatkan kode pos berdasarkan kelurahan yang dipilih. Otomatis dipanggil saat user memilih kelurahan.
 
+> **Sumber Data:** `kodepos.vercel.app` — API gratis tanpa API key.
+> **Cache:** Response di-cache selama 30 hari di server (karena data kode pos jarang berubah).
+
 ```
 GET /api/wilayah/kodepos?kelurahan={name}&kecamatan={name}&kabupaten={name}
 ```
@@ -352,9 +355,8 @@ curl -X GET "https://api.example.com/api/wilayah/kodepos?kelurahan=SAWAHAN&kecam
   "data": {
     "found": true,
     "kode_pos": "60251",
-    "kelurahan": "SAWAHAN",
-    "kecamatan": "SAWAHAN",
-    "kabupaten": "KOTA SURABAYA"
+    "latitude": -7.2664,
+    "longitude": 112.7524
   }
 }
 ```
@@ -366,9 +368,8 @@ curl -X GET "https://api.example.com/api/wilayah/kodepos?kelurahan=SAWAHAN&kecam
   "data": {
     "found": false,
     "kode_pos": null,
-    "kelurahan": "TIDAK TERDAFTAR",
-    "kecamatan": null,
-    "kabupaten": null
+    "latitude": null,
+    "longitude": null
   }
 }
 ```
@@ -378,6 +379,8 @@ curl -X GET "https://api.example.com/api/wilayah/kodepos?kelurahan=SAWAHAN&kecam
 - Gunakan kode dari response sebelumnya untuk request berikutnya (cascade)
 - Kode pos akan **otomatis terisi** saat user memilih kelurahan
 - Jika kode pos tidak ditemukan, field tetap bisa diisi manual
+- Response di-cache **30 hari** di server untuk menghindari request berulang ke sumber eksternal
+- Response menyertakan `latitude` dan `longitude` untuk keperluan pemetaan (jika tersedia)
 
 ---
 
@@ -1282,7 +1285,9 @@ class WilayahDropdownService {
   // ============================================================
   // 5. Auto-Fill Kode Pos (berdasarkan kelurahan)
   // ============================================================
-  static Future<String?> fetchKodePos({
+  /// Mengembalikan {kode_pos, latitude, longitude} atau null jika tidak ditemukan.
+  /// Sumber: kodepos.vercel.app (di-cache 30 hari di server).
+  static Future<Map<String, dynamic>?> fetchKodePos({
     required String kelurahan,
     String? kecamatan,
     String? kabupaten,
@@ -1299,7 +1304,11 @@ class WilayahDropdownService {
     final data = json.decode(response.body);
 
     if (data['success'] == true && data['data']['found'] == true) {
-      return data['data']['kode_pos'];
+      return {
+        'kode_pos': data['data']['kode_pos'] as String,
+        'latitude': data['data']['latitude'] as double?,
+        'longitude': data['data']['longitude'] as double?,
+      };
     }
     return null; // Tidak ditemukan — user bisa isi manual
   }
@@ -1596,8 +1605,8 @@ class _DataLapanganFormWidgetState extends State<DataLapanganFormWidget> {
     if (name == null) return;
     setState(() => _selectedVillageName = name);
 
-    // Auto-fill kode pos
-    final kodePos = await WilayahDropdownService.fetchKodePos(
+    // Auto-fill kode pos (sekarang juga dapat lat/long)
+    final result = await WilayahDropdownService.fetchKodePos(
       kelurahan: name,
       kecamatan: _selectedDistrictCode != null
           ? _districts.firstWhere((d) => d['code'] == _selectedDistrictCode)['name']
@@ -1607,8 +1616,13 @@ class _DataLapanganFormWidgetState extends State<DataLapanganFormWidget> {
           : null,
     );
 
-    if (kodePos != null) {
-      setState(() => _kodePosController.text = kodePos);
+    if (result != null) {
+      setState(() {
+        _kodePosController.text = result['kode_pos'] as String;
+        // Bisa simpan lat/long jika perlu untuk pemetaan
+        _latitude = result['latitude'] as double?;
+        _longitude = result['longitude'] as double?;
+      });
     }
   }
 

@@ -189,10 +189,16 @@ async function poll() {
 
             document.getElementById('processingArea').style.display = 'none';
             document.getElementById('doneArea').style.display = 'block';
-            document.getElementById('resultLink').href = data.result_url;
 
-            // Auto redirect setelah 2 detik
-            setTimeout(() => { window.location.href = data.result_url; }, 2000);
+            // Hanya redirect jika result_url valid (bukan null/undefined)
+            if (data.result_url && data.result_url !== 'null') {
+                document.getElementById('resultLink').href = data.result_url;
+                // Auto redirect setelah 2 detik
+                setTimeout(() => { window.location.href = data.result_url; }, 2000);
+            } else {
+                // Fallback: reload halaman status untuk trigger finalization ulang
+                setTimeout(() => { window.location.reload(); }, 3000);
+            }
         }
     } catch (e) {
         console.error('Poll error:', e);

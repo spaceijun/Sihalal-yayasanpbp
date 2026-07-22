@@ -19,8 +19,16 @@ class KtpVerifikasiJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $timeout = 40;
-    public int $tries   = 2;
+    public int $timeout = 60;
+    public int $tries   = 4;  // lebih banyak retry untuk handle 429
+
+    /**
+     * Delay antar retry (detik): [30s, 60s, 120s] — exponential backoff untuk 429.
+     */
+    public function backoff(): array
+    {
+        return [30, 60, 120];
+    }
 
     /**
      * 1 job = 1 foto dari ZIP.
@@ -141,6 +149,16 @@ PROMPT;
 
     private function callGemini(string $apiKey, array $ktpImages): ?array
     {
+        // ── Rate throttle: max 1 request per 2 detik per session ──────────────
+        // Mencegah jobs yang berjalan paralel flood Gemini API sekaligus.
+        $throttleKey = "gemini_throttle_{$this->sessionKey}";
+        $attempt = 0;
+        while (Cache::has($throttleKey) && $attempt < 15) {
+            sleep(2);
+            $attempt++;
+        }
+        Cache::put($throttleKey, 1, now()->addSeconds(2));
+
         try {
             // Build input: prompt → setiap KTP → foto pendamping
             $input = [
@@ -157,7 +175,7 @@ PROMPT;
             $input[] = ['type' => 'image', 'data'      => $this->photoBase64,
                                            'mime_type' => 'image/jpeg'];
 
-            $client   = new Client(['timeout' => 35]);
+            $client   = new Client(['timeout' => 55]);
             $response = $client->post(
                 'https://generativelanguage.googleapis.com/v1beta/interactions',
                 [
@@ -194,6 +212,23 @@ PROMPT;
 
             return is_array($parsed) ? $parsed : null;
 
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $status = $e->getResponse()->getStatusCode();
+
+            if ($status === 429) {
+                // Rate limit — baca Retry-After header jika ada
+                $retryAfter = (int) ($e->getResponse()->getHeaderLine('Retry-After') ?: 30);
+                Log::warning("KtpVerifikasiJob 429 [{$this->namaFile}]: Rate limited. Retry after {$retryAfter}s. Attempt {$this->attempts()}/{$this->tries}");
+
+                // Lempar exception agar job masuk antrian retry dengan backoff
+                // (JANGAN increment processed — foto ini belum diproses)
+                $this->release($retryAfter > 0 ? $retryAfter : 30);
+                return null;  // return null di sini tapi release sudah handle retry
+            }
+
+            Log::warning("KtpVerifikasiJob Gemini HTTP {$status} [{$this->namaFile}]: " . $e->getMessage());
+            return null;
+
         } catch (\Throwable $e) {
             Log::warning("KtpVerifikasiJob Gemini error [{$this->namaFile}]: " . $e->getMessage());
             return null;
@@ -222,6 +257,12 @@ PROMPT;
 
         $apiKey = (string) (Settingwebsite::value('gemini_api_key') ?? '');
         $result = $this->callGemini($apiKey, $ktpImages);
+
+        // Jika callGemini memanggil $this->release() (kasus 429), job akan di-retry.
+        // Cek apakah job sudah di-release — jika ya, jangan increment processed.
+        if ($this->isReleased()) {
+            return;
+        }
 
         // Increment counter sekali per foto (guard terhadap retry double-count)
         $this->incrementProcessedOnce();

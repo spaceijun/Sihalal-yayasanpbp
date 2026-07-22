@@ -54,6 +54,14 @@ class DataLapangan extends Model
         'nama_produk_4',
         'nama_produk_5',
         'alamat',
+        'provinsi',
+        'kabupaten',
+        'kecamatan',
+        'kelurahan',
+        'rt',
+        'rw',
+        'kode_pos',
+        'tanggal_lahir',
         'foto_proses',
         'foto_ktp',
         'foto_rumah',
@@ -71,6 +79,7 @@ class DataLapangan extends Model
         'file_oss',
         'has_nib',
         'file_sihalal',
+        'keterangan',
         'keterangan_oss',
         'keterangan_sihalal',
         'is_being_edited',
@@ -91,7 +100,51 @@ class DataLapangan extends Model
         'is_being_edited' => 'boolean',
         'has_nib' => 'boolean',
         'is_unlocked_for_data_entry' => 'boolean',
+        'tanggal_lahir' => 'date',
     ];
+
+    /**
+     * Get full formatted address
+     */
+    public function getFullAddressAttribute(): string
+    {
+        $parts = array_filter([
+            $this->alamat,
+            $this->rt ? 'RT ' . $this->rt : null,
+            $this->rw ? 'RW ' . $this->rw : null,
+            $this->kelurahan,
+            $this->kecamatan,
+            $this->kabupaten,
+            $this->provinsi,
+            $this->kode_pos ? 'PSTP ' . $this->kode_pos : null,
+        ]);
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Calculate age from tanggal_lahir
+     */
+    public function getUmurAttribute(): ?int
+    {
+        if (!$this->tanggal_lahir) {
+            return null;
+        }
+
+        return $this->tanggal_lahir->age;
+    }
+
+    /**
+     * Get formatted tanggal lahir
+     */
+    public function getFormattedTanggalLahirAttribute(): ?string
+    {
+        if (!$this->tanggal_lahir) {
+            return null;
+        }
+
+        return $this->tanggal_lahir->format('d/m/Y');
+    }
 
     public function scopeAvailable($query)
     {

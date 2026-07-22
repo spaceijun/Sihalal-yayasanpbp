@@ -636,8 +636,7 @@ Setting Website
                             </div>
                             <div>
                                 <div class="mnt-title">Google Gemini Flash API</div>
-                                <div class="mnt-desc">Digunakan untuk fitur <strong>Verifikasi KTP</strong> — analisis
-                                    biometrik forensik KTP vs foto pendamping</div>
+                                <div class="mnt-desc">Digunakan untuk fitur <strong>OCR Scan KTP</strong> — ekstrak data dari foto KTP secara otomatis dan <strong>Verifikasi KTP</strong> — analisis biometrik forensik KTP vs foto pendamping</div>
                             </div>
                         </div>
                         @if (!empty($geminiApiKey))

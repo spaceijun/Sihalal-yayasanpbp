@@ -70,6 +70,18 @@
                         <hr>
 
                         <div class="form-group mb-3">
+                            <strong>Tanggal Lahir</strong>
+                            <p class="text-muted mb-0">
+                                {{ $dataLapangan->formatted_tanggal_lahir ?? '—' }}
+                                @if($dataLapangan->umur)
+                                    <span class="badge bg-secondary ms-1">{{ $dataLapangan->umur }} tahun</span>
+                                @endif
+                            </p>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group mb-3">
                             <strong>Telephone</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->telephone }}</p>
                         </div>
@@ -91,6 +103,39 @@
                             <strong>Alamat</strong>
                             <p class="text-muted mb-0">{{ $dataLapangan->alamat }}</p>
                         </div>
+
+                        @if ($dataLapangan->provinsi || $dataLapangan->kabupaten)
+                            <div class="form-group mb-3">
+                                <strong>Provinsi</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->provinsi ?? '—' }}</p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <strong>Kabupaten/Kota</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->kabupaten ?? '—' }}</p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <strong>Kecamatan</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->kecamatan ?? '—' }}</p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <strong>Desa/Kelurahan</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->kelurahan ?? '—' }}</p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <strong>RT/RW</strong>
+                                <p class="text-muted mb-0">
+                                    @if ($dataLapangan->rt || $dataLapangan->rw)
+                                        {{ $dataLapangan->rt ? 'RT ' . $dataLapangan->rt : '' }}{{ $dataLapangan->rw ? ' / RW ' . $dataLapangan->rw : '' }}
+                                    @else
+                                        —
+                                    @endif
+                                </p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <strong>Kode Pos</strong>
+                                <p class="text-muted mb-0">{{ $dataLapangan->kode_pos ?? '—' }}</p>
+                            </div>
+                        @endif
 
                         <hr>
 

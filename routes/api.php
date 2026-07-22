@@ -14,8 +14,10 @@ use App\Http\Controllers\Api\Enumerator\TicketController as EnumeratorTicketCont
 use App\Http\Controllers\Api\Enumerator\DataBankEnumeratorController;
 use App\Http\Controllers\Api\Enumerator\TarikSaldoEnumController;
 use App\Http\Controllers\Api\FcmController;
+use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\RankingPendampingApiController;
 use App\Http\Controllers\Api\RingkasanController;
+use App\Http\Controllers\Api\WilayahController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +52,24 @@ Route::get('/ringkasan', [RingkasanController::class, 'index'])
 Route::get('ranking-pendamping', [RankingPendampingApiController::class, 'index'])
     ->middleware('throttle:60,1')
     ->name('api.ranking-pendamping');
+
+// ──────────────────────────────────────────────────────────
+// WILAYAH (PUBLIC) - Cascading dropdown Indonesia
+// ──────────────────────────────────────────────────────────
+Route::prefix('wilayah')->name('api.wilayah.')->group(function () {
+    Route::get('/provinces', [WilayahController::class, 'provinces'])->name('provinces');
+    Route::get('/regencies', [WilayahController::class, 'regencies'])->name('regencies');
+    Route::get('/districts', [WilayahController::class, 'districts'])->name('districts');
+    Route::get('/villages', [WilayahController::class, 'villages'])->name('villages');
+    Route::get('/kodepos', [WilayahController::class, 'kodePos'])->name('kodepos');
+});
+
+// ──────────────────────────────────────────────────────────
+// OCR SCAN KTP (PUBLIC) - Using Gemini Flash API
+// ──────────────────────────────────────────────────────────
+Route::post('/scan-ktp', [OcrController::class, 'scanKtp'])
+    ->middleware('throttle:10,1') // 10 scans per minute
+    ->name('api.scan-ktp');
 
 // ──────────────────────────────────────────────────────────
 // DATA ENTRY ROUTES (sanctum) - WITH RATE LIMITING

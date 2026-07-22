@@ -848,12 +848,205 @@
             .fh-produk-item-grid {
                 grid-template-columns: 1fr;
             }
+
+            .fh-address-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+
+        /* Scan button */
+        .fh-btn-scan {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 44px;
+            width: 100%;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, .3);
+        }
+
+        .fh-btn-scan:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, .4);
+        }
+
+        .fh-btn-scan:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .fh-btn-scan .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* OCR result overlay */
+        .ocr-result-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s, visibility .3s;
+        }
+
+        .ocr-result-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ocr-result-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+        }
+
+        .ocr-result-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0F1F40;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ocr-result-title svg {
+            width: 20px;
+            height: 20px;
+            stroke: #059669;
+        }
+
+        .ocr-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #EDF0F7;
+            font-size: 13px;
+        }
+
+        .ocr-field:last-child {
+            border-bottom: none;
+        }
+
+        .ocr-field-label {
+            color: #6B7A99;
+        }
+
+        .ocr-field-value {
+            color: #0F1F40;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .ocr-field-value.success {
+            color: #059669;
+        }
+
+        .ocr-field-value.empty {
+            color: #B0BCCE;
+            font-style: italic;
+        }
+
+        .ocr-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .ocr-actions button {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .ocr-btn-apply {
+            background: #059669;
+            color: #fff;
+            border: none;
+        }
+
+        .ocr-btn-apply:hover {
+            background: #047857;
+        }
+
+        .ocr-btn-retry {
+            background: #F5F7FB;
+            color: #6B7A99;
+            border: 1px solid #E0E7F0;
+        }
+
+        .ocr-btn-retry:hover {
+            background: #EDF0F7;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s, visibility .3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
-
-
-    <div class="fh-root">
-        </style>
 
         <div class="fh-root">
             <div class="fh-orb fh-orb-1"></div>
@@ -1071,12 +1264,105 @@
                             </div>
 
                             <div class="fh-field">
+                                <label class="fh-label" for="tanggal_lahir">Tanggal Lahir</label>
+                                <input type="date" id="tanggal_lahir" name="tanggal_lahir"
+                                    class="fh-input @error('tanggal_lahir') is-invalid @enderror"
+                                    value="{{ old('tanggal_lahir') }}"
+                                    placeholder="Pilih tanggal lahir">
+                                @error('tanggal_lahir')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
                                 <label class="fh-label" for="alamat">Alamat <span class="req">*</span></label>
                                 <textarea id="alamat" name="alamat" class="fh-textarea @error('alamat') is-invalid @enderror" required
                                     placeholder="Masukkan alamat lengkap pelaku usaha">{{ old('alamat') }}</textarea>
                                 @error('alamat')
                                     <span class="fh-error">{{ $message }}</span>
                                 @enderror
+                            </div>
+
+                            {{-- SECTION 2B: ALAMAT LENGKAP (Wilayah Indonesia) --}}
+                            <div class="fh-section-title" style="margin-top:1.5rem;">Alamat Lengkap (Wilayah)</div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="provinsi">Provinsi <span class="req">*</span></label>
+                                <select id="provinsi" name="provinsi" class="fh-select @error('provinsi') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Provinsi --</option>
+                                </select>
+                                <span class="fh-hint">Pilih provinsi sesuai KTP</span>
+                                @error('provinsi')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="kabupaten">Kabupaten/Kota <span class="req">*</span></label>
+                                <select id="kabupaten" name="kabupaten" class="fh-select @error('kabupaten') is-invalid @enderror" required disabled>
+                                    <option value="">-- Pilih Kabupaten/Kota --</option>
+                                </select>
+                                @error('kabupaten')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="kecamatan">Kecamatan <span class="req">*</span></label>
+                                <select id="kecamatan" name="kecamatan" class="fh-select @error('kecamatan') is-invalid @enderror" required disabled>
+                                    <option value="">-- Pilih Kecamatan --</option>
+                                </select>
+                                @error('kecamatan')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="fh-field">
+                                <label class="fh-label" for="kelurahan">Desa/Kelurahan <span class="req">*</span></label>
+                                <select id="kelurahan" name="kelurahan" class="fh-select @error('kelurahan') is-invalid @enderror" required disabled>
+                                    <option value="">-- Pilih Desa/Kelurahan --</option>
+                                </select>
+                                @error('kelurahan')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px;">
+                                <div class="fh-field">
+                                    <label class="fh-label" for="rt">RT</label>
+                                    <input type="text" id="rt" name="rt" class="fh-input @error('rt') is-invalid @enderror"
+                                        value="{{ old('rt') }}" placeholder="001" maxlength="3" inputmode="numeric">
+                                    @error('rt')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label" for="rw">RW</label>
+                                    <input type="text" id="rw" name="rw" class="fh-input @error('rw') is-invalid @enderror"
+                                        value="{{ old('rw') }}" placeholder="005" maxlength="3" inputmode="numeric">
+                                    @error('rw')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label" for="kode_pos">Kode Pos</label>
+                                    <input type="text" id="kode_pos" name="kode_pos" class="fh-input @error('kode_pos') is-invalid @enderror"
+                                        value="{{ old('kode_pos') }}" placeholder="12345" maxlength="5" inputmode="numeric">
+                                    @error('kode_pos')
+                                        <span class="fh-error">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="fh-field">
+                                    <label class="fh-label">&nbsp;</label>
+                                    <button type="button" id="btnScanKtp" class="fh-btn-scan" style="display:none;">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                        Scan KTP
+                                    </button>
+                                </div>
                             </div>
 
                             {{-- SECTION 3: PRODUK --}}
@@ -1206,12 +1492,35 @@
 
                     <div class="fh-footer">
                         &copy;
-                        <script>
-                            document.write(new Date().getFullYear())
-                        </script> Kawulo Halal. All rights reserved.
+                        <script>document.write(new Date().getFullYear())</script> Kawulo Halal. All rights reserved.
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        {{-- Loading Overlay --}}
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Memindai KTP...</div>
+        </div>
+
+        {{-- OCR Result Overlay --}}
+        <div class="ocr-result-overlay" id="ocrResultOverlay">
+            <div class="ocr-result-box">
+                <div class="ocr-result-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Hasil Pemindaian KTP
+                </div>
+                <div id="ocrResultContent">
+                    {{-- Dynamically filled by JS --}}
+                </div>
+                <div class="ocr-actions">
+                    <button type="button" class="ocr-btn-retry" onclick="closeOcrResult()">Tutup</button>
+                    <button type="button" class="ocr-btn-apply" onclick="applyOcrResult()">Terapkan Data</button>
+                </div>
             </div>
         </div>
 
@@ -1222,6 +1531,437 @@
                     {{ $enumerator->id }}: "{{ $enumerator->status }}",
                 @endforeach
             };
+
+            // OCR Result Data (will be populated after scan)
+            let ocrResultData = null;
+
+            // Show loading overlay
+            function showLoading(text = 'Memindai KTP...') {
+                document.getElementById('loadingText').textContent = text;
+                document.getElementById('loadingOverlay').classList.add('active');
+            }
+
+            // Hide loading overlay
+            function hideLoading() {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }
+
+            // Show OCR result
+            function showOcrResult(data) {
+                ocrResultData = data;
+                const content = document.getElementById('ocrResultContent');
+                const fields = [
+                    { label: 'NIK', key: 'nik' },
+                    { label: 'Nama', key: 'nama' },
+                    { label: 'Tempat Lahir', key: 'tempat_lahir' },
+                    { label: 'Tanggal Lahir', key: 'tanggal_lahir' },
+                    { label: 'Jenis Kelamin', key: 'jenis_kelamin' },
+                    { label: 'Alamat', key: 'alamat' },
+                    { label: 'RT/RW', key: 'rt', suffix: '/', key2: 'rw' },
+                    { label: 'Kelurahan', key: 'kelurahan' },
+                    { label: 'Kecamatan', key: 'kecamatan' },
+                    { label: 'Kabupaten', key: 'kabupaten' },
+                    { label: 'Provinsi', key: 'provinsi' },
+                    { label: 'Kode Pos', key: 'kode_pos' },
+                ];
+
+                let html = '';
+                fields.forEach(field => {
+                    let value = data[field.key] || '-';
+                    if (field.key2 && data[field.key2]) {
+                        value = (data[field.key] || '-') + field.suffix + data[field.key2];
+                    }
+                    const isEmpty = value === '-' || value === '';
+                    html += `
+                        <div class="ocr-field">
+                            <span class="ocr-field-label">${field.label}</span>
+                            <span class="ocr-field-value ${isEmpty ? 'empty' : 'success'}">${isEmpty ? 'Tidak terdeteksi' : value}</span>
+                        </div>
+                    `;
+                });
+                content.innerHTML = html;
+                document.getElementById('ocrResultOverlay').classList.add('active');
+            }
+
+            // Close OCR result overlay
+            function closeOcrResult() {
+                document.getElementById('ocrResultOverlay').classList.remove('active');
+            }
+
+            // Apply OCR result to form
+            function applyOcrResult() {
+                if (!ocrResultData) return;
+
+                // Apply NIK
+                if (ocrResultData.nik) {
+                    document.getElementById('nik').value = ocrResultData.nik;
+                    document.getElementById('nik').dispatchEvent(new Event('input'));
+                }
+
+                // Apply Nama
+                if (ocrResultData.nama) {
+                    document.getElementById('nama_pu').value = ocrResultData.nama.toUpperCase();
+                }
+
+                // Apply Alamat
+                if (ocrResultData.alamat) {
+                    document.getElementById('alamat').value = ocrResultData.alamat;
+                }
+
+                // Apply Tanggal Lahir — Gemini mengembalikan format dd-mm-yyyy atau dd/mm/yyyy
+                // HTML date input butuh format yyyy-mm-dd
+                if (ocrResultData.tanggal_lahir) {
+                    try {
+                        const rawTgl = ocrResultData.tanggal_lahir.trim();
+                        // Match pola dd-mm-yyyy atau dd/mm/yyyy
+                        const tglMatch = rawTgl.match(/^(\d{1,2})[\-\/](\d{1,2})[\-\/](\d{4})$/);
+                        if (tglMatch) {
+                            const dd = tglMatch[1].padStart(2, '0');
+                            const mm = tglMatch[2].padStart(2, '0');
+                            const yyyy = tglMatch[3];
+                            document.getElementById('tanggal_lahir').value = `${yyyy}-${mm}-${dd}`;
+                        } else {
+                            // Coba langsung jika sudah format yyyy-mm-dd
+                            document.getElementById('tanggal_lahir').value = rawTgl;
+                        }
+                    } catch(e) {
+                        console.warn('Format tanggal lahir tidak dikenali:', ocrResultData.tanggal_lahir);
+                    }
+                }
+
+                // Apply RT/RW
+                if (ocrResultData.rt) {
+                    document.getElementById('rt').value = ocrResultData.rt;
+                }
+                if (ocrResultData.rw) {
+                    document.getElementById('rw').value = ocrResultData.rw;
+                }
+
+                // Apply Provinsi (with cascade)
+                if (ocrResultData.provinsi) {
+                    selectWilayahByName('provinsi', ocrResultData.provinsi, function() {
+                        // After province selected, select kabupaten
+                        if (ocrResultData.kabupaten) {
+                            selectWilayahByName('kabupaten', ocrResultData.kabupaten, function() {
+                                // After kabupaten selected, select kecamatan
+                                if (ocrResultData.kecamatan) {
+                                    selectWilayahByName('kecamatan', ocrResultData.kecamatan, function() {
+                                        // After kecamatan selected, select kelurahan
+                                        if (ocrResultData.kelurahan) {
+                                            selectWilayahByName('kelurahan', ocrResultData.kelurahan, function() {
+                                                // Auto-fetch kode_pos based on selected village
+                                                fetchKodePos();
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+
+                closeOcrResult();
+                hideLoading();
+            }
+
+            // Pilih wilayah berdasarkan nama (helper untuk OCR apply)
+            // Menggunakan event 'wilayah:loaded' agar tidak ada race condition
+            function selectWilayahByName(selectId, name, callback) {
+                const select = document.getElementById(selectId);
+
+                function tryMatch() {
+                    const options = select.options;
+                    const nameLower = name.toLowerCase().trim();
+                    for (let i = 0; i < options.length; i++) {
+                        const optText = (options[i].text || '').toLowerCase().trim();
+                        if (optText === nameLower || optText.includes(nameLower) || nameLower.includes(optText)) {
+                            select.value = options[i].value;
+                            select.dispatchEvent(new Event('change'));
+                            // Tunggu sampai opsi berikutnya selesai dimuat
+                            setTimeout(callback, 700);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                // Jika select sudah punya opsi (>1), langsung match
+                if (select.options.length > 1) {
+                    if (!tryMatch()) {
+                        console.warn('Wilayah tidak ditemukan:', selectId, name);
+                        callback();
+                    }
+                } else {
+                    // Tunggu event 'wilayah:loaded' yang akan di-dispatch setelah populateSelect
+                    select.addEventListener('wilayah:loaded', function handler() {
+                        select.removeEventListener('wilayah:loaded', handler);
+                        if (!tryMatch()) {
+                            console.warn('Wilayah tidak ditemukan:', selectId, name);
+                            callback();
+                        }
+                    }, { once: true });
+                }
+            }
+
+            // Scan KTP function
+            async function scanKtp() {
+                const fileInput = document.getElementById('foto_ktp');
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    alert('Silakan upload foto KTP terlebih dahulu');
+                    return;
+                }
+
+                showLoading('Memindai KTP dengan AI...');
+
+                const formData = new FormData();
+                formData.append('foto_ktp', file);
+
+                try {
+                    const response = await fetch('{{ route('api.scan-ktp') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    hideLoading();
+
+                    if (result.success) {
+                        showOcrResult(result.data);
+                    } else {
+                        alert(result.message || 'Gagal memindai KTP');
+                    }
+                } catch (error) {
+                    hideLoading();
+                    console.error('OCR Error:', error);
+                    alert('Terjadi kesalahan saat memindai KTP');
+                }
+            }
+
+            // Wilayah cascade functions
+            let wilayahCache = {
+                provinces: [],
+                regencies: {},
+                districts: {},
+                villages: {}
+            };
+
+            async function loadProvinces() {
+                try {
+                    const response = await fetch('/api/wilayah/provinces');
+                    const result = await response.json();
+                    if (result.success) {
+                        wilayahCache.provinces = result.data;
+                        populateSelect('provinsi', result.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading provinces:', error);
+                }
+            }
+
+            async function loadRegencies(provinceCode) {
+                if (!provinceCode) return;
+
+                try {
+                    const response = await fetch(`/api/wilayah/regencies?code=${provinceCode}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        wilayahCache.regencies[provinceCode] = result.data;
+                        populateSelect('kabupaten', result.data);
+                        document.getElementById('kabupaten').disabled = false;
+                        // Reset downstream selects
+                        resetSelect('kecamatan');
+                        resetSelect('kelurahan');
+                    }
+                } catch (error) {
+                    console.error('Error loading regencies:', error);
+                }
+            }
+
+            async function loadDistricts(regencyCode) {
+                if (!regencyCode) return;
+
+                try {
+                    const response = await fetch(`/api/wilayah/districts?code=${regencyCode}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        wilayahCache.districts[regencyCode] = result.data;
+                        populateSelect('kecamatan', result.data);
+                        document.getElementById('kecamatan').disabled = false;
+                        resetSelect('kelurahan');
+                    }
+                } catch (error) {
+                    console.error('Error loading districts:', error);
+                }
+            }
+
+            async function loadVillages(districtCode) {
+                if (!districtCode) return;
+
+                try {
+                    const response = await fetch(`/api/wilayah/villages?code=${districtCode}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        wilayahCache.villages[districtCode] = result.data;
+                        populateSelect('kelurahan', result.data);
+                        document.getElementById('kelurahan').disabled = false;
+                        // Auto-fetch kode_pos when villages are loaded (for OCR auto-fill)
+                        setTimeout(fetchKodePos, 100);
+                    }
+                } catch (error) {
+                    console.error('Error loading villages:', error);
+                }
+            }
+
+            /**
+             * Fetch kode_pos from API based on selected village, kecamatan, and kabupaten.
+             * Auto-fills the kode_pos input field.
+             * Has retry logic for when dropdown options are not yet populated.
+             */
+            async function fetchKodePos(retries = 0) {
+                const kelurahanSelect = document.getElementById('kelurahan');
+                const selectedOption = kelurahanSelect.options[kelurahanSelect.selectedIndex];
+
+                // If no option selected or placeholder is shown, skip
+                if (!selectedOption || !selectedOption.value || selectedOption.value === '') {
+                    return;
+                }
+
+                const kelurahan = selectedOption.getAttribute('data-name') || selectedOption.textContent;
+
+                // If placeholder text, retry once after short delay
+                if (!kelurahan || kelurahan === '-- Pilih --' || kelurahan === '-- Pilih --') {
+                    if (retries < 3) {
+                        await new Promise(r => setTimeout(r, 300));
+                        return fetchKodePos(retries + 1);
+                    }
+                    return;
+                }
+
+                // Get kecamatan name from selected option
+                const kecamatanSelect = document.getElementById('kecamatan');
+                const kecamatanOption = kecamatanSelect.options[kecamatanSelect.selectedIndex];
+                const kecamatan = kecamatanOption ? (kecamatanOption.getAttribute('data-name') || kecamatanOption.textContent) : '';
+
+                // Get kabupaten name from selected option
+                const kabupatenSelect = document.getElementById('kabupaten');
+                const kabupatenOption = kabupatenSelect.options[kabupatenSelect.selectedIndex];
+                const kabupaten = kabupatenOption ? (kabupatenOption.getAttribute('data-name') || kabupatenOption.textContent) : '';
+
+                try {
+                    const params = new URLSearchParams({
+                        kelurahan: kelurahan,
+                        kecamatan: kecamatan || '',
+                        kabupaten: kabupaten || ''
+                    });
+
+                    const response = await fetch(`/api/wilayah/kodepos?${params}`);
+                    const result = await response.json();
+
+                    if (result.success && result.data.found && result.data.kode_pos) {
+                        document.getElementById('kode_pos').value = result.data.kode_pos;
+                    }
+                } catch (error) {
+                    console.error('Error fetching kode pos:', error);
+                }
+            }
+
+            function populateSelect(selectId, data) {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">-- Pilih --</option>';
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    // value = code (untuk trigger cascade API)
+                    // data-name = text name (yang dikirim ke DB via hidden input)
+                    option.value = item.code;
+                    option.setAttribute('data-name', item.name);
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                });
+                // Dispatch event agar selectWilayahByName tahu data sudah siap
+                select.dispatchEvent(new Event('wilayah:loaded'));
+            }
+
+            function resetSelect(selectId) {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">-- Pilih --</option>';
+                select.disabled = true;
+            }
+
+            function padRtRw(value) {
+                if (!value) return '';
+                value = value.replace(/\D/g, '');
+                return value.padStart(3, '0').substring(0, 3);
+            }
+
+            // Event Listeners
+            document.addEventListener('DOMContentLoaded', function() {
+                // Load provinces on page load
+                loadProvinces();
+
+                // Provinsi change -> load regencies
+                document.getElementById('provinsi').addEventListener('change', function() {
+                    loadRegencies(this.value);
+                });
+
+                // Kabupaten change -> load districts
+                document.getElementById('kabupaten').addEventListener('change', function() {
+                    loadDistricts(this.value);
+                });
+
+                // Kecamatan change -> load villages
+                document.getElementById('kecamatan').addEventListener('change', function() {
+                    loadVillages(this.value);
+                });
+
+                // Kelurahan change -> auto-fetch kode_pos
+                document.getElementById('kelurahan').addEventListener('change', function() {
+                    fetchKodePos();
+                });
+
+                // RT/RW auto-pad to 3 digits
+                document.getElementById('rt').addEventListener('blur', function() {
+                    this.value = padRtRw(this.value);
+                });
+                document.getElementById('rw').addEventListener('blur', function() {
+                    this.value = padRtRw(this.value);
+                });
+
+                // Show scan button when KTP photo is uploaded
+                document.getElementById('foto_ktp').addEventListener('change', function() {
+                    const btn = document.getElementById('btnScanKtp');
+                    btn.style.display = this.files.length > 0 ? 'flex' : 'none';
+                });
+
+                // Scan button click
+                document.getElementById('btnScanKtp').addEventListener('click', scanKtp);
+
+                // PENTING: sebelum form di-submit, ganti value select wilayah
+                // dari kode (digunakan untuk cascade API) ke nama teks (yang disimpan ke DB)
+                document.getElementById('formDataLapangan').addEventListener('submit', function() {
+                    ['provinsi', 'kabupaten', 'kecamatan', 'kelurahan'].forEach(function(id) {
+                        const sel = document.getElementById(id);
+                        if (!sel || !sel.value) return;
+                        const selectedOpt = sel.options[sel.selectedIndex];
+                        const textName = selectedOpt
+                            ? (selectedOpt.getAttribute('data-name') || selectedOpt.textContent)
+                            : '';
+                        if (textName && textName.trim()) {
+                            const hidden = document.createElement('input');
+                            hidden.type  = 'hidden';
+                            hidden.name  = id;
+                            hidden.value = textName.trim();
+                            sel.parentNode.appendChild(hidden);
+                            sel.removeAttribute('name'); // cegah duplikasi saat submit
+                        }
+                    });
+                });
+            });
         </script>
         <script src="{{ asset('assets/js/form-halal.js') }}"></script>
-    @endsection
+    </div>{{-- end .fh-root --}}
+@endsection

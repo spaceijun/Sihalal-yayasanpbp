@@ -161,6 +161,15 @@ class DataLapanganEnumController extends Controller
             'foto-proses' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'foto-produk' => 'required|image|mimes:jpg,jpeg,png|max:2048',
 
+            // Address fields (new)
+            'provinsi' => 'nullable|string|max:100',
+            'kabupaten' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'rt' => 'nullable|string|size:3',
+            'rw' => 'nullable|string|size:3',
+            'kode_pos' => 'nullable|string|max:5',
+
             // NIB
             'has_nib' => 'required|in:true,false,1,0',
             'file_oss' => 'nullable|file|mimes:pdf|max:5120|required_if:has_nib,true,has_nib,1',
@@ -225,6 +234,14 @@ class DataLapanganEnumController extends Controller
                 'telephone' => $request->telephone,
                 'nama_produk' => $request->nama_produk,
                 'alamat' => $request->alamat,
+                'provinsi' => $request->provinsi,
+                'kabupaten' => $request->kabupaten,
+                'kecamatan' => $request->kecamatan,
+                'kelurahan' => $request->kelurahan,
+                'rt' => $request->rt,
+                'rw' => $request->rw,
+                'kode_pos' => $request->kode_pos,
+                'tanggal_lahir' => $request->tanggal_lahir,
                 'has_nib' => $hasNib,  // ← simpan nilai asli pilihan user
                 'nama_produk_2' => $request->nama_produk_2,
                 'nama_produk_3' => $request->nama_produk_3,
@@ -276,6 +293,15 @@ class DataLapanganEnumController extends Controller
             'telephone' => 'sometimes|required|string|max:15',
             'nama_produk' => 'sometimes|required|string|max:255',
             'alamat' => 'sometimes|required|string',
+            // Address fields (new)
+            'provinsi' => 'nullable|string|max:100',
+            'kabupaten' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'rt' => 'nullable|string|size:3',
+            'rw' => 'nullable|string|size:3',
+            'kode_pos' => 'nullable|string|max:5',
+            'tanggal_lahir' => 'nullable|date',
             'has_nib' => 'sometimes|in:true,false,1,0',
             'nama_produk_2' => 'nullable|string|max:255',
             'nama_produk_3' => 'nullable|string|max:255',
@@ -318,6 +344,28 @@ class DataLapanganEnumController extends Controller
             }
             if ($request->has('alamat')) {
                 $dataToUpdate['alamat'] = $request->alamat;
+            }
+            // Address fields
+            if ($request->has('provinsi')) {
+                $dataToUpdate['provinsi'] = $request->provinsi;
+            }
+            if ($request->has('kabupaten')) {
+                $dataToUpdate['kabupaten'] = $request->kabupaten;
+            }
+            if ($request->has('kecamatan')) {
+                $dataToUpdate['kecamatan'] = $request->kecamatan;
+            }
+            if ($request->has('kelurahan')) {
+                $dataToUpdate['kelurahan'] = $request->kelurahan;
+            }
+            if ($request->has('rt')) {
+                $dataToUpdate['rt'] = $request->rt;
+            }
+            if ($request->has('rw')) {
+                $dataToUpdate['rw'] = $request->rw;
+            }
+            if ($request->has('kode_pos')) {
+                $dataToUpdate['kode_pos'] = $request->kode_pos;
             }
             if ($request->has('nama_produk_2')) {
                 $dataToUpdate['nama_produk_2'] = $request->nama_produk_2;
@@ -467,6 +515,14 @@ class DataLapanganEnumController extends Controller
                 'nama_produk_4' => $data['nama_produk_4'] ?? null,
                 'nama_produk_5' => $data['nama_produk_5'] ?? null,
                 'alamat' => $data['alamat'],
+                'provinsi' => $data['provinsi'] ?? null,
+                'kabupaten' => $data['kabupaten'] ?? null,
+                'kecamatan' => $data['kecamatan'] ?? null,
+                'kelurahan' => $data['kelurahan'] ?? null,
+                'rt' => $data['rt'] ?? null,
+                'rw' => $data['rw'] ?? null,
+                'kode_pos' => $data['kode_pos'] ?? null,
+                'tanggal_lahir' => $data['tanggal_lahir'] ?? null,
                 'foto_ktp' => $data['foto_ktp'],
                 'foto_rumah' => $data['foto_rumah'],
                 'foto_pendamping' => $data['foto_pendamping'],
@@ -498,6 +554,16 @@ class DataLapanganEnumController extends Controller
             'nama_produk_4' => $item->nama_produk_4,
             'nama_produk_5' => $item->nama_produk_5,
             'alamat' => $item->alamat,
+            'provinsi' => $item->provinsi,
+            'kabupaten' => $item->kabupaten,
+            'kecamatan' => $item->kecamatan,
+            'kelurahan' => $item->kelurahan,
+            'rt' => $item->rt,
+            'rw' => $item->rw,
+            'kode_pos' => $item->kode_pos,
+            'tanggal_lahir' => $item->tanggal_lahir?->format('Y-m-d'),
+            'umur' => $item->umur,
+            'full_address' => $item->full_address,
             'foto_ktp' => $item->foto_ktp ? Storage::url($item->foto_ktp) : null,
             'foto_rumah' => $item->foto_rumah ? Storage::url($item->foto_rumah) : null,
             'foto_pendamping' => $item->foto_pendamping ? Storage::url($item->foto_pendamping) : null,

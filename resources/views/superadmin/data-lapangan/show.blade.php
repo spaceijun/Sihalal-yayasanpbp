@@ -308,9 +308,10 @@
                                     ['Pendamping', $dataLapangan->enumerator->nama_lengkap],
                                     ['Nama PU', $dataLapangan->nama_pu],
                                     ['NIK', $dataLapangan->nik],
+                                    ['Tanggal Lahir', $dataLapangan->formatted_tanggal_lahir ?? '—'],
+                                    ['Umur', $dataLapangan->umur ? $dataLapangan->umur . ' tahun' : '—'],
                                     ['No. Telepon', $dataLapangan->telephone ?? '—'],
                                     ['Email', $dataLapangan->email ?? '—'],
-                                    ['Alamat', $dataLapangan->alamat],
                                 ];
                             @endphp
                             @foreach ($infoFields as $f)
@@ -319,6 +320,37 @@
                                     <td class="dl-val" style="padding-right:1.25rem;">{{ $f[1] }}</td>
                                 </tr>
                             @endforeach
+                            {{-- Alamat Lengkap --}}
+                            @if ($dataLapangan->provinsi || $dataLapangan->kabupaten)
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">Provinsi</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->provinsi ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">Kabupaten/Kota</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->kabupaten ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">Kecamatan</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->kecamatan ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">Desa/Kelurahan</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->kelurahan ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">RT/RW</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ ($dataLapangan->rt ? 'RT ' . $dataLapangan->rt : '') . ($dataLapangan->rw ? ' / RW ' . $dataLapangan->rw : '') ?: '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="dl-key" style="padding-left:1.25rem;">Kode Pos</td>
+                                    <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->kode_pos ?? '—' }}</td>
+                                </tr>
+                            @endif
+                            <tr>
+                                <td class="dl-key" style="padding-left:1.25rem;">Alamat Lengkap</td>
+                                <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->full_address ?: $dataLapangan->alamat }}</td>
+                            </tr>
                             <tr>
                                 <td class="dl-key" style="padding-left:1.25rem;">Status</td>
                                 <td class="dl-val" style="padding-right:1.25rem;">

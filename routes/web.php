@@ -257,6 +257,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         // Peta Sebaran Data Lapangan
         Route::get('peta-sebaran', [PetaSebaranController::class, 'index'])->name('peta-sebaran.index');
         Route::get('peta-sebaran/data', [PetaSebaranController::class, 'data'])->name('peta-sebaran.data');
+        Route::get('peta-sebaran/statistik-detail', [PetaSebaranController::class, 'statistikDetail'])->name('peta-sebaran.statistik-detail');
         Route::post('peta-sebaran/geocode', [PetaSebaranController::class, 'geocodeKecamatan'])->name('peta-sebaran.geocode');
         Route::post('peta-sebaran/clear-cache', [PetaSebaranController::class, 'clearCache'])->name('peta-sebaran.clear-cache');
 

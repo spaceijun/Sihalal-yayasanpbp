@@ -31,6 +31,9 @@
         <button id="btnRefresh" class="ps-btn ps-btn-primary">
             <i data-feather="refresh-cw"></i><span>Muat Ulang</span>
         </button>
+        <button id="btnDetailStatistik" class="ps-btn ps-btn-detail">
+            <i data-feather="bar-chart-2"></i><span>Detail Statistik</span>
+        </button>
     </div>
 </div>
 
@@ -88,7 +91,8 @@
 <div class="ps-map-card">
     <div id="petaSebaranMap"
          data-url="{{ route($routePrefix . '.peta-sebaran.data') }}"
-         data-geocode-url="{{ route($routePrefix . '.peta-sebaran.geocode') }}">
+         data-geocode-url="{{ route($routePrefix . '.peta-sebaran.geocode') }}"
+         data-statistik-url="{{ route($routePrefix . '.peta-sebaran.statistik-detail') }}">
     </div>
     {{-- Legend --}}
     <div class="ps-legend">
@@ -111,6 +115,67 @@
     <i data-feather="info"></i>
     <span>Pengelompokan lokasi dilakukan per <strong>Desa/Kelurahan</strong> menggunakan <strong>WilayahService (kodepos.vercel.app)</strong>.
     Cache bersifat permanen; desa/kelurahan baru otomatis di-geocode dan disimpan.</span>
+</div>
+
+{{-- ─── MODAL DETAIL STATISTIK ─── --}}
+<div id="modalDetailStatistik" class="ps-modal-backdrop" style="display:none">
+    <div class="ps-modal-dialog">
+        <div class="ps-modal-header">
+            <div class="ps-modal-title-box">
+                <div class="ps-modal-title-icon"><i data-feather="bar-chart-2"></i></div>
+                <div>
+                    <h3 class="ps-modal-title">Detail Statistik Sebaran Wilayah</h3>
+                    <p class="ps-modal-sub">Rincian sebaran Pelaku Usaha & status sertifikasi halal per level wilayah</p>
+                </div>
+            </div>
+            <button id="btnCloseModal" class="ps-modal-close-btn">&times;</button>
+        </div>
+
+        <div class="ps-modal-body">
+            {{-- Toolbar: Tabs + Search --}}
+            <div class="ps-modal-toolbar">
+                <div class="ps-modal-tabs">
+                    <button class="ps-tab-btn active" data-level="provinsi">
+                        <i data-feather="globe"></i><span>Provinsi</span> <span class="ps-tab-count" id="countTabProv">0</span>
+                    </button>
+                    <button class="ps-tab-btn" data-level="kabupaten">
+                        <i data-feather="navigation"></i><span>Kabupaten/Kota</span> <span class="ps-tab-count" id="countTabKab">0</span>
+                    </button>
+                    <button class="ps-tab-btn" data-level="kecamatan">
+                        <i data-feather="map"></i><span>Kecamatan</span> <span class="ps-tab-count" id="countTabKec">0</span>
+                    </button>
+                    <button class="ps-tab-btn" data-level="desa">
+                        <i data-feather="map-pin"></i><span>Desa/Kelurahan</span> <span class="ps-tab-count" id="countTabDesa">0</span>
+                    </button>
+                </div>
+                <div class="ps-modal-search">
+                    <i data-feather="search"></i>
+                    <input type="text" id="searchStatistikInput" placeholder="Cari nama wilayah...">
+                </div>
+            </div>
+
+            {{-- Table --}}
+            <div class="ps-modal-table-wrap">
+                <table class="ps-modal-table">
+                    <thead>
+                        <tr>
+                            <th width="45">No</th>
+                            <th>Nama Wilayah</th>
+                            <th class="text-center" width="90">Total PU</th>
+                            <th class="text-center" width="90">Terbit SH</th>
+                            <th class="text-center" width="85">Pending</th>
+                            <th class="text-center" width="85">Progress</th>
+                            <th class="text-center" width="85">Ditolak</th>
+                            <th class="text-right" width="130">% Terbit SH</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyStatistikDetail">
+                        <tr><td colspan="8" class="text-center py-4 text-muted">Memuat data statistik detail...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- ═══ STYLES ═══ --}}
@@ -141,6 +206,8 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
 .ps-btn svg{width:15px;height:15px}
 .ps-btn-primary{background:linear-gradient(135deg,var(--ps-accent),#244B84);color:#fff;box-shadow:0 4px 12px rgba(15,44,89,.2)}
 .ps-btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(15,44,89,.28)}
+.ps-btn-detail{background:linear-gradient(135deg,#3730a3,#4f46e5);color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25)}
+.ps-btn-detail:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,70,229,.35)}
 
 /* STATS */
 .ps-stats-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
@@ -198,6 +265,46 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
 .ps-popup-pu{font-size:13px;font-weight:600;color:var(--ps-text)}
 .ps-popup-detail{font-size:11px;color:var(--ps-text-sec)}
 .ps-popup-badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;margin-top:3px}
+
+/* MODAL STATISTIK */
+.ps-modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.6);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.ps-modal-dialog{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.2);width:100%;max-width:1020px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .25s ease}
+.ps-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.ps-modal-title-box{display:flex;align-items:center;gap:14px}
+.ps-modal-title-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25)}
+.ps-modal-title-icon svg{width:22px;height:22px}
+.ps-modal-title{font-size:18px;font-weight:800;color:#0f172a;margin:0}
+.ps-modal-sub{font-size:12px;color:#64748b;margin:2px 0 0}
+.ps-modal-close-btn{background:none;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .15s}
+.ps-modal-close-btn:hover{color:#0f172a;background:#e2e8f0}
+
+.ps-modal-body{padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow:hidden;flex:1}
+.ps-modal-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.ps-modal-tabs{display:flex;align-items:center;gap:6px;background:#f1f5f9;padding:4px;border-radius:12px}
+.ps-tab-btn{display:inline-flex;align-items:center;gap:6px;border:none;background:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s}
+.ps-tab-btn svg{width:14px;height:14px}
+.ps-tab-btn.active{background:#fff;color:#4f46e5;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.ps-tab-count{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;background:#e2e8f0;color:#475569}
+.ps-tab-btn.active .ps-tab-count{background:#e0e7ff;color:#4338ca}
+
+.ps-modal-search{position:relative;display:flex;align-items:center}
+.ps-modal-search svg{position:absolute;left:12px;width:15px;height:15px;stroke:#94a3b8}
+.ps-modal-search input{padding:8px 12px 8px 34px;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;width:220px;outline:none;transition:all .15s}
+.ps-modal-search input:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+
+.ps-modal-table-wrap{flex:1;overflow-y:auto;border:1px solid #e2e8f0;border-radius:12px;max-height:52vh}
+.ps-modal-table{width:100%;border-collapse:collapse;font-size:12.5px;text-align:left}
+.ps-modal-table th{position:sticky;top:0;background:#f8fafc;color:#475569;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;border-bottom:1px solid #e2e8f0;z-index:2}
+.ps-modal-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+.ps-modal-table tr:hover td{background:#f8fafc}
+.ps-parent-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+
+.ps-badge-pct{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px}
+.ps-pct-bar{width:45px;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;display:inline-block}
+.ps-pct-fill{height:100%;background:#10b981;border-radius:3px}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 </style>
 @endsection
 
@@ -397,11 +504,130 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
     }
 
     document.getElementById('filterStatus').addEventListener('change', function () {
+        statistikData = null;
         loadData(this.value);
+        if (modalDetail.style.display === 'flex') {
+            loadStatistikDetail();
+        }
     });
     document.getElementById('btnRefresh').addEventListener('click', function () {
+        statistikData = null;
         loadData(document.getElementById('filterStatus').value);
+        if (modalDetail.style.display === 'flex') {
+            loadStatistikDetail();
+        }
     });
+
+    // ── Detail Statistik Modal Logic ──
+    const STATISTIK_URL    = mapEl.dataset.statistikUrl;
+    const modalDetail      = document.getElementById('modalDetailStatistik');
+    const btnDetail        = document.getElementById('btnDetailStatistik');
+    const btnCloseModal    = document.getElementById('btnCloseModal');
+    const inputSearchModal = document.getElementById('searchStatistikInput');
+    const tbodyDetail      = document.getElementById('tbodyStatistikDetail');
+
+    let statistikData = null;
+    let currentTab = 'provinsi';
+
+    btnDetail.addEventListener('click', function () {
+        modalDetail.style.display = 'flex';
+        if (!statistikData) {
+            loadStatistikDetail();
+        } else {
+            renderStatistikTable();
+        }
+    });
+
+    btnCloseModal.addEventListener('click', function () {
+        modalDetail.style.display = 'none';
+    });
+
+    modalDetail.addEventListener('click', function (e) {
+        if (e.target === modalDetail) modalDetail.style.display = 'none';
+    });
+
+    document.querySelectorAll('.ps-tab-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.ps-tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentTab = this.dataset.level;
+            renderStatistikTable();
+        });
+    });
+
+    inputSearchModal.addEventListener('input', function () {
+        renderStatistikTable();
+    });
+
+    function loadStatistikDetail() {
+        tbodyDetail.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Memuat data statistik detail...</td></tr>';
+
+        const status = document.getElementById('filterStatus').value;
+        const url    = STATISTIK_URL + (status ? '?status=' + encodeURIComponent(status) : '');
+
+        fetch(url)
+            .then(r => r.json())
+            .then(json => {
+                if (!json.success) throw new Error('Gagal memuat statistik detail');
+                statistikData = json;
+
+                document.getElementById('countTabProv').textContent = json.provinsi?.length || 0;
+                document.getElementById('countTabKab').textContent  = json.kabupaten?.length || 0;
+                document.getElementById('countTabKec').textContent  = json.kecamatan?.length || 0;
+                document.getElementById('countTabDesa').textContent = json.desa?.length || 0;
+
+                renderStatistikTable();
+            })
+            .catch(err => {
+                tbodyDetail.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">${escH(err.message)}</td></tr>`;
+            });
+    }
+
+    function renderStatistikTable() {
+        if (!statistikData || !statistikData[currentTab]) return;
+
+        const query = (inputSearchModal.value || '').trim().toLowerCase();
+        let items = statistikData[currentTab];
+
+        if (query) {
+            items = items.filter(item =>
+                (item.name && item.name.toLowerCase().includes(query)) ||
+                (item.parent && item.parent.toLowerCase().includes(query))
+            );
+        }
+
+        if (items.length === 0) {
+            tbodyDetail.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Tidak ada data wilayah yang cocok</td></tr>';
+            return;
+        }
+
+        let html = '';
+        items.forEach((item, idx) => {
+            const pct = item.total > 0 ? Math.round((item.terbit / item.total) * 100) : 0;
+            const parentLabel = item.parent ? `<div class="ps-parent-sub">${escH(item.parent)}</div>` : '';
+
+            html += `<tr>
+                <td class="text-muted">${idx + 1}</td>
+                <td>
+                    <strong style="color:#0f172a">${escH(item.name)}</strong>
+                    ${parentLabel}
+                </td>
+                <td class="text-center"><strong>${item.total}</strong></td>
+                <td class="text-center"><span class="badge" style="background:#d1fae5;color:#065f46">${item.terbit}</span></td>
+                <td class="text-center"><span class="badge" style="background:#fef3c7;color:#92400e">${item.pending}</span></td>
+                <td class="text-center"><span class="badge" style="background:#cffafe;color:#155e75">${item.progress}</span></td>
+                <td class="text-center"><span class="badge" style="background:#fee2e2;color:#991b1b">${item.ditolak + item.revisi}</span></td>
+                <td class="text-right">
+                    <span class="ps-badge-pct">
+                        <span class="ps-pct-bar"><span class="ps-pct-fill" style="width:${pct}%"></span></span>
+                        <span>${pct}%</span>
+                    </span>
+                </td>
+            </tr>`;
+        });
+
+        tbodyDetail.innerHTML = html;
+    }
 
     loadData();
     if (typeof feather !== 'undefined') feather.replace();

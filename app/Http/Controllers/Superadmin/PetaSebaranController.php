@@ -204,6 +204,107 @@ class PetaSebaranController extends Controller
     }
 
     /**
+     * Get detailed regional statistics breakdown (Provinsi, Kabupaten, Kecamatan, Desa).
+     */
+    public function statistikDetail(Request $request): JsonResponse
+    {
+        $query = DataLapangan::query()
+            ->select(['id', 'nama_pu', 'nik', 'alamat', 'kelurahan', 'kecamatan', 'kabupaten',
+                      'provinsi', 'status', 'status_pembayaran', 'no_registrasi', 'created_at'])
+            ->whereNotNull('nik')
+            ->where('nik', '!=', '');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $records = $query->get();
+
+        $provMap = [];
+        $kabMap  = [];
+        $kecMap  = [];
+        $desaMap = [];
+
+        foreach ($records as $item) {
+            $nik  = preg_replace('/\D/', '', $item->nik ?? '');
+            $kode = strlen($nik) >= 6 ? substr($nik, 0, 6) : null;
+            if (!$kode) continue;
+
+            $provCode = substr($kode, 0, 2);
+            $kabCode  = substr($kode, 0, 4);
+            $kecCode  = $kode;
+
+            $namaDesa = $this->extractDesaName($item);
+            $desaKey  = $kode . '_' . \Illuminate\Support\Str::slug($namaDesa);
+
+            // Fetch names from cache if available or fallback to model attribute
+            $cached   = Cache::get('desa_coord_' . $desaKey);
+            $provName = $cached['nama_provinsi'] ?? ($item->provinsi ?: "Kode {$provCode}");
+            $kabName  = $cached['nama_kabupaten'] ?? ($item->kabupaten ?: "Kode {$kabCode}");
+            $kecName  = $cached['nama_kecamatan'] ?? ($item->kecamatan ?: "Kode {$kecCode}");
+
+            $status = strtoupper($item->status ?? 'PENDING');
+
+            // 1. Aggregation per Provinsi
+            $this->aggregateRegion($provMap, $provCode, $provName, $status);
+
+            // 2. Aggregation per Kabupaten
+            $this->aggregateRegion($kabMap, $kabCode, $kabName, $status, $provName);
+
+            // 3. Aggregation per Kecamatan
+            $this->aggregateRegion($kecMap, $kecCode, "Kec. {$kecName}", $status, "{$kabName}, {$provName}");
+
+            // 4. Aggregation per Desa
+            $this->aggregateRegion($desaMap, $desaKey, "Desa {$namaDesa}", $status, "Kec. {$kecName}, {$kabName}");
+        }
+
+        $sortFunc = fn($a, $b) => $b['total'] <=> $a['total'];
+
+        $provList = array_values($provMap); usort($provList, $sortFunc);
+        $kabList  = array_values($kabMap);  usort($kabList, $sortFunc);
+        $kecList  = array_values($kecMap);  usort($kecList, $sortFunc);
+        $desaList = array_values($desaMap); usort($desaList, $sortFunc);
+
+        return response()->json([
+            'success'   => true,
+            'provinsi'  => $provList,
+            'kabupaten' => $kabList,
+            'kecamatan' => $kecList,
+            'desa'      => $desaList,
+        ]);
+    }
+
+    private function aggregateRegion(array &$map, string $key, string $name, string $status, ?string $parent = null): void
+    {
+        if (!isset($map[$key])) {
+            $map[$key] = [
+                'key'      => $key,
+                'name'     => $name,
+                'parent'   => $parent,
+                'total'    => 0,
+                'terbit'   => 0,
+                'pending'  => 0,
+                'progress' => 0,
+                'ditolak'  => 0,
+                'revisi'   => 0,
+            ];
+        }
+
+        $map[$key]['total']++;
+        if ($status === 'TERBIT SH') {
+            $map[$key]['terbit']++;
+        } elseif ($status === 'PENDING') {
+            $map[$key]['pending']++;
+        } elseif ($status === 'PROGRESS OSS' || $status === 'PROGRESS SIHALAL') {
+            $map[$key]['progress']++;
+        } elseif ($status === 'DITOLAK') {
+            $map[$key]['ditolak']++;
+        } elseif ($status === 'REVISI') {
+            $map[$key]['revisi']++;
+        }
+    }
+
+    /**
      * Ekstrak nama desa/kelurahan dari record DataLapangan
      */
     private function extractDesaName($record): string

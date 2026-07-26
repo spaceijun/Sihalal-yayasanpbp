@@ -849,8 +849,13 @@
                 grid-template-columns: 1fr;
             }
 
-            .fh-address-grid {
-                grid-template-columns: 1fr 1fr !important;
+            #ktpPreviewContainer {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            #ktpPreviewContainer #btnScanKtp {
+                width: 100% !important;
             }
         }
 
@@ -859,10 +864,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            height: 44px;
+            gap: 7px;
+            height: 42px;
             width: 100%;
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            background: linear-gradient(135deg, #1A5FC8 0%, #1040A0 100%);
             border: none;
             border-radius: 10px;
             color: #fff;
@@ -871,12 +876,12 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             cursor: pointer;
             transition: all .2s;
-            box-shadow: 0 2px 8px rgba(5, 150, 105, .3);
+            box-shadow: 0 3px 10px rgba(26, 95, 200, .2);
         }
 
         .fh-btn-scan:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, .4);
+            box-shadow: 0 6px 16px rgba(26, 95, 200, .3);
         }
 
         .fh-btn-scan:disabled {
@@ -1083,18 +1088,17 @@
                         </div>
                         <div class="fh-step">
                             <div class="fh-step-num">2</div>
-                            <div class="fh-step-text"><strong>Data Pelaku Usaha</strong>Isi nama PU, produk, NIK & alamat
+                            <div class="fh-step-text"><strong>Upload & Scan KTP</strong>Pindai KTP untuk mengisi biodata otomatis
                             </div>
                         </div>
                         <div class="fh-step">
                             <div class="fh-step-num">3</div>
-                            <div class="fh-step-text"><strong>Upload Dokumentasi</strong>Foto KTP, rumah, pendamping &
-                                produk
+                            <div class="fh-step-text"><strong>Biodata & Alamat PU</strong>Periksa NIK, Nama, Alamat & Wilayah
                             </div>
                         </div>
                         <div class="fh-step">
                             <div class="fh-step-num">4</div>
-                            <div class="fh-step-text"><strong>Simpan Data</strong>Tinjau kembali dan simpan data lapangan
+                            <div class="fh-step-text"><strong>Produk & Foto Lain</strong>Unggah foto produk, rumah & pendamping
                             </div>
                         </div>
                     </div>
@@ -1219,8 +1223,77 @@
                             @enderror
                         </div>
 
-                        {{-- SECTION 2: DATA PU --}}
-                        <div class="fh-section-title" style="margin-top:1.5rem;">Data Pelaku Usaha</div>
+                        {{-- SECTION 2: UPLOAD & SCAN KTP --}}
+                        <div class="fh-section-title" style="margin-top:1.5rem;">
+                            <span>Upload & Scan KTP</span>
+                            <span style="font-size:10.5px; background:#EEF4FF; color:#1A5FC8; border:1px solid #D0E2FF; padding:2px 8px; border-radius:12px; font-weight:600; text-transform:none; letter-spacing:0;">Disarankan Pertama</span>
+                        </div>
+
+                        <div class="ktp-scan-card" style="background: #F8FAFF; border: 1px solid #E0E7F0; border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.85rem;">
+                                <div style="width: 38px; height: 38px; border-radius: 10px; background: #EEF4FF; border: 1px solid #D0E2FF; color: #1A5FC8; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: 'Sora', sans-serif; font-size: 13.5px; font-weight: 600; color: #0F1F40; margin-bottom: 2px;">
+                                        Upload Foto KTP Pelaku Usaha <span class="req">*</span>
+                                    </div>
+                                    <p style="font-size: 12px; color: #6B7A99; margin: 0; line-height: 1.5;">
+                                        Unggah foto KTP terlebih dahulu agar data NIK, Nama, Tanggal Lahir & Alamat terisi otomatis.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="fh-field" style="margin-bottom: 0;">
+                                <input type="file" id="foto_ktp" name="foto_ktp"
+                                    class="fh-file-input @error('foto_ktp') is-invalid @enderror" accept="image/*"
+                                    required>
+                                <span class="fh-hint">Format: JPG/PNG, Maksimal 10MB. Foto harus jelas dan tidak buram.</span>
+                                @error('foto_ktp')
+                                    <span class="fh-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            {{-- KTP Preview & Scan Button --}}
+                            <div id="ktpPreviewContainer" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #EDF0F7; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img id="ktpPreviewImg" src="" alt="Preview KTP" style="width: 64px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid #E0E7F0;">
+                                    <div>
+                                        <span id="ktpFileName" style="font-size: 12.5px; font-weight: 600; color: #0F1F40; display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                                        <span style="font-size: 11px; color: #1A5FC8; font-weight: 500;">Foto KTP Siap Dipindai</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" id="btnScanKtp" class="fh-btn-scan" style="width: auto; padding: 0 1.15rem; height: 38px; font-size: 12.5px;">
+                                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3" />
+                                            <line x1="4" y1="12" x2="20" y2="12" stroke-dasharray="2 2" />
+                                        </svg>
+                                        Pindai KTP (AI Scan)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="ktpScanSuccessBadge" style="display: none; margin-top: 0.75rem; background: #EBF5FF; border: 1px solid #BAD7F5; border-radius: 10px; padding: 10px 14px; align-items: center; gap: 10px; font-size: 12.5px; color: #1552A0;">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A5FC8" stroke-width="2" style="flex-shrink:0;">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <div>
+                                    <strong>Data KTP Berhasil Dipindai!</strong><br>
+                                    <span style="font-size: 11.5px; color: #4A6385;">Informasi NIK, Nama, Tanggal Lahir, Alamat, dan Wilayah telah terisi otomatis pada form di bawah.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- SECTION 3: DATA PU --}}
+                        <div class="fh-section-title" style="margin-top:1.5rem; display:flex; align-items:center; justify-content:space-between;">
+                            <span>Data Pelaku Usaha</span>
+                            <span style="font-size:11px; color:#8A99B3; font-weight:400; text-transform:none; letter-spacing:0;">Terisi otomatis dari Scan KTP</span>
+                        </div>
 
                         <div id="formFields">
 
@@ -1243,7 +1316,7 @@
                                     class="fh-input @error('telephone') is-invalid @enderror"
                                     value="{{ old('telephone') }}" required placeholder="Contoh: 081234567890"
                                     maxlength="15" inputmode="numeric">
-                                <span class="fh-hint">Nomor telepon aktif (10â€“15 digit)</span>
+                                <span class="fh-hint">Nomor telepon aktif (10–15 digit)</span>
                                 @error('telephone')
                                     <span class="fh-error">{{ $message }}</span>
                                 @enderror
@@ -1283,7 +1356,7 @@
                                 @enderror
                             </div>
 
-                            {{-- SECTION 2B: ALAMAT LENGKAP (Wilayah Indonesia) --}}
+                            {{-- SECTION 3B: ALAMAT LENGKAP (Wilayah Indonesia) --}}
                             <div class="fh-section-title" style="margin-top:1.5rem;">Alamat Lengkap (Wilayah)</div>
 
                             <div class="fh-field">
@@ -1327,7 +1400,7 @@
                                 @enderror
                             </div>
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                                 <div class="fh-field">
                                     <label class="fh-label" for="rt">RT</label>
                                     <input type="text" id="rt" name="rt" class="fh-input @error('rt') is-invalid @enderror"
@@ -1352,20 +1425,9 @@
                                         <span class="fh-error">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <div class="fh-field">
-                                    <label class="fh-label">&nbsp;</label>
-                                    <button type="button" id="btnScanKtp" class="fh-btn-scan" style="display:none;">
-                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                                            <polyline points="21 15 16 10 5 21"/>
-                                        </svg>
-                                        Scan KTP
-                                    </button>
-                                </div>
                             </div>
 
-                            {{-- SECTION 3: PRODUK --}}
+                            {{-- SECTION 4: PRODUK --}}
                             <div class="fh-section-title" style="margin-top:1.5rem;">Produk</div>
 
                             {{-- Produk Utama --}}
@@ -1414,20 +1476,10 @@
                             </button>
                             <p class="fh-max-notice" id="maxProdukNotice">Maksimal 5 produk telah tercapai.</p>
 
-                            {{-- SECTION 4: DOKUMENTASI --}}
-                            <div class="fh-section-title" style="margin-top:0.5rem;">Dokumentasi</div>
+                            {{-- SECTION 5: DOKUMENTASI LAINNYA --}}
+                            <div class="fh-section-title" style="margin-top:0.5rem;">Dokumentasi Tambahan</div>
 
                             <div class="fh-photo-grid">
-                                <div class="fh-field">
-                                    <label class="fh-label" for="foto_ktp">Foto KTP <span class="req">*</span></label>
-                                    <input type="file" id="foto_ktp" name="foto_ktp"
-                                        class="fh-file-input @error('foto_ktp') is-invalid @enderror" accept="image/*"
-                                        required>
-                                    <span class="fh-hint">JPG/PNG. Maks 10MB</span>
-                                    @error('foto_ktp')
-                                        <span class="fh-error">{{ $message }}</span>
-                                    @enderror
-                                </div>
                                 <div class="fh-field">
                                     <label class="fh-label" for="foto_rumah">Foto Rumah <span
                                             class="req">*</span></label>
@@ -1662,6 +1714,18 @@
 
                 closeOcrResult();
                 hideLoading();
+
+                // Tampilkan badge sukses scan KTP
+                const successBadge = document.getElementById('ktpScanSuccessBadge');
+                if (successBadge) {
+                    successBadge.style.display = 'flex';
+                }
+
+                // Scroll halus ke field biodata
+                const formFields = document.getElementById('formFields');
+                if (formFields) {
+                    formFields.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
 
             // Pilih wilayah berdasarkan nama (helper untuk OCR apply)
@@ -1931,10 +1995,24 @@
                     this.value = padRtRw(this.value);
                 });
 
-                // Show scan button when KTP photo is uploaded
+                // Show scan button & image preview when KTP photo is uploaded
                 document.getElementById('foto_ktp').addEventListener('change', function() {
-                    const btn = document.getElementById('btnScanKtp');
-                    btn.style.display = this.files.length > 0 ? 'flex' : 'none';
+                    const file = this.files[0];
+                    const previewContainer = document.getElementById('ktpPreviewContainer');
+                    const previewImg = document.getElementById('ktpPreviewImg');
+                    const fileNameSpan = document.getElementById('ktpFileName');
+
+                    if (file) {
+                        fileNameSpan.textContent = file.name;
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewContainer.style.display = 'flex';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        previewContainer.style.display = 'none';
+                    }
                 });
 
                 // Scan button click

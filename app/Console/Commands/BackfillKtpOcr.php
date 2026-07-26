@@ -63,7 +63,7 @@ class BackfillKtpOcr extends Command
 
         $this->info('');
         $this->info('╔══════════════════════════════════════════════════╗');
-        $this->info('║       Backfill KTP OCR — Sihalal Yayasan PBP     ║');
+        $this->info('║       Backfill KTP OCR — KAWULOHALAL             ║');
         $this->info('╚══════════════════════════════════════════════════╝');
 
         if ($isDryRun) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Models\DataLapangan;
 use App\Traits\HasRoutePrefix;
+use App\Services\WilayahService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -18,6 +19,10 @@ class PetaSebaranController extends Controller
 
     // ─── Emsifa API base URL ───
     const EMSIFA = 'https://emsifa.github.io/api-wilayah-indonesia/api';
+
+    public function __construct(
+        private WilayahService $wilayahService
+    ) {}
 
     public function index(): View
     {
@@ -105,7 +110,7 @@ class PetaSebaranController extends Controller
 
     /**
      * Geocode a single kecamatan by its 6-digit kode_wilayah.
-     * Uses emsifa API to resolve names, then Nominatim for coordinates.
+     * Uses emsifa API to resolve names, then WilayahService (kodepos.vercel.app) for coordinates.
      * Result cached forever per kode.
      */
     public function geocodeKecamatan(Request $request): JsonResponse
@@ -141,8 +146,29 @@ class PetaSebaranController extends Controller
             );
             $kecName = $district['name'] ?? null;
 
-            // ── Step 2: Build Photon query ──
-            // Photon by Komoot — free, OSM-based, no API key needed
+            // ── Step 2: Query WilayahService (kodepos.vercel.app) ──
+            if ($kecName) {
+                $kodeposRes = $this->wilayahService->getKecamatanCoordinates($kecName, $kabName ?? '');
+                if ($kodeposRes['found'] && !empty($kodeposRes['latitude']) && !empty($kodeposRes['longitude'])) {
+                    $data = [
+                        'lat'            => (float) $kodeposRes['latitude'],
+                        'lng'            => (float) $kodeposRes['longitude'],
+                        'nama_kecamatan' => $kecName,
+                        'nama_kabupaten' => $kabName,
+                        'nama_provinsi'  => $provName,
+                        'source'         => 'kodepos.vercel.app',
+                    ];
+
+                    Cache::forever($cacheKey, $data);
+
+                    return response()->json([
+                        'success' => true,
+                        'cached'  => false,
+                    ] + $data);
+                }
+            }
+
+            // ── Step 3: Fallback to Photon API ──
             $cleanKec = $kecName ? $this->cleanWilayahName($kecName) : null;
             $cleanKab = $this->cleanWilayahName($kabName);
             $cleanProv = $this->cleanWilayahName($provName);
@@ -161,12 +187,13 @@ class PetaSebaranController extends Controller
                 if (count($features) > 0) {
                     $coords = $features[0]['geometry']['coordinates'];   // [lng, lat]
                     $data   = [
-                        'lat'            => $coords[1],
-                        'lng'            => $coords[0],
+                        'lat'            => (float) $coords[1],
+                        'lng'            => (float) $coords[0],
                         'nama_kecamatan' => $kecName,
                         'nama_kabupaten' => $kabName,
                         'nama_provinsi'  => $provName,
                         'query_used'     => $queryStr,
+                        'source'         => 'photon',
                     ];
 
                     Cache::forever($cacheKey, $data);
@@ -174,15 +201,13 @@ class PetaSebaranController extends Controller
                     return response()->json([
                         'success' => true,
                         'cached'  => false,
-                        'lat'     => (float) $data['lat'],
-                        'lng'     => (float) $data['lng'],
                     ] + $data);
                 }
             }
 
             // Not found — cache sentinel for 7 days
             Cache::put($cacheKey, ['lat' => null, 'lng' => null], now()->addDays(7));
-            return response()->json(['success' => false, 'message' => "Koordinat tidak ditemukan untuk: {$queryStr}"]);
+            return response()->json(['success' => false, 'message' => "Koordinat tidak ditemukan untuk: {$kecName} {$kabName}"]);
 
         } catch (\Exception $e) {
             Log::warning("Geocode kecamatan [{$kode}]: " . $e->getMessage());

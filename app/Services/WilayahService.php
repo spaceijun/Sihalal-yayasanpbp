@@ -158,6 +158,77 @@ class WilayahService
     }
 
     /**
+     * Get kecamatan center coordinates (latitude & longitude) using kodepos.vercel.app API.
+     * Searches by kecamatan name and filters by kabupaten.
+     * Calculates the average latitude & longitude of villages within the district.
+     *
+     * @param  string  $kecamatan  Nama kecamatan
+     * @param  string  $kabupaten  Nama kabupaten/kota (opsional untuk disambiguasi)
+     * @return array ['found' => bool, 'latitude' => float|null, 'longitude' => float|null, 'count_villages' => int]
+     */
+    public function getKecamatanCoordinates(string $kecamatan, string $kabupaten = ''): array
+    {
+        $cleanKec = trim(preg_replace('/^(Kecamatan|Kec\.?)\s+/i', '', $kecamatan));
+        $cleanKab = trim(preg_replace('/^(Kabupaten|Kota|Kab\.?)\s+/i', '', $kabupaten));
+
+        $cacheKey = 'kec_coord_v2_' . md5("{$cleanKec}|{$cleanKab}");
+
+        return Cache::remember($cacheKey, 86400 * 30, function () use ($cleanKec, $cleanKab) {
+            try {
+                $response = Http::timeout(8)->get('https://kodepos.vercel.app/search/', [
+                    'q' => $cleanKec,
+                ]);
+
+                if ($response->failed() || empty($response->json('data'))) {
+                    // Fallback search with full string
+                    $response = Http::timeout(8)->get('https://kodepos.vercel.app/search/', [
+                        'q' => "{$cleanKec} {$cleanKab}",
+                    ]);
+                }
+
+                if ($response->failed() || empty($response->json('data'))) {
+                    return ['found' => false, 'latitude' => null, 'longitude' => null, 'count_villages' => 0];
+                }
+
+                $results = collect($response->json('data'));
+
+                // Filter matching district & regency
+                $matches = $results->filter(function ($item) use ($cleanKec, $cleanKab) {
+                    return $this->looseMatch($item['district'] ?? '', $cleanKec)
+                        && (empty($cleanKab) || $this->looseMatch($item['regency'] ?? '', $cleanKab));
+                });
+
+                if ($matches->isEmpty()) {
+                    // Fallback: match district only
+                    $matches = $results->filter(fn ($item) => $this->looseMatch($item['district'] ?? '', $cleanKec));
+                }
+
+                if ($matches->isNotEmpty()) {
+                    $validCoords = $matches->filter(fn ($i) => ! empty($i['latitude']) && ! empty($i['longitude']));
+
+                    if ($validCoords->isNotEmpty()) {
+                        $avgLat = $validCoords->avg('latitude');
+                        $avgLng = $validCoords->avg('longitude');
+
+                        return [
+                            'found'          => true,
+                            'latitude'       => (float) round($avgLat, 7),
+                            'longitude'      => (float) round($avgLng, 7),
+                            'count_villages' => $validCoords->count(),
+                        ];
+                    }
+                }
+
+                return ['found' => false, 'latitude' => null, 'longitude' => null, 'count_villages' => 0];
+
+            } catch (\Exception $e) {
+                Log::error('WilayahService getKecamatanCoordinates Error', ['message' => $e->getMessage()]);
+                return ['found' => false, 'latitude' => null, 'longitude' => null, 'count_villages' => 0];
+            }
+        });
+    }
+
+    /**
      * Fuzzy-match dua string wilayah Indonesia.
      * Toleran terhadap: KOTA/KABUPATEN prefix, huruf kapital, strip, spasi ganda.
      */

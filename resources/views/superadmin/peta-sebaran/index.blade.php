@@ -12,7 +12,7 @@
         <div class="ps-header-icon"><i data-feather="map"></i></div>
         <div>
             <h1 class="ps-header-title">Peta Sebaran Data Lapangan</h1>
-            <p class="ps-header-sub">Visualisasi lokasi Pelaku Usaha per kecamatan (dari kode NIK)</p>
+            <p class="ps-header-sub">Visualisasi lokasi Pelaku Usaha per Desa/Kelurahan</p>
         </div>
     </div>
     <div class="ps-header-actions">
@@ -40,9 +40,21 @@
         <i data-feather="layers"></i>
         <div><span id="statTotal">0</span><small>Total PU</small></div>
     </div>
+    <div class="ps-stat-chip ps-chip-prov">
+        <i data-feather="globe"></i>
+        <div><span id="statProv">0</span><small>Provinsi</small></div>
+    </div>
+    <div class="ps-stat-chip ps-chip-kab">
+        <i data-feather="navigation"></i>
+        <div><span id="statKab">0</span><small>Kabupaten/Kota</small></div>
+    </div>
     <div class="ps-stat-chip ps-chip-kec">
         <i data-feather="map"></i>
         <div><span id="statKec">0</span><small>Kecamatan</small></div>
+    </div>
+    <div class="ps-stat-chip ps-chip-desa">
+        <i data-feather="map-pin"></i>
+        <div><span id="statDesa">0</span><small>Desa/Kelurahan</small></div>
     </div>
     <div class="ps-stat-chip ps-chip-terbit">
         <i data-feather="check-circle"></i>
@@ -65,11 +77,11 @@
 {{-- ─── GEOCODING PROGRESS BAR ─── --}}
 <div class="ps-progress-wrap" id="progressWrap" style="display:none">
     <div class="ps-progress-header">
-        <span class="ps-progress-label"><i data-feather="zap"></i> Geocoding kecamatan baru…</span>
+        <span class="ps-progress-label"><i data-feather="zap"></i> Geocoding Desa/Kelurahan…</span>
         <span id="progressCounter" class="ps-progress-counter">0 / 0</span>
     </div>
     <div class="ps-progress-track"><div class="ps-progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="ps-progress-note">Marker akan muncul secara bertahap. Kecamatan yang sudah di-cache tampil instan.</div>
+    <div class="ps-progress-note">Marker akan muncul secara bertahap per desa. Data yang sudah di-cache tampil instan.</div>
 </div>
 
 {{-- ─── MAP CARD ─── --}}
@@ -90,16 +102,15 @@
             <div class="ps-legend-item"><span class="ps-dot" style="background:#f97316"></span> Revisi</div>
         </div>
         <div class="ps-legend-title" style="margin-top:10px">Ukuran Lingkaran</div>
-        <div class="ps-legend-note">Semakin besar = semakin banyak PU di kecamatan tersebut</div>
+        <div class="ps-legend-note">Semakin besar = semakin banyak PU di desa/kelurahan tersebut</div>
     </div>
 </div>
 
 {{-- ─── NOTE ─── --}}
 <div class="ps-note">
     <i data-feather="info"></i>
-    <span>Lokasi ditentukan dari <strong>6 digit pertama NIK</strong> (kode provinsi + kabupaten + kecamatan).
-    Tidak memerlukan kolom koordinat — data langsung dikelompokkan per kecamatan.
-    Cache bersifat permanen; kecamatan baru otomatis di-geocode dan disimpan.</span>
+    <span>Pengelompokan lokasi dilakukan per <strong>Desa/Kelurahan</strong> menggunakan <strong>WilayahService (kodepos.vercel.app)</strong>.
+    Cache bersifat permanen; desa/kelurahan baru otomatis di-geocode dan disimpan.</span>
 </div>
 
 {{-- ═══ STYLES ═══ --}}
@@ -138,9 +149,15 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
 .ps-stat-chip div{display:flex;flex-direction:column;gap:2px}
 .ps-stat-chip span{font-size:22px;font-weight:800;color:var(--ps-text);line-height:1}
 .ps-stat-chip small{font-size:11px;color:var(--ps-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px}
-.ps-chip-total svg{stroke:#6366f1} .ps-chip-kec svg{stroke:#0F2C59}
-.ps-chip-terbit svg{stroke:#10b981} .ps-chip-pending svg{stroke:#f59e0b}
-.ps-chip-progress svg{stroke:#06b6d4} .ps-chip-ditolak svg{stroke:#ef4444}
+.ps-chip-total svg{stroke:#6366f1}
+.ps-chip-prov svg{stroke:#3b82f6}
+.ps-chip-kab svg{stroke:#8b5cf6}
+.ps-chip-kec svg{stroke:#0F2C59}
+.ps-chip-desa svg{stroke:#ec4899}
+.ps-chip-terbit svg{stroke:#10b981}
+.ps-chip-pending svg{stroke:#f59e0b}
+.ps-chip-progress svg{stroke:#06b6d4}
+.ps-chip-ditolak svg{stroke:#ef4444}
 
 /* PROGRESS BAR */
 .ps-progress-wrap{background:var(--ps-card);border:1px solid var(--ps-border);border-radius:12px;padding:14px 18px;margin-bottom:14px;box-shadow:var(--ps-shadow)}
@@ -195,7 +212,6 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
     const DATA_URL    = mapEl.dataset.url;
     const GEOCODE_URL = mapEl.dataset.geocodeUrl;
 
-    // ── Status colours ──
     const SC = {
         'PENDING':          { color:'#f59e0b', bg:'#FEF3C7' },
         'REVISI':           { color:'#f97316', bg:'#FFF7ED' },
@@ -211,7 +227,6 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Map init ──
     const map = L.map('petaSebaranMap', { zoomControl:true }).setView([-7.25, 109.22], 8);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -221,16 +236,13 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
     const markerLayer = L.layerGroup().addTo(map);
     let allBounds = [];
 
-    // ── Cluster circle icon ──
     function clusterIcon(cluster) {
         const totalItems = cluster.count;
-        // Dominant status
         const statusCounts = {};
         (cluster.items || []).forEach(i => { statusCounts[i.status] = (statusCounts[i.status]||0)+1; });
         const dominant = Object.entries(statusCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] ?? 'PENDING';
         const { color } = scfg(dominant);
 
-        // Size: log scale, min 32, max 64
         const size = Math.min(64, Math.max(32, 32 + Math.log2(totalItems + 1) * 6));
         const fs   = size > 48 ? 14 : 12;
 
@@ -243,11 +255,14 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
         });
     }
 
-    // ── Popup ──
     function buildPopup(cluster) {
-        const kecLabel = cluster.nama_kecamatan
-            ? `Kec. ${escH(cluster.nama_kecamatan)}, ${escH(cluster.nama_kabupaten)}`
-            : `Kode Wilayah: ${escH(cluster.kode)}`;
+        let desaLabel = `Desa ${escH(cluster.nama_desa || 'Utama')}`;
+        if (cluster.nama_kecamatan) {
+            desaLabel += `, Kec. ${escH(cluster.nama_kecamatan)}`;
+        }
+        if (cluster.nama_kabupaten) {
+            desaLabel += `, ${escH(cluster.nama_kabupaten)}`;
+        }
 
         const itemsHtml = (cluster.items || []).slice(0, 30).map(item => {
             const { color, bg } = scfg(item.status);
@@ -261,7 +276,7 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
         const more = cluster.count > 30 ? `<div style="font-size:11px;color:var(--ps-text-muted);padding-top:6px">...dan ${cluster.count - 30} lainnya</div>` : '';
 
         return `<div class="ps-popup">
-            <div class="ps-popup-title">${kecLabel}</div>
+            <div class="ps-popup-title">${desaLabel}</div>
             <div class="ps-popup-sub">${cluster.count} Pelaku Usaha terdaftar</div>
             ${itemsHtml}${more}
         </div>`;
@@ -270,28 +285,32 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
     function addClusterMarker(cluster) {
         const lat = parseFloat(cluster.lat), lng = parseFloat(cluster.lng);
         if (isNaN(lat)||isNaN(lng)) return;
-        const m = L.marker([lat, lng], { icon: clusterIcon(cluster), title: cluster.kode });
+        const m = L.marker([lat, lng], { icon: clusterIcon(cluster), title: cluster.nama_desa || cluster.key });
         m.bindPopup(buildPopup(cluster), { maxWidth:300, maxHeight:340 });
         markerLayer.addLayer(m);
         allBounds.push([lat,lng]);
     }
 
     function fitMap() {
-        if (allBounds.length > 0) map.fitBounds(allBounds, { padding:[50,50], maxZoom:12 });
+        if (allBounds.length > 0) map.fitBounds(allBounds, { padding:[50,50], maxZoom:14 });
     }
 
-    // ── Stats ──
-    function updateStats(clusters) {
+    function updateStats(json) {
+        const clusters = json.data || (Array.isArray(json) ? json : []);
         const allItems = clusters.flatMap(c => c.items || []);
-        document.getElementById('statTotal').textContent    = allItems.length;
-        document.getElementById('statKec').textContent      = clusters.length;
+
+        document.getElementById('statTotal').textContent    = json.total_records ?? allItems.length;
+        document.getElementById('statProv').textContent     = json.total_provinsi ?? (new Set(clusters.map(c=>c.kode_prov)).size);
+        document.getElementById('statKab').textContent      = json.total_kabupaten ?? (new Set(clusters.map(c=>c.kode_kab)).size);
+        document.getElementById('statKec').textContent      = json.total_kecamatan ?? (new Set(clusters.map(c=>c.kode_kec)).size);
+        document.getElementById('statDesa').textContent     = json.total_desa ?? clusters.length;
+
         document.getElementById('statTerbit').textContent   = allItems.filter(d=>d.status==='TERBIT SH').length;
         document.getElementById('statPending').textContent  = allItems.filter(d=>d.status==='PENDING').length;
         document.getElementById('statProgress').textContent = allItems.filter(d=>d.status==='PROGRESS OSS'||d.status==='PROGRESS SIHALAL').length;
         document.getElementById('statDitolak').textContent  = allItems.filter(d=>d.status==='DITOLAK').length;
     }
 
-    // ── Progress bar ──
     const progressWrap    = document.getElementById('progressWrap');
     const progressCounter = document.getElementById('progressCounter');
     const progressFill    = document.getElementById('progressFill');
@@ -305,7 +324,6 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
         }
     }
 
-    // ── Phase 2: geocode uncached kecamatans sequentially ──
     async function geocodeQueue(clusters) {
         const total = clusters.length;
         let done = 0;
@@ -320,18 +338,22 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
                         'Accept':       'application/json',
                         'X-CSRF-TOKEN': CSRF,
                     },
-                    body: JSON.stringify({ kode: cluster.kode }),
+                    body: JSON.stringify({
+                        key: cluster.key || cluster.kode,
+                        kode_kec: cluster.kode_kec,
+                        nama_desa: cluster.nama_desa
+                    }),
                 });
                 const json = await res.json();
 
                 if (json.success) {
                     cluster.lat            = json.lat;
                     cluster.lng            = json.lng;
+                    cluster.nama_desa      = json.nama_desa || cluster.nama_desa;
                     cluster.nama_kecamatan = json.nama_kecamatan;
                     cluster.nama_kabupaten = json.nama_kabupaten;
                     cluster.nama_provinsi  = json.nama_provinsi;
                     addClusterMarker(cluster);
-                    // Refit every 10 new markers
                     if (done % 10 === 0) fitMap();
                 }
             } catch (_) { /* skip */ }
@@ -340,13 +362,12 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
             showProgress(done, total);
 
             if (done < total) {
-                await new Promise(r => setTimeout(r, 1150)); // ~1 req/sec for Nominatim
+                await new Promise(r => setTimeout(r, 400));
             }
         }
         fitMap();
     }
 
-    // ── Main load ──
     function loadData(status = '') {
         markerLayer.clearLayers();
         allBounds = [];
@@ -365,7 +386,7 @@ body,.page-content,.main-content{background:var(--ps-bg)!important}
                 // Phase 1 — render cached clusters immediately
                 cached.forEach(addClusterMarker);
                 fitMap();
-                updateStats(json.data);
+                updateStats(json);
 
                 // Phase 2 — geocode the rest in background
                 if (uncached.length > 0) {

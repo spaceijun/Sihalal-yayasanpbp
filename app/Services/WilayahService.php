@@ -229,6 +229,94 @@ class WilayahService
     }
 
     /**
+     * Get village/desa coordinates (latitude & longitude) using kodepos.vercel.app API.
+     * Matches by village name, district, and regency.
+     *
+     * @param  string  $desa       Nama desa/kelurahan
+     * @param  string  $kecamatan  Nama kecamatan
+     * @param  string  $kabupaten  Nama kabupaten/kota
+     * @return array ['found' => bool, 'latitude' => float|null, 'longitude' => float|null, 'village' => string|null, 'district' => string|null, 'regency' => string|null]
+     */
+    public function getDesaCoordinates(string $desa, string $kecamatan, string $kabupaten = ''): array
+    {
+        $cleanDesa = trim(preg_replace('/\b(DUSUN|DESA|KELURAHAN|KEL\.?|RT|RW)\b/i', '', $desa));
+        $cleanKec  = trim(preg_replace('/^(Kecamatan|Kec\.?)\s+/i', '', $kecamatan));
+        $cleanKab  = trim(preg_replace('/^(Kabupaten|Kota|Kab\.?)\s+/i', '', $kabupaten));
+
+        if (empty($cleanDesa)) {
+            $cleanDesa = $cleanKec;
+        }
+
+        $cacheKey = 'desa_coord_v1_' . md5("{$cleanDesa}|{$cleanKec}|{$cleanKab}");
+
+        return Cache::remember($cacheKey, 86400 * 30, function () use ($cleanDesa, $cleanKec, $cleanKab) {
+            try {
+                // 1. Search by village name
+                $response = Http::timeout(8)->get('https://kodepos.vercel.app/search/', [
+                    'q' => $cleanDesa,
+                ]);
+
+                if ($response->failed() || empty($response->json('data'))) {
+                    // Fallback: search by desa + kecamatan
+                    $response = Http::timeout(8)->get('https://kodepos.vercel.app/search/', [
+                        'q' => "{$cleanDesa} {$cleanKec}",
+                    ]);
+                }
+
+                if ($response->failed() || empty($response->json('data'))) {
+                    // Fallback search kecamatan
+                    return $this->getKecamatanCoordinates($cleanKec, $cleanKab);
+                }
+
+                $results = collect($response->json('data'));
+
+                // Exact match by village + district + regency
+                $match = $results->first(function ($item) use ($cleanDesa, $cleanKec, $cleanKab) {
+                    return $this->looseMatch($item['village'] ?? '', $cleanDesa)
+                        && $this->looseMatch($item['district'] ?? '', $cleanKec)
+                        && (empty($cleanKab) || $this->looseMatch($item['regency'] ?? '', $cleanKab));
+                });
+
+                // Fallback 1: match village + district
+                if (! $match) {
+                    $match = $results->first(function ($item) use ($cleanDesa, $cleanKec) {
+                        return $this->looseMatch($item['village'] ?? '', $cleanDesa)
+                            && $this->looseMatch($item['district'] ?? '', $cleanKec);
+                    });
+                }
+
+                // Fallback 2: match village only (if district match failed)
+                if (! $match) {
+                    $match = $results->first(fn ($item) => $this->looseMatch($item['village'] ?? '', $cleanDesa));
+                }
+
+                // Fallback 3: if village search didn't match, return kecamatan coordinates
+                if (! $match) {
+                    return $this->getKecamatanCoordinates($cleanKec, $cleanKab);
+                }
+
+                if ($match && ! empty($match['latitude']) && ! empty($match['longitude'])) {
+                    return [
+                        'found'      => true,
+                        'latitude'   => (float) $match['latitude'],
+                        'longitude'  => (float) $match['longitude'],
+                        'village'    => $match['village'] ?? $cleanDesa,
+                        'district'   => $match['district'] ?? $cleanKec,
+                        'regency'    => $match['regency'] ?? $cleanKab,
+                        'kode_pos'   => $match['code'] ?? null,
+                    ];
+                }
+
+                return $this->getKecamatanCoordinates($cleanKec, $cleanKab);
+
+            } catch (\Exception $e) {
+                Log::error('WilayahService getDesaCoordinates Error', ['message' => $e->getMessage()]);
+                return ['found' => false, 'latitude' => null, 'longitude' => null];
+            }
+        });
+    }
+
+    /**
      * Fuzzy-match dua string wilayah Indonesia.
      * Toleran terhadap: KOTA/KABUPATEN prefix, huruf kapital, strip, spasi ganda.
      */

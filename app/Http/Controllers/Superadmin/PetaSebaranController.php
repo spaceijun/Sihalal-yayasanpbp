@@ -31,15 +31,15 @@ class PetaSebaranController extends Controller
     }
 
     /**
-     * Return all records instantly, grouped by kode_wilayah (from NIK).
-     * No geocoding here — geocoding is done on-demand per unique kecamatan.
+     * Return all records instantly, grouped by Desa/Kelurahan + kode_wilayah.
+     * No geocoding here — geocoding is done on-demand per unique Desa/Kelurahan.
      */
     public function data(Request $request): JsonResponse
     {
         $query = DataLapangan::query()
-            ->select(['id', 'nama_pu', 'nik', 'alamat', 'status',
-                      'status_pembayaran', 'enumerator_id', 'no_registrasi',
-                      'nama_produk', 'created_at'])
+            ->select(['id', 'nama_pu', 'nik', 'alamat', 'kelurahan', 'kecamatan', 'kabupaten',
+                      'provinsi', 'status', 'status_pembayaran', 'enumerator_id',
+                      'no_registrasi', 'nama_produk', 'created_at'])
             ->with('enumerator:id,nama_lengkap')
             ->whereNotNull('nik')
             ->where('nik', '!=', '');
@@ -50,7 +50,7 @@ class PetaSebaranController extends Controller
 
         $records = $query->get();
 
-        // ── Group by 6-digit kode_wilayah from NIK ──
+        // ── Group by Desa/Kelurahan + 6-digit kode_wilayah ──
         $grouped = [];
 
         foreach ($records as $item) {
@@ -59,12 +59,17 @@ class PetaSebaranController extends Controller
 
             if (!$kode) continue;
 
-            if (!isset($grouped[$kode])) {
-                $grouped[$kode] = [
-                    'kode'          => $kode,
+            $namaDesa = $this->extractDesaName($item);
+            $key      = $kode . '_' . \Illuminate\Support\Str::slug($namaDesa);
+
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'key'           => $key,
+                    'kode'          => $key,
+                    'kode_kec'      => $kode,
+                    'nama_desa'     => $namaDesa,
                     'kode_prov'     => substr($kode, 0, 2),
                     'kode_kab'      => substr($kode, 0, 4),
-                    // Coordinates (from cache, null if not yet geocoded)
                     'lat'           => null,
                     'lng'           => null,
                     'nama_kecamatan'=> null,
@@ -75,20 +80,21 @@ class PetaSebaranController extends Controller
                     'items'         => [],
                 ];
 
-                // Check cache
-                $cached = Cache::get('kec_coord_' . $kode);
+                // Check cache per desa
+                $cached = Cache::get('desa_coord_' . $key);
                 if ($cached) {
-                    $grouped[$kode]['lat']            = (float) $cached['lat'];
-                    $grouped[$kode]['lng']            = (float) $cached['lng'];
-                    $grouped[$kode]['nama_kecamatan'] = $cached['nama_kecamatan'] ?? null;
-                    $grouped[$kode]['nama_kabupaten'] = $cached['nama_kabupaten'] ?? null;
-                    $grouped[$kode]['nama_provinsi']  = $cached['nama_provinsi'] ?? null;
-                    $grouped[$kode]['needs_geocode']  = false;
+                    $grouped[$key]['lat']            = (float) $cached['lat'];
+                    $grouped[$key]['lng']            = (float) $cached['lng'];
+                    $grouped[$key]['nama_desa']      = $cached['nama_desa'] ?? $namaDesa;
+                    $grouped[$key]['nama_kecamatan'] = $cached['nama_kecamatan'] ?? null;
+                    $grouped[$key]['nama_kabupaten'] = $cached['nama_kabupaten'] ?? null;
+                    $grouped[$key]['nama_provinsi']  = $cached['nama_provinsi'] ?? null;
+                    $grouped[$key]['needs_geocode']  = false;
                 }
             }
 
-            $grouped[$kode]['count']++;
-            $grouped[$kode]['items'][] = [
+            $grouped[$key]['count']++;
+            $grouped[$key]['items'][] = [
                 'no_registrasi' => $item->no_registrasi ?? '-',
                 'nama_pu'       => $item->nama_pu,
                 'nama_produk'   => $item->nama_produk ?? '-',
@@ -100,38 +106,57 @@ class PetaSebaranController extends Controller
 
         $clusters = array_values($grouped);
 
+        $uniqueProv = collect($clusters)->pluck('kode_prov')->unique()->filter()->count();
+        $uniqueKab  = collect($clusters)->pluck('kode_kab')->unique()->filter()->count();
+        $uniqueKec  = collect($clusters)->pluck('kode_kec')->unique()->filter()->count();
+        $uniqueDesa = count($clusters);
+
         return response()->json([
             'success'          => true,
             'total_records'    => $records->count(),
-            'total_kecamatan'  => count($clusters),
+            'total_provinsi'   => $uniqueProv,
+            'total_kabupaten'  => $uniqueKab,
+            'total_kecamatan'  => $uniqueKec,
+            'total_desa'       => $uniqueDesa,
             'data'             => $clusters,
         ]);
     }
 
     /**
-     * Geocode a single kecamatan by its 6-digit kode_wilayah.
-     * Uses emsifa API to resolve names, then WilayahService (kodepos.vercel.app) for coordinates.
-     * Result cached forever per kode.
+     * Geocode a single Desa/Kelurahan.
+     * Uses emsifa API to resolve kecamatan & kabupaten names,
+     * then WilayahService (kodepos.vercel.app) for village coordinates.
+     * Result cached forever per desa key.
      */
     public function geocodeKecamatan(Request $request): JsonResponse
     {
-        $request->validate(['kode' => 'required|string|size:6|regex:/^\d{6}$/']);
+        $key      = $request->key ?? $request->kode;
+        $kodeKec  = $request->kode_kec ?? substr(preg_replace('/\D/', '', $key ?? ''), 0, 6);
+        $namaDesa = $request->nama_desa;
 
-        $kode     = $request->kode;
-        $cacheKey = 'kec_coord_' . $kode;
+        // If key has underscore format "330217_sudimara"
+        if (str_contains($key, '_')) {
+            $parts    = explode('_', $key, 2);
+            $kodeKec  = $parts[0];
+            if (!$namaDesa) {
+                $namaDesa = ucwords(str_replace('-', ' ', $parts[1]));
+            }
+        }
+
+        $cacheKey = 'desa_coord_' . $key;
 
         // Already cached?
         if ($cached = Cache::get($cacheKey)) {
             if ($cached['lat'] && $cached['lng']) {
                 return response()->json(['success' => true, 'cached' => true] + $cached);
             }
-            return response()->json(['success' => false, 'message' => 'Kecamatan tidak ditemukan (cached).']);
+            return response()->json(['success' => false, 'message' => 'Desa tidak ditemukan (cached).']);
         }
 
         try {
-            // ── Step 1: Resolve names from emsifa API ──
-            $provCode = substr($kode, 0, 2);
-            $kabCode  = substr($kode, 0, 4);
+            // ── Step 1: Resolve kecamatan & kabupaten names from emsifa API ──
+            $provCode = substr($kodeKec, 0, 2);
+            $kabCode  = substr($kodeKec, 0, 4);
 
             $provinces  = $this->emsifaProvinces();
             $provName   = collect($provinces)->firstWhere('id', $provCode)['name'] ?? null;
@@ -140,21 +165,21 @@ class PetaSebaranController extends Controller
             $kabName    = collect($regencies)->firstWhere('id', $kabCode)['name'] ?? null;
 
             $districts  = $this->emsifaDistricts($kabCode);
-            // Match by first 6 chars of district id
             $district   = collect($districts)->first(
-                fn($d) => substr(preg_replace('/\D/', '', $d['id']), 0, 6) === $kode
+                fn($d) => substr(preg_replace('/\D/', '', $d['id']), 0, 6) === $kodeKec
             );
             $kecName = $district['name'] ?? null;
 
-            // ── Step 2: Query WilayahService (kodepos.vercel.app) ──
-            if ($kecName) {
-                $kodeposRes = $this->wilayahService->getKecamatanCoordinates($kecName, $kabName ?? '');
-                if ($kodeposRes['found'] && !empty($kodeposRes['latitude']) && !empty($kodeposRes['longitude'])) {
+            // ── Step 2: Query WilayahService (kodepos.vercel.app) for Desa ──
+            if ($namaDesa) {
+                $desaRes = $this->wilayahService->getDesaCoordinates($namaDesa, $kecName ?? '', $kabName ?? '');
+                if ($desaRes['found'] && !empty($desaRes['latitude']) && !empty($desaRes['longitude'])) {
                     $data = [
-                        'lat'            => (float) $kodeposRes['latitude'],
-                        'lng'            => (float) $kodeposRes['longitude'],
-                        'nama_kecamatan' => $kecName,
-                        'nama_kabupaten' => $kabName,
+                        'lat'            => (float) $desaRes['latitude'],
+                        'lng'            => (float) $desaRes['longitude'],
+                        'nama_desa'      => $desaRes['village'] ?? $namaDesa,
+                        'nama_kecamatan' => $kecName ?? $desaRes['district'] ?? null,
+                        'nama_kabupaten' => $kabName ?? $desaRes['regency'] ?? null,
                         'nama_provinsi'  => $provName,
                         'source'         => 'kodepos.vercel.app',
                     ];
@@ -168,51 +193,46 @@ class PetaSebaranController extends Controller
                 }
             }
 
-            // ── Step 3: Fallback to Photon API ──
-            $cleanKec = $kecName ? $this->cleanWilayahName($kecName) : null;
-            $cleanKab = $this->cleanWilayahName($kabName);
-            $cleanProv = $this->cleanWilayahName($provName);
-
-            $queryStr = implode(' ', array_filter([$cleanKec, $cleanKab, $cleanProv]));
-
-            $response = Http::withHeaders([
-                'User-Agent' => 'SihalalMapApp/1.0',
-            ])->timeout(10)->get('https://photon.komoot.io/api/', [
-                'q'     => $queryStr,
-                'limit' => 1,
-            ]);
-
-            if ($response->successful()) {
-                $features = $response->json('features') ?? [];
-                if (count($features) > 0) {
-                    $coords = $features[0]['geometry']['coordinates'];   // [lng, lat]
-                    $data   = [
-                        'lat'            => (float) $coords[1],
-                        'lng'            => (float) $coords[0],
-                        'nama_kecamatan' => $kecName,
-                        'nama_kabupaten' => $kabName,
-                        'nama_provinsi'  => $provName,
-                        'query_used'     => $queryStr,
-                        'source'         => 'photon',
-                    ];
-
-                    Cache::forever($cacheKey, $data);
-
-                    return response()->json([
-                        'success' => true,
-                        'cached'  => false,
-                    ] + $data);
-                }
-            }
-
             // Not found — cache sentinel for 7 days
             Cache::put($cacheKey, ['lat' => null, 'lng' => null], now()->addDays(7));
-            return response()->json(['success' => false, 'message' => "Koordinat tidak ditemukan untuk: {$kecName} {$kabName}"]);
+            return response()->json(['success' => false, 'message' => "Koordinat tidak ditemukan untuk desa {$namaDesa}"]);
 
         } catch (\Exception $e) {
-            Log::warning("Geocode kecamatan [{$kode}]: " . $e->getMessage());
+            Log::warning("Geocode desa [{$key}]: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Ekstrak nama desa/kelurahan dari record DataLapangan
+     */
+    private function extractDesaName($record): string
+    {
+        if (! empty($record->kelurahan)) {
+            return trim($record->kelurahan);
+        }
+
+        $alamat = trim($record->alamat ?? '');
+        if (empty($alamat)) {
+            return 'Utama';
+        }
+
+        // Ekstrak nama desa jika mengandung "DESA XXX"
+        if (preg_match('/\bDESA\s+([A-Za-z\s]+)/i', $alamat, $m)) {
+            $parts = explode(',', $m[1]);
+            return trim($parts[0]);
+        }
+
+        // Clean prefix umum
+        $cleaned = preg_replace('/\b(DUSUN|DESA|KELURAHAN|KEL\.?|RT\s*\d*|RW\s*\d*|NO\.?\s*\d*|KAMPUNG|DK\.?|JL\.?|JALAN)\b/i', '', $alamat);
+        $cleaned = preg_replace('/[^a-zA-Z\s]/', ' ', $cleaned);
+        $words   = array_values(array_filter(explode(' ', $cleaned)));
+
+        if (! empty($words)) {
+            return mb_convert_case(implode(' ', array_slice($words, 0, 2)), MB_CASE_TITLE, 'UTF-8');
+        }
+
+        return 'Utama';
     }
 
     // ──────────────────────────────────────────

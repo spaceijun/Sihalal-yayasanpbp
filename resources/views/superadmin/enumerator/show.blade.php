@@ -1363,7 +1363,11 @@
                     }, 'image/jpeg', 0.95);
                 })
                 .catch(() => {
-                    alert('Gagal membuat ID Card');
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'error',
+                        title: 'Gagal membuat ID Card',
+                        showConfirmButton: false, timer: 3000,
+                    });
                     document.body.removeChild(overlay);
                 });
         }

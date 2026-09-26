@@ -43,6 +43,7 @@
     @enderror
 </div>
 
+@push('scripts')
 <script>
     if (typeof ClassicEditor !== 'undefined') {
         ClassicEditor.create(document.querySelector('#keterangan'), {
@@ -52,3 +53,4 @@
         }).catch(error => console.error(error));
     }
 </script>
+@endpush

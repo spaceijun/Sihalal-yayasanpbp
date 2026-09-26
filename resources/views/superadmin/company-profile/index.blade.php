@@ -119,7 +119,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="statisticsTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -131,61 +131,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($stats ?? [] as $i => $stat)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td>{{ $stat->title }}</td>
-                                            <td class="tc"><span
-                                                    class="adm-badge adm-badge-success">{{ $stat->value }}{{ $stat->suffix }}</span>
-                                            </td>
-                                            <td class="tc"><i class="{{ $stat->icon }}"></i></td>
-                                            <td class="tc"><span class="adm-badge"
-                                                    style="background: {{ $stat->color }}; color: #fff;">{{ $stat->color }}</span>
-                                            </td>
-                                            <td class="tc">
-                                                <form
-                                                    action="{{ route($routePrefix . '.company-content.statistics.toggle', $stat->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="adm-btn {{ $stat->is_active ? 'success' : '' }}">
-                                                        <i
-                                                            class="ri-{{ $stat->is_active ? 'eye-line' : 'eye-off-line' }}"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editStatisticModal{{ $stat->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.statistics.destroy', $stat->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -212,7 +158,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="benefitsTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -223,56 +169,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($benefits ?? [] as $i => $b)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td>{{ $b->title }}</td>
-                                            <td class="tc"><i class="{{ $b->icon }} fs-4"></i></td>
-                                            <td>{{ Str::limit($b->description, 50) }}</td>
-                                            <td class="tc">
-                                                <form
-                                                    action="{{ route($routePrefix . '.company-content.benefits.toggle', $b->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="adm-btn {{ $b->is_active ? 'success' : '' }}">
-                                                        <i
-                                                            class="ri-{{ $b->is_active ? 'eye-line' : 'eye-off-line' }}"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editBenefitModal{{ $b->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.benefits.destroy', $b->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -298,7 +195,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="testimonialsTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -310,62 +207,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($testimonials ?? [] as $i => $t)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td>{{ $t->name }}</td>
-                                            <td>{{ $t->position }}</td>
-                                            <td>{{ Str::limit($t->testimonial, 60) }}</td>
-                                            <td class="tc">
-                                                @for ($j = 0; $j < 5; $j++)
-                                                    <i
-                                                        class="ri-star{{ $j < $t->rating ? '-fill' : '' }} text-warning"></i>
-                                                @endfor
-                                            </td>
-                                            <td class="tc">
-                                                <form
-                                                    action="{{ route($routePrefix . '.company-content.testimonials.toggle', $t->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="adm-btn {{ $t->is_active ? 'success' : '' }}">
-                                                        <i
-                                                            class="ri-{{ $t->is_active ? 'eye-line' : 'eye-off-line' }}"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editTestimonialModal{{ $t->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.testimonials.destroy', $t->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -394,7 +236,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="teamsTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -405,67 +247,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($teams ?? [] as $i => $team)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td class="tc">
-                                                @if ($team->photo)
-                                                    <img src="{{ Storage::url($team->photo) }}"
-                                                        alt="{{ $team->name }}" class="rounded-circle" width="40"
-                                                        height="40">
-                                                @else
-                                                    <div class="adm-avatar mx-auto"
-                                                        style="background: var(--adm-blue-lt); color: var(--adm-blue);">
-                                                        {{ substr($team->name, 0, 1) }}
-                                                    </div>
-                                                @endif
-                                            </td>
-                                            <td>{{ $team->name }}</td>
-                                            <td>{{ $team->position }}</td>
-                                            <td class="tc">
-                                                <form
-                                                    action="{{ route($routePrefix . '.company-content.teams.toggle', $team->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="adm-btn {{ $team->is_active ? 'success' : '' }}">
-                                                        <i
-                                                            class="ri-{{ $team->is_active ? 'eye-line' : 'eye-off-line' }}"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editTeamModal{{ $team->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.teams.destroy', $team->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -492,7 +274,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="historiesTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -502,45 +284,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($histories ?? [] as $i => $h)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td class="tc"><span
-                                                    class="adm-badge adm-badge-info">{{ $h->year }}</span></td>
-                                            <td>{{ $h->title }}</td>
-                                            <td>{{ Str::limit($h->description, 60) }}</td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editHistoryModal{{ $h->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.histories.destroy', $h->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -566,7 +310,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="categoriesTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -576,44 +320,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($categories ?? [] as $i => $c)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td>{{ $c->name }}</td>
-                                            <td><code class="adm-mono">{{ $c->slug }}</code></td>
-                                            <td class="tc"><i class="{{ $c->icon }}"></i></td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editCategoryModal{{ $c->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.categories.destroy', $c->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -643,7 +350,7 @@
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="adm-table w-100">
+                            <table id="socialMediaTable" class="adm-table w-100">
                                 <thead>
                                     <tr>
                                         <th class="tc" style="width:44px">#</th>
@@ -654,58 +361,7 @@
                                         <th class="tc" style="width:110px">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($socialMedia ?? [] as $i => $s)
-                                        <tr>
-                                            <td class="tc"><span class="adm-rownum">{{ $i + 1 }}</span></td>
-                                            <td>{{ $s->platform }}</td>
-                                            <td><a href="{{ $s->url }}" target="_blank"
-                                                    class="text-primary">{{ Str::limit($s->url, 30) }}</a></td>
-                                            <td class="tc"><i class="{{ $s->icon }}"
-                                                    style="color: {{ $s->color }};"></i></td>
-                                            <td class="tc">
-                                                <form
-                                                    action="{{ route($routePrefix . '.company-content.social-media.toggle', $s->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="adm-btn {{ $s->is_active ? 'success' : '' }}">
-                                                        <i
-                                                            class="ri-{{ $s->is_active ? 'eye-line' : 'eye-off-line' }}"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td class="tc">
-                                                <div class="adm-actions">
-                                                    <button class="adm-btn primary" data-bs-toggle="modal"
-                                                        data-bs-target="#editSocialModal{{ $s->id }}">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <form
-                                                        action="{{ route($routePrefix . '.company-content.social-media.destroy', $s->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus?')">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="adm-btn danger">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path
-                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -1499,3 +1155,299 @@
         </div>
     @endforeach
 @endsection
+
+@push('styles')
+    <style>
+        /* Spacing & Padding for DataTable Controls */
+        .dataTables_wrapper,
+        .dt-container {
+            padding: 15px 0 0 0 !important;
+        }
+
+        /* Top Controls: Length & Search padding */
+        .dataTables_wrapper .row:first-child,
+        .dt-container .row:first-child {
+            padding: 0 20px !important;
+            margin-bottom: 16px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            align-items: center !important;
+        }
+
+        /* Bottom Controls: Info & Paginate styling and background */
+        .dataTables_wrapper .row:last-child,
+        .dt-container .row:last-child {
+            padding: 14px 20px !important;
+            margin-top: 16px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            background: var(--adm-bg-light) !important;
+            border-top: 1px solid var(--adm-border) !important;
+            align-items: center !important;
+        }
+
+        /* Search input premium styling */
+        .dataTables_filter input,
+        .dt-search input {
+            height: 34px !important;
+            width: 220px !important;
+            background-color: var(--adm-bg-input) !important;
+            border: 1px solid var(--adm-border-mid) !important;
+            border-radius: var(--adm-radius-sm) !important;
+            padding: 0 12px !important;
+            font-size: 12.5px !important;
+            color: var(--adm-text-dark) !important;
+            outline: none !important;
+            transition: border-color 0.18s, box-shadow 0.18s !important;
+        }
+
+        .dataTables_filter input:focus,
+        .dt-search input:focus {
+            border-color: var(--adm-blue) !important;
+            background: #fff !important;
+            box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.08) !important;
+        }
+
+        /* Length dropdown premium styling */
+        .dataTables_length select,
+        .dt-length select {
+            height: 34px !important;
+            background-color: var(--adm-bg-input) !important;
+            border: 1px solid var(--adm-border-mid) !important;
+            border-radius: var(--adm-radius-sm) !important;
+            padding: 4px 28px 4px 10px !important;
+            font-size: 12.5px !important;
+            color: var(--adm-text-dark) !important;
+            outline: none !important;
+            cursor: pointer !important;
+        }
+
+        .dataTables_length select:focus,
+        .dt-length select:focus {
+            border-color: var(--adm-blue) !important;
+            box-shadow: 0 0 0 3px rgba(26, 95, 200, 0.08) !important;
+        }
+
+        /* Sidebar table padding alignment */
+        .adm-table thead th:first-child,
+        .adm-table tbody td:first-child {
+            padding-left: 20px !important;
+        }
+
+        .adm-table thead th:last-child,
+        .adm-table tbody td:last-child {
+            padding-right: 20px !important;
+        }
+
+        /* Prevent sorting icons from overlapping header text */
+        .adm-table thead th.sorting,
+        .adm-table thead th.sorting_asc,
+        .adm-table thead th.sorting_desc {
+            padding-right: 28px !important;
+        }
+
+        /* Ensure line height inside td is vertically balanced */
+        .adm-table tbody td {
+            vertical-align: middle !important;
+        }
+    </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var dtLanguage = {
+        search: 'Cari:',
+        lengthMenu: 'Tampilkan _MENU_ data',
+        info: 'Menampilkan _START_ – _END_ dari _TOTAL_ data',
+        infoEmpty: 'Tidak ada data',
+        infoFiltered: '(difilter dari _MAX_ total)',
+        paginate: { previous: '‹', next: '›' },
+        zeroRecords: 'Data tidak ditemukan',
+        emptyTable: 'Belum ada data',
+        processing: '<div class="spinner-border text-primary" role="status"></div>',
+    };
+
+    function initCompanyContentTable(selector, type, columns) {
+        return $(selector).DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route($routePrefix . '.company-content.data') }}',
+                type: 'GET',
+                data: { type: type },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            },
+            columns: columns,
+            order: [],
+            language: dtLanguage,
+            pageLength: 15,
+            responsive: true,
+        });
+    }
+
+    window.companyContentTables = {
+        statistics: initCompanyContentTable('#statisticsTable', 'statistics', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'title', name: 'title' },
+            { data: 'value_fmt', name: 'value', orderable: false, searchable: false, className: 'tc' },
+            { data: 'icon_html', name: 'icon', orderable: false, searchable: false, className: 'tc' },
+            { data: 'color_badge', name: 'color', orderable: false, searchable: false, className: 'tc' },
+            { data: 'status_badge', name: 'is_active', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        benefits: initCompanyContentTable('#benefitsTable', 'benefits', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'title', name: 'title' },
+            { data: 'icon_html', name: 'icon', orderable: false, searchable: false, className: 'tc' },
+            { data: 'description_short', name: 'description' },
+            { data: 'status_badge', name: 'is_active', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        testimonials: initCompanyContentTable('#testimonialsTable', 'testimonials', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'name', name: 'name' },
+            { data: 'position', name: 'position' },
+            { data: 'testimonial_short', name: 'testimonial' },
+            { data: 'rating_html', name: 'rating', orderable: false, searchable: false, className: 'tc' },
+            { data: 'status_badge', name: 'is_active', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        teams: initCompanyContentTable('#teamsTable', 'teams', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'photo_html', name: 'photo', orderable: false, searchable: false, className: 'tc' },
+            { data: 'name', name: 'name' },
+            { data: 'position', name: 'position' },
+            { data: 'status_badge', name: 'is_active', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        histories: initCompanyContentTable('#historiesTable', 'histories', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'year_badge', name: 'year', className: 'tc' },
+            { data: 'title', name: 'title' },
+            { data: 'description_short', name: 'description' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        categories: initCompanyContentTable('#categoriesTable', 'categories', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'name', name: 'name' },
+            { data: 'slug_code', name: 'slug' },
+            { data: 'icon_html', name: 'icon', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+        socialMedia: initCompanyContentTable('#socialMediaTable', 'social-media', [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+            { data: 'platform', name: 'platform' },
+            { data: 'url_link', name: 'url', orderable: false, searchable: false },
+            { data: 'icon_html', name: 'icon', orderable: false, searchable: false, className: 'tc' },
+            { data: 'status_badge', name: 'is_active', orderable: false, searchable: false, className: 'tc' },
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+        ]),
+    };
+
+    // Keep the codebase-wide window.dataTableInstance convention pointed at a sensible default.
+    window.dataTableInstance = window.companyContentTables.statistics;
+
+    // Tables initialized inside a hidden Bootstrap tab-pane report zero width; fix it up when the tab is shown.
+    document.querySelectorAll('.nav-tabs-custom [data-bs-toggle="tab"]').forEach(function (tabEl) {
+        tabEl.addEventListener('shown.bs.tab', function () {
+            Object.values(window.companyContentTables).forEach(function (dt) { dt.columns.adjust(); });
+        });
+    });
+
+    // Generic loading-state handler for every Add/Edit modal form on this page (many are generated per-row).
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form.closest || !form.closest('.adm-modal')) return;
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+    });
+});
+
+function reloadCompanyContentTables() {
+    Object.values(window.companyContentTables || {}).forEach(function (dt) { dt.ajax.reload(null, false); });
+}
+
+function confirmDeleteCompanyContent(url, label) {
+    Swal.fire({
+        title: 'Hapus Data?',
+        html: `Data <strong>${label}</strong> akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Menghapus...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'Data berhasil dihapus!',
+                showConfirmButton: false, timer: 2500, timerProgressBar: true,
+            });
+
+            reloadCompanyContentTables();
+        } catch (err) {
+            Swal.fire('Gagal!', err.message, 'error');
+        }
+    });
+}
+
+function toggleCompanyContent(url, btn) {
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+    })
+        .then(async (response) => {
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal memperbarui status');
+
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'Status berhasil diubah!',
+                showConfirmButton: false, timer: 2000, timerProgressBar: true,
+            });
+
+            reloadCompanyContentTables();
+        })
+        .catch((err) => {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'error',
+                title: err.message || 'Gagal memperbarui status',
+                showConfirmButton: false, timer: 3000,
+            });
+        });
+}
+</script>
+@endpush

@@ -31,16 +31,7 @@
                 </div>
             </div>
 
-            {{-- FLASH MESSAGES --}}
-            @if (session('success'))
-                <div class="adm-alert adm-alert-success">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
+            @include('layouts.messages')
 
             <div class="row g-3">
                 {{-- LEFT COLUMN: TICKET DETAILS --}}
@@ -327,7 +318,8 @@
                             </div>
                         </div>
                         <div style="padding:20px;">
-                            <form action="{{ route($routePrefix . '.ticket-pendampings.update-status', $ticket->hashed_id) }}"
+                            <form id="formUpdateStatus"
+                                action="{{ route($routePrefix . '.ticket-pendampings.update-status', $ticket->hashed_id) }}"
                                 method="POST">
                                 @csrf
                                 @method('PATCH')
@@ -342,7 +334,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <button type="submit" class="adm-btn-primary w-100"
+                                <button type="submit" class="adm-btn-primary w-100" id="btnUpdateStatus"
                                     style="justify-content:center;height:38px;">
                                     Simpan Status
                                 </button>
@@ -396,22 +388,16 @@
                             <p style="font-size:12px;color:var(--adm-text-muted);margin-bottom:12px;line-height:1.5;">
                                 Menghapus tiket ini akan menghilangkan data pengaduan secara permanen.
                             </p>
-                            <form action="{{ route($routePrefix . '.ticket-pendampings.destroy', $ticket->hashed_id) }}"
-                                method="POST"
-                                onsubmit="return confirm('Apakah Anda benar-benar yakin ingin menghapus tiket ini? Tindakan ini tidak dapat dibatalkan.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="adm-btn danger w-100"
-                                    style="justify-content:center;height:34px;">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                        <path d="M10 11v6M14 11v6" />
-                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                    </svg>
-                                    Hapus Tiket
-                                </button>
-                            </form>
+                            <button type="button" class="adm-btn danger w-100" id="btnDeleteTicketPendamping"
+                                style="justify-content:center;height:34px;">
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                    <path d="M10 11v6M14 11v6" />
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                </svg>
+                                Hapus Tiket
+                            </button>
                         </div>
                     </div>
 
@@ -420,3 +406,69 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const formStatus = document.getElementById('formUpdateStatus');
+            if (formStatus) {
+                formStatus.addEventListener('submit', function() {
+                    const btn = document.getElementById('btnUpdateStatus');
+                    btn.disabled = true;
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+                });
+            }
+
+            const btnDelete = document.getElementById('btnDeleteTicketPendamping');
+            if (btnDelete) {
+                btnDelete.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Hapus Tiket?',
+                        html: 'Tindakan ini tidak dapat dibatalkan. Tiket pendamping akan dihapus permanen dari sistem.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                    }).then(async (result) => {
+                        if (!result.isConfirmed) return;
+
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading(),
+                        });
+
+                        try {
+                            const response = await fetch(
+                                '{{ route($routePrefix . '.ticket-pendampings.destroy', $ticket->hashed_id) }}', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                            .content,
+                                        'Accept': 'application/json',
+                                    },
+                                });
+
+                            const data = await response.json();
+                            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                            await Swal.fire({
+                                icon: 'success',
+                                title: data.message || 'Tiket pendamping berhasil dihapus!',
+                                timer: 1800,
+                                showConfirmButton: false,
+                            });
+
+                            window.location.href = '{{ route($routePrefix . '.ticket-pendampings.index') }}';
+                        } catch (err) {
+                            Swal.fire('Gagal!', err.message, 'error');
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+@endpush

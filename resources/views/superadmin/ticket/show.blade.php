@@ -22,12 +22,11 @@
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                     @if ($ticket->status !== 'closed')
-                        <form action="{{ route($routePrefix . '.tickets.close', $ticket->hashed_id) }}" method="POST"
-                            style="margin:0;">
+                        <form id="formCloseTicket" action="{{ route($routePrefix . '.tickets.close', $ticket->hashed_id) }}"
+                            method="POST" style="margin:0;">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="adm-btn warning"
-                                onclick="return confirm('Yakin ingin menandai tiket ini sebagai diselesaikan?')"
+                            <button type="submit" class="adm-btn warning" id="btnCloseTicket"
                                 style="height:36px;padding:0 14px;font-size:13px;font-weight:600;">
                                 <svg viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="10" />
@@ -47,26 +46,7 @@
                 </div>
             </div>
 
-            {{-- FLASH MESSAGES --}}
-            @if (session('success'))
-                <div class="adm-alert adm-alert-success">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="adm-alert adm-alert-danger">
-                    <svg viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
-                    <span>{{ session('error') }}</span>
-                </div>
-            @endif
+            @include('layouts.messages')
 
             <div class="row g-3">
                 {{-- LEFT: MAIN INFO --}}
@@ -354,21 +334,16 @@
                         <div style="padding:16px;">
                             <p style="font-size:12.5px;color:var(--adm-text-muted);margin-bottom:12px;line-height:1.5;">
                                 Tindakan ini tidak dapat dibatalkan. Tiket akan dihapus secara permanen.</p>
-                            <form action="{{ route($routePrefix . '.tickets.destroy', $ticket->hashed_id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="adm-btn danger"
-                                    style="width:100%;justify-content:center;height:34px;"
-                                    onclick="return confirm('Yakin ingin menghapus tiket ini? Tindakan tidak dapat dibatalkan.')">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                        <path d="M10 11v6M14 11v6" />
-                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                    </svg>
-                                    Hapus Tiket
-                                </button>
-                            </form>
+                            <button type="button" class="adm-btn danger" id="btnDeleteTicket"
+                                style="width:100%;justify-content:center;height:34px;">
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                    <path d="M10 11v6M14 11v6" />
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                </svg>
+                                Hapus Tiket
+                            </button>
                         </div>
                     </div>
 
@@ -377,3 +352,87 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const formClose = document.getElementById('formCloseTicket');
+            if (formClose) {
+                formClose.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'Tutup Tiket?',
+                        text: 'Yakin ingin menandai tiket ini sebagai diselesaikan?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1a5fc8',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Tutup',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
+
+                        const btn = document.getElementById('btnCloseTicket');
+                        btn.disabled = true;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+
+                        formClose.submit();
+                    });
+                });
+            }
+
+            const btnDelete = document.getElementById('btnDeleteTicket');
+            if (btnDelete) {
+                btnDelete.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Hapus Tiket?',
+                        html: 'Tindakan ini tidak dapat dibatalkan. Tiket akan dihapus secara permanen.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                    }).then(async (result) => {
+                        if (!result.isConfirmed) return;
+
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading(),
+                        });
+
+                        try {
+                            const response = await fetch(
+                                '{{ route($routePrefix . '.tickets.destroy', $ticket->hashed_id) }}', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                            .content,
+                                        'Accept': 'application/json',
+                                    },
+                                });
+
+                            const data = await response.json();
+                            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                            await Swal.fire({
+                                icon: 'success',
+                                title: data.message || 'Tiket berhasil dihapus!',
+                                timer: 1800,
+                                showConfirmButton: false,
+                            });
+
+                            window.location.href = '{{ route($routePrefix . '.tickets.index') }}';
+                        } catch (err) {
+                            Swal.fire('Gagal!', err.message, 'error');
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+@endpush

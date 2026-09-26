@@ -61,6 +61,10 @@ class DataLapangan extends Model
         'rt',
         'rw',
         'kode_pos',
+        'latitude',
+        'longitude',
+        'akurasi_meter',
+        'geotag_captured_at',
         'tanggal_lahir',
         'foto_proses',
         'foto_ktp',
@@ -88,6 +92,34 @@ class DataLapangan extends Model
         'is_unlocked_for_data_entry',
         'old_email_sihalal',
         'pengajuan_lewat',
+        'verifikasi_koordinator',
+        'catatan_koordinator',
+        'verified_at_koordinator',
+        'verified_by_koordinator',
+        'verifikasi_final',
+        'catatan_final',
+        'verified_at_final',
+        'verified_by_final',
+        'jalur_data_entry',
+        'nama_usaha',
+        'tempat_lahir',
+        'jenis_usaha',
+        'modal_usaha',
+        'alamat_usaha',
+        'provinsi_kode',
+        'kabupaten_kode',
+        'kecamatan_kode',
+        'kelurahan_kode',
+        'jenis_produk_halal',
+        'bahan_utama_halal',
+        'urusin_nib_submission_id',
+        'urusin_nib_status',
+        'urusin_nib_document_path',
+        'urusin_halal_submission_id',
+        'urusin_halal_status',
+        'urusin_halal_document_path',
+        'urusin_last_synced_at',
+        'urusin_gagal_pesan',
     ];
 
     protected $attributes = [
@@ -101,7 +133,27 @@ class DataLapangan extends Model
         'has_nib' => 'boolean',
         'is_unlocked_for_data_entry' => 'boolean',
         'tanggal_lahir' => 'date',
+        'verified_at_koordinator' => 'datetime',
+        'verified_at_final' => 'datetime',
+        'urusin_last_synced_at' => 'datetime',
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
+        'akurasi_meter' => 'decimal:2',
+        'geotag_captured_at' => 'datetime',
     ];
+
+    /**
+     * URL Google Maps ke titik geotag hasil submit Enumerator (§3 data-lapangan-enumerator-api.md)
+     * — null kalau data belum punya koordinat (mis. data lama sebelum fitur ini ada).
+     */
+    public function getGoogleMapsUrlAttribute(): ?string
+    {
+        if ($this->latitude === null || $this->longitude === null) {
+            return null;
+        }
+
+        return "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";
+    }
 
     /**
      * Get full formatted address
@@ -210,6 +262,35 @@ class DataLapangan extends Model
     }
 
     /**
+     * Koordinator yang melakukan verifikasi lapangan (bukan verifikator dokumen).
+     */
+    public function verifiedByKoordinator()
+    {
+        return $this->belongsTo(\App\Models\Superadmin\Koordinator::class, 'verified_by_koordinator');
+    }
+
+    /**
+     * User (Superadmin/Admin Umum) yang melakukan verifikasi final (tahap 2), sebelum
+     * data dikirim ke Urusin Secara Online. Lihat .agent/workflows/data-entry-integrasi.md.
+     */
+    public function verifiedByFinal()
+    {
+        return $this->belongsTo(User::class, 'verified_by_final');
+    }
+
+    /**
+     * Apakah data usaha yang dibutuhkan payload NIB & Halal Urusin Secara Online sudah lengkap.
+     */
+    public function getUrusinDataUsahaLengkapAttribute(): bool
+    {
+        return (bool) ($this->nama_usaha && $this->tempat_lahir && $this->jenis_usaha
+            && $this->modal_usaha && $this->alamat_usaha
+            && $this->provinsi_kode && $this->kabupaten_kode
+            && $this->kecamatan_kode && $this->kelurahan_kode
+            && $this->jenis_produk_halal && $this->bahan_utama_halal);
+    }
+
+    /**
      * Booted method to create a new cashflow when the status_pembayaran of a data_lapangan is changed to DIBAYAR.
      *
      * This method is called when a data_lapangan is updated.
@@ -277,8 +358,12 @@ class DataLapangan extends Model
      * Hitung fee berdasarkan tanggal data dibuat.
      * Tambahkan entri baru di array $feeSchedule saat harga naik,
      * tanpa perlu ubah logic apapun.
+     *
+     * Public: dipakai juga oleh WrgroupPayloadBuilder (app/Services/Integrasi/Wrgroup/) agar
+     * fee yang dilaporkan ke WRGROUP persis sama dengan yang dibukukan ke cashflow lokal di
+     * booted() di bawah — satu sumber kebenaran, bukan duplikasi jadwal fee.
      */
-    private static function resolveFee(self $dataLapangan): int
+    public static function resolveFee(self $dataLapangan): int
     {
         $feeSchedule = [
             '2026-05-01' => 60000,
@@ -296,8 +381,11 @@ class DataLapangan extends Model
             }
         }
 
-        // Fallback ke fee_enum koordinator untuk data sebelum semua schedule
-        return $dataLapangan->enumerator->koordinator->fee_enum;
+        // Fallback ke Fee Enumerator (Global/Provinsi) untuk data sebelum semua schedule
+        $koordinator = $dataLapangan->enumerator->koordinator;
+        $fee = app(\App\Services\Superadmin\FeeEnumeratorService::class)->resolveForKoordinator($koordinator);
+
+        return $fee?->nominal_fee ?? 0;
     }
 
     /**

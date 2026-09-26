@@ -13,5 +13,7 @@ class Settingwebsite extends Model
         'logo',
         'gemini_api_key',
         'anthropic_api_key',
+        'urusin_base_url',
+        'urusin_api_key',
     ];
 }

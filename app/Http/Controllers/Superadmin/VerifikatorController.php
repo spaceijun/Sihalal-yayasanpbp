@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Traits\HasRoutePrefix;
 use App\Models\Verifikator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\VerifikatorRequest;
@@ -309,11 +310,14 @@ class VerifikatorController extends Controller
             ->with('success', 'Verifikator updated successfully');
     }
 
-    public function destroy($hashedId): RedirectResponse
+    public function destroy($hashedId): JsonResponse
     {
-        Verifikator::findByHashedIdOrFail($hashedId)->delete();
+        try {
+            Verifikator::findByHashedIdOrFail($hashedId)->delete();
 
-        return Redirect::route($this->routePrefix() . '.verifikators.index')
-            ->with('success', 'Verifikator deleted successfully');
+            return response()->json(['message' => 'Verifikator berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

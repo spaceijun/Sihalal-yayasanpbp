@@ -58,7 +58,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            $('#dataEntryTable').DataTable({
+            window.dataTableInstance = $('#dataEntryTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -138,32 +138,52 @@
                 ],
                 responsive: true,
             });
-
-            // Intercept form deletion with SweetAlert2
-            $(document).on('submit', '.form-delete', function(e) {
-                e.preventDefault();
-                var form = this;
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data entry ini akan dihapus secara permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#74788d',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    customClass: {
-                        confirmButton: 'btn btn-danger w-xs me-2',
-                        cancelButton: 'btn btn-light w-xs'
-                    },
-                    buttonsStyling: false
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
         });
+
+        function confirmDeleteDataEntry(hashedId, nama) {
+            Swal.fire({
+                title: 'Hapus Data Entry?',
+                html: `Data entry <strong>${nama}</strong> akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+
+                try {
+                    const response = await fetch(`{{ url($routePrefix . '/data-entries') }}/${hashedId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: data.message || 'Data entry berhasil dihapus!',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                    });
+
+                    if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+                } catch (err) {
+                    Swal.fire('Gagal!', err.message, 'error');
+                }
+            });
+        }
     </script>
 @endpush
 

@@ -117,6 +117,9 @@
             </div>
         </div>
 
+        {{-- Verifikasi Final & Integrasi Urusin Secara Online (.agent/workflows/data-entry-integrasi.md) --}}
+        @include('superadmin.data-lapangan.partials.urusin-panel', ['dataLapangan' => $dataLapangan, 'routePrefix' => $routePrefix])
+
         {{-- MAIN GRID --}}
         <div class="dl-grid">
 
@@ -350,6 +353,22 @@
                             <tr>
                                 <td class="dl-key" style="padding-left:1.25rem;">Alamat Lengkap</td>
                                 <td class="dl-val" style="padding-right:1.25rem;">{{ $dataLapangan->full_address ?: $dataLapangan->alamat }}</td>
+                            </tr>
+                            <tr>
+                                <td class="dl-key" style="padding-left:1.25rem;">Lokasi GPS (Geotag)</td>
+                                <td class="dl-val" style="padding-right:1.25rem;">
+                                    @if ($dataLapangan->latitude !== null && $dataLapangan->longitude !== null)
+                                        {{ number_format((float) $dataLapangan->latitude, 6) }}, {{ number_format((float) $dataLapangan->longitude, 6) }}
+                                        @if ($dataLapangan->akurasi_meter !== null)
+                                            <span style="color:#94A3B8;">(±{{ number_format((float) $dataLapangan->akurasi_meter, 1) }} m)</span>
+                                        @endif
+                                        <a href="{{ $dataLapangan->google_maps_url }}" target="_blank" rel="noopener" style="margin-left:6px;">
+                                            <i class="las la-map-marked-alt"></i> Buka di Google Maps
+                                        </a>
+                                    @else
+                                        <span style="color:#94A3B8;">— (data lama sebelum fitur geotag aktif)</span>
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="dl-key" style="padding-left:1.25rem;">Status</td>
@@ -767,7 +786,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('superadmin.data-lapangans.tolak-pembayaran', $dataLapangan->hashed_id) }}" method="POST">
+                <form id="formTolakPembayaran" action="{{ route('superadmin.data-lapangans.tolak-pembayaran', $dataLapangan->hashed_id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div style="display:flex;gap:10px;padding:12px 14px;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;margin-bottom:1rem;">
@@ -795,8 +814,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="dl-btn dl-btn-ghost" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="dl-btn dl-btn-danger"
-                            onclick="return confirm('Yakin ingin menolak pengajuan pembayaran ini?')">
+                        <button type="submit" class="dl-btn dl-btn-danger">
                             <i class="las la-times-circle"></i> Tolak Pengajuan
                         </button>
                     </div>
@@ -2331,8 +2349,19 @@
         });
 
         // ── FILE DELETE — pakai hashed_id bukan raw id ──
-        function deleteFile(hashedId, fileType) {
-            if (!confirm('Apakah Anda yakin ingin menghapus file ini?')) return;
+        async function deleteFile(hashedId, fileType) {
+            const result = await Swal.fire({
+                title: 'Hapus File?',
+                text: 'Apakah Anda yakin ingin menghapus file ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            });
+            if (!result.isConfirmed) return;
             const form = document.createElement('form');
             form.method = 'POST';
             // hashedId di-resolve oleh resolveRouteBinding di trait
@@ -2352,14 +2381,45 @@
                 const f = this.files[0];
                 if (!f) return;
                 if (f.type !== 'application/pdf') {
-                    alert('File harus berformat PDF!');
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'error',
+                        title: 'File harus berformat PDF!',
+                        showConfirmButton: false, timer: 3000,
+                    });
                     this.value = '';
                     return;
                 }
                 if (f.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file maksimal 5MB!');
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'error',
+                        title: 'Ukuran file maksimal 5MB!',
+                        showConfirmButton: false, timer: 3000,
+                    });
                     this.value = '';
                     return;
+                }
+            });
+        });
+
+        // ── Konfirmasi Tolak Pengajuan Pembayaran (SweetAlert2) ──
+        document.getElementById('formTolakPembayaran')?.addEventListener('submit', function (e) {
+            if (this.dataset.confirmed) return;
+            e.preventDefault();
+            const form = this;
+            Swal.fire({
+                title: 'Tolak Pengajuan?',
+                text: 'Yakin ingin menolak pengajuan pembayaran ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Tolak!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.dataset.confirmed = '1';
+                    form.submit();
                 }
             });
         });
@@ -2379,7 +2439,11 @@
                 a.href = URL.createObjectURL(blob);
                 a.download = title.replace(/\s+/g, '_') + '.jpg';
                 a.click();
-            }).catch(() => alert('Gagal mendownload gambar'));
+            }).catch(() => Swal.fire({
+                toast: true, position: 'top-end', icon: 'error',
+                title: 'Gagal mendownload gambar',
+                showConfirmButton: false, timer: 3000,
+            }));
         }
 
         // ── COLLAGE ──
@@ -2403,7 +2467,11 @@
                     document.body.removeChild(loading);
                 }, 'image/jpeg', .95);
             }).catch(() => {
-                alert('Gagal membuat kolase');
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Gagal membuat kolase',
+                    showConfirmButton: false, timer: 3000,
+                });
                 document.body.removeChild(loading);
             });
         }

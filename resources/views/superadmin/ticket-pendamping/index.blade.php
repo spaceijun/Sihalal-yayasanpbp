@@ -176,46 +176,6 @@
         </div>
     </div>
 
-    {{-- Hidden Delete Form --}}
-    <form id="deleteForm" method="POST" style="display:none;">
-        @csrf
-        @method('DELETE')
-    </form>
-
-    {{-- Delete Modal --}}
-    <div id="deleteModal" class="modal fade adm-modal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">
-                        <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--adm-red);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:6px;vertical-align:-3px;">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                        Konfirmasi Hapus Tiket
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="text-align:center;padding:28px 24px 20px;">
-                    <div style="width:64px;height:64px;border-radius:50%;background:var(--adm-red-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                        <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--adm-red);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                        </svg>
-                    </div>
-                    <h5 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--adm-text-dark);margin-bottom:8px;">Yakin hapus tiket ini?</h5>
-                    <p style="font-size:13px;color:var(--adm-text-muted);margin:0;">Tindakan ini tidak dapat dibatalkan. Tiket pendamping akan dihapus permanen dari sistem.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="adm-btn-primary" id="confirmDeleteBtn"
-                        style="background:linear-gradient(135deg,var(--adm-red),#b91c1c);">
-                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-                        Hapus Tiket
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')
@@ -224,9 +184,8 @@
             'use strict';
 
             const CSRF = $('meta[name="csrf-token"]').attr('content');
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 
-            const dt = $('#ticketTable').DataTable({
+            window.dataTableInstance = $('#ticketTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searching: true,
@@ -270,41 +229,69 @@
                     [6, 'desc']
                 ],
                 responsive: true,
-                drawCallback: bindRowActions
-            });
-
-            function bindRowActions() {
-                // Delete actions
-                $(document).off('click', '.btn-delete').on('click', '.btn-delete', function() {
-                    const deleteUrl = $(this).data('url');
-                    $('#deleteForm').attr('action', deleteUrl);
-                    deleteModal.show();
-                });
-            }
-
-            // Confirm delete trigger
-            $('#confirmDeleteBtn').on('click', function() {
-                const btn = $(this);
-                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Menghapus...');
-                $('#deleteForm').submit();
             });
 
             // Filter status
             $('#statusFilter').on('change', function() {
-                dt.ajax.reload();
+                window.dataTableInstance.ajax.reload();
             });
 
             // Custom search trigger
             $('#ticketSearch').on('keyup', function() {
-                dt.search($(this).val()).draw();
+                window.dataTableInstance.search($(this).val()).draw();
             });
 
             // Reset filters
             $('#resetFilter').on('click', function() {
                 $('#ticketSearch').val('');
                 $('#statusFilter').val('');
-                dt.search('').ajax.reload();
+                window.dataTableInstance.search('').ajax.reload();
             });
         });
+
+        function confirmDeleteTicketPendamping(hashedId, noTiket) {
+            Swal.fire({
+                title: 'Hapus Tiket?',
+                html: `Tiket <strong>${noTiket}</strong> akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+
+                try {
+                    const response = await fetch(`{{ url($routePrefix . '/ticket-pendampings') }}/${hashedId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: data.message || 'Tiket pendamping berhasil dihapus!',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                    });
+
+                    if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+                } catch (err) {
+                    Swal.fire('Gagal!', err.message, 'error');
+                }
+            });
+        }
     </script>
 @endpush

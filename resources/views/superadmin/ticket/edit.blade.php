@@ -14,7 +14,7 @@
                         <span class="card-title">{{ __('Update') }} Ticket</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('data-entry.tickets.update', $ticket->id) }}" role="form"
+                        <form method="POST" action="{{ route('data-entry.tickets.update', $ticket->hashed_id) }}" role="form"
                             enctype="multipart/form-data">
                             {{ method_field('PATCH') }}
                             @csrf

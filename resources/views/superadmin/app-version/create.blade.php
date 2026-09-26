@@ -25,7 +25,7 @@
             <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
             Informasi Versi
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.app-versions.store') }}" enctype="multipart/form-data">
+        <form id="formAppVersion" method="POST" action="{{ route($routePrefix . '.app-versions.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="adm-form-body">
                 <div class="adm-form-grid cols-2" style="gap:14px;">
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="adm-form-actions">
-                <button type="submit" class="adm-btn-primary">
+                <button type="submit" class="adm-btn-primary" id="btnSimpanAppVersion">
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                     Simpan Versi
                 </button>
@@ -43,3 +43,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('formAppVersion').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSimpanAppVersion');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+    });
+</script>
+@endpush

@@ -17,7 +17,7 @@
             <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             Edit Data Spotcheck
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.spotchecks.update', $spotcheck->hashed_id) }}" enctype="multipart/form-data">
+        <form id="formSpotcheck" method="POST" action="{{ route($routePrefix . '.spotchecks.update', $spotcheck->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -35,4 +35,30 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formSpotcheck');
+            if (!form) return;
+
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('[type="submit"]');
+                if (!submitBtn) return;
+
+                const originalLabel = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    Menyimpan...
+                `;
+
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalLabel;
+                }, 15000);
+            });
+        });
+    </script>
+@endpush
 

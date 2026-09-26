@@ -1,32 +1,31 @@
 <li class="nav-item">
     <a href="{{ url('koordinator/dashboard') }}"
         class="nav-link {{ $current_url == 'koordinator/dashboard' ? 'active' : '' }}">
-        <i data-feather="home"></i>Beranda
+        <i data-feather="home"></i>Dashboard
     </a>
 </li>
 <li class="menu-title"><span data-key="t-menu">Menu Utama</span></li>
 <li class="nav-item">
-    <a href="{{ url('koordinator/data-pendamping') }}"
-        class="nav-link {{ $current_url == 'koordinator/data-pendamping' ? 'active' : '' }}">
-        <i data-feather="user"></i>Data Pendamping
+    <a href="{{ url('koordinator/enumerator') }}"
+        class="nav-link {{ $current_url == 'koordinator/enumerator' ? 'active' : '' }}">
+        <i data-feather="users"></i>Data Enumerator
     </a>
 </li>
-
 <li class="nav-item">
     <a href="{{ url('koordinator/data-lapangan') }}"
         class="nav-link {{ $current_url == 'koordinator/data-lapangan' ? 'active' : '' }}">
-        <i data-feather="user"></i>Data Lapangan
+        <i data-feather="map"></i>Data Lapangan
     </a>
 </li>
 <li class="nav-item">
-    <a href="{{ url('koordinator/cashflow') }}"
-        class="nav-link {{ $current_url == 'koordinator/cashflow' ? 'active' : '' }}">
-        <i data-feather="activity"></i>Cashflow
+    <a href="{{ url('koordinator/pengumuman') }}"
+        class="nav-link {{ $current_url == 'koordinator/pengumuman' ? 'active' : '' }}">
+        <i data-feather="bell"></i>Pengumuman
     </a>
 </li>
 <li class="nav-item">
-    <a href="{{ url('koordinator/recruitments') }}"
-        class="nav-link {{ $current_url == 'koordinator/recruitments' ? 'active' : '' }}">
-        <i data-feather="users"></i>Recruitment
+    <a href="{{ url('koordinator/tiket') }}"
+        class="nav-link {{ $current_url == 'koordinator/tiket' ? 'active' : '' }}">
+        <i data-feather="message-square"></i>Tiket
     </a>
 </li>

@@ -64,7 +64,9 @@
     @enderror
 </div>
 
+@push('scripts')
 <script>
     ClassicEditor.create(document.querySelector('#bahan_makanan')).catch(error => console.error(error));
     ClassicEditor.create(document.querySelector('#proses_pembuatan')).catch(error => console.error(error));
 </script>
+@endpush

@@ -17,7 +17,7 @@
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Edit Data Pengguna
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.users.update', $user->hashed_id) }}" enctype="multipart/form-data">
+        <form id="formUser" method="POST" action="{{ route($routePrefix . '.users.update', $user->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="adm-form-actions">
-                <button type="submit" class="adm-btn-primary">
+                <button type="submit" class="adm-btn-primary" id="btnSimpanUser">
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Perubahan
                 </button>
                 <a href="{{ route($routePrefix . '.users.index') }}" class="adm-btn-secondary">Batal</a>
@@ -35,4 +35,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('formUser').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSimpanUser');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+    });
+</script>
+@endpush
 

@@ -9,6 +9,7 @@ use App\Models\DataEntryProgress;
 use App\Models\DataLapangan;
 use App\Models\Enumerator;
 use App\Models\Verifikator;
+use App\Services\Integrasi\UrusinSubmissionService;
 use App\Services\Superadmin\DataLapanganService;
 use App\Services\Superadmin\FileService;
 use App\Services\Superadmin\ImageDownloadService;
@@ -40,7 +41,8 @@ class DataLapanganController extends Controller
         private ImageService $imageService,
         private ImageDownloadService $imageDownloadService,
         private NotificationService $notificationService,
-        private PdfService $pdfService
+        private PdfService $pdfService,
+        private UrusinSubmissionService $urusinSubmissionService
     ) {}
 
     /**
@@ -93,6 +95,15 @@ class DataLapanganController extends Controller
         }
         if ($request->filled('payment_filter')) {
             $query->where('data_lapangans.status_pembayaran', $request->payment_filter);
+        }
+        if ($request->filled('verif_koordinator_filter')) {
+            $query->where('data_lapangans.verifikasi_koordinator', $request->verif_koordinator_filter);
+        }
+        if ($request->filled('verif_final_filter')) {
+            $query->where('data_lapangans.verifikasi_final', $request->verif_final_filter);
+        }
+        if ($request->filled('jalur_filter')) {
+            $query->where('data_lapangans.jalur_data_entry', $request->jalur_filter);
         }
 
         return DataTables::of($query)
@@ -149,6 +160,35 @@ class DataLapanganController extends Controller
 
                 return 'Rp '.number_format($tagihan, 0, ',', '.');
             })
+            ->addColumn('verif_koordinator_badge', function ($dl) {
+                $map = [
+                    'Terverifikasi' => '#16A34A:#DCFCE7',
+                    'Perlu Koreksi' => '#DC2626:#FEE2E2',
+                    'Belum' => '#6B7280:#F3F4F6',
+                ];
+                $val = $dl->verifikasi_koordinator ?? 'Belum';
+                [$color, $bg] = explode(':', $map[$val] ?? '#6B7280:#F3F4F6');
+
+                return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($val).'</span>';
+            })
+            ->addColumn('verif_final_badge', function ($dl) {
+                $map = [
+                    'Terverifikasi' => '#16A34A:#DCFCE7',
+                    'Perlu Koreksi' => '#DC2626:#FEE2E2',
+                    'Belum' => '#6B7280:#F3F4F6',
+                ];
+                $val = $dl->verifikasi_final ?? 'Belum';
+                [$color, $bg] = explode(':', $map[$val] ?? '#6B7280:#F3F4F6');
+
+                return '<span class="adm-badge" style="background:'.$bg.';color:'.$color.';border:1px solid '.$color.'33;">'.e($val).'</span>';
+            })
+            ->addColumn('jalur_badge', function ($dl) {
+                $isBaru = $dl->jalur_data_entry === 'baru';
+
+                return $isBaru
+                    ? '<span class="adm-badge" style="background:#EDE9FE;color:#7C3AED;border:1px solid #7C3AED33;">Baru (Urusin)</span>'
+                    : '<span class="adm-badge" style="background:#F3F4F6;color:#6B7280;border:1px solid #6B728033;">Lama</span>';
+            })
             ->addColumn('locked_icon', function ($dl) {
                 if ($dl->is_being_edited && $dl->edit_expires_at && now()->lt($dl->edit_expires_at)) {
                     return '<button class="adm-btn warning icon-only btn-force-unlock" data-id="'.e($dl->hashed_id).'" title="Terkunci — klik untuk paksa buka">
@@ -198,7 +238,7 @@ class DataLapanganController extends Controller
 
                 return '';
             })
-            ->rawColumns(['pendamping_cell', 'status_badge', 'payment_badge', 'locked_icon', 'aksi', 'checkbox'])
+            ->rawColumns(['pendamping_cell', 'status_badge', 'payment_badge', 'verif_koordinator_badge', 'verif_final_badge', 'jalur_badge', 'locked_icon', 'aksi', 'checkbox'])
             ->make(true);
     }
 
@@ -805,7 +845,7 @@ class DataLapanganController extends Controller
     public function show($hashedId): View
     {
         $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
-        $dataLapangan->load(['enumerator', 'spotchecks']);
+        $dataLapangan->load(['enumerator', 'spotchecks', 'verifiedByFinal']);
 
         $verifikators = Verifikator::orderBy('nama_lengkap')->get();
 
@@ -894,5 +934,106 @@ class DataLapanganController extends Controller
         $dataLapangan->update(['email_sihalal' => $request->email_sihalal]);
 
         return redirect()->back()->with('success', 'Email Sihalal berhasil diperbarui');
+    }
+
+    /**
+     * Simpan "Data Usaha untuk Pengajuan" — field tambahan yang dibutuhkan payload NIB & Halal
+     * Urusin Secara Online tapi belum ada kolomnya di data_lapangans (AJAX).
+     * Lihat .agent/workflows/data-entry-integrasi.md §4.
+     */
+    public function updateDataUsaha(Request $request, $hashedId): JsonResponse
+    {
+        $request->validate([
+            'nama_usaha' => 'required|string|max:255',
+            'tempat_lahir' => 'required|string|max:255',
+            'jenis_usaha' => 'required|string|max:255',
+            'modal_usaha' => 'required|integer|min:0',
+            'alamat_usaha' => 'required|string|max:255',
+            'provinsi_kode' => 'required|string|max:10',
+            'kabupaten_kode' => 'required|string|max:15',
+            'kecamatan_kode' => 'required|string|max:15',
+            'kelurahan_kode' => 'required|string|max:20',
+            'jenis_produk_halal' => 'required|string|max:255',
+            'bahan_utama_halal' => 'required|string|max:255',
+        ]);
+
+        try {
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+            $this->dataLapanganService->updateDataUsaha($dataLapangan, $request->only([
+                'nama_usaha', 'tempat_lahir', 'jenis_usaha', 'modal_usaha', 'alamat_usaha',
+                'provinsi_kode', 'kabupaten_kode', 'kecamatan_kode', 'kelurahan_kode',
+                'jenis_produk_halal', 'bahan_utama_halal',
+            ]));
+
+            return response()->json(['success' => true, 'message' => 'Data usaha berhasil disimpan.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Verifikasi final (tahap 2, Admin Umum/Superadmin) — AJAX. Jika disetujui, langsung
+     * memicu submit NIB & Halal ke Urusin Secara Online (§1, §5.1, §5.7 data-entry-integrasi.md).
+     */
+    public function verifikasiFinal(Request $request, $hashedId): JsonResponse
+    {
+        $request->validate([
+            'verifikasi_final' => 'required|in:Terverifikasi,Perlu Koreksi',
+            'catatan_final' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+            $dataLapangan = $this->dataLapanganService->verifikasiFinal(
+                $dataLapangan,
+                auth()->id(),
+                $request->only(['verifikasi_final', 'catatan_final'])
+            );
+
+            $message = 'Verifikasi final berhasil disimpan.';
+
+            if ($dataLapangan->verifikasi_final === 'Terverifikasi') {
+                $results = $this->urusinSubmissionService->submitBoth($dataLapangan);
+                $bundle = $results['bundle'];
+                $bundleOk = $bundle === null || ($bundle['status'] ?? false);
+
+                $message .= $bundleOk
+                    ? ' Data berhasil dikirim ke Urusin Secara Online.'
+                    : ' Namun pengiriman ke Urusin Secara Online gagal — silakan coba "Kirim Ulang" di halaman detail.';
+            }
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Kirim ulang submission yang gagal (NIB dan/atau Halal) ke Urusin Secara Online (AJAX).
+     */
+    public function retryUrusin($hashedId): JsonResponse
+    {
+        try {
+            $dataLapangan = DataLapangan::findByHashedIdOrFail($hashedId);
+
+            if ($dataLapangan->verifikasi_final !== 'Terverifikasi') {
+                return response()->json(['success' => false, 'message' => 'Data ini belum diverifikasi final.'], 422);
+            }
+
+            $results = $this->urusinSubmissionService->submitBoth($dataLapangan);
+            $bundle = $results['bundle'];
+            $bundleOk = $bundle === null || ($bundle['status'] ?? false);
+
+            return response()->json([
+                'success' => $bundleOk,
+                'message' => $bundleOk
+                    ? 'Berhasil dikirim ulang ke Urusin Secara Online.'
+                    : 'Pengiriman ulang masih gagal — periksa konfigurasi API key di Setting Website.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
+        }
     }
 }

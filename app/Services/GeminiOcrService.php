@@ -52,10 +52,21 @@ class GeminiOcrService
 
     protected ?string $apiKey = null;
 
-    public function __construct()
+    /**
+     * Lazy: apiKey di-resolve saat pertama dibutuhkan, bukan di constructor. Konstruktor yang
+     * query DB langsung membuat service ini gagal di-resolve kapan pun container membuatnya —
+     * termasuk saat Artisan mendaftarkan command lain yang constructor-inject service ini
+     * (mis. BackfillKtpOcr), yang terjadi di setiap boot console sebelum tabel settingwebsites
+     * tentu ada (mis. migrate:fresh di database baru/kosong).
+     */
+    protected function apiKey(): string
     {
-        $setting      = Settingwebsite::first();
-        $this->apiKey = $setting?->gemini_api_key ?? env('GEMINI_API_KEY', '');
+        if ($this->apiKey === null) {
+            $setting      = Settingwebsite::first();
+            $this->apiKey = $setting?->gemini_api_key ?? env('GEMINI_API_KEY', '');
+        }
+
+        return $this->apiKey;
     }
 
     /**
@@ -63,7 +74,7 @@ class GeminiOcrService
      */
     public function isConfigured(): bool
     {
-        return ! empty($this->apiKey);
+        return ! empty($this->apiKey());
     }
 
     /**
@@ -144,7 +155,7 @@ class GeminiOcrService
             try {
                 $response = Http::timeout(60)
                     ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($url . '?key=' . $this->apiKey, [
+                    ->post($url . '?key=' . $this->apiKey(), [
                         'contents' => [
                             [
                                 'parts' => [
@@ -334,7 +345,7 @@ PROMPT;
 
                 $response = Http::timeout(20)
                     ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($url . '?key=' . $this->apiKey, [
+                    ->post($url . '?key=' . $this->apiKey(), [
                         'contents' => [
                             [
                                 'parts' => [['text' => 'Reply with exactly one word: OK']],

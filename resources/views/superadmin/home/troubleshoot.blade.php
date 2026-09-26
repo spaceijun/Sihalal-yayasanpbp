@@ -3,7 +3,7 @@
     System Troubleshooting
 @endsection
 
-@section('content')
+@push('styles')
     {{-- Only JetBrains Mono needed — Plus Jakarta Sans & Sora already loaded by admin-ui.css --}}
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -419,7 +419,9 @@
             padding-left: 2px;
         }
     </style>
+@endpush
 
+@section('content')
     <div class="adm-page">
 
         {{-- ── PAGE HEADER ── --}}
@@ -625,7 +627,9 @@
         </div>{{-- /structuredResults --}}
 
     </div>{{-- /adm-page --}}
+@endsection
 
+@push('scripts')
     <script>
         // ─── State ─────────────────────────────────────────────
         let counters = {
@@ -974,4 +978,4 @@
             );
         }
     </script>
-@endsection
+@endpush

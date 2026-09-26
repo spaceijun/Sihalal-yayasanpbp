@@ -14,24 +14,8 @@ Setting Website
         </div>
     </div>
 
-    {{-- ── FLASH ALERTS ─────────────────────────── --}}
-    @if (session('success'))
-        <div class="adm-alert adm-alert-success" role="alert">
-            <svg viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="adm-alert adm-alert-danger" role="alert">
-            <svg viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            </svg>
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
+    {{-- ── FLASH ALERTS (SweetAlert2 toast) ────────── --}}
+    @include('layouts.messages')
 
     {{-- ── MAIN CARD ───────────────────────────────── --}}
     <div class="adm-card">
@@ -83,7 +67,7 @@ Setting Website
         {{-- TAB: WEBSITE                               --}}
         {{-- ========================================== --}}
         <div id="tab-website" class="adm-tab-pane active">
-            <form action="{{ route($routePrefix . '.settings.update') }}" method="POST" enctype="multipart/form-data">
+            <form id="formWebsiteInfo" action="{{ route($routePrefix . '.settings.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -427,7 +411,7 @@ Setting Website
 
                 {{-- Form Actions --}}
                 <div class="adm-form-actions">
-                    <button type="submit" class="adm-btn-primary adm-btn-success" onclick="return confirmSaveEnv()">
+                    <button type="submit" class="adm-btn-primary adm-btn-success">
                         <svg viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -584,7 +568,7 @@ Setting Website
                 </div>
 
                 <div class="adm-form-actions">
-                    <button type="submit" class="adm-btn-primary" onclick="return confirmSaveMaintenance()">
+                    <button type="submit" class="adm-btn-primary">
                         <svg viewBox="0 0 24 24"
                             style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;">
                             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
@@ -723,8 +707,7 @@ Setting Website
                 </div>
 
                 <div class="adm-form-actions">
-                    <button type="submit" class="adm-btn-primary"
-                        onclick="return confirm('Simpan API Keys ke database?')">
+                    <button type="submit" class="adm-btn-primary">
                         <svg viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -735,16 +718,102 @@ Setting Website
                         database, bukan di file .env</span>
                 </div>
             </form>
+
+            {{-- Urusin Secara Online API --}}
+            <form action="{{ route($routePrefix . '.settings.urusin.update') }}" method="POST" id="urusinForm"
+                style="padding:0 20px 20px;">
+                @csrf
+                <div class="mnt-card" style="margin-bottom:16px;">
+                    <div class="mnt-card-header">
+                        <div class="mnt-card-header-left">
+                            <div class="mnt-icon" style="background:#ECFDF5;color:#16A34A;width:40px;height:40px;">
+                                <svg viewBox="0 0 24 24"
+                                    style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="mnt-title">Urusin Secara Online — API NIB &amp; Sertifikat Halal</div>
+                                <div class="mnt-desc">Digunakan untuk mengirim Data Lapangan yang sudah lolos
+                                    verifikasi final ke pihak ketiga, lalu mengambil dokumen NIB &amp; Sertifikat
+                                    Halal begitu terbit. Lihat <code>.agent/workflows/data-entry-integrasi.md</code>.
+                                </div>
+                            </div>
+                        </div>
+                        @if (!empty($urusinBaseUrl) && !empty($urusinApiKey))
+                            <span class="mnt-status"
+                                style="background:#DCFCE7;color:#16A34A;border:1px solid rgba(22,163,74,.2);">AKTIF</span>
+                        @else
+                            <span class="mnt-status off">BELUM DIISI</span>
+                        @endif
+                    </div>
+                    <div class="mnt-card-body">
+                        <div class="adm-field" style="max-width:600px;margin-bottom:14px;">
+                            <label class="adm-label" for="urusin_base_url">Base URL</label>
+                            <input type="text" name="urusin_base_url" id="urusin_base_url" class="adm-input"
+                                autocomplete="off" value="{{ $urusinBaseUrl }}"
+                                placeholder="https://contoh-domain-urusin.example">
+                            <span style="font-size:11.5px;color:var(--adm-text-faint);margin-top:4px;display:block;">
+                                Domain saja, <strong>tanpa</strong> <code>/api/v1</code> di akhir — contoh:
+                                <code>https://urusinsecara.online</code>. Endpoint dipanggil sebagai
+                                <code>{base_url}/api/v1/...</code> secara otomatis (jika terlanjur
+                                menyertakan <code>/api/v1</code>, sistem akan menghapusnya otomatis).
+                            </span>
+                        </div>
+                        <div class="adm-field" style="max-width:600px;">
+                            <label class="adm-label" for="urusin_api_key">API Key</label>
+                            <div style="position:relative;">
+                                <input type="password" name="urusin_api_key" id="urusin_api_key" class="adm-input"
+                                    autocomplete="off" value="{{ $urusinApiKey }}" placeholder="ua_live_... / ua_sandbox_...">
+                                <button type="button" class="env-pw-toggle" data-target="urusin_api_key"
+                                    title="Tampilkan/sembunyikan"
+                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--adm-text-faint);padding:4px;">
+                                    <svg viewBox="0 0 24 24"
+                                        style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span style="font-size:11.5px;color:var(--adm-text-faint);margin-top:4px;display:block;">
+                                Prefix <code>ua_sandbox_</code> = mode uji coba (tidak ditagih), <code>ua_live_</code>
+                                = mode produksi (data nyata, ditagih).
+                            </span>
+                        </div>
+
+                        <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <button type="submit" class="adm-btn-primary">
+                                <svg viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                                Simpan
+                            </button>
+                            <button type="button" class="adm-btn-secondary" id="btnTestUrusin">
+                                <svg viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Test Koneksi
+                            </button>
+                        </div>
+
+                        <div id="urusinTestResult" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:12.5px;"></div>
+                    </div>
+                </div>
+            </form>
         </div>{{-- /tab-apikeys --}}
 
     </div>{{-- /adm-card --}}
 </div>{{-- /adm-page --}}
+@endsection
 
 {{-- ============================================================ --}}
 {{-- TAB: MAINTENANCE                                             --}}
 {{-- (diletakkan di luar adm-card agar mudah disisipkan sbg pane) --}}
 {{-- ============================================================ --}}
 
+@push('styles')
 <style>
     /* ── Maintenance Toggle Switch ── */
     .mnt-card {
@@ -1272,8 +1341,9 @@ Setting Website
         }
     }
 </style>
+@endpush
 
-
+@push('scripts')
 <script>
     /* ── Preview gambar upload ── */
     function previewImg(input, previewId, iconId) {
@@ -1366,15 +1436,6 @@ Setting Website
             (!q || visible > 0) ? 'none' : 'block';
     });
 
-    /* ── Konfirmasi simpan .env ── */
-    function confirmSaveEnv() {
-        return confirm(
-            'Simpan perubahan pada file .env?\n\n' +
-            'Pastikan semua nilai sudah benar.\n' +
-            'Perubahan langsung berlaku pada aplikasi.'
-        );
-    }
-
     /* ── Sinkronisasi badge status maintenance secara real-time ── */
     function syncBadge(id, isChecked, isAmber) {
         const badge = document.getElementById('badge-' + id);
@@ -1388,22 +1449,164 @@ Setting Website
         }
     }
 
-    /* ── Konfirmasi simpan maintenance ── */
-    function confirmSaveMaintenance() {
+    /* ── Loading state generik untuk tombol submit (Pattern Sistem §2/§3) ── */
+    function setSubmitLoading(form, loadingText) {
+        const btn = form.querySelector('[type="submit"]');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.dataset.original = btn.innerHTML;
+        btn.innerHTML =
+            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${loadingText}`;
+    }
+
+    /* ── Form Website Info: submit langsung + loading state ── */
+    document.getElementById('formWebsiteInfo')?.addEventListener('submit', function() {
+        setSubmitLoading(this, 'Menyimpan...');
+    });
+
+    /* ── Form Environment: konfirmasi SweetAlert2 sebelum submit (ganti confirm() browser) ── */
+    document.getElementById('envForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        Swal.fire({
+            title: 'Simpan Perubahan .env?',
+            html: 'Pastikan semua nilai sudah benar.<br>Perubahan langsung berlaku pada aplikasi.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1a5fc8',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            setSubmitLoading(form, 'Menyimpan...');
+            form.submit();
+        });
+    });
+
+    /* ── Form Maintenance: konfirmasi SweetAlert2 sebelum submit (ganti confirm() browser) ── */
+    document.getElementById('formMaintenance')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+
         const activeToggles = [];
         if (document.getElementById('toggle-data-entry')?.checked) activeToggles.push('Data Entry');
         if (document.getElementById('toggle-admin-umum')?.checked) activeToggles.push('Admin Umum');
         if (document.getElementById('toggle-enumerator-api')?.checked) activeToggles.push('Enumerator API');
 
-        let msg = 'Simpan pengaturan maintenance?\n\n';
+        let html;
         if (activeToggles.length > 0) {
-            msg += '⚠️ Mode maintenance AKTIF untuk: ' + activeToggles.join(', ') + '.\n';
-            msg += 'Pengguna yang terdampak akan segera kehilangan akses.\n\n';
+            html = `⚠️ Mode maintenance <strong>AKTIF</strong> untuk: ${activeToggles.join(', ')}.<br>` +
+                'Pengguna yang terdampak akan segera kehilangan akses.';
         } else {
-            msg += '✅ Semua maintenance NONAKTIF. Semua pengguna dapat mengakses sistem.\n\n';
+            html = '✅ Semua maintenance NONAKTIF. Semua pengguna dapat mengakses sistem.';
         }
-        msg += 'Lanjutkan?';
-        return confirm(msg);
-    }
+
+        Swal.fire({
+            title: 'Simpan Pengaturan Maintenance?',
+            html: html,
+            icon: activeToggles.length > 0 ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1a5fc8',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            setSubmitLoading(form, 'Menyimpan...');
+            form.submit();
+        });
+    });
+
+    /* ── Form API Keys: konfirmasi SweetAlert2 sebelum submit (ganti confirm() browser) ── */
+    document.getElementById('apikeyForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        Swal.fire({
+            title: 'Simpan API Keys?',
+            html: 'API Keys akan disimpan ke database, bukan ke file .env.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1a5fc8',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            setSubmitLoading(form, 'Menyimpan...');
+            form.submit();
+        });
+    });
+
+    /* ── Form Urusin Secara Online: konfirmasi sebelum submit ── */
+    document.getElementById('urusinForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        Swal.fire({
+            title: 'Simpan Konfigurasi Urusin Secara Online?',
+            html: 'Base URL &amp; API Key akan disimpan ke database.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1a5fc8',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Simpan!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            setSubmitLoading(form, 'Menyimpan...');
+            form.submit();
+        });
+    });
+
+    /* ── Test Koneksi Urusin Secara Online (AJAX GET /me) ── */
+    document.getElementById('btnTestUrusin')?.addEventListener('click', async function() {
+        const btn = this;
+        const resultBox = document.getElementById('urusinTestResult');
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menguji...';
+        resultBox.style.display = 'none';
+
+        try {
+            const response = await fetch('{{ route($routePrefix . ".settings.urusin.test") }}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await response.json();
+
+            resultBox.style.display = 'block';
+            if (data.success) {
+                const d = data.data || {};
+                resultBox.style.background = '#ECFDF5';
+                resultBox.style.border = '1px solid #A7F3D0';
+                resultBox.style.color = '#065F46';
+                resultBox.innerHTML = `<strong>✅ Koneksi berhasil</strong> — Mode: <strong>${(data.mode || d.mode || '-').toUpperCase()}</strong>`
+                    + (d.package_nib ? `<br>Paket NIB: ${d.package_nib}` : '')
+                    + (d.package_halal ? `<br>Paket Halal: ${d.package_halal}` : '')
+                    + (d.billing_blocked ? '<br><strong style="color:#DC2626;">⚠ billing_blocked: true — invoice belum lunas, submission akan ditolak (403).</strong>' : '');
+            } else {
+                resultBox.style.background = '#FEF2F2';
+                resultBox.style.border = '1px solid #FECACA';
+                resultBox.style.color = '#7F1D1D';
+                resultBox.innerHTML = `<strong>❌ Gagal terhubung</strong> — ${data.message || 'Terjadi kesalahan.'}`;
+            }
+        } catch (err) {
+            resultBox.style.display = 'block';
+            resultBox.style.background = '#FEF2F2';
+            resultBox.style.border = '1px solid #FECACA';
+            resultBox.style.color = '#7F1D1D';
+            resultBox.innerHTML = `<strong>❌ Gagal terhubung</strong> — ${err.message}`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    });
 </script>
-@endsection
+@endpush

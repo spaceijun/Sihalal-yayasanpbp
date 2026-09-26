@@ -20,12 +20,12 @@
             <div class="adm-card-title">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Daftar Pengumuman
-                <span class="adm-count-badge">{{ $pengumumen->total() }}</span>
+                <span class="adm-count-badge">{{ $total }}</span>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="adm-table">
+            <table id="pengumumanTable" class="adm-table w-100">
                 <thead>
                     <tr>
                         <th style="width:44px">#</th>
@@ -35,74 +35,96 @@
                         <th class="tc" style="width:130px">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($pengumumen as $pengumuman)
-                        <tr>
-                            <td><span class="adm-rownum">{{ ++$i }}</span></td>
-                            <td>
-                                <span class="adm-mono" style="font-size:11.5px;font-weight:600;color:var(--adm-blue);background:var(--adm-blue-lt);padding:3px 8px;border-radius:6px;">
-                                    {{ $pengumuman->nomor }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{{ route($routePrefix . '.pengumumen.show', $pengumuman->hashed_id) }}"
-                                    style="font-weight:600;font-size:13px;color:var(--adm-text-dark);text-decoration:none;">
-                                    {{ $pengumuman->judul }}
-                                </a>
-                            </td>
-                            <td class="tc">
-                                @if ($pengumuman->jenis === 'OSS')
-                                    <span class="adm-badge adm-badge-oss">OSS</span>
-                                @elseif ($pengumuman->jenis === 'SIHALAL')
-                                    <span class="adm-badge adm-badge-sihalal">SIHALAL</span>
-                                @else
-                                    <span class="adm-badge adm-badge-info">{{ $pengumuman->jenis }}</span>
-                                @endif
-                            </td>
-                            <td class="tc">
-                                <div class="adm-actions">
-                                    <a class="adm-btn primary icon-only"
-                                        href="{{ route($routePrefix . '.pengumumen.show', $pengumuman->hashed_id) }}"
-                                        title="Detail">
-                                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    </a>
-                                    <a class="adm-btn success icon-only"
-                                        href="{{ route($routePrefix . '.pengumumen.edit', $pengumuman->hashed_id) }}"
-                                        title="Edit">
-                                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                    </a>
-                                    <form action="{{ route($routePrefix . '.pengumumen.destroy', $pengumuman->hashed_id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="adm-btn danger icon-only" title="Hapus"
-                                            onclick="return confirm('Yakin hapus pengumuman ini?')">
-                                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">
-                                <div class="adm-empty">
-                                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    <p>Belum ada pengumuman yang dibuat.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                <tbody></tbody>
             </table>
-        </div>
-
-        <div class="adm-card-footer">
-            <span class="adm-footer-info">
-                Menampilkan {{ $pengumumen->firstItem() ?? 0 }}–{{ $pengumumen->lastItem() ?? 0 }}
-                dari {{ $pengumumen->total() }} pengumuman
-            </span>
-            @include('layouts.pagination', ['paginator' => $pengumumen])
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.dataTableInstance = $('#pengumumanTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route($routePrefix . '.pengumumen.index') }}',
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            },
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+                { data: 'nomor_badge', name: 'nomor' },
+                { data: 'judul_link', name: 'judul' },
+                { data: 'jenis_badge', name: 'jenis', className: 'tc', orderable: false },
+                { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'tc' },
+            ],
+            columnDefs: [
+                { targets: [1, 2, 3, 4], render: null }, // raw HTML columns
+            ],
+            language: {
+                search: 'Cari:',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_ – _END_ dari _TOTAL_ pengumuman',
+                infoEmpty: 'Tidak ada data',
+                infoFiltered: '(difilter dari _MAX_ total)',
+                paginate: { previous: '‹', next: '›' },
+                zeroRecords: 'Tidak ada pengumuman ditemukan',
+                emptyTable: 'Belum ada pengumuman yang dibuat',
+                processing: '<div class="spinner-border text-primary" role="status"></div>',
+            },
+            pageLength: 15,
+            order: [[1, 'desc']],
+            responsive: true,
+        });
+    });
+
+    function confirmDeletePengumuman(hashedId, judul) {
+        Swal.fire({
+            title: 'Hapus Pengumuman?',
+            html: `Pengumuman <strong>${judul}</strong> akan dihapus permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+
+            Swal.fire({
+                title: 'Menghapus...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            try {
+                const response = await fetch(`{{ url($routePrefix . '/pengumumen') }}/${hashedId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: data.message || 'Pengumuman berhasil dihapus!',
+                    showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                });
+
+                if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+            } catch (err) {
+                Swal.fire('Gagal!', err.message, 'error');
+            }
+        });
+    }
+</script>
+@endpush

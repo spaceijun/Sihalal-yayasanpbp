@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Services\Superadmin\UserService;
 use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -15,6 +17,8 @@ use Yajra\DataTables\Facades\DataTables;
 class UserController extends Controller
 {
     use HasRoutePrefix;
+
+    public function __construct(private UserService $service) {}
 
     /**
      * Display a listing of the resource.
@@ -54,9 +58,8 @@ class UserController extends Controller
                 return '<span class="adm-badge" style="background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;">'.e($u->role).'</span>';
             })
             ->addColumn('aksi', function ($u) {
-                $showUrl = route('superadmin.users.show', $u->hashed_id);
-                $editUrl = route('superadmin.users.edit', $u->hashed_id);
-                $deleteUrl = route('superadmin.users.destroy', $u->hashed_id);
+                $showUrl = route($this->routePrefix() . '.users.show', $u->hashed_id);
+                $editUrl = route($this->routePrefix() . '.users.edit', $u->hashed_id);
 
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a class="adm-btn primary icon-only" href="'.$showUrl.'" title="Lihat">
@@ -65,13 +68,10 @@ class UserController extends Controller
                     <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
-                    <form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus user '.e($u->name).'?\')">
-                        <input type="hidden" name="_token" value="'.csrf_token().'">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="adm-btn danger icon-only" title="Hapus">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                        </button>
-                    </form>
+                    <button type="button" class="adm-btn danger icon-only" title="Hapus"
+                        onclick="confirmDeleteUser(\''.$u->hashed_id.'\', \''.e(addslashes($u->name)).'\')">
+                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
                 </div>';
             })
             ->rawColumns(['nama_cell', 'role_badge', 'aksi'])
@@ -94,18 +94,21 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): RedirectResponse
     {
-        User::create($request->validated());
+        try {
+            $this->service->store($request->validated());
 
-        return Redirect::route('superadmin.users.index')
-            ->with('success', 'User created successfully.');
+            return Redirect::route($this->routePrefix() . '.users.index')
+                ->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menyimpan user: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($hashedId): View
+    public function show(User $user): View
     {
-        $user = User::findByHashedIdOrFail($hashedId);
         $routePrefix = $this->routePrefix();
 
         return view('superadmin.user.show', compact('user', 'routePrefix'));
@@ -114,9 +117,8 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($hashedId): View
+    public function edit(User $user): View
     {
-        $user = User::findByHashedIdOrFail($hashedId);
         $routePrefix = $this->routePrefix();
 
         return view('superadmin.user.edit', compact('user', 'routePrefix'));
@@ -127,17 +129,27 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $user->update($request->validated());
+        try {
+            $this->service->update($user, $request->validated());
 
-        return Redirect::route('superadmin.users.index')
-            ->with('success', 'User updated successfully');
+            return Redirect::route($this->routePrefix() . '.users.index')
+                ->with('success', 'User updated successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui user: ' . $e->getMessage())->withInput();
+        }
     }
 
-    public function destroy($hashedId): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $user): JsonResponse
     {
-        User::findByHashedIdOrFail($hashedId)->delete();
+        try {
+            $this->service->delete($user);
 
-        return Redirect::route('superadmin.users.index')
-            ->with('success', 'User deleted successfully');
+            return response()->json(['message' => 'User berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

@@ -21,11 +21,13 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
+
         return [
             'name' => 'required|string',
             'email' => 'required|string',
             'telephone' => 'required|string',
-            'password' => 'required|string',
+            'password' => $isUpdate ? 'nullable|string|min:8' : 'required|string|min:8',
             'role' => 'required',
         ];
     }

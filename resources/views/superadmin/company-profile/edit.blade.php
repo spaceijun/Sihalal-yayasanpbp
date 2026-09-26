@@ -21,7 +21,7 @@
     <!-- Messages -->
     @include('layouts.messages')
 
-    <form action="{{ route($routePrefix . '.company-profile.update', $profile->page) }}" method="POST">
+    <form id="formPengaturanHalaman" action="{{ route($routePrefix . '.company-profile.update', $profile->page) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -56,7 +56,7 @@
                     <span class="adm-hint">Maksimal 160 karakter</span>
                 </div>
                 <div class="adm-form-actions mt-3">
-                    <button type="submit" class="adm-btn-primary">
+                    <button type="submit" class="adm-btn-primary" id="btnSimpanPengaturan">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                             <polyline points="17 21 17 13 7 13 7 21"/>
@@ -138,18 +138,13 @@
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                         </svg>
                                     </button>
-                                    <form action="{{ route($routePrefix . '.company-profile.sections.destroy', [$profile->page, $section->id]) }}"
-                                          method="POST" class="d-inline"
-                                          onsubmit="return confirm('Yakin hapus section ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="adm-btn danger">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <polyline points="3 6 5 6 21 6"/>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="adm-btn danger" title="Hapus"
+                                        onclick="confirmDeleteSection('{{ $section->id }}', '{{ addslashes($section->section_key) }}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -165,7 +160,7 @@
 <div class="modal fade adm-modal" id="addSectionModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="{{ route($routePrefix . '.company-profile.sections.store', $profile->page) }}" method="POST"
+            <form id="formTambahSection" action="{{ route($routePrefix . '.company-profile.sections.store', $profile->page) }}" method="POST"
                   enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
@@ -220,7 +215,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="adm-btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="adm-btn-primary">Simpan</button>
+                    <button type="submit" class="adm-btn-primary" id="btnSimpanSection">Simpan</button>
                 </div>
             </form>
         </div>
@@ -262,7 +257,68 @@
 function editSection(sectionId) {
     // This would typically load section data via AJAX
     // For now, we'll redirect to a dedicated edit page
-    alert('Fitur edit section akan segera hadir. Gunakan section baru untuk saat ini.');
+    Swal.fire({
+        toast: true, position: 'top-end', icon: 'info',
+        title: 'Fitur edit section akan segera hadir. Gunakan section baru untuk saat ini.',
+        showConfirmButton: false, timer: 3500, timerProgressBar: true,
+    });
 }
+
+function confirmDeleteSection(sectionId, sectionKey) {
+    Swal.fire({
+        title: 'Hapus Section?',
+        html: `Section <strong>${sectionKey}</strong> akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Menghapus...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+            const response = await fetch(`{{ url($routePrefix . '/company-profile/' . $profile->page . '/sections') }}/${sectionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+            await Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'Section berhasil dihapus!',
+                showConfirmButton: false, timer: 2000, timerProgressBar: true,
+            });
+
+            window.location.reload();
+        } catch (err) {
+            Swal.fire('Gagal!', err.message, 'error');
+        }
+    });
+}
+
+document.getElementById('formPengaturanHalaman').addEventListener('submit', function () {
+    const btn = document.getElementById('btnSimpanPengaturan');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+});
+
+document.getElementById('formTambahSection').addEventListener('submit', function () {
+    const btn = document.getElementById('btnSimpanSection');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+});
 </script>
 @endpush

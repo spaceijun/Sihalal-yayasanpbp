@@ -3,25 +3,28 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArticleCategory;
 use App\Models\CompanyBenefit;
 use App\Models\CompanyHistory;
 use App\Models\CompanyProfile;
 use App\Models\CompanyStatistic;
 use App\Models\CompanyTeam;
 use App\Models\PageSection;
-use App\Models\ArticleCategory;
 use App\Models\SocialMedia;
 use App\Models\Testimonial;
+use App\Services\Superadmin\CompanyProfileService;
 use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\View\View;
 
 class CompanyProfileController extends Controller
 {
     use HasRoutePrefix;
+
+    public function __construct(private CompanyProfileService $service) {}
 
     /**
      * Display a listing of company profile pages
@@ -65,7 +68,7 @@ class CompanyProfileController extends Controller
     /**
      * Update company profile page settings
      */
-    public function update(Request $request, string $page)
+    public function update(Request $request, string $page): RedirectResponse
     {
         $profile = CompanyProfile::findByPage($page);
 
@@ -79,15 +82,19 @@ class CompanyProfileController extends Controller
             'meta_keywords' => 'nullable|string|max:255',
         ]);
 
-        $profile->update($validated);
+        try {
+            $this->service->updatePage($profile, $validated);
 
-        return redirect()->back()->with('success', 'Pengaturan halaman berhasil disimpan');
+            return redirect()->back()->with('success', 'Pengaturan halaman berhasil disimpan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menyimpan pengaturan: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
      * Store a new section
      */
-    public function storeSection(Request $request, string $page)
+    public function storeSection(Request $request, string $page): RedirectResponse
     {
         $profile = CompanyProfile::findByPage($page);
 
@@ -113,28 +120,19 @@ class CompanyProfileController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('company-profile', 'public');
-            $validated['image'] = $path;
+        try {
+            $this->service->storeSection($profile, $validated, $request->file('image'));
+
+            return redirect()->back()->with('success', 'Section berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menambahkan section: ' . $e->getMessage())->withInput();
         }
-
-        $validated['company_profile_id'] = $profile->id;
-        $validated['is_active'] = $validated['is_active'] ?? true;
-
-        if (isset($validated['extra_data'])) {
-            $validated['extra_data'] = json_encode($validated['extra_data']);
-        }
-
-        PageSection::create($validated);
-
-        return redirect()->back()->with('success', 'Section berhasil ditambahkan');
     }
 
     /**
      * Update a section
      */
-    public function updateSection(Request $request, string $page, int $sectionId)
+    public function updateSection(Request $request, string $page, int $sectionId): RedirectResponse
     {
         $profile = CompanyProfile::findByPage($page);
         $section = PageSection::where('id', $sectionId)
@@ -156,31 +154,19 @@ class CompanyProfileController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image
-            if ($section->image) {
-                \Storage::disk('public')->delete($section->image);
-            }
-            $path = $request->file('image')->store('company-profile', 'public');
-            $validated['image'] = $path;
+        try {
+            $this->service->updateSection($section, $validated, $request->file('image'));
+
+            return redirect()->back()->with('success', 'Section berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui section: ' . $e->getMessage())->withInput();
         }
-
-        $validated['is_active'] = $validated['is_active'] ?? $section->is_active;
-
-        if (isset($validated['extra_data'])) {
-            $validated['extra_data'] = json_encode($validated['extra_data']);
-        }
-
-        $section->update($validated);
-
-        return redirect()->back()->with('success', 'Section berhasil diperbarui');
     }
 
     /**
      * Delete a section
      */
-    public function destroySection(string $page, int $sectionId)
+    public function destroySection(string $page, int $sectionId): JsonResponse
     {
         $profile = CompanyProfile::findByPage($page);
         $section = PageSection::where('id', $sectionId)
@@ -188,23 +174,22 @@ class CompanyProfileController extends Controller
             ->first();
 
         if (!$section) {
-            return redirect()->back()->with('error', 'Section tidak ditemukan');
+            return response()->json(['message' => 'Section tidak ditemukan'], 404);
         }
 
-        // Delete image
-        if ($section->image) {
-            \Storage::disk('public')->delete($section->image);
+        try {
+            $this->service->deleteSection($section);
+
+            return response()->json(['message' => 'Section berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-
-        $section->delete();
-
-        return redirect()->back()->with('success', 'Section berhasil dihapus');
     }
 
     /**
      * Toggle section active status
      */
-    public function toggleSection(string $page, int $sectionId)
+    public function toggleSection(string $page, int $sectionId): JsonResponse
     {
         $profile = CompanyProfile::findByPage($page);
         $section = PageSection::where('id', $sectionId)
@@ -215,7 +200,7 @@ class CompanyProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'Section tidak ditemukan'], 404);
         }
 
-        $section->update(['is_active' => !$section->is_active]);
+        $section = $this->service->toggleSection($section);
 
         return response()->json([
             'success' => true,

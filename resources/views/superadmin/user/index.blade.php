@@ -46,7 +46,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    $('#userTable').DataTable({
+    window.dataTableInstance = $('#userTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
@@ -77,5 +77,50 @@ document.addEventListener('DOMContentLoaded', function () {
         responsive: true,
     });
 });
+
+function confirmDeleteUser(hashedId, nama) {
+    Swal.fire({
+        title: 'Hapus User?',
+        html: `Akun <strong>${nama}</strong> akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Menghapus...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+            const response = await fetch(`{{ url($routePrefix . '/users') }}/${hashedId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'User berhasil dihapus!',
+                showConfirmButton: false, timer: 2500, timerProgressBar: true,
+            });
+
+            if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+        } catch (err) {
+            Swal.fire('Gagal!', err.message, 'error');
+        }
+    });
+}
 </script>
 @endpush

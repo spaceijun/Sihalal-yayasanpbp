@@ -557,43 +557,30 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: data.message,
-                                timer: 3000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            alert('✅ ' + data.message);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message,
+                            timer: 3000,
+                            showConfirmButton: false
+                        }).then(() => {
                             location.reload();
-                        }
+                        });
                     } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Koneksi Gagal',
-                                text: data.message
-                            });
-                        } else {
-                            alert('❌ ' + data.message);
-                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Koneksi Gagal',
+                            text: data.message
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: 'Terjadi kesalahan: ' + error.message
-                        });
-                    } else {
-                        alert('❌ Terjadi kesalahan: ' + error.message);
-                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan',
+                        text: 'Terjadi kesalahan: ' + error.message
+                    });
                 })
                 .finally(() => {
                     btn.innerHTML = originalText;

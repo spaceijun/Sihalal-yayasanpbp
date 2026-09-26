@@ -41,10 +41,19 @@
 
 {{-- ── PASSWORD ── --}}
 <div class="adm-field" style="grid-column:1/-1;">
-    <label class="adm-label" for="password">Password</label>
+    <label class="adm-label" for="password">
+        Password
+        @unless($user?->exists)
+            <span class="req">*</span>
+        @endunless
+    </label>
     <input type="password" name="password" id="password"
         class="adm-input @error('password') is-invalid @enderror"
-        placeholder="Masukkan password baru">
-    <span class="adm-hint">Kosongkan jika tidak ingin mengubah password.</span>
+        placeholder="{{ $user?->exists ? 'Kosongkan jika tidak ingin mengubah password' : 'Minimal 8 karakter' }}">
+    @if ($user?->exists)
+        <span class="adm-hint">Kosongkan jika tidak ingin mengubah password.</span>
+    @else
+        <span class="adm-hint" style="color:var(--adm-red);">* Wajib diisi, minimal 8 karakter</span>
+    @endif
     @error('password') <span class="adm-error-msg">{{ $message }}</span> @enderror
 </div>

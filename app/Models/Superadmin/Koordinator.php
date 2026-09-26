@@ -17,13 +17,26 @@ use Illuminate\Database\Eloquent\Model;
  * @property $nama_lengkap
  * @property $email
  * @property $telephone
- * @property $alamat
+ * @property $foto_ktp
+ * @property $foto_formal
+ * @property $provinsi_ktp
+ * @property $kabupaten_ktp
+ * @property $kecamatan_ktp
+ * @property $desa_ktp
+ * @property $rt_ktp
+ * @property $rw_ktp
+ * @property $alamat_lengkap_ktp
+ * @property $tipe_wilayah_kerja
+ * @property $provinsi_kerja
+ * @property $kabupaten_kerja
+ * @property $tanggal_mulai
  * @property $status
  * @property $created_at
  * @property $updated_at
  *
  * @property User $user
  * @property Enumerator[] $enumerators
+ * @property-read FeeEnumerator|null $feeAktif
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -38,8 +51,30 @@ class Koordinator extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id', 'nama_lengkap', 'email', 'telephone', 'fee_enum', 'alamat', 'status'];
+    protected $fillable = [
+        'user_id',
+        'nama_lengkap',
+        'email',
+        'telephone',
+        'foto_ktp',
+        'foto_formal',
+        'provinsi_ktp',
+        'kabupaten_ktp',
+        'kecamatan_ktp',
+        'desa_ktp',
+        'rt_ktp',
+        'rw_ktp',
+        'alamat_lengkap_ktp',
+        'tipe_wilayah_kerja',
+        'provinsi_kerja',
+        'kabupaten_kerja',
+        'tanggal_mulai',
+        'status',
+    ];
 
+    protected $casts = [
+        'tanggal_mulai' => 'date',
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -54,7 +89,7 @@ class Koordinator extends Model
      */
     public function enumerators()
     {
-        return $this->hasMany(Enumerator::class, 'id', 'koordinator_id');
+        return $this->hasMany(Enumerator::class, 'koordinator_id', 'id');
     }
 
     /**
@@ -84,5 +119,13 @@ class Koordinator extends Model
     {
         return $this->belongsToMany(DataEntry::class, 'data_entry_koordinator', 'koordinator_id', 'data_entry_id');
     }
-}
 
+    /**
+     * Resolve fee aktif berdasarkan wilayah kerja koordinator ini
+     * (Provinsi override > Global fallback). Lihat FeeEnumeratorService.
+     */
+    public function getFeeAktifAttribute(): ?FeeEnumerator
+    {
+        return app(\App\Services\Superadmin\FeeEnumeratorService::class)->resolveForKoordinator($this);
+    }
+}

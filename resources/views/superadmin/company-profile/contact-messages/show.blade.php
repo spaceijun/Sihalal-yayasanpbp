@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 <div class="adm-card-body" style="padding: 20px;">
-                    <form action="{{ route($routePrefix . '.contact-messages.update-status', $message->id) }}" method="POST">
+                    <form id="formStatusPesan" action="{{ route($routePrefix . '.contact-messages.update-status', $message->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="adm-field">
@@ -111,7 +111,7 @@
                                 <option value="archived" {{ $message->status === 'archived' ? 'selected' : '' }}>Archived</option>
                             </select>
                         </div>
-                        <button type="submit" class="adm-btn-primary w-100 mt-3">
+                        <button type="submit" class="adm-btn-primary w-100 mt-3" id="btnUpdateStatus">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                                 <polyline points="17 21 17 13 7 13 7 21"/>
@@ -131,18 +131,14 @@
                         Balas via Email
                     </a>
 
-                    <form action="{{ route($routePrefix . '.contact-messages.destroy', $message->id) }}" method="POST"
-                          class="form-delete">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="adm-btn danger w-100">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
-                            Hapus Pesan
-                        </button>
-                    </form>
+                    <button type="button" class="adm-btn danger w-100"
+                        onclick="confirmDeleteContactMessage('{{ $message->id }}', '{{ addslashes($message->name) }}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Hapus Pesan
+                    </button>
                 </div>
             </div>
         </div>
@@ -152,31 +148,55 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Intercept form deletion with SweetAlert2
-    $(document).on('submit', '.form-delete', function(e) {
-        e.preventDefault();
-        var form = this;
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Pesan masuk ini akan dihapus secara permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#74788d',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            customClass: {
-                confirmButton: 'btn btn-danger w-xs me-2',
-                cancelButton: 'btn btn-light w-xs'
-            },
-            buttonsStyling: false
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
-    });
+document.getElementById('formStatusPesan').addEventListener('submit', function () {
+    const btn = document.getElementById('btnUpdateStatus');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
 });
+
+function confirmDeleteContactMessage(id, name) {
+    Swal.fire({
+        title: 'Hapus Pesan?',
+        html: `Pesan dari <strong>${name}</strong> akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Menghapus...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+            const response = await fetch(`{{ url($routePrefix . '/contact-messages') }}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+            await Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'Pesan berhasil dihapus!',
+                showConfirmButton: false, timer: 2000, timerProgressBar: true,
+            });
+
+            window.location.href = '{{ route($routePrefix . '.contact-messages.index') }}';
+        } catch (err) {
+            Swal.fire('Gagal!', err.message, 'error');
+        }
+    });
+}
 </script>
 @endpush

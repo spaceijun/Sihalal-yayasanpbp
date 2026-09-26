@@ -162,10 +162,14 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    $('#articlesTable').DataTable({
+    window.dataTableInstance = $('#articlesTable').DataTable({
         processing: true,
         serverSide: true,
-        ajax: '{{ route($routePrefix . '.articles.index') }}?ajax=1',
+        ajax: {
+            url: '{{ route($routePrefix . '.articles.data') }}',
+            type: 'GET',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        },
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
             { data: 'title', name: 'title', className: '' },
@@ -192,31 +196,51 @@ document.addEventListener('DOMContentLoaded', function() {
         pageLength: 15,
         responsive: true,
     });
-
-    // Intercept form deletion with SweetAlert2
-    $(document).on('submit', '.form-delete', function(e) {
-        e.preventDefault();
-        var form = this;
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data artikel ini akan dihapus secara permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#74788d',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            customClass: {
-                confirmButton: 'btn btn-danger w-xs me-2',
-                cancelButton: 'btn btn-light w-xs'
-            },
-            buttonsStyling: false
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
-    });
 });
+
+function confirmDeleteArticle(id, title) {
+    Swal.fire({
+        title: 'Hapus Artikel?',
+        html: `Artikel <strong>${title}</strong> akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Menghapus...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+            const response = await fetch(`{{ url($routePrefix . '/articles') }}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: data.message || 'Artikel berhasil dihapus!',
+                showConfirmButton: false, timer: 2500, timerProgressBar: true,
+            });
+
+            if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+        } catch (err) {
+            Swal.fire('Gagal!', err.message, 'error');
+        }
+    });
+}
 </script>
 @endpush

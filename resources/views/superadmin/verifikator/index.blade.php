@@ -1260,22 +1260,17 @@
                                             </a>
 
                                             {{-- HAPUS --}}
-                                            <form
-                                                action="{{ route($routePrefix . '.verifikators.destroy', $verifikator->hashed_id) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="verk-btn verk-btn-icon danger"
-                                                    onclick="return confirm('Yakin hapus verifikator ini?')"
-                                                    title="Hapus">
-                                                    <svg viewBox="0 0 24 24">
-                                                        <polyline points="3 6 5 6 21 6" />
-                                                        <path d="M19 6l-1 14H6L5 6" />
-                                                        <path d="M10 11v6" />
-                                                        <path d="M14 11v6" />
-                                                        <path d="M9 6V4h6v2" />
-                                                    </svg>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="verk-btn verk-btn-icon danger"
+                                                onclick="confirmDeleteVerifikator('{{ $verifikator->hashed_id }}', '{{ addslashes($verifikator->nama_lengkap) }}')"
+                                                title="Hapus">
+                                                <svg viewBox="0 0 24 24">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path d="M19 6l-1 14H6L5 6" />
+                                                    <path d="M10 11v6" />
+                                                    <path d="M14 11v6" />
+                                                    <path d="M9 6V4h6v2" />
+                                                </svg>
+                                            </button>
 
                                         </div>
                                     </td>
@@ -1630,9 +1625,53 @@
             </div>
         </div>
     </div>
+@endsection
 
-
+@push('scripts')
     <script>
+        function confirmDeleteVerifikator(hashedId, nama) {
+            Swal.fire({
+                title: 'Hapus Verifikator?',
+                html: `Data verifikator <strong>${nama}</strong> akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+
+                try {
+                    const response = await fetch(`{{ url($routePrefix . '/verifikators') }}/${hashedId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: data.message || 'Verifikator berhasil dihapus!',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                    }).then(() => window.location.reload());
+                } catch (err) {
+                    Swal.fire('Gagal!', err.message, 'error');
+                }
+            });
+        }
+
         const kalkState = {
             url: '',
             filter: 'semua',
@@ -2015,6 +2054,5 @@
 
         }); // DOMContentLoaded
     </script>
-
-@endsection
+@endpush
 

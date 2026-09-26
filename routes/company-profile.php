@@ -66,8 +66,10 @@ Route::middleware('auth', 'role:superadmin|admin_umum')->prefix('superadmin')
         Route::put('company-content/social-media/{id}', [CompanyManagementController::class, 'updateSocialMedia'])->name('company-content.social-media.update');
         Route::delete('company-content/social-media/{id}', [CompanyManagementController::class, 'destroySocialMedia'])->name('company-content.social-media.destroy');
         Route::post('company-content/social-media/{id}/toggle', [CompanyManagementController::class, 'toggleSocialMedia'])->name('company-content.social-media.toggle');
+        Route::get('company-content-data', [CompanyManagementController::class, 'data'])->name('company-content.data');
 
         Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
+        Route::get('articles-data', [ArticleController::class, 'data'])->name('articles.data');
         Route::get('articles/create', [ArticleController::class, 'create'])->name('articles.create');
         Route::post('articles', [ArticleController::class, 'store'])->name('articles.store');
         Route::get('articles/{id}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
@@ -75,6 +77,7 @@ Route::middleware('auth', 'role:superadmin|admin_umum')->prefix('superadmin')
         Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
 
         Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('contact-messages-data', [ContactMessageController::class, 'data'])->name('contact-messages.data');
         Route::get('contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
         Route::patch('contact-messages/{id}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
         Route::delete('contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
@@ -124,8 +127,10 @@ Route::middleware('auth', 'role:admin_umum')->prefix('admin-umum')
         Route::put('company-content/social-media/{id}', [CompanyManagementController::class, 'updateSocialMedia'])->name('company-content.social-media.update');
         Route::delete('company-content/social-media/{id}', [CompanyManagementController::class, 'destroySocialMedia'])->name('company-content.social-media.destroy');
         Route::post('company-content/social-media/{id}/toggle', [CompanyManagementController::class, 'toggleSocialMedia'])->name('company-content.social-media.toggle');
+        Route::get('company-content-data', [CompanyManagementController::class, 'data'])->name('company-content.data');
 
         Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
+        Route::get('articles-data', [ArticleController::class, 'data'])->name('articles.data');
         Route::get('articles/create', [ArticleController::class, 'create'])->name('articles.create');
         Route::post('articles', [ArticleController::class, 'store'])->name('articles.store');
         Route::get('articles/{id}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
@@ -133,6 +138,7 @@ Route::middleware('auth', 'role:admin_umum')->prefix('admin-umum')
         Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
 
         Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('contact-messages-data', [ContactMessageController::class, 'data'])->name('contact-messages.data');
         Route::get('contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
         Route::patch('contact-messages/{id}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
         Route::delete('contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');

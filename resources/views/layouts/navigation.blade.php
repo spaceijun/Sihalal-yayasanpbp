@@ -28,6 +28,12 @@
                         <i data-feather="user"></i>Koordinator
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/fee-enumerator') }}"
+                        class="nav-link {{ $current_url == 'superadmin/fee-enumerator' ? 'active' : '' }}">
+                        <i data-feather="dollar-sign"></i>Fee Enumerator
+                    </a>
+                </li>
 
                 {{-- Data Entry --}}
                 <li class="menu-title"><span data-key="t-menu">Data Entry</span></li>
@@ -201,6 +207,12 @@
                     <a href="{{ url('superadmin/settings') }}"
                         class="nav-link {{ $current_url == 'superadmin/settings' ? 'active' : '' }}">
                         <i data-feather="settings"></i>Settings Website
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/wrgroup') }}"
+                        class="nav-link {{ Request::is('superadmin/wrgroup*') ? 'active' : '' }}">
+                        <i data-feather="share-2"></i>WRGROUP Super Apps
                     </a>
                 </li>
                 <li class="nav-item">

@@ -6,11 +6,14 @@ use App\Models\DataLapangan;
 use App\Models\DataEntry;
 use App\Models\DataEntryProgress;
 use App\Services\FcmService;
+use App\Services\Integrasi\Wrgroup\WrgroupEventService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class DataLapanganObserver
 {
+    public function __construct(private WrgroupEventService $wrgroup) {}
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -47,6 +50,9 @@ class DataLapanganObserver
 
         // 2) FCM notification — kirim jika status berubah menjadi DIBAYAR
         $this->handleStatusNotification($dataLapangan);
+
+        // 3) Lapor ke WRGROUP Super Apps — kirim jika status berubah menjadi DIBAYAR
+        $this->handleWrgroupSync($dataLapangan);
     }
 
     public function deleted(DataLapangan $dataLapangan): void
@@ -138,5 +144,29 @@ class DataLapanganObserver
                 'click_action'     => 'FLUTTER_NOTIFICATION_CLICK',
             ]
         );
+    }
+
+    // -------------------------------------------------------------------------
+    // WRGROUP Super Apps
+    // -------------------------------------------------------------------------
+
+    /**
+     * Lapor kasus sertifikasi lunas ke WRGROUP (invoice + pembayaran, satu event gabungan —
+     * lihat WrgroupEventService::recordDataLapanganPaid()). Guard sama persis dengan logic
+     * cashflow lokal di DataLapangan::booted(), sehingga fee yang dilaporkan konsisten dengan
+     * yang dibukukan ke CashflowsKoordinator/Cashflow. Best-effort: kegagalan integrasi WRGROUP
+     * tidak pernah mengganggu alur pembayaran (lihat .agent/workflows/wrgroup-integrasi.md).
+     */
+    private function handleWrgroupSync(DataLapangan $dataLapangan): void
+    {
+        if (! $dataLapangan->wasChanged('status_pembayaran')) {
+            return;
+        }
+
+        if (strtoupper(trim((string) $dataLapangan->status_pembayaran)) !== 'DIBAYAR') {
+            return;
+        }
+
+        $this->wrgroup->recordDataLapanganPaid($dataLapangan);
     }
 }

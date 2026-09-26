@@ -215,6 +215,35 @@
                         <option value="DITOLAK">Ditolak</option>
                     </select>
                 </div>
+                {{-- Verifikasi Koordinator --}}
+                <div class="adm-filter-group" style="min-width: 165px;">
+                    <label class="adm-filter-label">Verif. Koordinator</label>
+                    <select id="filterVerifKoord" class="adm-select" style="width: 100%;">
+                        <option value="">Semua</option>
+                        <option value="Belum">Belum</option>
+                        <option value="Terverifikasi">Terverifikasi</option>
+                        <option value="Perlu Koreksi">Perlu Koreksi</option>
+                    </select>
+                </div>
+                {{-- Verifikasi Final --}}
+                <div class="adm-filter-group" style="min-width: 165px;">
+                    <label class="adm-filter-label">Verif. Final</label>
+                    <select id="filterVerifFinal" class="adm-select" style="width: 100%;">
+                        <option value="">Semua</option>
+                        <option value="Belum">Belum</option>
+                        <option value="Terverifikasi">Terverifikasi</option>
+                        <option value="Perlu Koreksi">Perlu Koreksi</option>
+                    </select>
+                </div>
+                {{-- Jalur Data Entry --}}
+                <div class="adm-filter-group" style="min-width: 165px;">
+                    <label class="adm-filter-label">Jalur</label>
+                    <select id="filterJalur" class="adm-select" style="width: 100%;">
+                        <option value="">Semua</option>
+                        <option value="lama">Jalur Lama</option>
+                        <option value="baru">Jalur Baru (Urusin)</option>
+                    </select>
+                </div>
                 {{-- Reset Button --}}
                 <div style="display:flex;align-items:flex-end;">
                     <button id="resetFilters" class="adm-reset-btn" style="height: 34px;">
@@ -243,6 +272,9 @@
                             <th>NIK</th>
                             <th class="tc">Status</th>
                             <th class="tc">Payment</th>
+                            <th class="tc">Verif. Koordinator</th>
+                            <th class="tc">Verif. Final</th>
+                            <th class="tc">Jalur</th>
                             <th class="tc">Tagihan</th>
                             <th class="tc" style="width:110px">Aksi</th>
                         </tr>
@@ -427,6 +459,14 @@
 
                 const filterStatus = document.getElementById('filterStatus');
                 const filterPayment = document.getElementById('filterPayment');
+                const filterVerifKoord = document.getElementById('filterVerifKoord');
+                const filterVerifFinal = document.getElementById('filterVerifFinal');
+                const filterJalur = document.getElementById('filterJalur');
+
+                // Admin Umum: default antrian sudah bersih dari data yang belum diverifikasi koordinator
+                @if ($routePrefix === 'admin-umum')
+                    filterVerifKoord.value = 'Terverifikasi';
+                @endif
 
                 function attachCheckboxHandlers() {
                     document.querySelectorAll('.row-checkbox').forEach(cb =>
@@ -446,6 +486,9 @@
                         data: function(d) {
                             d.status_filter = filterStatus.value;
                             d.payment_filter = filterPayment.value;
+                            d.verif_koordinator_filter = filterVerifKoord.value;
+                            d.verif_final_filter = filterVerifFinal.value;
+                            d.jalur_filter = filterJalur.value;
                         }
                     },
                     columns: [{
@@ -491,6 +534,21 @@
                         {
                             data: 'payment_badge',
                             name: 'status_pembayaran',
+                            className: 'tc'
+                        },
+                        {
+                            data: 'verif_koordinator_badge',
+                            name: 'verifikasi_koordinator',
+                            className: 'tc'
+                        },
+                        {
+                            data: 'verif_final_badge',
+                            name: 'verifikasi_final',
+                            className: 'tc'
+                        },
+                        {
+                            data: 'jalur_badge',
+                            name: 'jalur_data_entry',
                             className: 'tc'
                         },
                         {
@@ -546,10 +604,16 @@
                 // ── Filter dropdowns → reload table ──
                 filterStatus.addEventListener('change', () => table.ajax.reload(null, true));
                 filterPayment.addEventListener('change', () => table.ajax.reload(null, true));
+                filterVerifKoord.addEventListener('change', () => table.ajax.reload(null, true));
+                filterVerifFinal.addEventListener('change', () => table.ajax.reload(null, true));
+                filterJalur.addEventListener('change', () => table.ajax.reload(null, true));
 
                 document.getElementById('resetFilters').addEventListener('click', function() {
                     filterStatus.value = '';
                     filterPayment.value = '';
+                    filterVerifKoord.value = '';
+                    filterVerifFinal.value = '';
+                    filterJalur.value = '';
                     document.getElementById('dtSearch').value = '';
                     table.search('').ajax.reload(null, true);
                 });
@@ -570,7 +634,18 @@
                         const nb = btn.cloneNode(true);
                         btn.parentNode.replaceChild(nb, btn);
                         nb.addEventListener('click', async function() {
-                            if (!confirm('Yakin ingin membuka paksa kunci data ini?')) return;
+                            const confirmResult = await Swal.fire({
+                                title: 'Buka Paksa Kunci?',
+                                text: 'Yakin ingin membuka paksa kunci data ini?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#dc2626',
+                                cancelButtonColor: '#6b7280',
+                                confirmButtonText: 'Ya, Buka!',
+                                cancelButtonText: 'Batal',
+                                reverseButtons: true,
+                            });
+                            if (!confirmResult.isConfirmed) return;
                             const id = this.dataset.id;
                             this.disabled = true;
                             this.innerHTML =
@@ -587,11 +662,19 @@
                                 const data = await res.json();
                                 if (data.success) table.ajax.reload(null, false);
                                 else {
-                                    alert('Gagal unlock: ' + data.message);
+                                    Swal.fire({
+                                        toast: true, position: 'top-end', icon: 'error',
+                                        title: 'Gagal unlock: ' + data.message,
+                                        showConfirmButton: false, timer: 3500,
+                                    });
                                     this.disabled = false;
                                 }
                             } catch {
-                                alert('Terjadi kesalahan saat unlock');
+                                Swal.fire({
+                                    toast: true, position: 'top-end', icon: 'error',
+                                    title: 'Terjadi kesalahan saat unlock',
+                                    showConfirmButton: false, timer: 3500,
+                                });
                                 this.disabled = false;
                             }
                         });
@@ -622,12 +705,20 @@
                                 if (data.success) {
                                     table.ajax.reload(null, false);
                                 } else {
-                                    alert('Gagal: ' + data.message);
+                                    Swal.fire({
+                                        toast: true, position: 'top-end', icon: 'error',
+                                        title: 'Gagal: ' + data.message,
+                                        showConfirmButton: false, timer: 3500,
+                                    });
                                     this.disabled = false;
                                     this.innerHTML = origHtml;
                                 }
                             } catch {
-                                alert('Terjadi kesalahan');
+                                Swal.fire({
+                                    toast: true, position: 'top-end', icon: 'error',
+                                    title: 'Terjadi kesalahan',
+                                    showConfirmButton: false, timer: 3500,
+                                });
                                 this.disabled = false;
                                 this.innerHTML = origHtml;
                             }
@@ -704,9 +795,19 @@
                             if (data.success) {
                                 table.ajax.reload(null, false);
                                 loadApprovalData();
-                            } else alert(data.message || 'Gagal memperbarui data');
+                            } else {
+                                Swal.fire({
+                                    toast: true, position: 'top-end', icon: 'error',
+                                    title: data.message || 'Gagal memperbarui data',
+                                    showConfirmButton: false, timer: 3500,
+                                });
+                            }
                         } catch {
-                            alert('Terjadi kesalahan');
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'error',
+                                title: 'Terjadi kesalahan',
+                                showConfirmButton: false, timer: 3500,
+                            });
                         } finally {
                             btnBulkDibayar.disabled = false;
                             btnBulkDibayar.innerHTML =
@@ -850,10 +951,24 @@
                                 await loadApprovalData();
                                 renderApprovalTable(approvalItems);
                                 updateApprovalSummary();
-                                alert(data.message);
-                            } else alert(data.message || 'Gagal');
+                                Swal.fire({
+                                    toast: true, position: 'top-end', icon: 'success',
+                                    title: data.message,
+                                    showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                                });
+                            } else {
+                                Swal.fire({
+                                    toast: true, position: 'top-end', icon: 'error',
+                                    title: data.message || 'Gagal',
+                                    showConfirmButton: false, timer: 3500,
+                                });
+                            }
                         } catch {
-                            alert('Terjadi kesalahan');
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'error',
+                                title: 'Terjadi kesalahan',
+                                showConfirmButton: false, timer: 3500,
+                            });
                         } finally {
                             this.disabled = false;
                             this.innerHTML =

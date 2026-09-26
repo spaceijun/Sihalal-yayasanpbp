@@ -4,6 +4,7 @@
 @endsection
 
 @section('content')
+<div class="adm-page">
     {{-- WELCOME BANNER --}}
     <div class="welcome-banner" id="welcomeBanner">
         <div class="icon-wrap"><i class="ri-admin-line"></i></div>
@@ -362,7 +363,10 @@
             </div>
         </div>
     </div>
+</div>{{-- /adm-page --}}
+@endsection
 
+@push('styles')
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -1045,7 +1049,9 @@
             border: 1px solid color-mix(in srgb, var(--cc) 25%, transparent);
         }
     </style>
+@endpush
 
+@push('scripts')
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script>
@@ -1261,4 +1267,4 @@
 
         });
     </script>
-@endsection
+@endpush

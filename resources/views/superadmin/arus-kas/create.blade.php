@@ -23,7 +23,7 @@
             <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Detail Transaksi
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.arus-kas.store') }}" enctype="multipart/form-data">
+        <form id="formCashflow" method="POST" action="{{ route($routePrefix . '.arus-kas.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="adm-form-body">
                 <div class="adm-form-grid cols-2" style="gap:14px;">
@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="adm-form-actions">
-                <button type="submit" class="adm-btn-primary">
+                <button type="submit" class="adm-btn-primary" id="btnSimpanCashflow">
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                     Simpan Transaksi
                 </button>
@@ -41,3 +41,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('formCashflow').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSimpanCashflow');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+    });
+</script>
+@endpush

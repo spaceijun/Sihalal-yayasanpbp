@@ -172,11 +172,13 @@ trait SendsWhatsAppNotification
             }
 
             $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+            $feeAktif    = app(\App\Services\Superadmin\FeeEnumeratorService::class)
+                ->resolveForKoordinator($this->enumerator->koordinator);
             $caption     = $this->formatPembayaranMessage(
                 $this->enumerator->nama_lengkap,
                 $this->nama_pu,
                 $this->nik,
-                $this->enumerator->koordinator->fee_enum
+                $feeAktif?->nominal_fee ?? 0
             );
 
             /** @var KawuloHalalService $service */

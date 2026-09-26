@@ -42,9 +42,7 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Telephone</th>
-                            <th class="tr">Fee Enum</th>
-                            <th class="tc">Total Data</th>
-                            <th class="tc">Terbit SH</th>
+                            <th>Wilayah Kerja</th>
                             <th class="tc">Status</th>
                             <th class="tc" style="width:90px">Aksi</th>
                         </tr>
@@ -59,7 +57,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            $('#koordinatorTable').DataTable({
+            window.dataTableInstance = $('#koordinatorTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -92,20 +90,9 @@
                         className: 'adm-mono'
                     },
                     {
-                        data: 'fee_fmt',
-                        name: 'fee_enum',
-                        className: 'tr',
-                        orderable: true
-                    },
-                    {
-                        data: 'data_lapangans_count',
-                        name: 'data_lapangans_count',
-                        className: 'tc'
-                    },
-                    {
-                        data: 'terbit_sh_count',
-                        name: 'terbit_sh_count',
-                        className: 'tc'
+                        data: 'wilayah_badge',
+                        name: 'provinsi_kerja',
+                        orderable: false
                     },
                     {
                         data: 'status_badge',
@@ -122,15 +109,15 @@
                     },
                 ],
                 columnDefs: [{
-                        targets: [0, 1, 4, 7, 8],
+                        targets: [0, 1, 4, 5, 6],
                         render: null
                     }, // raw HTML columns
                 ],
                 createdRow: function(row, data) {
                     $(row).find('td:eq(1)').html(data.nama_cell);
-                    $(row).find('td:eq(7)').html(data.status_badge);
-                    $(row).find('td:eq(8)').html(data.aksi);
-                    $(row).find('td:eq(4)').html(data.fee_fmt);
+                    $(row).find('td:eq(4)').html(data.wilayah_badge);
+                    $(row).find('td:eq(5)').html(data.status_badge);
+                    $(row).find('td:eq(6)').html(data.aksi);
                 },
                 language: {
                     search: 'Cari:',
@@ -155,32 +142,52 @@
                 ],
                 responsive: true,
             });
-
-            // Intercept form deletion with SweetAlert2
-            $(document).on('submit', '.form-delete', function(e) {
-                e.preventDefault();
-                var form = this;
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data koordinator ini akan dihapus secara permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#74788d',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    customClass: {
-                        confirmButton: 'btn btn-danger w-xs me-2',
-                        cancelButton: 'btn btn-light w-xs'
-                    },
-                    buttonsStyling: false
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
         });
+
+        function confirmDeleteKoordinator(hashedId, nama) {
+            Swal.fire({
+                title: 'Hapus Koordinator?',
+                html: `Data koordinator <strong>${nama}</strong> akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+
+                try {
+                    const response = await fetch(`{{ url($routePrefix . '/koordinators') }}/${hashedId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Gagal menghapus');
+
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: data.message || 'Koordinator berhasil dihapus!',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true,
+                    });
+
+                    if (window.dataTableInstance) window.dataTableInstance.ajax.reload(null, false);
+                } catch (err) {
+                    Swal.fire('Gagal!', err.message, 'error');
+                }
+            });
+        }
     </script>
 @endpush
 

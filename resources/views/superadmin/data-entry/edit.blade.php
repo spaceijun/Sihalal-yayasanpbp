@@ -23,7 +23,7 @@
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             Edit Informasi Data Entry
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.data-entries.update', $dataEntry->hashed_id) }}" enctype="multipart/form-data">
+        <form id="formDataEntry" method="POST" action="{{ route($routePrefix . '.data-entries.update', $dataEntry->hashed_id) }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             <div class="adm-form-body">
@@ -42,3 +42,29 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formDataEntry');
+            if (!form) return;
+
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('[type="submit"]');
+                if (!submitBtn) return;
+
+                const originalLabel = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    Menyimpan...
+                `;
+
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalLabel;
+                }, 15000);
+            });
+        });
+    </script>
+@endpush

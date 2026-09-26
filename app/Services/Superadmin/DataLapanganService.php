@@ -154,6 +154,58 @@ class DataLapanganService
         return $dataLapangan;
     }
 
+    /**
+     * Simpan data usaha tambahan yang dibutuhkan payload NIB & Halal Urusin Secara Online
+     * (lihat .agent/workflows/data-entry-integrasi.md §4). Diisi oleh Admin Umum/Superadmin
+     * sebelum verifikasi final bisa disetujui.
+     */
+    public function updateDataUsaha(DataLapangan $dataLapangan, array $data): DataLapangan
+    {
+        $dataLapangan->update([
+            'nama_usaha' => $data['nama_usaha'],
+            'tempat_lahir' => $data['tempat_lahir'],
+            'jenis_usaha' => $data['jenis_usaha'],
+            'modal_usaha' => $data['modal_usaha'],
+            'alamat_usaha' => $data['alamat_usaha'],
+            'provinsi_kode' => $data['provinsi_kode'],
+            'kabupaten_kode' => $data['kabupaten_kode'],
+            'kecamatan_kode' => $data['kecamatan_kode'],
+            'kelurahan_kode' => $data['kelurahan_kode'],
+            'jenis_produk_halal' => $data['jenis_produk_halal'],
+            'bahan_utama_halal' => $data['bahan_utama_halal'],
+        ]);
+
+        return $dataLapangan->fresh();
+    }
+
+    /**
+     * Verifikasi final (tahap 2) oleh Admin Umum/Superadmin — terpisah dari `status`/kolom
+     * verifikasi lama supaya alur lama (role data_entry) & alur baru (Urusin Secara Online)
+     * bisa berjalan berdampingan. Lihat §1.1 & §5.1 data-entry-integrasi.md.
+     *
+     * @throws \RuntimeException jika prasyarat belum terpenuhi
+     */
+    public function verifikasiFinal(DataLapangan $dataLapangan, int $userId, array $data): DataLapangan
+    {
+        if ($dataLapangan->verifikasi_koordinator !== 'Terverifikasi') {
+            throw new \RuntimeException('Data ini belum lolos verifikasi Koordinator (tahap 1).');
+        }
+
+        if ($data['verifikasi_final'] === 'Terverifikasi' && ! $dataLapangan->urusin_data_usaha_lengkap) {
+            throw new \RuntimeException('Lengkapi form "Data Usaha untuk Pengajuan" terlebih dahulu sebelum menyetujui verifikasi final.');
+        }
+
+        $dataLapangan->update([
+            'verifikasi_final' => $data['verifikasi_final'],
+            'catatan_final' => $data['catatan_final'] ?? null,
+            'verified_at_final' => now(),
+            'verified_by_final' => $userId,
+            'jalur_data_entry' => $data['verifikasi_final'] === 'Terverifikasi' ? 'baru' : $dataLapangan->jalur_data_entry,
+        ]);
+
+        return $dataLapangan->fresh();
+    }
+
     public function getDataRevisiAll()
     {
         return DataLapangan::with('enumerator')

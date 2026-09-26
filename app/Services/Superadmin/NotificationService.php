@@ -292,11 +292,14 @@ class NotificationService
                 return false;
             }
 
+            $feeAktif = app(\App\Services\Superadmin\FeeEnumeratorService::class)
+                ->resolveForKoordinator($dataLapangan->enumerator->koordinator);
+
             $caption = $this->buildPembayaranEnumeratorCaption(
                 $dataLapangan->enumerator->nama_lengkap,
                 $dataLapangan->nama_pu,
                 $dataLapangan->nik,
-                $dataLapangan->enumerator->koordinator->fee_enum ?? 0,
+                $feeAktif?->nominal_fee ?? 0,
             );
 
             $response = $this->kawuloHalal->sendMedia(

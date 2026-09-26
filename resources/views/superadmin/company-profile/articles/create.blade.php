@@ -21,7 +21,7 @@
     <!-- Messages -->
     @include('layouts.messages')
 
-    <form action="{{ route($routePrefix . '.articles.store') }}" method="POST" enctype="multipart/form-data">
+    <form id="formArtikel" action="{{ route($routePrefix . '.articles.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row">
@@ -154,7 +154,7 @@
                 </div>
 
                 <!-- Submit -->
-                <button type="submit" class="adm-btn-primary w-100">
+                <button type="submit" class="adm-btn-primary w-100" id="btnSimpanArtikel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                         <polyline points="17 21 17 13 7 13 7 21"/>
@@ -186,6 +186,12 @@ $(function() {
     $('#slug').on('input', function() {
         $(this).data('manual', true);
     });
+});
+
+document.getElementById('formArtikel').addEventListener('submit', function () {
+    const btn = document.getElementById('btnSimpanArtikel');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
 });
 </script>
 @endpush

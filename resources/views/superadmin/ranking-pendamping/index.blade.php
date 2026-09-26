@@ -143,7 +143,7 @@
                 </div>
             </div>
 
-            {{-- Rank 4–10 --}}
+            {{-- Peringkat Lengkap --}}
             <div class="adm-card">
                 <div class="adm-card-header">
                     <div class="adm-card-title">
@@ -155,62 +155,72 @@
                             <line x1="3" y1="12" x2="3.01" y2="12" />
                             <line x1="3" y1="18" x2="3.01" y2="18" />
                         </svg>
-                        Peringkat 4 – 10
+                        Peringkat Lengkap
                     </div>
-                    <span class="adm-count-badge">{{ $enumerators->slice(3)->count() }} pendamping</span>
                 </div>
 
-                @php
-                    $rowColors = [
-                        ['bg' => 'rgba(26,95,200,.1)', 'fg' => '#1a5fc8'],
-                        ['bg' => 'rgba(109,40,217,.1)', 'fg' => '#6d28d9'],
-                        ['bg' => 'rgba(15,110,86,.1)', 'fg' => '#0f6e56'],
-                        ['bg' => 'rgba(220,38,38,.1)', 'fg' => '#dc2626'],
-                        ['bg' => 'rgba(15,110,86,.1)', 'fg' => '#0f6e56'],
-                        ['bg' => 'rgba(234,88,12,.1)', 'fg' => '#ea580c'],
-                        ['bg' => 'rgba(3,105,161,.1)', 'fg' => '#0369a1'],
-                    ];
-                @endphp
-
-                @foreach ($enumerators->slice(3)->values() as $idx => $e)
-                    @php $c = $rowColors[$idx % count($rowColors)]; @endphp
-                    <div class="rank-row">
-                        <div class="rank-num-badge">#{{ $e->rank }}</div>
-                        <div class="rank-avatar" style="background:{{ $c['bg'] }};color:{{ $c['fg'] }};">
-                            {{ $e->inisial }}
-                        </div>
-                        <div class="rank-body">
-                            <div class="rank-name">{{ $e->nama_lengkap }}</div>
-                            <div class="rank-sub">
-                                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                {{ optional($e->koordinator)->wilayah ?? '-' }}
-                            </div>
-                            <div class="rank-badges">
-                                <span class="adm-badge adm-badge-info">{{ number_format($e->total_pengajuan) }}
-                                    Total</span>
-                                <span class="adm-badge adm-badge-terbit">{{ number_format($e->terbit_sh) }} Terbit
-                                    SH</span>
-                                @if ($e->progress > 0)
-                                    <span class="adm-badge adm-badge-pending">{{ $e->progress }} Proses</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="rank-progress">
-                            <span class="rank-pct">{{ $e->progress_ratio }}%</span>
-                            <div class="rank-bar-wrap">
-                                <div class="rank-bar-fill" style="width:{{ $e->progress_ratio }}%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+                <div class="table-responsive">
+                    <table id="rankingTable" class="adm-table w-100">
+                        <thead>
+                            <tr>
+                                <th style="width:52px">#</th>
+                                <th>Pendamping</th>
+                                <th class="tc">Total Pengajuan</th>
+                                <th class="tc">Terbit SH</th>
+                                <th class="tc" style="width:110px">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         @endif
     </div>
+@endsection
 
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.dataTableInstance = $('#rankingTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route($routePrefix . '.ranking-pendamping.data') }}',
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: function(d) {
+                        d.periode = '{{ $periode }}';
+                    }
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'tc' },
+                    { data: 'nama_cell', name: 'nama_lengkap' },
+                    { data: 'total_fmt', name: 'total_pengajuan', className: 'tc', searchable: false },
+                    { data: 'terbit_fmt', name: 'terbit_sh', className: 'tc', searchable: false },
+                    { data: 'progress_cell', name: 'progress_cell', orderable: false, searchable: false, className: 'tc' },
+                ],
+                language: {
+                    search: 'Cari:',
+                    lengthMenu: 'Tampilkan _MENU_ data',
+                    info: 'Menampilkan _START_ – _END_ dari _TOTAL_ pendamping',
+                    infoEmpty: 'Tidak ada data',
+                    infoFiltered: '(difilter dari _MAX_ total)',
+                    paginate: { previous: '‹', next: '›' },
+                    zeroRecords: 'Tidak ada pendamping ditemukan',
+                    emptyTable: 'Belum ada data pendamping',
+                    processing: '<div class="spinner-border text-primary" role="status"></div>',
+                },
+                pageLength: 15,
+                order: [[2, 'desc']],
+                responsive: true,
+            });
+        });
+    </script>
+@endpush
+
+@push('styles')
     <style>
         .podium-wrap {
             display: flex;
@@ -505,4 +515,4 @@
             white-space: nowrap;
         }
     </style>
-@endsection
+@endpush

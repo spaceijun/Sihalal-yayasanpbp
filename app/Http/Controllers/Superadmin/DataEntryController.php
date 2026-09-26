@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DataEntryRequest;
 use App\Models\DataEntry;
 use App\Models\Superadmin\Koordinator;
-use App\Models\User;
+use App\Services\Superadmin\DataEntryService;
 use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -18,15 +19,7 @@ class DataEntryController extends Controller
 {
     use HasRoutePrefix;
 
-    /**
-     * Deteksi route prefix (superadmin atau admin-umum).
-     */
-    private function routePrefix(): string
-    {
-        $prefix = request()->route()->getPrefix();
-
-        return str_contains($prefix, 'admin-umum') ? 'admin-umum' : 'superadmin';
-    }
+    public function __construct(private DataEntryService $service) {}
 
     /**
      * Display a listing of the resource.
@@ -90,9 +83,8 @@ class DataEntryController extends Controller
             })
             ->addColumn('aksi', function ($de) {
                 $prefix = $this->routePrefix();
-                $showUrl   = route($prefix.'.data-entries.show', $de->hashed_id);
-                $editUrl   = route($prefix.'.data-entries.edit', $de->hashed_id);
-                $deleteUrl = route($prefix.'.data-entries.destroy', $de->hashed_id);
+                $showUrl = route($prefix.'.data-entries.show', $de->hashed_id);
+                $editUrl = route($prefix.'.data-entries.edit', $de->hashed_id);
 
                 return '<div class="adm-actions">
                     <a class="adm-btn info icon-only" href="'.$showUrl.'" title="Detail">
@@ -101,13 +93,10 @@ class DataEntryController extends Controller
                     <a class="adm-btn warning icon-only" href="'.$editUrl.'" title="Edit">
                         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
-                    <form action="'.$deleteUrl.'" method="POST" class="d-inline form-delete">
-                        <input type="hidden" name="_token" value="'.csrf_token().'">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="adm-btn danger icon-only" title="Hapus">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                        </button>
-                    </form>
+                    <button type="button" class="adm-btn danger icon-only" title="Hapus"
+                        onclick="confirmDeleteDataEntry(\''.$de->hashed_id.'\', \''.e(addslashes($de->nama_lengkap)).'\')">
+                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
                 </div>';
             })
             ->rawColumns(['nama_cell', 'status_badge', 'entry_type_badge', 'rekening', 'aksi'])
@@ -133,32 +122,19 @@ class DataEntryController extends Controller
      */
     public function store(DataEntryRequest $request): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->nama_lengkap,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'password' => bcrypt($request->password),
-            'role' => 'data_entry',
-        ]);
-        $user->assignRole('data_entry');
+        try {
+            $data = array_merge($request->validated(), [
+                'password' => $request->password,
+                'koordinator_ids' => $request->koordinator_ids,
+            ]);
 
-        $dataEntry = DataEntry::create([
-            'user_id' => $user->id,
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'alamat' => $request->alamat,
-            'status' => $request->status,
-            'entry_type' => $request->entry_type,
-        ]);
+            $this->service->store($data);
 
-        // Attach koordinator
-        if ($request->filled('koordinator_ids')) {
-            $dataEntry->koordinators()->sync($request->koordinator_ids);
+            return Redirect::route($this->routePrefix().'.data-entries.index')
+                ->with('success', 'Data Entry Berhasil Dibuat.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menyimpan data entry: '.$e->getMessage())->withInput();
         }
-
-        return Redirect::route($this->routePrefix().'.data-entries.index')
-            ->with('success', 'Data Entry Berhasil Dibuat.');
     }
 
     /**
@@ -196,41 +172,34 @@ class DataEntryController extends Controller
      */
     public function update(DataEntryRequest $request, DataEntry $dataEntry): RedirectResponse
     {
-        $dataEntry->update([
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'alamat' => $request->alamat,
-            'status' => $request->status,
-            'entry_type' => $request->entry_type,
-        ]);
-
-        // Sync koordinator (otomatis handle tambah/hapus)
-        $dataEntry->koordinators()->sync($request->koordinator_ids ?? []);
-
-        // Update password jika diisi
-        if ($request->filled('password')) {
-            $dataEntry->user->update([
-                'password' => bcrypt($request->password),
+        try {
+            $data = array_merge($request->validated(), [
+                'password' => $request->password,
+                'koordinator_ids' => $request->koordinator_ids,
             ]);
-        }
 
-        return Redirect::route($this->routePrefix().'.data-entries.index')
-            ->with('success', 'Data Entry Berhasil Di Update.');
+            $this->service->update($dataEntry, $data);
+
+            return Redirect::route($this->routePrefix().'.data-entries.index')
+                ->with('success', 'Data Entry Berhasil Di Update.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui data entry: '.$e->getMessage())->withInput();
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($hashedId): RedirectResponse
+    public function destroy($hashedId): JsonResponse
     {
         $dataEntry = DataEntry::findByHashedIdOrFail($hashedId);
 
-        // Detach koordinator dulu sebelum delete
-        $dataEntry->koordinators()->detach();
-        $dataEntry->delete();
+        try {
+            $this->service->delete($dataEntry);
 
-        return Redirect::route($this->routePrefix().'.data-entries.index')
-            ->with('success', 'Data Entry Berhasil Dihapus.');
+            return response()->json(['message' => 'Data Entry berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

@@ -28,7 +28,7 @@
                 </svg>
                 Informasi Resep Makanan
             </div>
-            <form method="POST" action="{{ route($routePrefix . '.resep-makanans.update', $resepMakanan->hashed_id) }}"
+            <form id="formResepMakanan" method="POST" action="{{ route($routePrefix . '.resep-makanans.update', $resepMakanan->hashed_id) }}"
                 enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="adm-form-actions">
-                    <button type="submit" class="adm-btn-primary">
+                    <button type="submit" class="adm-btn-primary" id="btnSimpanResepMakanan">
                         <svg viewBox="0 0 24 24">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
@@ -50,3 +50,13 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('formResepMakanan').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSimpanResepMakanan');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+    });
+</script>
+@endpush

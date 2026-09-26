@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
 use App\Models\TicketPendamping;
+use App\Services\Superadmin\TicketPendampingService;
+use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -14,6 +16,8 @@ use Yajra\DataTables\Facades\DataTables;
 class TicketPendampingController extends Controller
 {
     use HasRoutePrefix;
+
+    public function __construct(private TicketPendampingService $service) {}
 
     public function index(Request $request): View
     {
@@ -78,14 +82,13 @@ class TicketPendampingController extends Controller
             )
             ->addColumn('aksi', function ($t) {
                 $showUrl = route($this->routePrefix() . '.ticket-pendampings.show', $t->hashed_id);
-                $deleteUrl = route($this->routePrefix() . '.ticket-pendampings.destroy', $t->hashed_id);
 
                 return '<div class="adm-actions" style="justify-content:center;gap:4px;">
                     <a href="'.$showUrl.'" class="adm-btn primary icon-only" title="Lihat Detail">
                         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
-                    <button class="adm-btn danger icon-only btn-delete"
-                        data-url="'.$deleteUrl.'" title="Hapus">
+                    <button type="button" class="adm-btn danger icon-only" title="Hapus"
+                        onclick="confirmDeleteTicketPendamping(\''.$t->hashed_id.'\', \''.e(addslashes($t->no_tiket)).'\')">
                         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                     </button>
                 </div>';
@@ -113,18 +116,28 @@ class TicketPendampingController extends Controller
             'status' => 'required|in:Open,Proses,Closed',
         ]);
 
-        $ticket = TicketPendamping::findByHashedId($hashedId);
-        $ticket->update(['status' => $request->status]);
+        $ticket = TicketPendamping::findByHashedIdOrFail($hashedId);
 
-        return redirect()->back()
-            ->with('success', 'Status tiket diperbarui menjadi '.$request->status.'.');
+        try {
+            $this->service->updateStatus($ticket, $request->status);
+
+            return redirect()->back()
+                ->with('success', 'Status tiket diperbarui menjadi '.$request->status.'.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui status: '.$e->getMessage());
+        }
     }
 
-    public function destroy(string $hashedId): RedirectResponse
+    public function destroy(string $hashedId): JsonResponse
     {
-        TicketPendamping::findByHashedId($hashedId)->delete();
+        $ticket = TicketPendamping::findByHashedIdOrFail($hashedId);
 
-        return redirect()->route($this->routePrefix() . '.ticket-pendampings.index')
-            ->with('success', 'Tiket pendamping berhasil dihapus.');
+        try {
+            $this->service->delete($ticket);
+
+            return response()->json(['message' => 'Tiket pendamping berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

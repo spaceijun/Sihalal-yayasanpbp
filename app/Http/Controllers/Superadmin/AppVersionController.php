@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Traits\HasRoutePrefix;
+use App\Http\Requests\AppVersionRequest;
 use App\Models\AppVersion;
+use App\Services\Superadmin\AppVersionService;
+use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\AppVersionRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class AppVersionController extends Controller
 {
     use HasRoutePrefix;
+
+    public function __construct(private AppVersionService $service) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -44,10 +49,14 @@ class AppVersionController extends Controller
      */
     public function store(AppVersionRequest $request): RedirectResponse
     {
-        AppVersion::create($request->validated());
+        try {
+            $this->service->store($request->validated());
 
-        return Redirect::route('superadmin.app-versions.index')
-            ->with('success', 'AppVersion created successfully.');
+            return Redirect::route($this->routePrefix().'.app-versions.index')
+                ->with('success', 'AppVersion berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menyimpan versi aplikasi: '.$e->getMessage())->withInput();
+        }
     }
 
     /**
@@ -79,17 +88,29 @@ class AppVersionController extends Controller
      */
     public function update(AppVersionRequest $request, AppVersion $appVersion): RedirectResponse
     {
-        $appVersion->update($request->validated());
+        try {
+            $this->service->update($appVersion, $request->validated());
 
-        return Redirect::route('superadmin.app-versions.index')
-            ->with('success', 'AppVersion updated successfully');
+            return Redirect::route($this->routePrefix().'.app-versions.index')
+                ->with('success', 'AppVersion berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui versi aplikasi: '.$e->getMessage())->withInput();
+        }
     }
 
-    public function destroy($hashedId): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($hashedId): JsonResponse
     {
-        AppVersion::findByHashedIdOrFail($hashedId)->delete();
+        $appVersion = AppVersion::findByHashedIdOrFail($hashedId);
 
-        return Redirect::route('superadmin.app-versions.index')
-            ->with('success', 'AppVersion deleted successfully');
+        try {
+            $this->service->delete($appVersion);
+
+            return response()->json(['message' => 'AppVersion berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

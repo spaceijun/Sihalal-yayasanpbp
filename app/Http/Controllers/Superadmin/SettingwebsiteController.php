@@ -3,20 +3,27 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Superadmin\Settingwebsite;
+use App\Services\Integrasi\UrusinService;
+use App\Services\Superadmin\SettingwebsiteService;
 use App\Traits\HasRoutePrefix;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class SettingwebsiteController extends Controller
 {
     use HasRoutePrefix;
 
-    public function index()
+    public function __construct(private SettingwebsiteService $service) {}
+
+    /**
+     * Display the website settings page (tabs: website, environment, maintenance, api keys).
+     */
+    public function index(): View
     {
-        $setting = Settingwebsite::first() ?? new Settingwebsite;
-        $envContent = $this->getEnv();
+        $setting = $this->service->getSetting();
+        $envContent = $this->service->getEnvRows();
         $routePrefix = $this->routePrefix();
 
         $maintenanceDataEntry = config('app.maintenance_data_entry', false);
@@ -24,8 +31,10 @@ class SettingwebsiteController extends Controller
         $maintenanceEnumeratorApi = config('app.maintenance_enumerator_api', false);
 
         // API Keys dari DB
-        $geminiApiKey    = $setting->gemini_api_key ?? '';
+        $geminiApiKey = $setting->gemini_api_key ?? '';
         $anthropicApiKey = $setting->anthropic_api_key ?? '';
+        $urusinBaseUrl = $setting->urusin_base_url ?? '';
+        $urusinApiKey = $setting->urusin_api_key ?? '';
 
         return view('superadmin.settingwebsite.index', compact(
             'setting',
@@ -36,10 +45,15 @@ class SettingwebsiteController extends Controller
             'maintenanceEnumeratorApi',
             'geminiApiKey',
             'anthropicApiKey',
+            'urusinBaseUrl',
+            'urusinApiKey',
         ));
     }
 
-    public function update(Request $request)
+    /**
+     * Update general website info (title, description, favicon, logo).
+     */
+    public function update(Request $request): RedirectResponse
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -48,137 +62,41 @@ class SettingwebsiteController extends Controller
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,gif|max:2048',
         ]);
 
-        $setting = Settingwebsite::first();
-        if (! $setting) {
-            $setting = new Settingwebsite;
-        }
-
-        $setting->title = $request->title;
-        $setting->description = $request->description;
-
-        // Mengelola upload favicon
-        if ($request->hasFile('favicon')) {
-            // Hapus favicon lama jika ada
-            if ($setting->favicon) {
-                Storage::disk('public')->delete($setting->favicon);
-            }
-
-            $faviconPath = $request->file('favicon')->store('settings', 'public');
-            $setting->favicon = $faviconPath;
-        }
-
-        // Mengelola upload logo
-        if ($request->hasFile('logo')) {
-            // Hapus logo lama jika ada
-            if ($setting->logo) {
-                Storage::disk('public')->delete($setting->logo);
-            }
-
-            $logoPath = $request->file('logo')->store('settings', 'public');
-            $setting->logo = $logoPath;
-        }
-
-        $setting->save();
-
-        return redirect()->back()->with('success', 'Pengaturan website berhasil diperbarui');
-    }
-
-    public function getEnv()
-    {
-        $envPath = base_path('.env');
-        $envContent = [];
-
-        if (file_exists($envPath)) {
-            $lines = file($envPath, FILE_IGNORE_NEW_LINES);
-            foreach ($lines as $line) {
-                // Simpan komentar dan baris kosong
-                if (str_starts_with(trim($line), '#') || trim($line) === '') {
-                    $envContent[] = ['type' => 'comment', 'raw' => $line];
-
-                    continue;
-                }
-                if (str_contains($line, '=')) {
-                    [$key, $value] = explode('=', $line, 2);
-                    $envContent[] = [
-                        'type' => 'variable',
-                        'key' => trim($key),
-                        'value' => trim($value),
-                    ];
-                }
-            }
-        }
-
-        return $envContent;
-    }
-
-    public function updateEnv(Request $request)
-    {
-        $envPath = base_path('.env');
-        $envData = $request->input('env', []);
-
-        if (! file_exists($envPath)) {
-            return redirect()->back()->with('error', 'File .env tidak ditemukan');
-        }
-
-        $protectedKeys = [
-            'APP_KEY',           // Jika berubah, semua session/enkripsi rusak
-            'SESSION_DRIVER',    // Jika berubah, session aktif hilang
-            'SESSION_DOMAIN',    // Jika berubah, cookie tidak terbaca
-            'DB_CONNECTION',     // Jika berubah, koneksi DB putus
-            'DB_HOST',
-            'DB_PORT',
-            'DB_DATABASE',
-            'DB_USERNAME',
-            'DB_PASSWORD',
-        ];
-
-        foreach ($protectedKeys as $pk) {
-            unset($envData[$pk]);
-        }
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES);
-        $output = [];
-
-        foreach ($lines as $line) {
-            if (str_starts_with(trim($line), '#') || trim($line) === '') {
-                $output[] = $line;
-
-                continue;
-            }
-            if (str_contains($line, '=')) {
-                [$key] = explode('=', $line, 2);
-                $key = trim($key);
-                if (array_key_exists($key, $envData)) {
-                    $value = (string) ($envData[$key] ?? '');
-                    if ($value !== '' && str_contains($value, ' ') && ! str_starts_with($value, '"')) {
-                        $value = '"'.$value.'"';
-                    }
-                    $output[] = $key.'='.$value;
-                    unset($envData[$key]);
-
-                    continue;
-                }
-            }
-            $output[] = $line;
-        }
-
-        file_put_contents($envPath, implode("\n", $output)."\n");
-
         try {
-            Artisan::call('config:clear');
-            Artisan::call('cache:clear');
-        } catch (\Exception $e) {
-            // Abaikan jika gagal (production mungkin restrict artisan)
-        }
+            $setting = $this->service->getSetting();
+            $this->service->update(
+                $setting,
+                $request->only(['title', 'description']),
+                $request->file('favicon'),
+                $request->file('logo'),
+            );
 
-        return redirect()->route('superadmin.settings.index')
-            ->with('success', 'Konfigurasi .env berhasil diperbarui');
+            return redirect()->back()->with('success', 'Pengaturan website berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui pengaturan: '.$e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update the .env file from the "Environment" tab.
+     */
+    public function updateEnv(Request $request): RedirectResponse
+    {
+        try {
+            $this->service->updateEnv((array) $request->input('env', []));
+
+            return redirect()->route($this->routePrefix().'.settings.index')
+                ->with('success', 'Konfigurasi .env berhasil diperbarui');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui .env: '.$e->getMessage());
+        }
     }
 
     /**
      * Update flag maintenance per-role langsung ke file .env.
      * Dipanggil dari tab Maintenance di halaman Setting Website.
      */
-    public function updateMaintenance(Request $request)
+    public function updateMaintenance(Request $request): RedirectResponse
     {
         $request->validate([
             'maintenance_data_entry' => 'nullable|in:on,off',
@@ -186,87 +104,99 @@ class SettingwebsiteController extends Controller
             'maintenance_enumerator_api' => 'nullable|in:on,off',
         ]);
 
-        $flagDataEntry = $request->input('maintenance_data_entry') === 'on' ? 'true' : 'false';
-        $flagAdminUmum = $request->input('maintenance_admin_umum') === 'on' ? 'true' : 'false';
-        $flagEnumApi = $request->input('maintenance_enumerator_api') === 'on' ? 'true' : 'false';
-
-        $updates = [
-            'MAINTENANCE_DATA_ENTRY' => $flagDataEntry,
-            'MAINTENANCE_ADMIN_UMUM' => $flagAdminUmum,
-            'MAINTENANCE_ENUMERATOR_API' => $flagEnumApi,
-        ];
-
-        $envPath = base_path('.env');
-
-        if (! file_exists($envPath)) {
-            return redirect()->back()->with('error', 'File .env tidak ditemukan.');
-        }
-
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES);
-        $output = [];
-        $handled = [];
-
-        foreach ($lines as $line) {
-            if (str_starts_with(trim($line), '#') || trim($line) === '') {
-                $output[] = $line;
-
-                continue;
-            }
-            if (str_contains($line, '=')) {
-                [$key] = explode('=', $line, 2);
-                $key = trim($key);
-                if (array_key_exists($key, $updates)) {
-                    $output[] = $key.'='.$updates[$key];
-                    $handled[$key] = true;
-
-                    continue;
-                }
-            }
-            $output[] = $line;
-        }
-
-        // Append keys belum ada di .env
-        foreach ($updates as $key => $value) {
-            if (! isset($handled[$key])) {
-                $output[] = $key.'='.$value;
-            }
-        }
-
-        file_put_contents($envPath, implode("\n", $output)."\n");
-
         try {
-            Artisan::call('config:clear');
-            Artisan::call('cache:clear');
-        } catch (\Exception $e) {
-            // Abaikan jika gagal di hosting dengan restricted artisan
-        }
+            $this->service->updateMaintenance($request->only([
+                'maintenance_data_entry',
+                'maintenance_admin_umum',
+                'maintenance_enumerator_api',
+            ]));
 
-        return redirect()->route('superadmin.settings.index')
-            ->with('success', 'Pengaturan maintenance berhasil diperbarui.')
-            ->with('_active_tab', 'maintenance');
+            return redirect()->route($this->routePrefix().'.settings.index')
+                ->with('success', 'Pengaturan maintenance berhasil diperbarui.')
+                ->with('_active_tab', 'maintenance');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Gagal memperbarui maintenance: '.$e->getMessage())
+                ->with('_active_tab', 'maintenance');
+        }
     }
 
     /**
      * Simpan API Keys ke database (bukan .env).
      */
-    public function updateApiKeys(Request $request)
+    public function updateApiKeys(Request $request): RedirectResponse
     {
         $request->validate([
-            'gemini_api_key'    => 'nullable|string|max:500',
+            'gemini_api_key' => 'nullable|string|max:500',
             'anthropic_api_key' => 'nullable|string|max:500',
         ]);
 
-        $setting = Settingwebsite::first();
-        if (! $setting) {
-            $setting = new Settingwebsite;
+        try {
+            $setting = $this->service->getSetting();
+            $this->service->updateApiKeys($setting, $request->only(['gemini_api_key', 'anthropic_api_key']));
+
+            return redirect()->route($this->routePrefix().'.settings.index')
+                ->with('success', 'API Keys berhasil disimpan ke database.')
+                ->with('_active_tab', 'apikeys');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Gagal menyimpan API Keys: '.$e->getMessage())
+                ->with('_active_tab', 'apikeys');
+        }
+    }
+
+    /**
+     * Simpan konfigurasi Urusin Secara Online (base URL + API key) ke database.
+     * Lihat .agent/workflows/data-entry-integrasi.md §3 untuk spesifikasi API-nya.
+     */
+    public function updateUrusinConfig(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'urusin_base_url' => 'nullable|url|max:255',
+            'urusin_api_key' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $setting = $this->service->getSetting();
+            $this->service->updateUrusinConfig($setting, $request->only(['urusin_base_url', 'urusin_api_key']));
+
+            return redirect()->route($this->routePrefix().'.settings.index')
+                ->with('success', 'Konfigurasi Urusin Secara Online berhasil disimpan.')
+                ->with('_active_tab', 'apikeys');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Gagal menyimpan konfigurasi Urusin Secara Online: '.$e->getMessage())
+                ->with('_active_tab', 'apikeys');
+        }
+    }
+
+    /**
+     * Test koneksi ke Urusin Secara Online (AJAX) — panggil GET /api/v1/me dengan
+     * konfigurasi yang baru saja disimpan.
+     */
+    public function testUrusinConnection(UrusinService $urusinService): JsonResponse
+    {
+        if (! $urusinService->isConfigured()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Base URL dan API Key belum diisi. Simpan konfigurasi terlebih dahulu.',
+            ], 422);
         }
 
-        $setting->gemini_api_key    = $request->input('gemini_api_key', '');
-        $setting->anthropic_api_key = $request->input('anthropic_api_key', '');
-        $setting->save();
+        $result = $urusinService->me();
 
-        return redirect()->route('superadmin.settings.index')
-            ->with('success', 'API Keys berhasil disimpan ke database.')
-            ->with('_active_tab', 'apikeys');
+        if (! $result['status']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['error'] ?? 'Gagal terhubung ke Urusin Secara Online.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Koneksi berhasil.',
+            'data' => $result['data'],
+            'mode' => $urusinService->detectMode(),
+        ]);
     }
 }

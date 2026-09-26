@@ -65,6 +65,8 @@
     @enderror
 </div>
 
+@push('scripts')
 <script>
     ClassicEditor.create(document.querySelector('#deskripsi')).catch(error => console.error(error));
 </script>
+@endpush

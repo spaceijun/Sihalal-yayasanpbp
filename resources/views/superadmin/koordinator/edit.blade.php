@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('template_title') Edit Koordinator @endsection
 @section('content')
 <div class="adm-page">
@@ -12,27 +12,27 @@
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Kembali
         </a>
     </div>
-    <div class="adm-form-section">
-        <div class="adm-form-section-header">
-            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            Edit Informasi Koordinator
+
+    <form id="formKoordinator" method="POST" action="{{ route($routePrefix . '.koordinators.update', $koordinator->hashed_id) }}" enctype="multipart/form-data">
+        @csrf
+        @method('PATCH')
+        @include('superadmin.koordinator.form')
+        <div class="adm-form-actions">
+            <button type="submit" class="adm-btn-primary" id="btnSimpanKoordinator">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Perubahan
+            </button>
+            <a href="{{ route($routePrefix . '.koordinators.index') }}" class="adm-btn-secondary">Batal</a>
         </div>
-        <form method="POST" action="{{ route($routePrefix . '.koordinators.update', $koordinator->hashed_id) }}" enctype="multipart/form-data">
-            @csrf
-            @method('PATCH')
-            <div class="adm-form-body">
-                <div class="adm-form-grid cols-2" style="gap:14px;">
-                    @include('superadmin.koordinator.form')
-                </div>
-            </div>
-            <div class="adm-form-actions">
-                <button type="submit" class="adm-btn-primary">
-                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Perubahan
-                </button>
-                <a href="{{ route($routePrefix . '.koordinators.index') }}" class="adm-btn-secondary">Batal</a>
-            </div>
-        </form>
-    </div>
+    </form>
 </div>
 @endsection
 
+@push('scripts')
+<script>
+    document.getElementById('formKoordinator').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSimpanKoordinator');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+    });
+</script>
+@endpush

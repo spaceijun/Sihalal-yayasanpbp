@@ -284,11 +284,12 @@
 
     @endif
 </div>
+@endsection
 
-{{-- ── JS Libraries (dipertahankan) ── --}}
+@push('scripts')
+{{-- SweetAlert2 sudah dimuat global di layouts/app.blade.php — hanya library yang belum global di sini --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     @if ($tipeFilter == 'bulanan' && $grafikHarian)
         const ctx = document.getElementById('chartHarian');
@@ -348,22 +349,23 @@
                 let filename = 'laporan-' + namaKoordinator.replace(/\s+/g,'-') + '-' + tipeData + '-' + tipeFilter + '-';
                 filename += (tipeFilter === 'harian' ? tanggal : bulan) + '.png';
                 link.download = filename; link.href = url; link.click();
-                if (typeof Swal !== 'undefined') { Swal.fire({ icon:'success', title:'Berhasil!', text:'Laporan '+namaKoordinator+' berhasil didownload', timer:2000, showConfirmButton:false }); }
-                else { alert('Laporan '+namaKoordinator+' berhasil didownload!'); }
+                Swal.fire({ toast: true, position: 'top-end', icon:'success', title:'Laporan '+namaKoordinator+' berhasil didownload', showConfirmButton: false, timer:2500, timerProgressBar: true });
             });
         }).catch(error => {
             noPrint.forEach(el => el.style.display = '');
             button.disabled = false; button.innerHTML = originalHTML;
-            if (typeof Swal !== 'undefined') { Swal.fire({ icon:'error', title:'Gagal!', text:'Terjadi kesalahan saat menggenerate gambar' }); }
-            else { alert('Gagal menggenerate gambar!'); }
+            Swal.fire({ toast: true, position: 'top-end', icon:'error', title:'Terjadi kesalahan saat menggenerate gambar', showConfirmButton: false, timer: 3000 });
             console.error('Error:', error);
         });
     }
 </script>
+@endpush
+
+@push('styles')
 <style>
     @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     .adm-toggle-btn { padding:6px 14px; font-size:12.5px; font-weight:600; cursor:pointer; background:#fff; color:var(--adm-text-muted); transition:all .15s; border:none; }
     .adm-toggle-btn:hover { background:var(--adm-blue-lt); color:var(--adm-blue); }
     @media print { .no-print { display:none !important; } }
 </style>
-@endsection
+@endpush

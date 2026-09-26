@@ -5,6 +5,7 @@
 @endsection
 
 @section('content')
+<div class="adm-page">
     {{-- ─── HEADER BANNER ─── --}}
     <div class="si-hero">
         <div class="si-hero-glow"></div>
@@ -440,7 +441,10 @@
             </div>
         </div>
     </div>
+</div>{{-- /adm-page --}}
+@endsection
 
+@push('styles')
     {{-- ─────────────────────── STYLES ─────────────────────── --}}
     <style>
         :root {
@@ -1181,6 +1185,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+@endpush
+
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
     <script>
@@ -1467,4 +1474,4 @@
 
         })();
     </script>
-@endsection
+@endpush

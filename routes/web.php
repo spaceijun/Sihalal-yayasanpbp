@@ -14,6 +14,11 @@ use App\Http\Controllers\DataEntry\TarikSaldoController;
 use App\Http\Controllers\DataEntry\TicketsEntryController;
 use App\Http\Controllers\Enumerator\DashboardEnumController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Koordinator\DashboardController as KoordinatorDashboardController;
+use App\Http\Controllers\Koordinator\DataLapanganController as KoordinatorDataLapanganController;
+use App\Http\Controllers\Koordinator\EnumeratorController as KoordinatorEnumeratorController;
+use App\Http\Controllers\Koordinator\PengumumanController as KoordinatorPengumumanController;
+use App\Http\Controllers\Koordinator\TiketController as KoordinatorTiketController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\AppVersionController as SuperadminAppVersionController;
 use App\Http\Controllers\Superadmin\CashflowController;
@@ -24,6 +29,7 @@ use App\Http\Controllers\Superadmin\DataEntryProgressController as SuperadminDat
 use App\Http\Controllers\Superadmin\DataLapanganController;
 use App\Http\Controllers\Superadmin\DiagnosticController;
 use App\Http\Controllers\Superadmin\EnumeratorController;
+use App\Http\Controllers\Superadmin\FeeEnumeratorController;
 use App\Http\Controllers\Superadmin\KoordinatorController;
 use App\Http\Controllers\Superadmin\KtpVerifikasiController;
 use App\Http\Controllers\Superadmin\LaporanHarianController;
@@ -44,6 +50,8 @@ use App\Http\Controllers\Superadmin\VerifikatorController;
 use App\Http\Controllers\Superadmin\VerifikatorPaymentController;
 use App\Http\Controllers\Superadmin\WaDeviceController;
 use App\Http\Controllers\Superadmin\WaGatewayConfigController;
+use App\Http\Controllers\Superadmin\WrgroupController;
+use App\Http\Controllers\Superadmin\WrgroupKomisiController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +70,8 @@ Route::get('/', function () {
             return redirect('/admin-umum');
         } elseif ($user->role === 'data-entry') {
             return redirect('/data-entry');
+        } elseif ($user->role === 'koordinator') {
+            return redirect('/koordinator/dashboard');
         }
 
         // Default redirect jika role lain
@@ -103,10 +113,14 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
 
         // Ranking Pendamping
         Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');
+        Route::get('/ranking-pendamping-data', [RankingPendampingController::class, 'data'])->name('ranking-pendamping.data');
 
         // Human Resources
         Route::resource('koordinators', KoordinatorController::class);
         Route::get('/koordinators-data', [KoordinatorController::class, 'data'])->name('koordinators.data');
+        Route::resource('fee-enumerator', FeeEnumeratorController::class);
+        Route::get('/fee-enumerator-data', [FeeEnumeratorController::class, 'data'])->name('fee-enumerator.data');
+        Route::post('/fee-enumerator/{feeEnumerator}/toggle', [FeeEnumeratorController::class, 'toggleAktif'])->name('fee-enumerator.toggle');
         Route::resource('data-entries', DataEntryController::class);
         Route::get('/data-entries-data', [DataEntryController::class, 'data'])->name('data-entries.data');
         Route::get('/enumerators/export-pdf', [EnumeratorController::class, 'exportPdf'])->name('enumerators.export-pdf');
@@ -148,6 +162,10 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
         // Tolak pengajuan pembayaran enumerator (Superadmin)
         Route::post('/data-lapangans/{id}/tolak-pembayaran', [DataLapanganController::class, 'tolakPembayaran'])->name('data-lapangans.tolak-pembayaran');
+        // Verifikasi final & integrasi Urusin Secara Online (.agent/workflows/data-entry-integrasi.md)
+        Route::post('/data-lapangans/{id}/update-data-usaha', [DataLapanganController::class, 'updateDataUsaha'])->name('data-lapangans.update-data-usaha');
+        Route::post('/data-lapangans/{id}/verifikasi-final', [DataLapanganController::class, 'verifikasiFinal'])->name('data-lapangans.verifikasi-final');
+        Route::post('/data-lapangans/{id}/retry-urusin', [DataLapanganController::class, 'retryUrusin'])->name('data-lapangans.retry-urusin');
         // Tagihan Data Entry (riwayat saja, approve via menu Penarikan Saldo)
         Route::get('/penagihan', [DataEntryPenagihanController::class, 'index'])->name('penagihan.index');
         Route::post('/penagihan/{penagihan}/approve', [DataEntryPenagihanController::class, 'approve'])->name('penagihan.approve');
@@ -156,6 +174,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/penagihan/{penagihan}/receipt', [DataEntryPenagihanController::class, 'downloadReceipt'])->name('penagihan.receipt');
         // Penarikan Saldo Data Entry
         Route::get('/penarikan-saldo', [PenarikanSaldoController::class, 'index'])->name('penarikan-saldo.index');
+        Route::get('/penarikan-saldo-data', [PenarikanSaldoController::class, 'data'])->name('penarikan-saldo.data');
         Route::post('/penarikan-saldo/{penarikan}/setujui', [PenarikanSaldoController::class, 'setujui'])->name('penarikan-saldo.setujui');
         Route::post('/penarikan-saldo/{penarikan}/tolak', [PenarikanSaldoController::class, 'tolak'])->name('penarikan-saldo.tolak');
         // Verifikators
@@ -165,6 +184,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('verifikator-payments', VerifikatorPaymentController::class);
         // Spotcheck
         Route::resource('spotchecks', SpotcheckController::class);
+        Route::get('/spotchecks-data', [SpotcheckController::class, 'data'])->name('spotchecks.data');
         // Recruitment — Lowongan Pekerjaan
         Route::get('recruitment-posts-data', [RecruitmentPostController::class, 'data'])->name('recruitment-posts.data');
         Route::patch('recruitment-posts/{id}/toggle', [RecruitmentPostController::class, 'toggle'])->name('recruitment-posts.toggle');
@@ -177,6 +197,22 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::resource('arus-kas', CashflowController::class);
         Route::get('/cashflows/data', [CashflowController::class, 'getData'])->name('cashflows.data');
         Route::get('/cashflows', [CashflowController::class, 'cashflows'])->name('cashflow.index');
+
+        // WRGROUP Super Apps — lihat .agent/workflows/wrgroup-integrasi.md
+        Route::prefix('wrgroup')->name('wrgroup.')->group(function () {
+            Route::get('/', [WrgroupController::class, 'index'])->name('index');
+            Route::get('/data', [WrgroupController::class, 'data'])->name('data');
+            Route::get('/events/{event}', [WrgroupController::class, 'show'])->name('show');
+            Route::post('/events/{event}/retry', [WrgroupController::class, 'retry'])->name('retry')->middleware('throttle:10,1');
+            Route::post('/heartbeat', [WrgroupController::class, 'heartbeat'])->name('heartbeat')->middleware('throttle:10,1');
+            Route::post('/process', [WrgroupController::class, 'process'])->name('process')->middleware('throttle:10,1');
+            Route::post('/resume', [WrgroupController::class, 'resume'])->name('resume')->middleware('throttle:10,1');
+            Route::post('/nihil', [WrgroupController::class, 'nihil'])->name('nihil')->middleware('throttle:10,1');
+
+            Route::get('/komisi', [WrgroupKomisiController::class, 'index'])->name('komisi.index');
+            Route::post('/komisi/{referensi}/pembayaran', [WrgroupKomisiController::class, 'ajukan'])->name('komisi.ajukan')->middleware('throttle:10,1');
+            Route::post('/komisi-pembayaran/{pembayaran}/ulangi', [WrgroupKomisiController::class, 'ulangi'])->name('komisi.ulangi')->middleware('throttle:10,1');
+        });
         // WA Gateway - Kawalaku Gateway
         Route::resource('wa-devices', WaDeviceController::class)->names([
             'index' => 'wa-devices.index',
@@ -187,6 +223,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             'update' => 'wa-devices.update',
             'destroy' => 'wa-devices.destroy',
         ]);
+        Route::get('wa-devices-data', [WaDeviceController::class, 'data'])->name('wa-devices.data');
         Route::post('wa-devices/{hashedId}/connect', [WaDeviceController::class, 'connect'])->name('wa-devices.connect');
         Route::post('wa-devices/{hashedId}/disconnect', [WaDeviceController::class, 'disconnect'])->name('wa-devices.disconnect');
         Route::post('wa-devices/{hashedId}/generate-qr', [WaDeviceController::class, 'generateQr'])->name('wa-devices.generate-qr');
@@ -230,6 +267,7 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
         Route::get('/users-data', [UserController::class, 'data'])->name('users.data');
         // Ticket (Data Entry)
         Route::resource('tickets', TicketController::class)->only(['index', 'show', 'destroy']);
+        Route::get('/tickets-data', [TicketController::class, 'data'])->name('tickets.data');
         Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
 
         // Ticket Pendamping (Enumerator)
@@ -246,6 +284,8 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::put('/settings/env', [SettingwebsiteController::class, 'updateEnv'])->name('env.update');
             Route::post('/settings/maintenance', [SettingwebsiteController::class, 'updateMaintenance'])->name('maintenance.update');
             Route::post('/settings/api-keys', [SettingwebsiteController::class, 'updateApiKeys'])->name('api-keys.update');
+            Route::post('/settings/urusin', [SettingwebsiteController::class, 'updateUrusinConfig'])->name('urusin.update');
+            Route::get('/settings/urusin/test', [SettingwebsiteController::class, 'testUrusinConnection'])->name('urusin.test');
         });
         // Profile
         Route::prefix('profile')->name('profile.')->group(function () {
@@ -321,6 +361,10 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         Route::get('/datalapangan/{id}/download-foto-produk', [DataLapanganController::class, 'downloadFotoProduk'])->name('datalapangan.download-foto-produk');
         Route::post('/data-lapangans/{id}/update-email', [DataLapanganController::class, 'updateEmail'])->name('data-lapangans.update-email');
         Route::patch('/data-lapangans/{id}/update-email-sihalal', [DataLapanganController::class, 'updateEmailSihalal'])->name('data-lapangans.update-email-sihalal');
+        // Verifikasi final & integrasi Urusin Secara Online (.agent/workflows/data-entry-integrasi.md)
+        Route::post('/data-lapangans/{id}/update-data-usaha', [DataLapanganController::class, 'updateDataUsaha'])->name('data-lapangans.update-data-usaha');
+        Route::post('/data-lapangans/{id}/verifikasi-final', [DataLapanganController::class, 'verifikasiFinal'])->name('data-lapangans.verifikasi-final');
+        Route::post('/data-lapangans/{id}/retry-urusin', [DataLapanganController::class, 'retryUrusin'])->name('data-lapangans.retry-urusin');
         // Catatan: Fitur ajukanPembayaran dihapus — pengajuan dilakukan mandiri oleh enumerator via Flutter API
 
         // Laporan Harian
@@ -329,6 +373,9 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
         // Human Resources — Koordinator
         Route::resource('koordinators', KoordinatorController::class);
         Route::get('/koordinators-data', [KoordinatorController::class, 'data'])->name('koordinators.data');
+        Route::resource('fee-enumerator', FeeEnumeratorController::class);
+        Route::get('/fee-enumerator-data', [FeeEnumeratorController::class, 'data'])->name('fee-enumerator.data');
+        Route::post('/fee-enumerator/{feeEnumerator}/toggle', [FeeEnumeratorController::class, 'toggleAktif'])->name('fee-enumerator.toggle');
 
         // Human Resources — Data Entry
         Route::resource('data-entries', DataEntryController::class);
@@ -358,9 +405,11 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
 
         // Ranking Pendamping
         Route::get('ranking-pendamping', [RankingPendampingController::class, 'index'])->name('ranking-pendamping.index');
+        Route::get('/ranking-pendamping-data', [RankingPendampingController::class, 'data'])->name('ranking-pendamping.data');
 
         // Spotcheck
         Route::resource('spotchecks', SpotcheckController::class);
+        Route::get('/spotchecks-data', [SpotcheckController::class, 'data'])->name('spotchecks.data');
 
         // Recruitment — Lowongan Pekerjaan
         Route::get('recruitment-posts-data', [RecruitmentPostController::class, 'data'])->name('recruitment-posts.data');
@@ -382,6 +431,7 @@ Route::middleware('auth', 'role:admin_umum')->group(function () {
 
         // Ticket (Data Entry)
         Route::resource('tickets', TicketController::class)->only(['index', 'show', 'destroy']);
+        Route::get('/tickets-data', [TicketController::class, 'data'])->name('tickets.data');
         Route::patch('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
 
         // Ticket Pendamping (Enumerator)
@@ -482,6 +532,30 @@ Route::middleware('auth', 'role:enumerator')->group(function () {
         Route::get('progress', [DataEntryProgressController::class, 'index'])->name('progress.index');
         Route::get('progress/{id}', [DataEntryProgressController::class, 'show'])->name('progress.show');
     });
+});
+
+// Portal Koordinator — dashboard analytics, data enumerator, verifikasi lapangan, pengumuman, tiket
+Route::middleware('auth', 'role:koordinator')->prefix('koordinator')->name('koordinator.')->group(function () {
+    Route::get('/', [KoordinatorDashboardController::class, 'index']);
+    Route::get('dashboard', [KoordinatorDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('enumerator', [KoordinatorEnumeratorController::class, 'index'])->name('enumerator.index');
+    Route::get('enumerator-data', [KoordinatorEnumeratorController::class, 'data'])->name('enumerator.data');
+    Route::get('enumerator/{enumerator}', [KoordinatorEnumeratorController::class, 'show'])->name('enumerator.show');
+
+    Route::get('data-lapangan', [KoordinatorDataLapanganController::class, 'index'])->name('data-lapangan.index');
+    Route::get('data-lapangan-data', [KoordinatorDataLapanganController::class, 'data'])->name('data-lapangan.data');
+    Route::get('data-lapangan/{dataLapangan}', [KoordinatorDataLapanganController::class, 'show'])->name('data-lapangan.show');
+    Route::post('data-lapangan/{dataLapangan}/verifikasi', [KoordinatorDataLapanganController::class, 'verifikasi'])->name('data-lapangan.verifikasi');
+
+    Route::get('pengumuman', [KoordinatorPengumumanController::class, 'index'])->name('pengumuman.index');
+    Route::get('pengumuman/{pengumuman}', [KoordinatorPengumumanController::class, 'show'])->name('pengumuman.show');
+
+    Route::get('tiket', [KoordinatorTiketController::class, 'index'])->name('tiket.index');
+    Route::get('tiket-data', [KoordinatorTiketController::class, 'data'])->name('tiket.data');
+    Route::get('tiket/create', [KoordinatorTiketController::class, 'create'])->name('tiket.create');
+    Route::post('tiket', [KoordinatorTiketController::class, 'store'])->name('tiket.store');
+    Route::get('tiket/{ticket}', [KoordinatorTiketController::class, 'show'])->name('tiket.show');
 });
 
 require __DIR__.'/auth.php';

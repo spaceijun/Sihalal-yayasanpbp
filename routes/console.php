@@ -27,3 +27,25 @@ Schedule::call(function () {
 Schedule::call(function () {
     Artisan::call('dataentry:expire-revisi');
 })->dailyAt('02:00')->name('dataentry:expire-revisi')->withoutOverlapping();
+
+// Polling status NIB & Sertifikat Halal dari Urusin Secara Online — lihat
+// app/Console/Commands/SyncUrusinSubmissions.php & .agent/workflows/data-entry-integrasi.md §5.4.
+Schedule::call(function () {
+    Artisan::call('urusin:sync');
+})->everyThirtyMinutes()->name('urusin:sync')->withoutOverlapping();
+
+// Modul WRGROUP Super Apps — kirim event outbox (retry + backoff; tetap jalan bila queue
+// worker mati), heartbeat status koneksi, dan laporan nihil triwulan. Semua no-op bila
+// WRGROUP_ENABLED=false. Lihat .agent/workflows/wrgroup-integrasi.md.
+Schedule::call(function () {
+    Artisan::call('wrgroup:backfill');
+})->dailyAt('02:30')->name('wrgroup:backfill')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:process');
+})->everyMinute()->name('wrgroup:process')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:heartbeat');
+})->everyFiveMinutes()->name('wrgroup:heartbeat')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:nihil');
+})->dailyAt('03:00')->name('wrgroup:nihil')->withoutOverlapping();

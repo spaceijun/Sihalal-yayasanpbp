@@ -51,6 +51,36 @@ class WrgroupClient
     }
 
     /**
+     * GET {api_url}{path} yang membalas file mentah (bukan JSON) — dipakai mengunduh PDF surat yang
+     * sudah terbit dari modul Surat WRGROUP. Baru ditambahkan untuk modul itu; endpoint outbox lain
+     * (invoice/payment/nihil/heartbeat/komisi) semuanya balasan JSON lewat get()/post() di atas.
+     *
+     * @return array{status:int, body:?string, error:?string}
+     */
+    public function getBinary(string $path): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer '.config('wrgroup.api_key').':'.config('wrgroup.api_secret'),
+                'X-Business-ID' => (string) config('wrgroup.business_id'),
+            ])
+                ->timeout((int) config('wrgroup.http_timeout'))
+                ->connectTimeout(5)
+                ->withOptions(['verify' => (bool) config('wrgroup.http_verify')])
+                ->withoutRedirecting()
+                ->get(rtrim((string) config('wrgroup.api_url'), '/').$path);
+        } catch (ConnectionException $e) {
+            return ['status' => 0, 'body' => null, 'error' => 'Koneksi gagal: '.$e->getMessage()];
+        }
+
+        return [
+            'status' => $response->status(),
+            'body' => $response->successful() ? $response->body() : null,
+            'error' => $response->successful() ? null : mb_substr(trim((string) $response->body()), 0, 300),
+        ];
+    }
+
+    /**
      * POST multipart/form-data ke {api_url}{path} — dipakai submisi yang membawa lampiran file
      * (bukti setoran komisi). Bentuk hasil sama dengan post()/get().
      *

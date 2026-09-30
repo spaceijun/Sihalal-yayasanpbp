@@ -52,6 +52,7 @@ use App\Http\Controllers\Superadmin\WaDeviceController;
 use App\Http\Controllers\Superadmin\WaGatewayConfigController;
 use App\Http\Controllers\Superadmin\WrgroupController;
 use App\Http\Controllers\Superadmin\WrgroupKomisiController;
+use App\Http\Controllers\Superadmin\WrgroupSuratController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -212,6 +213,18 @@ Route::middleware('auth', 'role:superadmin')->group(function () {
             Route::get('/komisi', [WrgroupKomisiController::class, 'index'])->name('komisi.index');
             Route::post('/komisi/{referensi}/pembayaran', [WrgroupKomisiController::class, 'ajukan'])->name('komisi.ajukan')->middleware('throttle:10,1');
             Route::post('/komisi-pembayaran/{pembayaran}/ulangi', [WrgroupKomisiController::class, 'ulangi'])->name('komisi.ulangi')->middleware('throttle:10,1');
+        });
+
+        // Surat WRGROUP — Buat & arsip surat lewat modul Pembuat Surat WRGROUP (lihat
+        // .agent/workflows/wrgroup-integrasi.md). Prefix TERPISAH dari fitur "surat tugas"
+        // enumerator (SuratTugasPdfController) yang sudah ada dan tidak terkait sama sekali.
+        Route::prefix('wrgroup-surat')->name('wrgroup-surat.')->group(function () {
+            Route::get('/', [WrgroupSuratController::class, 'index'])->name('index');
+            Route::get('/buat', [WrgroupSuratController::class, 'create'])->name('create');
+            Route::post('/buat', [WrgroupSuratController::class, 'store'])->name('store')->middleware('throttle:10,1');
+            Route::get('/{surat}', [WrgroupSuratController::class, 'show'])->name('show');
+            Route::post('/{surat}/ulangi', [WrgroupSuratController::class, 'ulangi'])->name('ulangi')->middleware('throttle:10,1');
+            Route::get('/{surat}/pdf', [WrgroupSuratController::class, 'pdf'])->name('pdf');
         });
         // WA Gateway - Kawalaku Gateway
         Route::resource('wa-devices', WaDeviceController::class)->names([

@@ -117,6 +117,7 @@
                             <th class="tr">Jumlah</th>
                             <th>Dikirim Oleh</th>
                             <th class="tc">Status</th>
+                            <th class="tc">Verifikasi WRGROUP</th>
                             <th class="tc" style="width:90px">Aksi</th>
                         </tr>
                     </thead>
@@ -137,6 +138,18 @@
                                     @endif
                                 </td>
                                 <td class="tc">
+                                    @if ($r->berhasil)
+                                        <span class="adm-badge {{ $r->status_verifikasi_badge_class }}">{{ $r->status_verifikasi_label }}</span>
+                                        @if ($r->dibukukan_at)
+                                            <div style="font-size:11px;color:var(--adm-text-faint);margin-top:2px;">Dibukukan ke Arus Kas</div>
+                                        @elseif ($r->status_verifikasi === 'ditolak' && $r->catatan_verifikasi)
+                                            <div style="font-size:11px;color:var(--adm-text-faint);margin-top:2px;">{{ $r->catatan_verifikasi }}</div>
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td class="tc">
                                     @if ($r->berhasil === false)
                                         <form action="{{ route('superadmin.wrgroup.komisi.ulangi', $r->hashed_id) }}" method="POST">
                                             @csrf
@@ -146,7 +159,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" style="text-align:center;color:var(--adm-text-faint);">Belum ada pengajuan pembayaran komisi.</td></tr>
+                            <tr><td colspan="7" style="text-align:center;color:var(--adm-text-faint);">Belum ada pengajuan pembayaran komisi.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

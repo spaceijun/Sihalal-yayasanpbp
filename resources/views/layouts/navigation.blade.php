@@ -211,8 +211,14 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ url('superadmin/wrgroup') }}"
-                        class="nav-link {{ Request::is('superadmin/wrgroup*') ? 'active' : '' }}">
+                        class="nav-link {{ Request::is('superadmin/wrgroup') || Request::is('superadmin/wrgroup/*') ? 'active' : '' }}">
                         <i data-feather="share-2"></i>WRGROUP Super Apps
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('superadmin/wrgroup-surat') }}"
+                        class="nav-link {{ Request::is('superadmin/wrgroup-surat*') ? 'active' : '' }}">
+                        <i data-feather="file-text"></i>Surat WRGROUP
                     </a>
                 </li>
                 <li class="nav-item">

@@ -2,9 +2,11 @@
 
 namespace App\Services\Integrasi\Wrgroup;
 
+use App\Models\Cashflow;
 use App\Models\Superadmin\WrgroupKomisiPembayaran;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -56,6 +58,97 @@ class WrgroupKomisiService
     public function ulangi(WrgroupKomisiPembayaran $row): WrgroupKomisiPembayaran
     {
         return $this->kirim($row);
+    }
+
+    /**
+     * Ambil status verifikasi setoran dari WRGROUP (GET /komisi/periode, dicocokkan lewat event_id)
+     * dan bukukan setoran yang TERVERIFIKASI sebagai Pengeluaran di Arus Kas — sekali per setoran,
+     * tanggal = tanggal_transaksi_bank (sama dengan pendapatan yang dibukukan WRGROUP). Setoran ditolak
+     * tidak dibukukan. Dipanggil terjadwal (wrgroup:komisi-sync).
+     *
+     * @return array{ok: bool, diperbarui: int, dibukukan: int, error: ?string}
+     */
+    public function sinkronVerifikasi(): array
+    {
+        $belumFinal = WrgroupKomisiPembayaran::where('berhasil', true)
+            ->where(fn ($q) => $q->whereNull('status_verifikasi')->orWhereNotIn('status_verifikasi', WrgroupKomisiPembayaran::STATUS_FINAL))
+            ->get();
+
+        // Setoran terverifikasi yang belum sempat dibukukan (mis. proses sebelumnya terhenti) ikut diproses.
+        $belumDibukukan = WrgroupKomisiPembayaran::where('status_verifikasi', 'terverifikasi')->whereNull('dibukukan_at')->get();
+
+        if ($belumFinal->isEmpty() && $belumDibukukan->isEmpty()) {
+            return ['ok' => true, 'diperbarui' => 0, 'dibukukan' => 0, 'error' => null];
+        }
+
+        $diperbarui = 0;
+        $dibukukan = 0;
+
+        if ($belumFinal->isNotEmpty()) {
+            $daftar = $this->daftarPeriode();
+            if (! $daftar['ok']) {
+                return ['ok' => false, 'diperbarui' => 0, 'dibukukan' => 0, 'error' => $daftar['error']];
+            }
+
+            $remote = collect($daftar['data'])
+                ->flatMap(fn (array $periode) => $periode['pembayaran'] ?? [])
+                ->filter(fn (array $bayar) => filled($bayar['event_id'] ?? null))
+                ->keyBy('event_id');
+
+            foreach ($belumFinal as $row) {
+                $bayar = $remote->get($row->event_id);
+                if (! $bayar || ($bayar['status'] ?? null) === $row->status_verifikasi) {
+                    continue;
+                }
+
+                $row->update([
+                    'status_verifikasi' => $bayar['status'],
+                    'diverifikasi_at' => $bayar['diverifikasi_at'] ?? null,
+                    'catatan_verifikasi' => $bayar['catatan'] ?? null,
+                ]);
+                $diperbarui++;
+
+                if ($row->status_verifikasi === 'terverifikasi') {
+                    $belumDibukukan->push($row);
+                }
+            }
+        }
+
+        foreach ($belumDibukukan->unique('id') as $row) {
+            if ($this->bukukan($row)) {
+                $dibukukan++;
+            }
+        }
+
+        return ['ok' => true, 'diperbarui' => $diperbarui, 'dibukukan' => $dibukukan, 'error' => null];
+    }
+
+    /**
+     * Idempoten: baris dikunci & dibaca ulang di dalam transaksi, dan dibukukan_at yang sudah terisi
+     * tidak pernah dibukukan ulang — walau entri Arus Kasnya kemudian dihapus manual oleh staf.
+     */
+    protected function bukukan(WrgroupKomisiPembayaran $row): bool
+    {
+        return DB::transaction(function () use ($row) {
+            $terkunci = WrgroupKomisiPembayaran::whereKey($row->id)->lockForUpdate()->first();
+            if (! $terkunci || $terkunci->dibukukan_at !== null || $terkunci->status_verifikasi !== 'terverifikasi') {
+                return false;
+            }
+
+            $cashflow = Cashflow::create([
+                'tipe' => 'Pengeluaran',
+                'sumber' => Cashflow::SUMBER_KOMISI_WRGROUP,
+                'jumlah' => $terkunci->jumlah,
+                'tanggal' => $terkunci->tanggal_transaksi_bank->toDateString(),
+                'keterangan' => "Setoran komisi WRGROUP periode {$terkunci->periode}"
+                    .($terkunci->referensi_bank ? " (ref. {$terkunci->referensi_bank})" : '')
+                    .' — terverifikasi WRGROUP',
+            ]);
+
+            $terkunci->update(['cashflow_id' => $cashflow->id, 'dibukukan_at' => now()]);
+
+            return true;
+        });
     }
 
     protected function kirim(WrgroupKomisiPembayaran $row): WrgroupKomisiPembayaran

@@ -137,6 +137,7 @@
                     <option value="invoice">Invoice</option>
                     <option value="payment">Pembayaran</option>
                     <option value="nihil">Laporan Nihil</option>
+                    <option value="pendapatan_bersih">Pendapatan Bersih</option>
                 </select>
             </div>
             <div class="table-responsive">

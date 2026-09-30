@@ -31,6 +31,7 @@ class WrgroupDeliveryService
         'refund' => '/events/refund',
         'payment' => '/events/payment',
         'nihil' => '/reports/nihil',
+        'pendapatan_bersih' => '/reports/pendapatan-bersih',
     ];
 
     /** Klaim yang lebih tua dari ini dianggap milik proses yang mati. */

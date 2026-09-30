@@ -49,3 +49,12 @@ Schedule::call(function () {
 Schedule::call(function () {
     Artisan::call('wrgroup:nihil');
 })->dailyAt('03:00')->name('wrgroup:nihil')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:pendapatan-bersih');
+})->hourly()->name('wrgroup:pendapatan-bersih')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:surat-sync');
+})->everyFiveMinutes()->name('wrgroup:surat-sync')->withoutOverlapping();
+Schedule::call(function () {
+    Artisan::call('wrgroup:komisi-sync');
+})->everyFifteenMinutes()->name('wrgroup:komisi-sync')->withoutOverlapping();

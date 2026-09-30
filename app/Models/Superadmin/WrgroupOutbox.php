@@ -59,6 +59,7 @@ class WrgroupOutbox extends Model
         'refund' => 'Refund',
         'payment' => 'Pembayaran',
         'nihil' => 'Laporan Nihil',
+        'pendapatan_bersih' => 'Pendapatan Bersih',
     ];
 
     public const STATUS_LABEL = [

@@ -51,17 +51,16 @@ class WrgroupEventService
     // --- Kasus sertifikasi (DataLapangan) -------------------------------------
 
     /**
-     * Kasus sertifikasi lunas (status_pembayaran → DIBAYAR) → invoice + pembayaran WRGROUP,
-     * dicatat bersamaan dari satu titik pemicu (meniru recordSalePaid() di reference — Kawulo
-     * Halal tidak punya invoice yang terbit terpisah dari payment, jadi tidak ada syncInvoice()/
-     * recordPayment() terpisah seperti InvoiceObserver/PaymentObserver reference).
+     * DIMATIKAN: fee yang dipakai invoiceDoc()/paymentDoc() adalah honor enumerator/pendamping —
+     * PENGELUARAN Kawulo Halal, bukan pemasukannya — sehingga sebelumnya menjadikan dasar komisi
+     * WRGROUP salah satu angka pengeluaran KH. Dasar komisi KH sekarang dari laporan pendapatan
+     * bersih periodik ledger Arus Kas (Pemasukan − Pengeluaran), lihat reportPendapatanBersih() dan
+     * .agent/workflows/wrgroup-integrasi.md § Pendapatan Bersih. Baris WrgroupOutbox lama (endpoint
+     * invoice/payment yang sudah terlanjur terkirim) dibiarkan sebagai riwayat, tidak dihapus.
      */
     public function recordDataLapanganPaid(DataLapangan $dataLapangan): void
     {
-        $this->guard(function () use ($dataLapangan) {
-            $this->record('invoice', $this->builder->invoiceDoc($dataLapangan), $dataLapangan);
-            $this->record('payment', $this->builder->paymentDoc($dataLapangan), $dataLapangan);
-        });
+        // no-op — lihat penjelasan di atas.
     }
 
     // --- Laporan nihil -------------------------------------------------------
@@ -128,6 +127,56 @@ class WrgroupEventService
             ->whereRaw('UPPER(status_pembayaran) = ?', ['DIBAYAR'])
             ->whereBetween('updated_at', [$start, $end])
             ->exists();
+    }
+
+    // --- Laporan pendapatan bersih --------------------------------------------
+
+    /**
+     * Catat/koreksi laporan pendapatan bersih (Pemasukan − Pengeluaran dari ledger Arus Kas) untuk
+     * satu triwulan — dasar komisi/CSR KH di WRGROUP, menggantikan invoice per-kasus (lihat
+     * recordDataLapanganPaid()). Boleh dipanggil berulang dengan nilai baru: baris outbox baru
+     * hanya dibuat bila nilainya berubah (hash, sama seperti record() untuk invoice/payment).
+     * WRGROUP sendiri MENIMPA (bukan menjumlah) nilai lama dengan yang terbaru per triwulan — versi
+     * di sini murni bookkeeping lokal untuk idempotency, tidak dikirim sebagai field ke WRGROUP.
+     *
+     * @return array{ok:bool, message:string, row:?WrgroupOutbox}
+     */
+    public function reportPendapatanBersih(string $period, float $nilai, ?string $catatan = null): array
+    {
+        if (! $this->enabled()) {
+            return $this->nihilResult(false, 'Integrasi WRGROUP tidak aktif (WRGROUP_ENABLED).');
+        }
+        if (! $this->builder->isValidPeriod($period)) {
+            return $this->nihilResult(false, 'Format periode harus YYYY-Qn, mis. 2026-Q2.');
+        }
+
+        [$start] = $this->builder->periodRange($period);
+        if ($start->isFuture()) {
+            return $this->nihilResult(false, "Triwulan {$period} belum dimulai.");
+        }
+
+        $payload = array_filter(
+            ['periode' => $period, 'nilai' => $nilai, 'catatan' => $catatan],
+            fn ($v) => $v !== null,
+        );
+        $hash = $this->hashData($payload);
+
+        return DB::transaction(function () use ($period, $payload, $hash) {
+            $last = WrgroupOutbox::where('endpoint', 'pendapatan_bersih')
+                ->where('transaction_id', 'PB-'.$period)
+                ->orderByDesc('version')
+                ->lockForUpdate()
+                ->first();
+
+            if ($last && $last->payload_hash === $hash) {
+                return $this->nihilResult(true, "Laporan pendapatan bersih {$period} sudah sesuai (tidak ada perubahan).", $last);
+            }
+
+            $version = ($last?->version ?? 0) + 1;
+            $row = $this->createRow('pendapatan_bersih', 'PB-'.$period, $version, 'report.pendapatan_bersih', $period, null, $payload, $payload);
+
+            return $this->nihilResult((bool) $row, $row ? "Laporan pendapatan bersih {$period} masuk antrian pengiriman." : 'Gagal mencatat laporan.', $row);
+        });
     }
 
     // --- internal ------------------------------------------------------------
